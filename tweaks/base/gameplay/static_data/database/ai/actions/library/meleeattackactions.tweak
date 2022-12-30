@@ -1,0 +1,5543 @@
+package MeleeActions
+using RTDB, MovementActions, DashAndDodgeActions, CombatDecorator, AIActionTarget
+
+DeflectReactionCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.DeflectReactionSelectorDefinition"
+	];
+}
+
+DeflectReactionSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.DeflectedDefaultDefinition"
+	];
+	defaultAction = "MeleeActions.DeflectedDefaultDefinition";
+}
+
+MeleeTauntSupportAreaSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.MeleeTauntSupportAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntCombatAreaSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.MeleeTauntCombatAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SimpleMeleeTauntCombatAreaSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.SimpleMeleeTauntCombatAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntContactAreaSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.MeleeTauntContactAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntHitReactionSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.MeleeTauntHitReactionDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntPreAttackSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeActions.MeleeTauntPreAttackDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SupportTauntsConditionDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.TauntBackground"
+	];
+	cooldowns = 
+	[
+		{
+			name = "TauntCooldown";
+			duration = 1.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInterruptTaunts", "Condition.TargetBelow12m", "Condition.TargetPOVBelow90deg", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.HasMeleeWeapon", "Condition.AbilityCanTaunt", "Condition.NotTicketEquip", "Condition.NotMeleeStatesExceptTauntConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeTauntSupportAreaDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "TauntCooldown";
+			duration = 1.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow12m", "Condition.TargetPOVBelow90deg", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.HasMeleeWeapon", "Condition.AbilityCanTaunt", "Condition.NotTicketEquip", "Condition.NotMeleeStatesExceptTauntConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "ForceStagger";
+			upperBodyState = "Taunt";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptTaunts"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "MeleeSupportTaunt";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.5f;
+}
+
+CombatTauntsConditionDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Taunt"
+	];
+	cooldowns = 
+	[
+		{
+			name = "TauntCooldown";
+			duration = 1.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInterruptTaunts", "Condition.TargetAbove2m", "Condition.TargetBelow7m", "Condition.TargetPOVBelow60deg", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.HasMeleeWeapon", "Condition.AbilityCanTaunt", "Condition.NotTicketEquip", "Condition.NotMeleeStatesExceptTauntConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeTauntCombatAreaDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "TauntCooldown";
+			duration = 1.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove2m", "Condition.TargetBelow7m", "Condition.TargetPOVAbove15deg", "Condition.TargetPOVBelow60deg", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.HasMeleeWeapon", "Condition.AbilityCanTaunt", "Condition.NotAbilityIsReckless", "Condition.NotTicketEquip", "Condition.NotMeleeStatesExceptTauntConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "ForceStagger";
+			upperBodyState = "Taunt";
+		};
+	};
+	animData = 
+	{
+		animFeature = "MeleeCombatTaunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SimpleMeleeTauntCombatAreaDefinition : MeleeTauntCombatAreaDefinition
+{
+	animData = 
+	{
+		animFeature = "MeleeCombatTaunt";
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1, 2, 3
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+		};
+	};
+}
+
+HitReactionTauntConditionDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Taunt"
+	];
+	cooldowns = 
+	[
+		{
+			name = "HitTauntCooldown";
+			duration = 5.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInterruptTaunts", "Condition.TargetAbove4m", "Condition.TargetHasMeleeWeapon", "Condition.HitTimeout4MinSeverity2MaxSeverity6", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.HasMeleeWeapon", "Condition.AbilityCanTaunt", "Condition.NotAbilityIsReckless", "Condition.NotTicketEquip", "Condition.NotMeleeStatesExceptTauntConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeTauntPreAttackConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove3m", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeTauntHitReactionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HitTauntCooldown";
+			duration = 5.f;
+		}
+	];
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	animData = 
+	{
+		animFeature = "MeleeHitReactionTaunt";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.3f;
+}
+
+MeleeTauntPreAttackDefinition : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	animData = 
+	{
+		animFeature = "MeleeHitReactionTaunt";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.3f;
+}
+
+MeleeTauntContactAreaDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "TauntCooldown";
+			duration = 1.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow4m", "Condition.AbilityCanTaunt", "Condition.HasMeleeWeapon", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "MeleeContactTaunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeAttackCommandCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIMeleeAttackCommand"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeBaseConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.HasPrimaryEquipmentMeleeInInventory", "Condition.HasMeleeWeapon"
+			];
+		} : AIActionOR;
+	};
+}
+
+MeleePushAttack01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon", "Condition.TargetInStatesBlock", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanUseLegs", "Condition.AbilityCanGuardBreak", "Condition.PushAttackCooldown", "Condition.CalculatePathStraightToTarget", "Condition.TargetBelow2m"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCloseAttackLightLeft01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeCloseAttackDirectionalCondition", "Condition.TargetBetween120and270deg", "Condition.TargetLeft"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCloseAttackLightRight01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeCloseAttackDirectionalCondition", "Condition.TargetBetween120and270deg", "Condition.TargetRight"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCloseAttackLightBack01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeCloseAttackDirectionalCondition", "Condition.TargetBack"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCloseAttackLight01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeCloseAttackFrontCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCloseAttackLight02ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeCloseAttackFrontCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackLight01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackLight01SandevistanConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackSandevistanCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackLight02ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackLight02SandevistanConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackSandevistanCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackLight03ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackLight03SandevistanConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackSandevistanCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeStrongSingle01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeStrongSingle01SandevistanConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackSandevistanCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeStrongSingle02ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeStrongSingle02SandevistanConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeAttackSandevistanCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeChargeSandevistan01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeChargeSandevistanCondition", "Condition.TargetAbove4m", "Condition.TargetBelow120deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeChargeSandevistan02ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeChargeSandevistanCondition", "Condition.TargetAbove4m", "Condition.TargetBelow120deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeChargeSandevistan03ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeChargeSandevistanCondition", "Condition.TargetAbove4m", "Condition.TargetBelow45deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeChargeJump01ConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "ChargeAttack";
+			duration = 6.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeChargeJumpCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeChargeJump02ConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "ChargeAttack";
+			duration = 6.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeChargeJumpCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeWoundedAttackLeftHandConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Wounded", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanUseLegs", "Condition.CalculatePathToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeWoundedAttackRightHandConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Wounded", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLegs", "Condition.CalculatePathToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeBlockDodge01ConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanBlock", "Condition.MinMaxBlockCount4"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeParry01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeParry01Definition"
+	];
+}
+
+MeleeBlock01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeBlock01Definition"
+	];
+}
+
+MeleeKerenzikovDodge01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.Success"
+	];
+}
+
+MeleeBlockDodge01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeBlockDodge01Definition"
+	];
+}
+
+MeleeBlockDodgeToParry01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeBlockDodgeToParry01Definition"
+	];
+}
+
+MeleePushAttack01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleePushAttack01Definition"
+	];
+}
+
+MeleeBaseSmartComposite : AIActionSmartComposite
+{
+	gracefulInterruptionConditionCheckInterval = 0.4f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.CombatTargetChanged"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+MeleeLightCloseSingleLeft01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCloseSingleLeft01Definition"
+	];
+}
+
+MeleeLightCloseSingleRight01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCloseSingleRight01Definition"
+	];
+}
+
+MeleeLightCloseSingleBack01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCloseSingleBack01Definition"
+	];
+}
+
+MeleeLightCloseCombo01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCloseCombo01Definition"
+	];
+}
+
+MeleeLightCloseCombo02Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCloseCombo02Definition"
+	];
+}
+
+MeleeLightCombo01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCombo01Definition"
+	];
+}
+
+MeleeLightCombo02Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCombo02Definition"
+	];
+}
+
+MeleeLightCombo03Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCombo02Definition"
+	];
+}
+
+MeleeStrongSingle01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeStrongSingle01Definition"
+	];
+}
+
+MeleeStrongSingle02Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeStrongSingle02Definition"
+	];
+}
+
+MeleeChargeSingle01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeChargeSingle01Definition"
+	];
+}
+
+MeleeChargeSingle02Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeChargeSingle02Definition"
+	];
+}
+
+MeleeChargeSingle03Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeChargeSingle02Definition"
+	];
+}
+
+MeleeChargeJump01Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeChargeJump01Definition"
+	];
+}
+
+MeleeChargeJump02Selector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeChargeJump02Definition"
+	];
+}
+
+MeleeWoundedCombo01LeftHandSelector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeWoundedCombo01LeftHandDefinition"
+	];
+}
+
+MeleeWoundedCombo02LeftHandSelector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeWoundedCombo02LeftHandDefinition"
+	];
+}
+
+MeleeWoundedCombo03LeftHandSelector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeWoundedCombo03LeftHandDefinition"
+	];
+}
+
+MeleeWoundedCombo01RightHandSelector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeWoundedCombo01RightHandDefinition"
+	];
+}
+
+MeleeWoundedCombo02RightHandSelector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeWoundedCombo02RightHandDefinition"
+	];
+}
+
+MeleeWoundedCombo03RightHandSelector : MeleeBaseSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeWoundedCombo03RightHandDefinition"
+	];
+}
+
+MeleeParryCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanParry"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeParry01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.ParryMeleeAttack01Definition"
+	];
+}
+
+MeleeBlockCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.StaminaAbove0perc", "Condition.GuardBreakCooldown", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.NotAttackWithSubActionInAir", "Condition.NotInStatesParry", "Condition.NotTicketDodge", "Condition.NotIsUsingOffMeshLink", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", {
+					OR = 
+					[
+						"Condition.NotStatusEffectSandevistanPlayerBuff", "Condition.StatusEffectSandevistanBuff"
+					];
+				} : AIActionOR, 
+				{
+					OR = 
+					[
+						"Condition.AbilityCanBlock", {
+							AND = 
+							[
+								"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeBlock01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.BlockMeleeAttack01Definition"
+	];
+}
+
+MeleeBlockDodge01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.BlockDodgeMeleeAttack01Definition"
+	];
+}
+
+MeleeBlockDodgeToParry01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.BlockDodgeMeleeAttackToParry01Definition", "CombatDecorator.MeleeParryState", "GenericArchetype.Success"
+	];
+}
+
+MeleePushAttack01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToAttackRange", "MovementActions.RotateInIdle", "MeleeFistActions.DashForwardToTarget", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.PushAttack01Definition"
+	];
+}
+
+MeleeLightCloseSingleLeft01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.CloseSingleLeft01MeleeAttackLight01Definition"
+	];
+}
+
+MeleeLightCloseSingleRight01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.CloseSingleRight01MeleeAttackLight01Definition"
+	];
+}
+
+MeleeLightCloseSingleBack01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.CloseSingleBack01MeleeAttackLight01Definition"
+	];
+}
+
+MeleeLightCloseCombo01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.CloseCombo01MeleeAttackLight01Definition", "MeleeActions.CloseCombo01MeleeAttackLight01RecoverMissDefinition", "MeleeActions.CloseCombo01MeleeAttackLight02Definition", "MeleeActions.CloseCombo01MeleeAttackLight03Definition", "MeleeActions.CloseCombo01MeleeAttackLight03RecoverMissDefinition", "MeleeActions.CloseCombo01MeleeAttackLight03RecoverHitDefinition"
+	];
+}
+
+MeleeLightCloseCombo02Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.CloseCombo02MeleeAttackLight01Definition", "MeleeActions.CloseCombo02MeleeAttackLight01RecoverMissDefinition", "MeleeActions.CloseCombo02MeleeAttackLight02Definition", "MeleeActions.CloseCombo02MeleeAttackLight03Definition", "MeleeActions.CloseCombo02MeleeAttackLight03RecoverMissDefinition", "MeleeActions.CloseCombo02MeleeAttackLight03RecoverHitDefinition"
+	];
+}
+
+SimpleMeleeCombatCooldown : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.SimpleMeleeCombatCooldown", "Condition.SimpleMeleeAttackConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "SimpleMeleeCombat";
+					duration = 3.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SimpleMeleeTauntCooldown : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.SimpleMeleeTauntCooldown"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "SimpleMeleeTaunt";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SimpleMeleeCombatMeleeConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.SimpleMeleeAttackConditions"
+			];
+		} : AIActionAND;
+	};
+}
+
+SimpleMeleeCombatComboSelector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeActions.MeleeLightCombo01Definition"
+	];
+}
+
+CivilianSimpleMeleeCombatCombo01Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeFistActions.CivilianSimpleMeleeCombatCombo01FistDefinition"
+	];
+}
+
+CivilianSimpleMeleeCombatCombo02Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeFistActions.CivilianSimpleMeleeCombatCombo02FistDefinition"
+	];
+}
+
+CivilianSimpleMeleeCombatCombo03Selector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MeleeFistActions.CivilianSimpleMeleeCombatCombo03FistDefinition"
+	];
+}
+
+MeleeLightCombo01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.SimpleMeleeCombatMoveToCloseAttackRange", "MovementActions.SimpleMeleeCombatWoundedMoveToCloseAttackRange", "MovementActions.RotateInIdle", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.SingleMeleeAttackStrong01FromIdleDefinition", "MeleeActions.SingleMeleeAttackStrong01Definition", "MeleeActions.SingleMeleeAttackStrong01RecoverMissDefinition", "MeleeActions.SingleMeleeAttackStrong01RecoverHitDefinition"
+	];
+	hasMemory = false;
+}
+
+MeleeLightCombo02Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.Combo02MeleeAttackLight01Definition", "MeleeActions.Combo02MeleeAttackLight01RecoverMissDefinition", "MeleeActions.Combo02MeleeAttackLight02Definition", "MeleeActions.Combo02MeleeAttackLight03Definition", "MeleeActions.Combo02MeleeAttackLight03RecoverMissDefinition", "MeleeActions.Combo02MeleeAttackLight04Definition", "MeleeActions.Combo02MeleeAttackLight05Definition", "MeleeActions.Combo02MeleeAttackLight05RecoverMissDefinition", "MeleeActions.Combo02MeleeAttackLight05RecoverHitDefinition"
+	];
+}
+
+MeleeStrongSingle01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToStrongAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.SingleMeleeAttackStrong01FromIdleDefinition", "MeleeActions.SingleMeleeAttackStrong01Definition", "MeleeActions.SingleMeleeAttackStrong01RecoverMissDefinition", "MeleeActions.SingleMeleeAttackStrong01RecoverHitDefinition", "MeleeActions.InfiniteGenericMeleeAttackStartup01Definition", "MeleeActions.InfiniteGenericMeleeAttackFromAttack01Definition", "MeleeActions.InfiniteGenericMeleeAttackFromAttack02Definition", "MeleeActions.InfiniteGenericMeleeAttackFromAttack03Definition"
+	];
+}
+
+MeleeStrongSingle02Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToStrongAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.SingleMeleeAttackStrong02FromIdleDefinition", "MeleeActions.SingleMeleeAttackStrong02Definition", "MeleeActions.SingleMeleeAttackStrong02RecoverMissDefinition", "MeleeActions.SingleMeleeAttackStrong02RecoverHitDefinition", "MeleeActions.InfiniteGenericMeleeAttackStartup02Definition", "MeleeActions.InfiniteGenericMeleeAttackFromAttack03Definition", "MeleeActions.InfiniteGenericMeleeAttackFromAttack02Definition", "MeleeActions.InfiniteGenericMeleeAttackFromAttack01Definition"
+	];
+}
+
+MeleeChargeSingle01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToChargeAttackRange", "MeleeActions.SingleMeleeAttackCharge01Definition", "MeleeActions.SingleMeleeAttackCharge01RecoverMissDefinition", "MeleeActions.SingleMeleeAttackCharge01RecoverHitDefinition"
+	];
+}
+
+MeleeChargeSingle02Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToChargeAttackRange", "MeleeActions.SingleMeleeAttackCharge02Definition", "MeleeActions.SingleMeleeAttackCharge02RecoverMissDefinition", "MeleeActions.SingleMeleeAttackCharge02RecoverHitDefinition"
+	];
+}
+
+MeleeChargeJump01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToChargeJumpAttackRange", "MeleeActions.SingleMeleeAttackChargeJump01TauntDefinition", "MeleeActions.SingleMeleeAttackChargeJump01Definition", "MeleeActions.SingleMeleeAttackChargeJump01RecoverHitDefinition"
+	];
+}
+
+MeleeChargeJump02Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToChargeJumpAttackRange", "MeleeActions.SingleMeleeAttackChargeJump02TauntDefinition", "MeleeActions.SingleMeleeAttackChargeJump02Definition", "MeleeActions.SingleMeleeAttackChargeJump02RecoverHitDefinition"
+	];
+}
+
+MeleeWoundedCombo01LeftHandDefinition : AIActionSequence
+{
+	activationCondition = "MeleeFistActions.WeaponTypeCondition";
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeFistActions.InfiniteGenericMeleeAttackStartup03Definition"
+	];
+}
+
+MeleeWoundedCombo02LeftHandDefinition : AIActionSequence
+{
+	activationCondition = "MeleeFistActions.WeaponTypeCondition";
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeFistActions.InfiniteGenericMeleeAttackFromAttack06Definition"
+	];
+}
+
+MeleeWoundedCombo03LeftHandDefinition : AIActionSequence
+{
+	activationCondition = "MeleeFistActions.WeaponTypeCondition";
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeFistActions.InfiniteGenericMeleeAttackFromAttack03Definition"
+	];
+}
+
+MeleeWoundedCombo01RightHandDefinition : AIActionSequence
+{
+	activationCondition = "MeleeFistActions.WeaponTypeCondition";
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeFistActions.InfiniteGenericMeleeAttackStartup04Definition"
+	];
+}
+
+MeleeWoundedCombo02RightHandDefinition : AIActionSequence
+{
+	activationCondition = "MeleeFistActions.WeaponTypeCondition";
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeFistActions.InfiniteGenericMeleeAttackFromAttack07Definition"
+	];
+}
+
+MeleeWoundedCombo03RightHandDefinition : AIActionSequence
+{
+	activationCondition = "MeleeFistActions.WeaponTypeCondition";
+	actions = 
+	[
+		"MovementActions.MeleeWalkToCloseAttackRange", "MovementActions.MeleeMoveToCloseAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeFistActions.InfiniteGenericMeleeAttackFromAttack04Definition"
+	];
+}
+
+MeleeWaitForWeaponEquippedDefinition : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.HasMeleeWeapon", "Condition.NotTicketEquip"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+BaseDeflectDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameNone"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+}
+
+DeflectedHeadDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedHead";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedRightArmToRightDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedRightArmToRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedRightArmToLeftDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedRightArmToLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedRightArmToUpDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedRightArmToUp";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedLeftArmToRightDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftArmToRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedLeftArmToLeftDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftArmToLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedLeftArmToUpDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftArmToUp";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedBothArmsToRightDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftArmToRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedBothArmsToLeftDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftArmToLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedBothArmsToUpDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftArmToUp";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedRightLegDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedRightLeg";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DeflectedLeftLegDefinition : BaseDeflectDefinition
+{
+	animData = 
+	{
+		animFeature = "DeflectedLeftLeg";
+		animSlot = 
+		{
+		};
+	};
+}
+
+QuickMelee : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.QuickMelee"
+	];
+	cooldowns = 
+	[
+		{
+			name = "QuickMelee";
+			duration = 3.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotWounded", "Condition.TargetBelow2dot5mPrediction", "Condition.NotHitTimeout0dot7", "Condition.HasRangedWeapon", "Condition.NotTargetInVehicle", "Condition.TargetIsVisible", "Condition.NotAndroid", "Condition.NotInCover", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotStatusEffectExhausted", "Condition.NotInStatesEquip"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = false;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.QuickMelee";
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeQuickStatic";
+		animSlot = 
+		{
+			startupSlide = 
+			{
+				overrideOffsetToTargetFromWeapon = false;
+			} : MeleeActions.MeleeAttackLightSlideData;
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SetParryStateCooldownAction : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "ParryStateCooldown";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+ParryMeleeAttack01Definition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			attackTime = 0.3f;
+		} : NPCParryData
+	];
+	loopSubActions = 
+	[
+		{
+		} : ParryMeleeAttack01AttackData
+	];
+	animData = 
+	{
+		animFeature = "ParryMeleeAttack01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeSlideCollsionPrevention";
+			loopSlide = "MeleeActions.MeleeSlideCollsionPrevention";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+ParryMeleeAttack01AttackData : NPCAttackData
+{
+	attackName = "ParryMeleeAttack01";
+}
+
+BlockMeleeAttack01Definition : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Defend";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "BlockMeleeAttack01";
+		animVariationSubAction = 
+		{
+		} : AISubActionBlockData;
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+BlockDodgeMeleeAttack01Definition : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			actionName = "BlockDodge";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					name = "BlockStateCooldown";
+					duration = 3.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "BlockDodgeMeleeAttack01";
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1, 2
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+		};
+	};
+}
+
+BlockDodgeMeleeAttackToParry01Definition : BlockDodgeMeleeAttack01Definition
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Parry";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+}
+
+PushAttack01Definition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			attackTime = 0.3f;
+		} : NPCPushData
+	];
+	loopSubActions = 
+	[
+		{
+		} : PushAttack01AttackData
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "PushAttack";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "PushMeleeAttack01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+PushAttackWithRangedWeapon01Definition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.QuickMelee"
+	];
+	cooldowns = 
+	[
+		{
+			name = "QuickMelee";
+			duration = 3.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow2dot5mPrediction", "Condition.HitTimeout1dot5MinSeverity2", "Condition.NotWounded", "Condition.TargetHasMeleeWeapon", "Condition.HasRangedWeapon", "Condition.TargetIsVisible", "Condition.NotInCover", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotStatusEffectExhausted", "Condition.NotInStatesEquip"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "QuickMelee";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	loopSubActions = 
+	[
+		{
+			attackTime = 0.05f;
+		} : NPCPushData
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "PushAttack";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeQuickStatic";
+		animSlot = 
+		{
+			startupSlide = 
+			{
+				overrideOffsetToTargetFromWeapon = false;
+			} : MeleeActions.MeleeAttackLightSlideData;
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SlowPushAttack01Definition : PushAttack01Definition
+{
+	startup = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	animData = 
+	{
+		animFeature = "PushMeleeAttack01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+PushAttack01AttackData : NPCAttackData
+{
+	attackName = "PushAttack01";
+}
+
+BaseCloseSingleMeleeAttackDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	subActions = 
+	[
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager
+	];
+	allowBlendDuration = 0.35f;
+}
+
+CloseSingleLeft01MeleeAttackLight01Definition : BaseCloseSingleMeleeAttackDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseSingleLeft01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseSingleLeft01MeleeAttackLight01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CloseSingleLeft01MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "CloseSingleLeft01MeleeAttackLight01";
+}
+
+CloseSingleRight01MeleeAttackLight01Definition : BaseCloseSingleMeleeAttackDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseSingleRight01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseSingleRight01MeleeAttackLight01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CloseSingleRight01MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "CloseSingleRight01MeleeAttackLight01";
+}
+
+CloseSingleBack01MeleeAttackLight01Definition : BaseCloseSingleMeleeAttackDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseSingleBack01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseSingleBack01MeleeAttackLight01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CloseSingleBack01MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "CloseSingleBack01MeleeAttackLight01";
+}
+
+BaseGenericMeleeAttackStartupDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	subActions = 
+	[
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager
+	];
+	allowBlendDuration = 0.25f;
+}
+
+InfiniteGenericMeleeAttackStartup01Definition : BaseGenericMeleeAttackStartupDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackStartup01AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackStartup01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackStartup01AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackStartup01";
+}
+
+InfiniteGenericMeleeAttackStartup02Definition : BaseGenericMeleeAttackStartupDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackStartup02AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackStartup02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackStartup02AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackStartup02";
+}
+
+InfiniteGenericMeleeAttackStartup03Definition : BaseGenericMeleeAttackStartupDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackStartup03AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackStartup03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackStartup03AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackStartup03";
+}
+
+InfiniteGenericMeleeAttackStartup04Definition : BaseGenericMeleeAttackStartupDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackStartup04AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackStartup04";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackStartup04AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackStartup04";
+}
+
+BaseGenericMeleeAttackFromDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	subActions = 
+	[
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager
+	];
+	allowBlendDuration = 0.15f;
+}
+
+InfiniteGenericMeleeAttackFromAttack01Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack01AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack01AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack01";
+}
+
+InfiniteGenericMeleeAttackFromAttack02Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack02AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack02AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack02";
+}
+
+InfiniteGenericMeleeAttackFromAttack03Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack03AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack03AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack03";
+}
+
+InfiniteGenericMeleeAttackFromAttack04Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack04AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack04";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack04AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack04";
+}
+
+InfiniteGenericMeleeAttackFromAttack05Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack05AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack05";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack05AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack05";
+}
+
+InfiniteGenericMeleeAttackFromAttack06Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack06AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack06";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack06AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack06";
+}
+
+InfiniteGenericMeleeAttackFromAttack07Definition : BaseGenericMeleeAttackFromDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : InfiniteGenericMeleeAttackFromAttack07AttackData
+	];
+	animData = 
+	{
+		animFeature = "InfiniteGenericMeleeAttackFromAttack07";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+			recoverySlide = "MeleeActions.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+InfiniteGenericMeleeAttackFromAttack07AttackData : NPCAttackData
+{
+	attackName = "InfiniteGenericMeleeAttackFromAttack07";
+}
+
+BaseCloseComboMeleeAttackLightDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	subActions = 
+	[
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager
+	];
+	allowBlendDuration = 0.f;
+}
+
+BaseMeleeAttackRecoverDefinition : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+}
+
+CloseCombo01MeleeAttackLight01Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire
+	];
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo01MeleeAttackLight01FromDashDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight01";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo01MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "CloseCombo01MeleeAttackLight01";
+}
+
+CloseCombo01MeleeAttackLight02Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo01MeleeAttackLight02AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo01MeleeAttackLight02AttackData : NPCAttackData
+{
+	attackName = "CloseCombo01MeleeAttackLight02";
+}
+
+CloseCombo01MeleeAttackLight03Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo01MeleeAttackLight03AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo01MeleeAttackLight03AttackData : NPCAttackData
+{
+	attackName = "CloseCombo01MeleeAttackLight03";
+}
+
+CloseCombo01MeleeAttackLight01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo01MeleeAttackLight01", "Condition.NotBlockSignal", "Condition.NotHitSignal", "Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight01RecoverMiss";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CloseCombo01MeleeAttackLight02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo01MeleeAttackLight02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CloseCombo01MeleeAttackLight02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo01MeleeAttackLight02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+CloseCombo01MeleeAttackLight03RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo01MeleeAttackLight03", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight03RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CloseCombo01MeleeAttackLight03RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo01MeleeAttackLight03", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo01MeleeAttackLight03RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+CloseCombo02MeleeAttackLight01Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo02MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo02MeleeAttackLight01FromDashDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire
+	];
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo02MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight01";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo02MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "CloseCombo02MeleeAttackLight01";
+}
+
+CloseCombo02MeleeAttackLight02Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo02MeleeAttackLight02AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo02MeleeAttackLight02AttackData : NPCAttackData
+{
+	attackName = "CloseCombo02MeleeAttackLight02";
+}
+
+CloseCombo02MeleeAttackLight03Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : CloseCombo02MeleeAttackLight03AttackData
+	];
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CloseCombo02MeleeAttackLight03AttackData : NPCAttackData
+{
+	attackName = "CloseCombo02MeleeAttackLight03";
+}
+
+CloseCombo02MeleeAttackLight01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo02MeleeAttackLight01", "Condition.NotBlockSignal", "Condition.NotHitSignal", "Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight01RecoverMiss";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CloseCombo02MeleeAttackLight02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo02MeleeAttackLight02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CloseCombo02MeleeAttackLight02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo02MeleeAttackLight02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+CloseCombo02MeleeAttackLight03RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo02MeleeAttackLight03", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight03RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CloseCombo02MeleeAttackLight03RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCloseCombo02MeleeAttackLight03", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CloseCombo02MeleeAttackLight03RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo01MeleeAttackLight01FromIdleDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameAtkFromSprint", "Condition.NotPreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+		} : Combo01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight01";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo01MeleeAttackLight01FromDashDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver
+	];
+	loopSubActions = 
+	[
+		{
+		} : Combo01MeleeAttackLight01AttackData
+	];
+	subActions = [];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight01";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo01MeleeAttackLight01Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : Combo01MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo01MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "Combo01MeleeAttackLight01";
+}
+
+Combo01MeleeAttackLight02Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo01MeleeAttackLight02AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo01MeleeAttackLight02AttackData : NPCAttackData
+{
+	attackName = "Combo01MeleeAttackLight02";
+}
+
+Combo01MeleeAttackLight03Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo01MeleeAttackLight03AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo01MeleeAttackLight03AttackData : NPCAttackData
+{
+	attackName = "Combo01MeleeAttackLight03";
+}
+
+Combo01MeleeAttackLight04Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo01MeleeAttackLight04AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight04";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo01MeleeAttackLight04AttackData : NPCAttackData
+{
+	attackName = "Combo01MeleeAttackLight04";
+}
+
+Combo01MeleeAttackLight01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight01", "Condition.NotBlockSignal", "Condition.NotHitSignal", "Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight01RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo01MeleeAttackLight02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo01MeleeAttackLight02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo01MeleeAttackLight03RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight03", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight03RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo01MeleeAttackLight03RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight03", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight03RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo01MeleeAttackLight04RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight04", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight04RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo01MeleeAttackLight04RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo01MeleeAttackLight04", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight04RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo02MeleeAttackLight01FromIdleDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameDashForward", "Condition.NotPreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight01";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight01FromDashDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight01";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight01Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "Combo02MeleeAttackLight01";
+}
+
+Combo02MeleeAttackLight02Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight02AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight02AttackData : NPCAttackData
+{
+	attackName = "Combo02MeleeAttackLight02";
+}
+
+Combo02MeleeAttackLight03Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight03AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight03AttackData : NPCAttackData
+{
+	attackName = "Combo02MeleeAttackLight03";
+}
+
+Combo02MeleeAttackLight04Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight04AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight04";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight04AttackData : NPCAttackData
+{
+	attackName = "Combo02MeleeAttackLight04";
+}
+
+Combo02MeleeAttackLight05Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo02MeleeAttackLight05AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight05";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo02MeleeAttackLight05AttackData : NPCAttackData
+{
+	attackName = "Combo02MeleeAttackLight05";
+}
+
+Combo02MeleeAttackLight06AttackData : NPCAttackData
+{
+	attackName = "Combo02MeleeAttackLight06";
+}
+
+Combo02MeleeAttackLight01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight01", "Condition.NotBlockSignal", "Condition.NotHitSignal", "Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight01RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo02MeleeAttackLight02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo02MeleeAttackLight02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo02MeleeAttackLight03RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight03", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight03RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo02MeleeAttackLight03RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight03", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight03RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo02MeleeAttackLight04RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight04", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight04RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo02MeleeAttackLight04RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight04", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight04RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo02MeleeAttackLight05RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight05", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight05RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo02MeleeAttackLight05RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo02MeleeAttackLight05", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight05RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo03MeleeAttackLight01FromIdleDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameAtkFromSprint", "Condition.NotPreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight01";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight01FromDashDefinition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight01";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight01Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight01AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight01AttackData : NPCAttackData
+{
+	attackName = "Combo03MeleeAttackLight01";
+}
+
+Combo03MeleeAttackLight02Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight02AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight02AttackData : NPCAttackData
+{
+	attackName = "Combo03MeleeAttackLight02";
+}
+
+Combo03MeleeAttackLight03Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight03AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight03AttackData : NPCAttackData
+{
+	attackName = "Combo03MeleeAttackLight03";
+}
+
+Combo03MeleeAttackLight04Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight04AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight04";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight04AttackData : NPCAttackData
+{
+	attackName = "Combo03MeleeAttackLight04";
+}
+
+Combo03MeleeAttackLight05Definition : BaseCloseComboMeleeAttackLightDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : Combo03MeleeAttackLight05AttackData
+	];
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight05";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackLightSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+Combo03MeleeAttackLight05AttackData : NPCAttackData
+{
+	attackName = "Combo03MeleeAttackLight05";
+}
+
+Combo03MeleeAttackLight06AttackData : NPCAttackData
+{
+	attackName = "Combo03MeleeAttackLight06";
+}
+
+Combo03MeleeAttackLight01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight01", "Condition.NotBlockSignal", "Condition.NotHitSignal", "Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight01RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo03MeleeAttackLight02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo03MeleeAttackLight02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo03MeleeAttackLight03RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight03", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight03RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo03MeleeAttackLight03RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight03", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight03RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo03MeleeAttackLight04RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight04", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight04RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo03MeleeAttackLight04RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight04", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight04RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+Combo03MeleeAttackLight05RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight05", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight05RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+Combo03MeleeAttackLight05RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameCombo03MeleeAttackLight05", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Combo03MeleeAttackLight05RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+BaseSingleMeleeAttackStrongDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_long";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "StrongAttack";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown, 
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager, 
+		{
+			name = "strong_attack";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	allowBlendDuration = 0.f;
+}
+
+SingleMeleeAttackStrong01FromIdleDefinition : BaseSingleMeleeAttackStrongDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameDashForward", "Condition.NotPreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeStrongSingle01AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong01";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackStrongSlideData";
+			loopSlide = "MeleeActions.MeleeAttackStrongSlideData";
+		};
+	};
+}
+
+SingleMeleeAttackStrong01FromDashDefinition : BaseSingleMeleeAttackStrongDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_long";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire
+	];
+	loopSubActions = 
+	[
+		{
+		} : MeleeStrongSingle01AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong01";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackStrongSlideData";
+			loopSlide = "MeleeActions.MeleeAttackStrongSlideData";
+		};
+	};
+}
+
+SingleMeleeAttackStrong01Definition : BaseSingleMeleeAttackStrongDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeStrongSingle01AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackStrongSlideData";
+			loopSlide = "MeleeActions.MeleeAttackStrongSlideData";
+		};
+	};
+}
+
+MeleeStrongSingle01AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackStrong01";
+}
+
+SingleMeleeAttackStrong01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackStrong01", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong01RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+SingleMeleeAttackStrong01RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackStrong01", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong01RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+SingleMeleeAttackStrong02FromIdleDefinition : BaseSingleMeleeAttackStrongDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameDashForward", "Condition.NotPreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeStrongSingle02AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong02";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackStrongSlideData";
+			loopSlide = "MeleeActions.MeleeAttackStrongSlideData";
+		};
+	};
+}
+
+SingleMeleeAttackStrong02FromDashDefinition : BaseSingleMeleeAttackStrongDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameDashForward"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_long";
+		} : AISubActionPlayVoiceOver, 
+		{
+			checkOnlyFirstFrame = true;
+		} : AISubActionFailIfFriendlyFire
+	];
+	loopSubActions = 
+	[
+		{
+		} : MeleeStrongSingle02AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong02";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackStrongSlideData";
+			loopSlide = "MeleeActions.MeleeAttackStrongSlideData";
+		};
+	};
+}
+
+SingleMeleeAttackStrong02Definition : BaseSingleMeleeAttackStrongDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameAtkFromSprint"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeStrongSingle02AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackStrongSlideData";
+			loopSlide = "MeleeActions.MeleeAttackStrongSlideData";
+		};
+	};
+}
+
+MeleeStrongSingle02AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackStrong02";
+}
+
+SingleMeleeAttackStrong02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackStrong02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+SingleMeleeAttackStrong02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackStrong02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackStrong02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+BaseSingleMeleeAttackChargeDefinition : BaseSingleMeleeAttackStrongDefinition
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "ChargeAttack";
+					duration = 6.f;
+				}
+			];
+		} : AISubActionStartCooldown, 
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager
+	];
+}
+
+SingleMeleeAttackCharge01TauntDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeTaunt01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SingleMeleeAttackCharge01Definition : BaseSingleMeleeAttackChargeDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow6m"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeChargeSingle01AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackChargeSlideData";
+			loopSlide = "MeleeActions.MeleeAttackChargeSlideData";
+		};
+	};
+}
+
+MeleeChargeSingle01AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackCharge01";
+}
+
+SingleMeleeAttackCharge01RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackCharge01", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge01RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+SingleMeleeAttackCharge01RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackCharge01", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge01RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.5f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+SingleMeleeAttackCharge02TauntDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeTaunt02";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SingleMeleeAttackCharge02Definition : BaseSingleMeleeAttackChargeDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow6m"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeChargeSingle02AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackChargeSlideData";
+			loopSlide = "MeleeActions.MeleeAttackChargeSlideData";
+		};
+	};
+}
+
+MeleeChargeSingle02AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackCharge02";
+}
+
+SingleMeleeAttackCharge02RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackCharge02", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge02RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+SingleMeleeAttackCharge02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackCharge02", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.5f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+SingleMeleeAttackCharge03TauntDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeTaunt03";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SingleMeleeAttackCharge03Definition : BaseSingleMeleeAttackChargeDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow6m"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+		} : MeleeChargeSingle03AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge03";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackChargeSlideData";
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+MeleeChargeSingle03AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackCharge03";
+}
+
+SingleMeleeAttackCharge03RecoverMissDefinition : BaseMeleeAttackRecoverDefinition
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackCharge03", "Condition.NotBlockSignal", "Condition.NotHitSignal"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge03RecoverMiss";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+SingleMeleeAttackCharge03RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackCharge03", {
+					OR = 
+					[
+						"Condition.BlockSignal", "Condition.HitSignal"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackCharge03RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+BaseSingleMeleeAttackChargeJumpDefinition : BaseSingleMeleeAttackStrongDefinition
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_long";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = true;
+		} : AISubActionMeleeAttackAttemptEvent, 
+		{
+		} : AISubActionInAir
+	];
+	subActions = 
+	[
+		{
+			name = "charged_jump";
+		} : AISubActionSpawnFX, 
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "ChargeAttack";
+					duration = 6.f;
+				}
+			];
+		} : AISubActionStartCooldown, 
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager, 
+		{
+		} : AISubActionInAir
+	];
+}
+
+SingleMeleeAttackChargeJump01TauntDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeJump01Taunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SingleMeleeAttackChargeJump01Definition : BaseSingleMeleeAttackChargeJumpDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : SingleMeleeAttackChargeJump01AttackData
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeJump01";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackChargeJumpSlideData";
+			loopSlide = "MeleeActions.MeleeAttackChargeJumpCollsionPrevention";
+		};
+	};
+}
+
+SingleMeleeAttackChargeJump01AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackChargeJump01";
+	attackRange = 2.f;
+	attackTime = 0.1f;
+}
+
+SingleMeleeAttackChargeJump01RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeJump01RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+SingleMeleeAttackChargeJump02TauntDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeJump02Taunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SingleMeleeAttackChargeJump02Definition : BaseSingleMeleeAttackChargeJumpDefinition
+{
+	loopSubActions = 
+	[
+		{
+		} : SingleMeleeAttackChargeJump02AttackData
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "ChargeAttack";
+					duration = 6.f;
+				}
+			];
+		} : AISubActionStartCooldown, 
+		{
+			spawnTrail = true;
+			trailDelay = 0.f;
+		} : AISubActionMeleeAttackManager
+	];
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeJump02";
+		animSlot = 
+		{
+			startupSlide = "MeleeActions.MeleeAttackChargeJumpSlideData";
+			loopSlide = "MeleeActions.MeleeAttackChargeJumpCollsionPrevention";
+		};
+	};
+}
+
+SingleMeleeAttackChargeJump02AttackData : NPCAttackData
+{
+	attackName = "SingleMeleeAttackChargeJump02";
+	attackRange = 2.f;
+	attackTime = 0.1f;
+}
+
+SingleMeleeAttackChargeJump02RecoverHitDefinition : BaseMeleeAttackRecoverDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackNameSingleMeleeAttackChargeJump02"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "SingleMeleeAttackChargeJump02RecoverHit";
+		animSlot = 
+		{
+			loopSlide = 
+			{
+				duration = 1.f;
+			} : MeleeActions.MeleeSlideCollsionPrevention;
+		};
+	};
+	allowBlendDuration = 0.25f;
+}
+
+DeflectedDefaultDefinition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+BaseFailAttack : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+		} : AISubActionFail
+	];
+}
+
+FailAttackRange : BaseFailAttack
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasMeleeWeapon", "Condition.TargetAbove4m", "Condition.NotTargetIsVisible"
+			];
+		} : AIActionOR;
+	};
+}
+
+FailAttackRangeChargedJump : BaseFailAttack
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasMeleeWeapon", "Condition.TargetAbove13m", "Condition.TargetBelow6m", "Condition.NotTargetIsVisible", "Condition.NotCalculatePathStraightFullCheckToTarget"
+			];
+		} : AIActionOR;
+	};
+}
+
+FriendlyFireMeleeCheck : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FriendlyFire", "Condition.NotWoundedLegs"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+	recoverySubActions = 
+	[
+		{
+		} : AISubActionFail
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeBack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+NPCAttackData : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	attackDuration = 0.03f;
+	attackRange = 3.f;
+	attackTime = 0.16f;
+	attackName = "";
+	attack = "NPCAttacks.StrongAttackStagger";
+}
+
+NPCPushData : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	attackDuration = 0.15f;
+	attackRange = 2.f;
+	attackTime = 0.05f;
+	attackName = "";
+	attack = "NPCAttacks.PushEffect";
+}
+
+NPCParryData : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	attackDuration = 0.1f;
+	attackRange = 1.5f;
+	attackTime = 0.f;
+	attackName = "";
+	attack = "NPCAttacks.ParryEffect";
+}
+
+TakeDistanceSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.4f;
+	distance = 3.f;
+	positionSpeed = 4.5f;
+	offsetToTarget = 3.f;
+	rotationSpeed = 0.f;
+	disablePositionSlideAgainstNpc = true;
+}
+
+MeleeAttackLightSlideData : AIActionSlideData
+{
+	duration = 1.5f;
+	target = "AIActionTarget.CombatTarget";
+	distance = 1.5f;
+	positionSpeed = 3.f;
+	offsetToTarget = 1.6f;
+	rotationSpeed = 360.f;
+	usePositionSlide = true;
+	useRotationSlide = true;
+	positionPredictionTime = 0.f;
+	overrideOffsetToTargetFromWeapon = true;
+}
+
+MeleeAttackStrongSlideData : AIActionSlideData
+{
+	duration = 1.f;
+	target = "AIActionTarget.CombatTarget";
+	distance = 2.f;
+	positionSpeed = 3.5f;
+	offsetToTarget = 1.6f;
+	rotationSpeed = 360.f;
+	usePositionSlide = true;
+	useRotationSlide = true;
+	positionPredictionTime = 0.5f;
+	overrideOffsetToTargetFromWeapon = true;
+}
+
+MeleeAttackChargeSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 1.5f;
+	distance = 4.f;
+	positionSpeed = 4.f;
+	rotationSpeed = 360.f;
+	offsetToTarget = 1.6f;
+	overrideOffsetToTargetFromWeapon = true;
+}
+
+MeleeAttackChargeJumpSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	distance = 10.f;
+	offsetToTarget = 2.5f;
+}
+
+MeleeAttackChargeJumpCollsionPrevention : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.2f;
+	distance = 2.f;
+	positionSpeed = 4.5f;
+	offsetToTarget = 1.6f;
+}
+
+MeleeSlideCollsionPrevention : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 1.f;
+	distance = 1.5f;
+	positionSpeed = 3.f;
+	rotationSpeed = 0.f;
+	offsetToTarget = 1.6f;
+	useRotationSlide = false;
+	overrideOffsetToTargetFromWeapon = true;
+}
+
+MeleeLightCombo01SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToAttackRangeSandevistan", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.Combo01MeleeAttackLight01Definition", "MeleeActions.Combo01MeleeAttackLight02Definition", "MeleeActions.Combo01MeleeAttackLight03Definition", "MeleeActions.Combo01MeleeAttackLight04Definition", "MeleeActions.Combo01MeleeAttackLight04RecoverMissDefinition"
+	];
+}
+
+MeleeLightCombo02SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToAttackRangeSandevistan", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.Combo02MeleeAttackLight01Definition", "MeleeActions.Combo02MeleeAttackLight02Definition", "MeleeActions.Combo02MeleeAttackLight03Definition", "MeleeActions.Combo02MeleeAttackLight04Definition", "MeleeActions.Combo02MeleeAttackLight05Definition", "MeleeActions.Combo02MeleeAttackLight05RecoverMissDefinition"
+	];
+}
+
+MeleeStrongSingle01SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToStrongAttackRangeSandevistan", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.SingleMeleeAttackStrong01Definition", "MeleeActions.SingleMeleeAttackStrong01RecoverMissDefinition", "MeleeActions.SingleMeleeAttackStrong01RecoverHitDefinition"
+	];
+}
+
+MeleeStrongSingle02SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToStrongAttackRangeSandevistan", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.SingleMeleeAttackStrong02Definition", "MeleeActions.SingleMeleeAttackStrong02RecoverMissDefinition", "MeleeActions.SingleMeleeAttackStrong02RecoverHitDefinition"
+	];
+}
+
+MeleeChargeSingle01SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.SingleMeleeAttackCharge01TauntDefinition", "MovementActions.MeleeMoveToChargeAttackRangeSandevistan", "MeleeActions.SingleMeleeAttackCharge01Definition", "MeleeActions.SingleMeleeAttackCharge01RecoverMissDefinition", "MeleeActions.SingleMeleeAttackCharge01RecoverHitDefinition"
+	];
+}
+
+MeleeChargeSingle02SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.SingleMeleeAttackCharge02TauntDefinition", "MovementActions.MeleeMoveToChargeAttackRangeSandevistan", "MeleeActions.SingleMeleeAttackCharge02Definition", "MeleeActions.SingleMeleeAttackCharge02RecoverMissDefinition", "MeleeActions.SingleMeleeAttackCharge02RecoverHitDefinition"
+	];
+}
+
+MeleeSpecialCombo01Definition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToAttackRange", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.Combo01MeleeAttackLight01Definition", "MeleeActions.Combo01MeleeAttackLight02Definition", "MeleeActions.Combo01MeleeAttackLight03Definition", "MeleeActions.Combo01MeleeAttackLight04Definition", "MeleeActions.Combo01MeleeAttackLight04RecoverMissDefinition"
+	];
+}
+
+MeleeSpecialCombo01SandevistanDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MovementActions.MeleeMoveToAttackRangeSandevistan", "MeleeActions.FailAttackRange", "MeleeActions.FriendlyFireMeleeCheck", "MeleeActions.Combo01MeleeAttackLight01Definition", "MeleeActions.Combo01MeleeAttackLight02Definition", "MeleeActions.Combo01MeleeAttackLight03Definition", "MeleeActions.Combo01MeleeAttackLight04Definition", "MeleeActions.Combo01MeleeAttackLight04RecoverMissDefinition"
+	];
+}
+

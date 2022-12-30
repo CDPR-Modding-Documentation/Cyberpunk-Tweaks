@@ -1,0 +1,368 @@
+package playerStateMachineWeapon
+
+ready : baseWeaponState
+{
+	string stateBodyClassName = "ActionReady";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	bool hasOnTick = true;
+	float tickRate = 0.2f;
+	float timeBetweenIdleBreaks = 30.f;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "publicSafe", "allActionStates", "semiAuto", "fullAuto", "charge"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", ""
+	];
+}
+
+weaponNotReadyAbstract : baseWeaponState
+{
+	CName[] alias = 
+	[
+		"allNotReadyStates"
+	];
+}
+
+notReady : weaponNotReadyAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	float sprintEndDuration = 0.2f;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "ready", "allActionStates"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+	string[] enterConstraintsStates = 
+	[
+		"Weapon.notReady", "HeavyWeapon.notReady"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false, false
+	];
+}
+
+noAmmo : weaponNotReadyAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	float timeToAutoReload = 0.3f;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "reload", "ready", "publicSafe", "quickMelee"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", "", ""
+	];
+	string[] enterConstraintsStates = 
+	[
+		"Weapon.reload", "HeavyWeapon.reload", "Weapon.noAmmo", "HeavyWeapon.noAmmo"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false, false, false, false
+	];
+}
+
+safe : weaponNotReadyAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"publicSafe", "reload"
+	];
+	string[] transitionCondition = 
+	[
+		"ToPublicSafe", ""
+	];
+}
+
+publicSafe : baseWeaponState
+{
+	string stateBodyClassName = "ActionReady";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"notReady", "publicSafeToReady", "safe", "allActionStates", "noAmmo"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", "", "", "ToNoAmmo"
+	];
+	float idleTimeToEnter = 15.f;
+	float timeToAutoUnequipWeapon = 60.f;
+}
+
+publicSafeToReady : baseWeaponState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	float transitionDuration = 0.2f;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "="
+	];
+}
+
+weaponActionAbstract : baseWeaponState
+{
+	CName[] alias = 
+	[
+		"allActionStates"
+	];
+}
+
+quickMelee : weaponActionAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string rumbleOnEnter = "light_pulse";
+	bool disable = false;
+	float attackGameEffectDelay = 0.15f;
+	string[] transitionTo = 
+	[
+		"semiAuto", "fullAuto", "charge", "reload", "allNotReadyStates", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", "", "", "ToStandardExit", "ToStandardExit"
+	];
+}
+
+reload : weaponActionAbstract
+{
+	string stateBodyClassName = "";
+	string animationStateName = "reload";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasExitCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"semiAuto", "fullAuto", "reload", "quickMelee", "allNotReadyStates", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", "=", "", "", ""
+	];
+}
+
+cycleTriggerMode : weaponActionAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"ready", "charge"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "="
+	];
+}
+
+overheat : weaponActionAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	float overheatDuration = 5.5f;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"", ""
+	];
+}
+
+weaponShootAbstract : baseWeaponState
+{
+	CName[] alias = 
+	[
+		"allShootStates"
+	];
+}
+
+shoot : weaponShootAbstract
+{
+	string stateBodyClassName = "ActionShoot";
+	bool hasExitCondition = true;
+	bool hasOnExit = true;
+	bool hasOnEnter = true;
+	float overheatValAdd = 6.f;
+	string[] transitionTo = 
+	[
+		"burst", "cycleRound", "allNotReadyStates"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+}
+
+cycleRound : baseWeaponState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnExit = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "burst", "fullAuto", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "="
+	];
+	string stateBodyClassName = "";
+}
+
+semiAuto : weaponShootAbstract
+{
+	string stateBodyClassName = "";
+	bool hasOnEnter = true;
+	bool hasEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "shoot"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "="
+	];
+}
+
+fullAuto : weaponShootAbstract
+{
+	string stateBodyClassName = "";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "shoot", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "="
+	];
+}
+
+burst : weaponShootAbstract
+{
+	string stateBodyClassName = "";
+	bool hasEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "shoot"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "="
+	];
+}
+
+charge : weaponShootAbstract
+{
+	string stateBodyClassName = "ActionCharge";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "shoot", "chargeReady", "discharge"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", ""
+	];
+}
+
+chargeReady : weaponShootAbstract
+{
+	string stateBodyClassName = "ActionChargeReady";
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "shoot", "chargeMax", "discharge"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", ""
+	];
+}
+
+chargeMax : weaponShootAbstract
+{
+	string stateBodyClassName = "ActionChargeMax";
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "shoot", "discharge"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", ""
+	];
+}
+
+discharge : weaponShootAbstract
+{
+	string stateBodyClassName = "ActionDischarge";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"allNotReadyStates", "allActionStates", "charge", "ready"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "="
+	];
+}
+

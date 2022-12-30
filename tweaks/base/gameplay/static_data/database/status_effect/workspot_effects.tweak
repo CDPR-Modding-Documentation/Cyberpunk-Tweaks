@@ -1,0 +1,212 @@
+package WorkspotStatus
+using RTDB, Effectors, Prereqs
+
+Braindance : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Deafened";
+	gameplayTags = 
+	[
+		"Blind", "Deaf", "Braindance"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "Multiplier";
+					value = 0.0001f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_braindance";
+		}
+	];
+}
+
+SwimTube : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Deafened";
+	gameplayTags = 
+	[
+		"Sleep", "Blind", "Deaf", "Braindance"
+	];
+}
+
+NoSenses : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Deafened";
+	gameplayTags = 
+	[
+		"Blind", "Deaf"
+	];
+}
+
+Deaf : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Deafened";
+	gameplayTags = 
+	[
+		"Deaf"
+	];
+}
+
+Sleep : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Sleep";
+	gameplayTags = 
+	[
+		"Sleep", "Blind"
+	];
+}
+
+LoreAnim : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	additionalParam = "LoreAnim";
+	CName[] gameplayTags = 
+	[
+		"LoreAnim"
+	];
+}
+
+Busy : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	additionalParam = "Busy";
+	CName[] gameplayTags = 
+	[
+		"Busy"
+	];
+}
+
+Death : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Kill";
+	additionalParam = "Death";
+	CName[] gameplayTags = 
+	[
+		"Death"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = -100;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				}
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Drunk : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					statusEffect = "BaseStatusEffect.Drunk";
+					bool inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	additionalParam = "Drunk";
+	gameplayTags = 
+	[
+		"Drunk"
+	];
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+}
+
+JohnnySceneWorkspot : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "johnny_intro";
+		}, 
+		{
+			name = "glitch";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						characterRecord = "Character.Silverhand";
+					} : CharacterDataPrereq;
+					overrideMaterialName = "";
+				} : ChangeAppearanceEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SyncAnimation : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	gameplayTags = 
+	[
+		"Blind", "Deaf", "ClearThreats"
+	];
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					string[] effectTypes = 
+					[
+						"Cloaked"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Unconscious : WorkspotStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Unconscious";
+	gameplayTags = 
+	[
+		"Unconscious", "Defeated", "Blind", "Deaf"
+	];
+}
+

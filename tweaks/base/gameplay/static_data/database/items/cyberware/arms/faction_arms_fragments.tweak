@@ -1,0 +1,166 @@
+package Items
+using RTDB, BaseStats, Prereqs, Effectors, Perks
+
+[ notQueryable ]
+AnimalsStrongArmsKnuckles1 : PhysicalDamageKnuckles
+{
+	displayName = "LocKey#77840";
+	visualTags = 
+	[
+		"AnimalsKnuckles"
+	];
+	iconPath = "cwf_animalsstrongarmsknuckles";
+	tags += 
+	[
+		"FactionItem"
+	];
+	quality = "Quality.Legendary";
+	OnAttach += 
+	[
+		"Items.AnimalsStrongArmsBattery1Ability"
+	];
+}
+
+[ notQueryable ]
+AnimalsStrongArmsBattery1 : LowChargedBattery
+{
+	displayName = "LocKey#77841";
+	iconPath = "cwf_animalsstrongarmsbattery";
+	tags += 
+	[
+		"FactionItem"
+	];
+	quality = "Quality.Legendary";
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Charge";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+TygerClawsStrongArmsBattery1 : LowChargedBattery
+{
+	displayName = "LocKey#77842";
+	iconPath = "cwf_tygerclawsstrongarmsbattery";
+	tags += 
+	[
+		"FactionItem"
+	];
+	quality = "Quality.Legendary";
+	OnAttach = 
+	[
+		"Items.TygerClawsStrongArmsBattery1Ability"
+	];
+}
+
+[ notQueryable ]
+TygerClawsMantisBladesRotor1 : FastRotor
+{
+	displayName = "LocKey#77843";
+	iconPath = "cwf_tygerclawsmantisbladesrotor";
+	tags += 
+	[
+		"FactionItem"
+	];
+	quality = "Quality.Legendary";
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.AttackSpeed";
+			modifierType = "AdditiveMultiplier";
+			value = 0.45f;
+		} : ConstantStatModifier
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				intValues = 
+				[
+					45
+				];
+			} : Items.FastRotorsUIData;
+		}
+	];
+}
+
+MilitechProjectileLauncherRound1 : ThermalDamageRound
+{
+	displayName = "LocKey#77844";
+	iconPath = "cwf_militechprojectilelauncherround";
+	tags += 
+	[
+		"FactionItem"
+	];
+}
+
+AnimalsStrongArmsBattery1Ability : GameplayLogicPackage
+{
+	effectors = 
+	[
+		{
+			effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					conditions = 
+					[
+						{
+							CName weaponType = "Melee";
+						} : WeaponTypeHitPrereqCondition, 
+						{
+							statusEffect = "Defeated";
+							checkType = "CheckType.Type";
+							invert = true;
+						} : StatusEffectPresentHitPrereqCondition, 
+						{
+							float valueToCheck = 0f;
+							CName objectToCheck = "Target";
+							string statPoolToCompare = "Health";
+							string comparisonType = "NotEqual";
+						} : StatPoolHitPrereqCondition
+					];
+				} : ProcessHitTriggered;
+				statusEffect = "BaseStatusEffect.Bleeding";
+				isRandom = false;
+			} : AddStatusEffectToAttackEffector;
+		} : ApplyEffectorOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedName = "LocKey#51191";
+		localizedDescription = "LocKey#51192";
+	};
+}
+
+TygerClawsStrongArmsBattery1Ability : GameplayLogicPackage
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsTargetKilled";
+			effectorClassName = "ModifyStatPoolValueEffector";
+			statPoolUpdates = 
+			[
+				{
+					statPoolType = "BaseStatPools.Stamina";
+					statPoolValue = 100;
+				} : StatPoolUpdate
+			];
+			bool usePercent = true;
+		}
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedName = "LocKey#51193";
+		localizedDescription = "LocKey#51194";
+	};
+}
+

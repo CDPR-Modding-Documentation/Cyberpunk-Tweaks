@@ -1,0 +1,243 @@
+package GangAndroid_Fists
+using RTDB, ReactionsActions, CombatDecorator, MeleeActions, DashAndDodgeActions
+
+Map : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.MeleeAttackLight03Condition";
+			isOverriddenBy = "";
+		}, 
+		{
+			node = "GenericArchetype.MeleeChargeSingle02Condition";
+			isOverriddenBy = "";
+		}, 
+		{
+			node = "GenericArchetype.MeleeChargeSingle03Condition";
+			isOverriddenBy = "";
+		}, 
+		{
+			node = "GenericArchetype.MeleeChargeJump02Condition";
+			isOverriddenBy = "";
+		}, 
+		{
+			node = "DashAndDodgeActions.DodgeMeleeContactSelectorConditionDefinition";
+			isOverriddenBy = "GangAndroid_Fists.CustomDodgeMeleeContactSelectorConditionDefinition";
+		}, 
+		{
+			node = "AbilityActions.BerserkDownState";
+			isOverriddenBy = "GangAndroid_Fists.BerserkDownState";
+		}, 
+		{
+			node = "MeleeFistActions.ParryMeleeAttack01Definition";
+			isOverriddenBy = "GangAndroid_Fists.CustomParryMeleeAttack01Definition";
+		}, 
+		{
+			node = "GenericArchetype.MeleeBlockState";
+			isOverriddenBy = "GangAndroid_Fists.CustomMeleeBlockState";
+		}, 
+		{
+			node = "DashAndDodgeActions.KerenzikovDodgeCompositeSelectorDefinition";
+			isOverriddenBy = "GangAndroid_Fists.KerenzikovDodgeCompositeSelectorDefinition";
+		}, 
+		{
+			node = "DashAndDodgeActions.DodgeAfterHitReactionCompositeSelectorDefinition";
+			isOverriddenBy = "GangAndroid_Fists.DodgeAfterHitReactionCompositeSelectorDefinition";
+		}, 
+		{
+			node = "DashAndDodgeActions.DodgeMeleeCompositeSelectorDefinition";
+			isOverriddenBy = "GangAndroid_Fists.DodgeMeleeCompositeSelectorDefinition";
+		}, 
+		{
+			node = "DashAndDodgeActions.DodgeForParryMeleeCompositeSelectorDefinition";
+			isOverriddenBy = "GangAndroid_Fists.DodgeForParryMeleeCompositeSelectorDefinition";
+		}
+	];
+}
+
+CustomMeleeBlockState : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "BlockStateCooldown";
+			duration = 6.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanBlock", "Condition.NotPreviousAttackNameBlockDodge", "Condition.TargetBelow5m", "Condition.TargetPOVBelow90deg", "Condition.StaminaAbove80perc", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.NotTicketEquip", "Condition.NotMeleeStatesConditions", "Condition.HitTimeout1MinSeverity0"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.0f;
+		changeNPCState = 
+		{
+			upperBodyState = "Defend";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove5m", "Condition.TargetPOVAbove120deg", "Condition.NotTargetHasMeleeWeapon", "Condition.NotInStatesDefend", {
+							AND = 
+							[
+								"Condition.AbilityCanParry", "Condition.MinBlockCount1"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "BlockStateCooldown";
+					duration = 3.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "BlockIdle";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+CustomParryMeleeAttack01Definition : MeleeActions.ParryMeleeAttack01Definition
+{
+	startup = 
+	{
+		duration = 0.875f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "PushMeleeAttack02";
+		animSlot = 
+		{
+			loopSlide = "MeleeActions.MeleeAttackLightSlideData";
+		};
+	};
+}
+
+CustomDodgeMeleeContactSelectorConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "DodgeMeleeContactCooldown";
+			duration = 5.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DashAndDodgeActions.GenericMeleeDodgeConditionDefinition", "Condition.TargetBelow3mLongPrediction", "Condition.TargetHeadingToOwnerDotProduct", "Condition.NotAbilityIsReckless", "Condition.NotAbilityIsAggressive", "Condition.AbilityHasDodge"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			cooldowns = 
+			[
+				{
+					name = "DodgeMeleeContactCooldown";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+BerserkDownState : AIAction
+{
+	loop = 
+	{
+		duration = 4.f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BerserkNPCBuff"
+			];
+			remove = true;
+			delay = 0.1f;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animVariation = 0;
+		animFeature = "SE_BerserkDownState";
+		animSlot = 
+		{
+		};
+	};
+}
+
+KerenzikovDodgeCompositeSelectorDefinition : DashAndDodgeActions.KerenzikovDodgeCompositeSelectorDefinition
+{
+	nodes = 
+	[
+		"MeleeFistActions.KerenzikovDodgeSelectorDefinition"
+	];
+}
+
+DodgeAfterHitReactionCompositeSelectorDefinition : DashAndDodgeActions.DodgeAfterHitReactionCompositeSelectorDefinition
+{
+	nodes = 
+	[
+		"MeleeFistActions.DodgeHitReactionSelectorDefinition"
+	];
+}
+
+DodgeMeleeCompositeSelectorDefinition : DashAndDodgeActions.DodgeMeleeCompositeSelectorDefinition
+{
+	nodes = 
+	[
+		"MeleeFistActions.DodgeMeleeSelectorDefinition"
+	];
+}
+
+DodgeForParryMeleeCompositeSelectorDefinition : DashAndDodgeActions.DodgeForParryMeleeCompositeSelectorDefinition
+{
+	nodes = 
+	[
+		"MeleeFistActions.DodgeForParryMeleeSelectorDefinition"
+	];
+}
+

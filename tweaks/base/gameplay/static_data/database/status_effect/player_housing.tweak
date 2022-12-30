@@ -1,0 +1,172 @@
+package HousingStatusEffect
+using RTDB
+
+HousingBuffBase : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Housing";
+	bool replicated = true;
+	CName[] gameplayTags = 
+	[
+		"Buff"
+	];
+	bool canReapply = true;
+}
+
+Rested : HousingBuffBase
+{
+	duration = "HousingStatusEffect.RestedDuration";
+	packages = 
+	[
+		"HousingStatusEffect.IncreasedXPGain"
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#79308";
+		description = "LocKey#79310";
+		intValues = 
+		[
+			20
+		];
+		string iconPath = "rested_icon";
+	};
+}
+
+Refreshed : HousingBuffBase
+{
+	duration = "HousingStatusEffect.RefreshedDuration";
+	packages = 
+	[
+		"HousingStatusEffect.AllowHealthRegenInCombat"
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#79307";
+		description = "LocKey#79311";
+		intValues = 
+		[
+			20, 20
+		];
+		string iconPath = "refreshed_icon";
+	};
+}
+
+Energized : HousingBuffBase
+{
+	duration = "HousingStatusEffect.EnergizedDuration";
+	packages = 
+	[
+		"HousingStatusEffect.IncreasedStaminaRegen"
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#79309";
+		description = "LocKey#77747";
+		intValues = 
+		[
+			25, 30
+		];
+		string iconPath = "energized_icon";
+	};
+}
+
+RestedDuration : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "Additive";
+			value = 3600;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.HousingBuffsDurationBonus";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+RefreshedDuration : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "Additive";
+			value = 3600;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.HousingBuffsDurationBonus";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+EnergizedDuration : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "Additive";
+			value = 3600;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.HousingBuffsDurationBonus";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+IncreasedStaminaRegen : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.StaminaRegenRateMult";
+			modifierType = "Additive";
+			value = 0.30f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			value = 0.25f;
+		} : ConstantStatModifier
+	];
+}
+
+AllowHealthRegenInCombat : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.HealthInCombatRegenEnabled";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier
+	];
+}
+
+IncreasedXPGain : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.XPbonusMultiplier";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+}
+

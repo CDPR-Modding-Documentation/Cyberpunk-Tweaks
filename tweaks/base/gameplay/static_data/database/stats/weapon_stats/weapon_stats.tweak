@@ -1,0 +1,1333 @@
+package BaseStats
+using RTDB
+
+WeaponStat : Stat
+{
+	flags = 
+	[
+		"EquipOnPlayer", "EquipOnNPC"
+	];
+}
+
+Accuracy : WeaponStat
+{
+	enumName = "Accuracy";
+	min = 0.0000001f;
+	localizedName = "LocKey#757";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+AccuracyModifier : ConstantStatModifier
+{
+	statType = "BaseStats.Accuracy";
+	modifierType = "Additive";
+}
+
+AimInTime : WeaponStat
+{
+	localizedName = "LocKey#49871";
+	enumName = "AimInTime";
+	enumComment = "Time to aim down sights (ADS)";
+	min = 0;
+	bool inSeconds = true;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+AimInTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.AimInTime";
+	modifierType = "Additive";
+}
+
+AimOutTime : WeaponStat
+{
+	enumName = "AimOutTime";
+	enumComment = "Time to exit aim down sights (ADS)";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+AimOutTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.AimOutTime";
+	modifierType = "Additive";
+}
+
+AimFOV : WeaponStat
+{
+	enumName = "AimFOV";
+	enumComment = "Camera FOV during during aim down sights (ADS)";
+	min = 0;
+}
+
+AimOffset : WeaponStat
+{
+	enumName = "AimOffset";
+	min = -1;
+	max = 1;
+}
+
+Charge : WeaponStat
+{
+	enumName = "Charge";
+	enumComment = "Stat used in charge stat pool to determine the amount of charge on weapon";
+	min = 0;
+	max = 150;
+	localizedName = "LocKey#758";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+EffectiveRange : WeaponStat
+{
+	enumName = "EffectiveRange";
+	enumComment = "Range at which damage and aim assist starts to fall off";
+	min = 0;
+	localizedName = "LocKey#760";
+	bool displayPlus = true;
+	bool inMeters = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+EffectiveRangeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EffectiveRange";
+	modifierType = "Additive";
+}
+
+ClipTimesCycle : WeaponStat
+{
+	enumName = "ClipTimesCycle";
+	enumComment = "ClipSize*CycleTime";
+}
+
+ClipTimesCycleBase : WeaponStat
+{
+	enumName = "ClipTimesCycleBase";
+	enumComment = "ClipSize*CycleTime";
+}
+
+ClipTimesCyclePlusReload : WeaponStat
+{
+	enumName = "ClipTimesCyclePlusReload";
+	enumComment = "ClipSize*CycleTime+ReloadTime";
+}
+
+ClipTimesCyclePlusReloadBase : WeaponStat
+{
+	enumName = "ClipTimesCyclePlusReloadBase";
+	enumComment = "ClipSize*CycleTime+ReloadTime";
+}
+
+AttacksPerSecondBase : WeaponStat
+{
+	enumName = "AttacksPerSecondBase";
+	enumComment = "ClipSize/ ClipSize*CycleTime+ReloadTime";
+}
+
+AttacksPerSecond : WeaponStat
+{
+	enumName = "AttacksPerSecond";
+	localizedName = "LocKey#36318";
+}
+
+UnlockProgress : WeaponStat
+{
+	enumName = "UnlockProgress";
+	min = 0;
+	max = 100;
+}
+
+UnlockProgressModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnlockProgress";
+	modifierType = "Additive";
+	value = 100;
+}
+
+UnlockedModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnlockProgress";
+	modifierType = "Additive";
+	value = -100;
+}
+
+StaminaCostToBlock : WeaponStat
+{
+	enumName = "StaminaCostToBlock";
+	enumComment = "Stamina cost to block attacks from this weapon. Can be affected attack definition. Only used for player currently";
+	min = 0;
+}
+
+StaminaCostToBlockModifier : ConstantStatModifier
+{
+	statType = "BaseStats.StaminaCostToBlock";
+	modifierType = "Additive";
+}
+
+ChargeDischargeTime : WeaponStat
+{
+	enumName = "ChargeDischargeTime";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+ChargeDischargeTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ChargeDischargeTime";
+	modifierType = "Additive";
+}
+
+ChargeMaxTimeInChargedState : WeaponStat
+{
+	enumName = "ChargeMaxTimeInChargedState";
+	enumComment = "Max time weapon can stay at full charge being forced to fire";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ChargeMaxTimeInChargedStateModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ChargeMaxTimeInChargedState";
+	modifierType = "Additive";
+}
+
+ChargeMultiplier : WeaponStat
+{
+	enumName = "ChargeMultiplier";
+	enumComment = "Damage multiplier to apply as weapon is being charged";
+	min = 1;
+	localizedName = "LocKey#77284";
+	bool displayPlus = true;
+	bool isPercentage = true;
+	bool multByHundred = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ChargeMultiplierModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ChargeMultiplier";
+	modifierType = "Additive";
+}
+
+ChargeFullMultiplier : WeaponStat
+{
+	enumName = "ChargeFullMultiplier";
+	enumComment = "Damage multiplier to apply when weapon is fully charged (effect combines with ChargeMultiplier)";
+	min = 1;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ChargeFullMultiplierModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ChargeFullMultiplier";
+	modifierType = "Additive";
+}
+
+ChargeReadyPercentage : WeaponStat
+{
+	enumName = "ChargeReadyPercentage";
+	enumComment = "What % of full charge needed for weapon to be considred to use charge fire";
+	min = 0;
+}
+
+ChargeReadyPercentageModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ChargeReadyPercentage";
+	modifierType = "Additive";
+}
+
+ChargeShouldFireWhenReady : WeaponStat
+{
+	enumName = "ChargeShouldFireWhenReady";
+	enumComment = "Should weapon fire immediately when charge is ready";
+	min = 0;
+}
+
+ChargeShouldFireWhenReadyModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ChargeShouldFireWhenReady";
+	modifierType = "Additive";
+}
+
+FullAutoOnFullCharge : WeaponStat
+{
+	enumName = "FullAutoOnFullCharge";
+	enumComment = "Should weapon fire in full auto when fully charged";
+	min = 0;
+}
+
+FullAutoOnFullChargeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.FullAutoOnFullCharge";
+	modifierType = "Additive";
+}
+
+BaseChargeTime : WeaponStat
+{
+	enumName = "BaseChargeTime";
+	min = 0;
+	localizedName = "LocKey#759";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+ChargeTime : WeaponStat
+{
+	enumName = "ChargeTime";
+	min = 0;
+	localizedName = "LocKey#759";
+	bool inSeconds = true;
+	improvementRelation = "ImprovementRelation.Inverse";
+	bool shouldFlipNegativeValue = true;
+}
+
+ChargeTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.BaseChargeTime";
+	modifierType = "Additive";
+}
+
+ChargeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.Charge";
+	modifierType = "Additive";
+}
+
+CycleTime : WeaponStat
+{
+	enumName = "CycleTime";
+	enumComment = "Fire rate. Time between shots in seconds";
+	min = 0.01f;
+}
+
+CycleTimeBase : WeaponStat
+{
+	enumName = "CycleTimeBase";
+	min = 0.01;
+}
+
+CycleTimeBonus : WeaponStat
+{
+	enumName = "CycleTimeBonus";
+	min = 0.01;
+}
+
+CycleTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTimeBase";
+	modifierType = "Additive";
+}
+
+CycleTimeAimBlockStart : WeaponStat
+{
+	enumName = "CycleTimeAimBlockStart";
+	enumComment = "Delay in cycle round state before blocking player aiming";
+	min = 0.0f;
+}
+
+CycleTimeAimBlockStartModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTimeAimBlockStart";
+	modifierType = "Additive";
+	value = -1.f;
+}
+
+CycleTimeAimBlockDuration : WeaponStat
+{
+	enumName = "CycleTimeAimBlockDuration";
+	enumComment = "Duration after CycleTimeAimBlockStart ";
+	min = 0.0f;
+}
+
+CycleTimeAimBlockDurationModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTimeAimBlockDuration";
+	modifierType = "Additive";
+	value = 0.f;
+}
+
+CycleTriggerModeTime : WeaponStat
+{
+	enumName = "CycleTriggerModeTime";
+	min = 0.5f;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+CycleTriggerModeTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTriggerModeTime";
+	modifierType = "Additive";
+}
+
+UnequipDuration : WeaponStat
+{
+	enumName = "UnequipDuration";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+UnequipDurationModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipDuration";
+	modifierType = "Additive";
+}
+
+UnequipDuration_Gang : WeaponStat
+{
+	enumName = "UnequipDuration_Gang";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+UnequipDuration_GangModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipDuration_Gang";
+	modifierType = "Additive";
+}
+
+UnequipDuration_Corpo : WeaponStat
+{
+	enumName = "UnequipDuration_Corpo";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+UnequipDuration_CorpoModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipDuration_Corpo";
+	modifierType = "Additive";
+}
+
+UnequipAnimationDuration_Gang : WeaponStat
+{
+	enumName = "UnequipAnimationDuration_Gang";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+UnequipAnimationDuration_GangModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipAnimationDuration_Gang";
+	modifierType = "Additive";
+}
+
+UnequipAnimationDuration_Corpo : WeaponStat
+{
+	enumName = "UnequipAnimationDuration_Corpo";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+UnequipAnimationDuration_CorpoModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipAnimationDuration_Corpo";
+	modifierType = "Additive";
+}
+
+UnequipItemTime_Gang : WeaponStat
+{
+	enumName = "UnequipItemTime_Gang";
+}
+
+UnequipItemTime_GangModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipItemTime_Gang";
+	modifierType = "Additive";
+}
+
+UnequipItemTime_Corpo : WeaponStat
+{
+	enumName = "UnequipItemTime_Corpo";
+}
+
+UnequipItemTime_CorpoModifier : ConstantStatModifier
+{
+	statType = "BaseStats.UnequipItemTime_Corpo";
+	modifierType = "Additive";
+}
+
+EquipDuration : WeaponStat
+{
+	enumName = "EquipDuration";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+EquipDurationModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipDuration";
+	modifierType = "Additive";
+}
+
+EquipActionDuration_Gang : WeaponStat
+{
+	enumName = "EquipActionDuration_Gang";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+EquipActionDuration_GangModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipActionDuration_Gang";
+	modifierType = "Additive";
+}
+
+EquipActionDuration_Corpo : WeaponStat
+{
+	enumName = "EquipActionDuration_Corpo";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+EquipActionDuration_CorpoModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipActionDuration_Corpo";
+	modifierType = "Additive";
+}
+
+EquipAnimationDuration_Gang : WeaponStat
+{
+	enumName = "EquipAnimationDuration_Gang";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+EquipAnimationDuration_GangModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipAnimationDuration_Gang";
+	modifierType = "Additive";
+}
+
+EquipAnimationDuration_Corpo : WeaponStat
+{
+	enumName = "EquipAnimationDuration_Corpo";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+EquipAnimationDuration_CorpoModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipAnimationDuration_Corpo";
+	modifierType = "Additive";
+}
+
+EquipItemTime_Gang : WeaponStat
+{
+	enumName = "EquipItemTime_Gang";
+}
+
+EquipItemTime_GangModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipItemTime_Gang";
+	modifierType = "Additive";
+}
+
+EquipItemTime_Corpo : WeaponStat
+{
+	enumName = "EquipItemTime_Corpo";
+}
+
+EquipItemTime_CorpoModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipItemTime_Corpo";
+	modifierType = "Additive";
+}
+
+EquipDuration_First : WeaponStat
+{
+	enumName = "EquipDuration_First";
+}
+
+EquipDuration_FirstModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EquipDuration_First";
+	modifierType = "Additive";
+	value = 5.3;
+}
+
+HitReactionFactor : WeaponStat
+{
+	enumName = "HitReactionFactor";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+HitReactionFactorModifier : ConstantStatModifier
+{
+	statType = "BaseStats.HitReactionFactor";
+	modifierType = "Additive";
+}
+
+HitWoundsFactor : WeaponStat
+{
+	enumName = "HitWoundsFactor";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+HitWoundsFactorModifier : ConstantStatModifier
+{
+	statType = "BaseStats.HitWoundsFactor";
+	modifierType = "Additive";
+}
+
+HitDismembermentFactor : WeaponStat
+{
+	enumName = "HitDismembermentFactor";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+HitDismembermentFactorModifier : ConstantStatModifier
+{
+	statType = "BaseStats.HitDismembermentFactor";
+	modifierType = "Additive";
+}
+
+MagazineCapacity : WeaponStat
+{
+	enumName = "MagazineCapacity";
+	min = 1;
+	max = 65535;
+	localizedName = "LocKey#763";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+MagazineCapacityBase : WeaponStat
+{
+	enumName = "MagazineCapacityBase";
+}
+
+MagazineCapacityBonus : WeaponStat
+{
+	enumName = "MagazineCapacityBonus";
+}
+
+MagazineCapacityModifier : ConstantStatModifier
+{
+	statType = "BaseStats.MagazineCapacityBase";
+	modifierType = "Additive";
+}
+
+NumShotsToFire : WeaponStat
+{
+	enumName = "NumShotsToFire";
+	min = 1;
+}
+
+NumShotsToFireModifier : ConstantStatModifier
+{
+	statType = "BaseStats.NumShotsToFire";
+	modifierType = "Additive";
+}
+
+Overheat : WeaponStat
+{
+	enumName = "Overheat";
+	min = 0;
+	max = 100;
+}
+
+OverheatModifier : ConstantStatModifier
+{
+	statType = "BaseStats.Overheat";
+	modifierType = "Additive";
+}
+
+CycleTimeShootingMult : WeaponStat
+{
+	enumName = "CycleTimeShootingMult";
+	min = 0.0f;
+	max = 1.0f;
+}
+
+CycleTimeShootingMultModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTimeShootingMult";
+	modifierType = "Additive";
+}
+
+CycleTimeShootingMultPeriod : WeaponStat
+{
+	enumName = "CycleTimeShootingMultPeriod";
+	min = 0.0f;
+}
+
+CycleTimeShootingMultPeriodModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTimeShootingMultPeriod";
+	modifierType = "Additive";
+}
+
+PreFireTime : WeaponStat
+{
+	enumName = "PreFireTime";
+	min = 0.0f;
+}
+
+PreFireTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.PreFireTime";
+	modifierType = "Additive";
+}
+
+AmmoPerQuickMelee : WeaponStat
+{
+	enumName = "AmmoPerQuickMelee";
+	min = 0;
+	enumComment = "ammo to consume per quick melee. Only for firearms";
+}
+
+AmmoPerQuickMeleeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.AmmoPerQuickMelee";
+	modifierType = "Additive";
+}
+
+ProjectilesPerShot : WeaponStat
+{
+	enumName = "ProjectilesPerShot";
+	min = 1;
+}
+
+ProjectilesPerShotBonus : WeaponStat
+{
+	enumName = "ProjectilesPerShotBonus";
+}
+
+ProjectilesPerShotBase : WeaponStat
+{
+	enumName = "ProjectilesPerShotBase";
+	min = 1;
+}
+
+ProjectilesPerShotModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ProjectilesPerShotBase";
+	modifierType = "Additive";
+}
+
+ProjectilesPerShotCombinedModifier : CombinedStatModifier
+{
+	statType = "BaseStats.ProjectilesPerShot";
+	modifierType = "Additive";
+	fk< Stat > refStat = "BaseStats.ProjectilesPerShotBase";
+	CName refObject = "Self";
+	CName opSymbol = "*";
+	float value = 1.f;
+}
+
+ShootingOffsetAI : WeaponStat
+{
+	enumName = "ShootingOffsetAI";
+}
+
+ShootingOffsetAIModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ShootingOffsetAI";
+	modifierType = "Additive";
+}
+
+Range : WeaponStat
+{
+	enumName = "Range";
+	min = 0;
+	localizedName = "LocKey#760";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+RangeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.Range";
+	modifierType = "Additive";
+}
+
+MaximumRange : WeaponStat
+{
+	enumName = "MaximumRange";
+	enumComment = "Range at which raycasts stop";
+	min = 0;
+	bool displayPlus = true;
+	bool inMeters = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+MaximumRangeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.MaximumRange";
+	modifierType = "Additive";
+}
+
+ReloadTime : WeaponStat
+{
+	enumName = "ReloadTime";
+	localizedName = "LocKey#761";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+ReloadTimeBase : WeaponStat
+{
+	enumName = "ReloadTimeBase";
+}
+
+ReloadTimeBonus : WeaponStat
+{
+	enumName = "ReloadTimeBonus";
+}
+
+ReloadTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ReloadTimeBase";
+	modifierType = "Additive";
+}
+
+ReloadEndTime : WeaponStat
+{
+	enumName = "ReloadEndTime";
+}
+
+ReloadEndTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ReloadEndTime";
+	modifierType = "Additive";
+}
+
+EmptyReloadTime : WeaponStat
+{
+	enumName = "EmptyReloadTime";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+EmptyReloadTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EmptyReloadTime";
+	modifierType = "Additive";
+}
+
+ReloadAmount : WeaponStat
+{
+	enumName = "ReloadAmount";
+}
+
+ReloadAmountModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ReloadAmount";
+	modifierType = "Additive";
+}
+
+ScopeFOV : WeaponStat
+{
+	enumName = "ScopeFOV";
+	min = 0;
+}
+
+ScopeOffset : WeaponStat
+{
+	enumName = "ScopeOffset";
+	min = -1;
+	max = 1;
+}
+
+ShotDelay : WeaponStat
+{
+	enumName = "ShotDelay";
+	localizedName = "LocKey#76918";
+}
+
+ShotDelayModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ShotDelay";
+	modifierType = "Additive";
+}
+
+WeaponNoise : WeaponStat
+{
+	enumName = "WeaponNoise";
+	min = 0;
+}
+
+WeaponNoiseModifier : ConstantStatModifier
+{
+	statType = "BaseStats.WeaponNoise";
+	modifierType = "Additive";
+}
+
+ZoomLevel : WeaponStat
+{
+	enumName = "ZoomLevel";
+	min = 1;
+	localizedName = "LocKey#762";
+}
+
+ZoomLevelModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ZoomLevel";
+	modifierType = "Additive";
+}
+
+SlideWhenLeaningOutOfCover : WeaponStat
+{
+	enumName = "SlideWhenLeaningOutOfCover";
+	min = 0;
+	max = 1;
+}
+
+SlideWhenLeaningOutOfCoverModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SlideWhenLeaningOutOfCover";
+	modifierType = "Additive";
+	value = 1;
+}
+
+BlockLocomotionWhenLeaningOutOfCover : WeaponStat
+{
+	enumName = "BlockLocomotionWhenLeaningOutOfCover";
+	min = 0;
+	max = 1;
+}
+
+BlockLocomotionWhenLeaningOutOfCoverModifier : ConstantStatModifier
+{
+	statType = "BaseStats.BlockLocomotionWhenLeaningOutOfCover";
+	modifierType = "Additive";
+	value = 1;
+}
+
+LockedDebuff_WeaponStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			min = 0.1f;
+			max = 0.3f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ReloadTime";
+			modifierType = "Multiplier";
+			min = 1.2f;
+			max = 2.1f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.CycleTime";
+			modifierType = "Multiplier";
+			min = 1.2f;
+			max = 2.1f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.AimInTime";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.AimOutTime";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.RecoilAngle";
+			modifierType = "Multiplier";
+			min = 1.2f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Multiplier";
+			min = 1.3f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Multiplier";
+			min = 1.5f;
+			max = 1.9f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxY";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxY";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Multiplier";
+			min = 1.1f;
+			max = 1.7f;
+		} : RandomStatModifier
+	];
+}
+
+WeakspotDamageMultiplier : WeaponStat
+{
+	enumName = "WeakspotDamageMultiplier";
+	min = 1;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+StealthWeakspotDamageMultiplier : WeaponStat
+{
+	enumName = "StealthWeakspotDamageMultiplier";
+	min = 1;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+CycleTime_Burst : WeaponStat
+{
+	enumName = "CycleTime_Burst";
+	min = 0.1f;
+}
+
+CycleTime_BurstModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTime_Burst";
+	modifierType = "Additive";
+}
+
+NumShotsInBurst : WeaponStat
+{
+	enumName = "NumShotsInBurst";
+	min = 1;
+}
+
+NumShotsInBurstModifier : ConstantStatModifier
+{
+	statType = "BaseStats.NumShotsInBurst";
+	modifierType = "Additive";
+}
+
+CycleTime_BurstSecondary : WeaponStat
+{
+	enumName = "CycleTime_BurstSecondary";
+	min = 0.1f;
+}
+
+CycleTime_BurstSecondaryModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTime_BurstSecondary";
+	modifierType = "Additive";
+}
+
+NumShotsInBurstSecondary : WeaponStat
+{
+	enumName = "NumShotsInBurstSecondary";
+	min = 1;
+}
+
+NumShotsInBurstSecondaryModifier : ConstantStatModifier
+{
+	statType = "BaseStats.NumShotsInBurstSecondary";
+	modifierType = "Additive";
+}
+
+CycleTime_BurstMaxCharge : WeaponStat
+{
+	enumName = "CycleTime_BurstMaxCharge";
+	min = 0.1f;
+}
+
+CycleTime_BurstMaxChargeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.CycleTime_BurstMaxCharge";
+	modifierType = "Additive";
+}
+
+NumShotsInBurstMaxCharge : WeaponStat
+{
+	enumName = "NumShotsInBurstMaxCharge";
+	min = 1;
+}
+
+NumShotsInBurstMaxChargeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.NumShotsInBurstMaxCharge";
+	modifierType = "Additive";
+}
+
+RicochetCount : WeaponStat
+{
+	enumName = "RicochetCount";
+	enumComment = "How many times a single bullet can can ricochet(bounce) of somthing";
+	min = 0;
+	localizedName = "LocKey#80717";
+	bool displayPlus = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+RicochetCountModifier : ConstantStatModifier
+{
+	statType = "BaseStats.RicochetCount";
+	modifierType = "Additive";
+}
+
+RicochetTargetSearchAngle : WeaponStat
+{
+	enumName = "RicochetTargetSearchAngle";
+	enumComment = "How many degrees we can modify the ricochet angle inorder to hit a target";
+	min = 0;
+	max = 360;
+}
+
+RicochetTargetSearchAngleModifier : ConstantStatModifier
+{
+	statType = "BaseStats.RicochetTargetSearchAngle";
+	modifierType = "Additive";
+}
+
+RicochetMinAngle : WeaponStat
+{
+	enumName = "RicochetMinAngle";
+	enumComment = "The min angle between the bullets trajectory and surface collision normal to ricochet of the surface";
+	min = 0;
+	max = 90;
+}
+
+RicochetMinAngleModifier : ConstantStatModifier
+{
+	statType = "BaseStats.RicochetMinAngle";
+	modifierType = "Additive";
+}
+
+RicochetMaxAngle : WeaponStat
+{
+	enumName = "RicochetMaxAngle";
+	enumComment = "The max angle between the bullets trajectory and surface collision normal to ricochet of the surface";
+	min = 0;
+	max = 90;
+}
+
+RicochetMaxAngleModifier : ConstantStatModifier
+{
+	statType = "BaseStats.RicochetMaxAngle";
+	modifierType = "Additive";
+}
+
+RicochetChance : WeaponStat
+{
+	enumName = "RicochetChance";
+	enumComment = "0.0-1.0 percentage change that a bullet will ricochet";
+	min = 0;
+	max = 1;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+RicochetChanceModifier : ConstantStatModifier
+{
+	statType = "BaseStats.RicochetChance";
+	modifierType = "Additive";
+}
+
+PhysicalImpulse : WeaponStat
+{
+	enumName = "PhysicalImpulse";
+	enumComment = "Physical force to applied to object's physics on hit";
+	min = 0;
+}
+
+PhysicalImpulseModifier : ConstantStatModifier
+{
+	statType = "BaseStats.PhysicalImpulse";
+	modifierType = "Additive";
+}
+
+BaseKnockdownImpulse : WeaponStat
+{
+	enumName = "BaseKnockdownImpulse";
+	enumComment = "Variable to be applied to npcs knockdown calculations - value unmodified by Body attribute";
+	min = 0;
+	max = 100;
+}
+
+BaseKnockdownImpulseModifier : ConstantStatModifier
+{
+	statType = "BaseStats.BaseKnockdownImpulse";
+	modifierType = "Additive";
+}
+
+EvadeImpulse : WeaponStat
+{
+	enumName = "EvadeImpulse";
+	enumComment = "Variable to be applied to npcs evade calculations";
+	min = 0;
+	max = 100;
+}
+
+BaseEvadeImpulseModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EvadeImpulse";
+	modifierType = "Additive";
+}
+
+KnockdownImpulse : WeaponStat
+{
+	enumName = "KnockdownImpulse";
+	enumComment = "Variable to be applied to npcs knockdown calculations";
+	min = 0;
+	max = 100;
+}
+
+KnockdownImpulseModifier : ConstantStatModifier
+{
+	statType = "BaseStats.KnockdownImpulse";
+	modifierType = "Additive";
+}
+
+TechPierceChargeLevel : WeaponStat
+{
+	enumName = "TechPierceChargeLevel";
+	enumComment = "How much you need to charge the shot in order for it to enable 'tech' pierce";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+TechPierceChargeLevelModifier : ConstantStatModifier
+{
+	statType = "BaseStats.TechPierceChargeLevel";
+	modifierType = "Additive";
+}
+
+TechBaseChargeThreshold : WeaponStat
+{
+	enumName = "TechBaseChargeThreshold";
+	enumComment = "Base value of Charge, with no perks, should be half";
+	min = 0;
+	max = 100;
+}
+
+TechBaseChargeThresholdModifier : ConstantStatModifier
+{
+	statType = "BaseStats.TechBaseChargeThreshold";
+	modifierType = "Additive";
+}
+
+TechMaxChargeThreshold : WeaponStat
+{
+	enumName = "TechMaxChargeThreshold";
+	enumComment = "Max value of Charge, with one perk";
+	min = 0;
+	max = 100;
+}
+
+TechMaxChargeThresholdModifier : ConstantStatModifier
+{
+	statType = "BaseStats.TechMaxChargeThreshold";
+	modifierType = "Additive";
+}
+
+TechOverChargeThreshold : WeaponStat
+{
+	enumName = "TechOverChargeThreshold";
+	enumComment = "Overcharge value of Charge, with all perks, should be the maximum value of charge stat pool";
+	min = 0;
+	max = 100;
+}
+
+TechOverChargeThresholdModifier : ConstantStatModifier
+{
+	statType = "BaseStats.TechOverChargeThreshold";
+	modifierType = "Additive";
+}
+
+TechPierceDamageFactor : WeaponStat
+{
+	enumName = "TechPierceDamageFactor";
+	enumComment = "Additive Multiplier on damage whenever a shot tech pierces (does not affect regular piercing) ";
+	min = 0;
+}
+
+TechPierceDamageFactorModifier : ConstantStatModifier
+{
+	statType = "BaseStats.TechPierceDamageFactor";
+	modifierType = "Additive";
+}
+
+TechPierceScanAngle : WeaponStat
+{
+	enumName = "TechPierceScanAngle";
+	enumComment = "Defines the search angle that tech preview scan can use ";
+	min = 0;
+}
+
+TechPierceScanAngleModifier : ConstantStatModifier
+{
+	statType = "BaseStats.TechPierceScanAngle";
+	modifierType = "Additive";
+}
+
+AttackPenetration : WeaponStat
+{
+	enumName = "AttackPenetration";
+	enumComment = "How much penetration/piercing force does the bullet have. 0 = Light, 1 = Medium, 2 = Heavy";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+AttackPenetrationModifier : ConstantStatModifier
+{
+	statType = "BaseStats.AttackPenetration";
+	modifierType = "Additive";
+}
+
+EnemyChemicalResistanceReduction : WeaponStat
+{
+	localizedName = "LocKey#81727";
+	enumName = "EnemyChemicalResistanceReduction";
+	enumComment = "Amount of chemical resistance reduced on enemy with each hit";
+	min = 0;
+	bool isPercentage = true;
+}
+
+ShortDistanceDamageIncrease : WeaponStat
+{
+	localizedName = "LocKey#81728";
+	enumName = "ShortDistanceDamageIncrease";
+	enumComment = "Percentage damage increase when enemy is closer than X meters";
+	min = 0;
+	bool isPercentage = true;
+}
+
+WeaponSwapDuration : WeaponStat
+{
+	localizedName = "LocKey#81731";
+	enumName = "WeaponSwapDuration";
+	enumComment = "Reduction of weapon equip time and unequip time in %";
+	bool isPercentage = true;
+}
+
+BulletPseudoPierceHitVFxChance : WeaponStat
+{
+	enumName = "BulletPseudoPierceHitVFxChance";
+	enumComment = "Optimization. Specifies the chance to spawn pseudo pierce VFX. Adds additional raycasts so keep the chance low on multi-shot / high rate of fire weapons";
+	min = 0;
+	max = 1;
+}
+
+BulletPseudoPierceHitVFxChanceModifier : ConstantStatModifier
+{
+	statType = "BaseStats.BulletPseudoPierceHitVFxChance";
+	modifierType = "Additive";
+}
+
+BulletSurroundingHitVFxChance : WeaponStat
+{
+	enumName = "BulletSurroundingHitVFxChance";
+	enumComment = "Optimization. Specifies the chance to spawn surrounding hit VFX. Adds additional raycasts so keep the chance low on multi-shot / high rate of fire weapons";
+	min = 0;
+	max = 1;
+}
+
+BulletSurroundingHitVFxChanceModifier : ConstantStatModifier
+{
+	statType = "BaseStats.BulletSurroundingHitVFxChance";
+	modifierType = "Additive";
+}
+

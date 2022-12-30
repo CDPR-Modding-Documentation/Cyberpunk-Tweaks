@@ -1,0 +1,177 @@
+package GangSupport
+using RTDB, ItemType, MovementActions, CombatDecorator
+
+DefaultNodeMap : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.RingSelector";
+			isOverriddenBy = "GangSupport.RingSelector";
+		}, 
+		{
+			node = "GenericArchetype.SimpleRingSelector";
+			isOverriddenBy = "GangSupport.SimpleRingSelector";
+		}, 
+		{
+			node = "GenericArchetype.CoverPresetDecoratorSelector";
+			isOverriddenBy = "GangSupport.CoverPresetDecoratorSelector";
+		}
+	];
+}
+
+Map : ActionMap
+{
+	map = 
+	[
+		{
+			itemType = "ItemType.Wea_Fists";
+			map = "Gang_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_StrongArms";
+			map = "Gang_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Hammer";
+			map = "Gang_Hammer.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Handgun";
+			map = "GangSupport_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Revolver";
+			map = "GangSupport_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Katana";
+			map = "Gang_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Knife";
+			map = "Gang_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShortBlade";
+			map = "Gang_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LongBlade";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Axe";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Chainsword";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Machete";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_MantisBlades";
+			map = "Gang_MantisBlades.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_OneHandedClub";
+			map = "Gang_OneHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_TwoHandedClub";
+			map = "Gang_TwoHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SubmachineGun";
+			map = "GangSupport_SubmachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Rifle";
+			map = "GangSupport_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_AssaultRifle";
+			map = "GangSupport_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Shotgun";
+			map = "GangSupport_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShotgunDual";
+			map = "GangSupport_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_PrecisionRifle";
+			map = "GangSupport_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SniperRifle";
+			map = "GangSupport_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LightMachineGun";
+			map = "GangSupport_LightMachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_HeavyMachineGun";
+			map = "GangSupport_LightMachineGun.Map";
+		}
+	];
+	defaultMap = "GangSupport.DefaultNodeMap";
+}
+
+RingSelector : MovementActions.RingSelector
+{
+	actions = 
+	[
+		"MovementActions.ExtremeRing1stFilterCoverLOS", "MovementActions.FarRing1stFilterCoverLOS", "MovementActions.MediumRing1stFilterCoverLOS", "MovementActions.ExtremeRing2ndFilterCoverLOS", "MovementActions.FarRing2ndFilterCoverLOS", "MovementActions.MediumRing2ndFilterCoverLOS", "MovementActions.ExtremeRing1stFilterCoverAny", "MovementActions.FarRing1stFilterCoverAny", "MovementActions.MediumRing1stFilterCoverAny", "MovementActions.ExtremeRing2ndFilterCoverAny", "MovementActions.FarRing2ndFilterCoverAny", "MovementActions.MediumRing2ndFilterCoverAny", "MovementActions.ExtremeRing1stFilterLOS", "MovementActions.FarRing1stFilterLOS", "MovementActions.ExtremeRing2ndFilterLOS", "MovementActions.FarRing2ndFilterLOS", "MovementActions.MediumRing2ndFilterLOS", "MovementActions.ExtremeRing1stFilterNoLimit", "MovementActions.FarRing1stFilterNoLimit", "MovementActions.ExtremeRing2ndFilterNoLimit", "MovementActions.FarRing2ndFilterNoLimit", "MovementActions.MediumRing2ndFilterNoLimit", "MovementActions.CloseRing2ndFilterNoLimit", "MovementActions.SquadRingDefault"
+	];
+}
+
+SimpleRingSelector : MovementActions.SimpleRingSelector
+{
+	actions = 
+	[
+		"MovementActions.SimpleFarRing", "MovementActions.HoldPosition"
+	];
+}
+
+CoverPresetDecoratorSelector : CombatDecorator.CoverPresetDecoratorSelector
+{
+	actions = 
+	[
+		"GangSupport.SupportCompoundCoverSelectionPreset"
+	];
+}
+
+SupportCompoundCoverSelectionPreset : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.Follower"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "SniperCompound";
+			initialPreset = "SniperCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+

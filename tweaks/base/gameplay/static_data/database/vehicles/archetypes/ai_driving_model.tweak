@@ -1,0 +1,100 @@
+package Vehicle
+using RTDB, BaseStats, Driving
+
+VehicleWheelPreset_AI_Small_Front : VehicleWheelDrivingPreset_Default
+{
+	maxBrakingTorque = 2000.0f;
+	frictionMulLateral = 1.0f;
+	mass = 15.0f;
+}
+
+VehicleWheelPreset_AI_Small_Back : VehicleWheelDrivingPreset_Default
+{
+	maxBrakingTorque = 2000.0f;
+	frictionMulLateral = 1.5f;
+	mass = 15.0f;
+}
+
+VehicleWheelPreset_AI_Truck_Front : VehicleWheelDrivingPreset_Default
+{
+	maxBrakingTorque = 4000.0f;
+	frictionMulLateral = 1.0f;
+	mass = 40.0f;
+}
+
+VehicleWheelPreset_AI_Truck_Back : VehicleWheelDrivingPreset_Default
+{
+	maxBrakingTorque = 4000.0f;
+	frictionMulLateral = 1.5f;
+	mass = 40.0f;
+}
+
+VehicleDriveModelDataAI_Default : VehicleDriveModelDataDefault_4w
+{
+	maxWheelTurnDeg = 35.f;
+	wheelTurnMaxAddPerSecond = 360.f;
+	wheelTurnMaxSubPerSecond = 360.f;
+	brakingFrictionFactor = 1.5f;
+	center_of_mass_offset = ( 0.0f, 0.0f, 0.0f );
+	forwardWeightTransferFactor = 0.0f;
+	sideWeightTransferFactor = 0.0f;
+	wheelsFrictionMap = "CarDrivingFrictionMap.Default_AI";
+	slipAngleMinSpeedThreshold = 15.f;
+	slipAngleCurveScale = 1.f;
+	slipRatioMinSpeedThreshold = 15.f;
+	slipRatioCurveScale = 1.f;
+	driveHelpers = 
+	[
+		{
+			type = "Vehicle.RotationLimiter_HelperType";
+			maxAngularSpeedRad = 1.8;
+		} : RotationLimiter, 
+		{
+			type = "Vehicle.UphillDriveHelper_HelperType";
+			slopeCompensationFactor = 0.5f;
+			slopeCompensationMaxAngle = 20.f;
+		} : UphillDriveHelper, 
+		{
+			type = "Vehicle.InAirGravityModifier_HelperType";
+		} : InAirGravityModifier
+	];
+}
+
+VehicleDriveModelDataAI_Regular_Small : VehicleDriveModelDataAI_Default
+{
+	total_mass = 1200.f;
+	airResistanceFactor = 3.4f;
+	wheelSetup = 
+	{
+		frontPreset = "Vehicle.VehicleWheelPreset_AI_Small_Front";
+		backPreset = "Vehicle.VehicleWheelPreset_AI_Small_Back";
+	} : VehicleWheelDrivingSetup_4_AWD;
+}
+
+VehicleDriveModelDataAI_Regular_Nomad : VehicleDriveModelDataAI_Regular_Small
+{
+	total_mass = 1600.f;
+}
+
+VehicleDriveModelDataAI_Regular_Medium : VehicleDriveModelDataAI_Default
+{
+	total_mass = 1600.0f;
+	wheelSetup = 
+	{
+		frontPreset = "Vehicle.VehicleWheelPreset_AI_Small_Front";
+		backPreset = "Vehicle.VehicleWheelPreset_AI_Small_Back";
+	} : VehicleWheelDrivingSetup_4_AWD;
+}
+
+VehicleDriveModelDataAI_Truck : VehicleDriveModelDataAI_Default
+{
+	total_mass = 2800.0f;
+	center_of_mass_offset = ( 0.0f, 0.0f, 0.0f );
+	airResistanceFactor = 4.0f;
+	wheelSetup = 
+	{
+		frontPreset = "Vehicle.VehicleWheelPreset_AI_Truck_Front";
+		backPreset = "Vehicle.VehicleWheelPreset_AI_Truck_Back";
+	} : VehicleWheelDrivingSetup_4_AWD;
+}
+

@@ -1,0 +1,591 @@
+package Takedown
+using RTDB, Prereqs
+
+Grapple : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "GrappleTarget";
+	interactionLayer = "Grapple";
+	instigatorPrereqs = 
+	[
+		"Takedown.GeneralStateChecks", "Takedown.IsPlayerInExploration", "Takedown.IsPlayerInAcceptableGroundLocomotionState", "Takedown.PlayerNotInSafeZone", "Takedown.GameplayRestrictions"
+	];
+	targetPrereqs = 
+	[
+		"Takedown.IsTargetSusceptible", "Takedown.IsTargetEnemy"
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.GrappleTarget";
+}
+
+BossTakedown : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "BossTakedown";
+	interactionLayer = "BossTakedownLayer";
+	fk< InteractionBase > objectActionUI = "Interactions.BossTakedown";
+	instigatorPrereqs = 
+	[
+		"Takedown.GeneralStateChecks", "Takedown.IsPlayerInExploration", "Takedown.IsPlayerInAcceptableGroundLocomotionState", "Takedown.PlayerNotInSafeZone", "Takedown.GameplayRestrictions"
+	];
+	targetPrereqs = 
+	[
+		"Takedown.IsBossSusceptible", {
+			statusEffect = "BaseStatusEffect.BossTakedownCooldown";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.BossNoTakeDown";
+		} : StatusEffectAbsentPrereq
+	];
+	rewards = 
+	[
+		"RPGActionRewards.Stealth"
+	];
+}
+
+TakedownMassiveTarget : BossTakedown
+{
+	actionName = "TakedownMassiveTarget";
+	interactionLayer = "MassiveTargetTakedownLayer";
+	fk< InteractionBase > objectActionUI = "Interactions.TakedownMassiveTarget";
+	targetPrereqs = 
+	[
+		"Takedown.IsTargetSusceptible", "Takedown.IsTargetEnemy"
+	];
+}
+
+Takedown : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	fk< IPrereq >[] targetPrereqs = [];
+	fk< InteractionBase > objectActionUI = "Interactions.Takedown";
+	instigatorPrereqs = 
+	[
+		{
+			prereqClassName = "TakedownPSMPrereq";
+			string stateName = "Grapple";
+			bool isInState = true;
+		} : IPrereq
+	];
+	interactionLayer = "TakedownLayer";
+	rewards = 
+	[
+		"RPGActionRewards.Stealth"
+	];
+}
+
+LethalTakedown : Takedown
+{
+	actionName = "Takedown";
+}
+
+NonLethalTakedown : Takedown
+{
+	actionName = "TakedownNonLethal";
+	fk< InteractionBase > objectActionUI = "Interactions.TakedownNonLethal";
+}
+
+ForceShove : Takedown
+{
+	actionName = "ForceShove";
+	fk< InteractionBase > objectActionUI = "Interactions.ForceShove";
+	fk< IPrereq >[] instigatorPrereqs = 
+	[
+		{
+			statType = "CanPushFromGrapple";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	rewards = 
+	[
+		"RPGActionRewards.Athletics"
+	];
+}
+
+OfficerTakedown : Takedown
+{
+	targetPrereqs = 
+	[
+		{
+			prereqClassName = "NPCRarityPrereq";
+			string rarity = "Officer";
+		} : IPrereq
+	];
+	actionName = "TakedownNetrunner";
+	fk< InteractionBase > objectActionUI = "Interactions.TakedownNetrunner";
+	instigatorPrereqs = 
+	[
+		{
+			statType = "HasCyberdeck";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	rewards = 
+	[
+		"RPGActionRewards.Hacking"
+	];
+}
+
+BreachUnconsciousOfficer : OfficerTakedown
+{
+	actionName = "PhysicalBreach";
+	fk< InteractionBase > objectActionUI = "Interactions.BreachUnconsciousOfficer";
+	interactionLayer = "Loot";
+	instigatorPrereqs = 
+	[
+		"Takedown.GeneralStateChecks", "Takedown.IsPlayerInExploration", "Takedown.IsPlayerInAcceptableGroundLocomotionState", "Takedown.PlayerNotInSafeZone", "Takedown.GameplayRestrictions", {
+			prereqClassName = "TakedownPSMPrereq";
+			string stateName = "Default";
+			bool isInState = true;
+		} : IPrereq, 
+		{
+			prereqClassName = "TakedownPSMPrereq";
+			string stateName = "Default";
+			bool isInState = true;
+		} : IPrereq, 
+		{
+			statType = "HasCyberdeck";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 1.8;
+		} : ConstantStatModifier
+	];
+	targetPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+		} : StatusEffectPrereq, 
+		{
+			prereqClassName = "IsPuppetBreachedPrereq";
+			bool isBreached = false;
+		} : IPrereq
+	];
+}
+
+NetrunnerTakedown : OfficerTakedown
+{
+	actionName = "PhysicalBreach";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 3.6;
+		} : ConstantStatModifier
+	];
+}
+
+NanoWireRemoteBreach : OfficerTakedown
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Remote";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0.35;
+		} : ConstantStatModifier
+	];
+}
+
+AerialTakedown : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "AerialTakedown";
+	interactionLayer = "AerialTakedown";
+	instigatorPrereqs = 
+	[
+		{
+			statType = "CanAerialTakedown";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq, 
+		"Takedown.IsPlayerFallSpeedAcceptable", "Takedown.GeneralStateChecks", "Takedown.IsPlayerInAcceptableAerialState", "Takedown.IsPlayerInExploration", "Takedown.PlayerNotInSafeZone", "Takedown.GameplayRestrictions"
+	];
+	targetPrereqs = 
+	[
+		"Takedown.IsTargetSusceptible", "Takedown.IsTargetEnemy"
+	];
+	rewards = 
+	[
+		"RPGActionRewards.Stealth"
+	];
+}
+
+IsTargetEnemy : ANDPrereq
+{
+	nestedPrereqs = 
+	[
+		"Takedown.IsTargetAttitudeAcceptable", "Takedown.IsTargetAggressive"
+	];
+}
+
+IsTargetAttitudeAcceptable : ORPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			attitude = "AIA_Neutral";
+		} : Prereqs.NPCAttitudeTowardsPlayerPrereq, 
+		{
+			attitude = "AIA_Hostile";
+		} : Prereqs.NPCAttitudeTowardsPlayerPrereq
+	];
+}
+
+IsTargetAggressive : IPrereq
+{
+	prereqClassName = "NPCIsAggressive";
+}
+
+IsPlayerInExploration : IPrereq
+{
+	prereqClassName = "HighLevelPSMPrereq";
+	string stateName = "SceneTier1";
+	bool isInState = true;
+}
+
+PlayerNotInSafeZone : IPrereq
+{
+	prereqClassName = "ZonesPSMPrereq";
+	string stateName = "Safe";
+	bool isInState = false;
+}
+
+IsPlayerInAcceptableGroundLocomotionState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Stand";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Sprint";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Crouch";
+		} : Prereqs.DetailedLocomotionPSMPrereq
+	];
+}
+
+IsPlayerInAcceptableAerialState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Fall";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Jump";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "DoubleJump";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "ChargeJump";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "DodgeAir";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "AirThrusters";
+		} : Prereqs.DetailedLocomotionPSMPrereq
+	];
+}
+
+IsPlayerFallSpeedAcceptable : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "SafeFall";
+		} : Prereqs.FallPSMPrereq, 
+		{
+			stateName = "FastFall";
+		} : Prereqs.FallPSMPrereq
+	];
+}
+
+IsTargetSusceptible : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Takedown.IsTargetInAcceptableState", "Takedown.IsWindowOfOpportunity"
+	];
+}
+
+IsBossSusceptible : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Takedown.IsBossInAcceptableState", "Takedown.IsBossWindowOfOpportunity"
+	];
+}
+
+IsBossInAcceptableState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Dead";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			stateName = "Combat";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Defeated";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.NonInteractable";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlind";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlindLevel2";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlindLevel3";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlindLevel4";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipe";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeLevel2";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeLevel3";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+IsBossWindowOfOpportunity : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Combat";
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		"Takedown.WindowOfOpportunityBossState"
+	];
+}
+
+WindowOfOpportunityBossState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			invert = true;
+		} : Prereqs.NPCTrackingPlayerPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Blind";
+		} : StatusEffectPrereq
+	];
+}
+
+IsTargetInAcceptableState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Dead";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			stateName = "Combat";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			stateName = "Vehicle";
+			isInState = false;
+		} : Prereqs.StanceNPCStatePrereq, 
+		{
+			statusEffect = "BaseStatusEffect.BlockGrapple";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Defeated";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.SystemCollapse";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.DefeatedWithRecover";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Grappled";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.NonInteractable";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Invulnerable";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+		} : PuppetMortalPrereq
+	];
+}
+
+IsWindowOfOpportunity : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Combat";
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		"Takedown.WindowOfOpportunityTargetState"
+	];
+}
+
+WindowOfOpportunityTargetState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			invert = true;
+		} : Prereqs.NPCTrackingPlayerPrereq, 
+		"Takedown.IsStatusEffectPresent", "Takedown.IsQuickMeleeStagger"
+	];
+}
+
+IsStatusEffectPresent : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Blind";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Stun";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeLevel2";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeLevel3";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunctionLevel2";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunctionLevel3";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunctionLevel4";
+		} : StatusEffectPrereq
+	];
+}
+
+IsQuickMeleeStagger : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			hitReactionType = "Stagger";
+		} : Prereqs.NPCHitReactionTypePrereq, 
+		{
+			hitSource = "QuickMelee";
+		} : Prereqs.NPCHitSourcePrereq
+	];
+}
+
+GameplayRestrictions : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statusEffect = "GameplayRestriction.PhoneCall";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.NoWorldInteractions";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.Braindance";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.FistFight";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.NoCombat";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+GeneralStateChecks : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Swimming";
+			isInState = false;
+		} : Prereqs.HighLevelPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : Prereqs.TakedownPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : Prereqs.BodyCarryingPSMPrereq, 
+		{
+			isInState = false;
+		} : Prereqs.BodyDisposalPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : Prereqs.VehiclePSMPrereq, 
+		{
+			stateName = "Workspot";
+			isInState = false;
+		} : Prereqs.IsInWorkspotPSMPrereq
+	];
+}
+

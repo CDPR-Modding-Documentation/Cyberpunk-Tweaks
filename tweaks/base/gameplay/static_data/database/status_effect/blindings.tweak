@@ -1,0 +1,372 @@
+package BaseStatusEffect
+using RTDB, Prereqs
+
+Blind : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Blind";
+	gameplayTags += 
+	[
+		"Blind", "ResetSquadSync"
+	];
+	replicated = true;
+	VFX = 
+	[
+		{
+			name = "status_blinded";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "status_blinded";
+		}
+	];
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	immunityStats = 
+	[
+		"BaseStats.BlindImmunity"
+	];
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasCybereye";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Accuracy";
+					modifierType = "Multiplier";
+					value = 0.01f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Evasion";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseCovers";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human", "NPCType.Drone", "NPCType.Mech"
+				];
+			} : NPCTypePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = "BaseStatusEffect.BaseBlindUI";
+}
+
+MinorBlind : Blind
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 6;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+MajorBlind : Blind
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 9;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ReducedVisibility : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Blind";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ReducedVisibility", "Visibility"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Visibility";
+					modifierType = "Additive";
+					value = -0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.VisualStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Detection";
+					modifierType = "Multiplier";
+					value = 0.4f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				stateName = "Combat";
+				invert = true;
+			} : Prereqs.CurrentHighLevelNPCStatePrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human", "NPCType.Drone", "NPCType.Mech"
+				];
+			} : NPCTypePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	fk< StatusEffectUIData > uiData = "BaseStatusEffect.BaseBlindUI";
+}
+
+GreaterReducedVisibility : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Blind";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ReducedVisibility", "Visibility"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Visibility";
+					modifierType = "Additive";
+					value = -0.7f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.VisualStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.3f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasCybereye";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Multiplier";
+					value = 0.3f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Detection";
+					modifierType = "Multiplier";
+					value = 0.2f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				stateName = "Combat";
+				invert = true;
+			} : Prereqs.CurrentHighLevelNPCStatePrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human", "NPCType.Drone", "NPCType.Mech"
+				];
+			} : NPCTypePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	fk< StatusEffectUIData > uiData = "BaseStatusEffect.BaseBlindUI";
+}
+
+BaseBlindUI : StatusEffectUIData
+{
+	string displayName = "LocKey#40941";
+	description = "LocKey#77834";
+	string iconPath = "blinded_icon";
+	priority = 3.0f;
+}
+
+SmokeScreen : Blind
+{
+	CName[] gameplayTags = 
+	[
+		"SmokeScreen"
+	];
+	fk< StatusEffectUIData > uiData = "BaseStatusEffect.SmokeScreenUI";
+}
+
+SmokeScreenUI : BaseBlindUI
+{
+	string displayName = "LocKey#40942";
+}
+
+BaseQuickHackBlind : Blind
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDurationBlind;
+	gameplayTags += 
+	[
+		"Quickhack", "QuickHackBlind", "Stealth"
+	];
+	VFX = 
+	[
+		{
+			name = "hacks_optics_malfunction";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "quickhack_reboot_optics";
+		} : StatusEffectFX
+	];
+}
+
+QuickHackBlind : BaseQuickHackBlind
+{
+}
+
+QuickHackBlindLevel2 : BaseQuickHackBlind
+{
+}
+
+QuickHackBlindLevel3 : BaseQuickHackBlind
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.f;
+			} : BaseDurationMod, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Multiplier";
+				value = 1.5f;
+			} : ConstantStatModifier
+		];
+	} : BaseStatusEffect.BaseQuickHackDurationBlind;
+}
+
+QuickHackBlindLevel4 : BaseQuickHackBlind
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.f;
+			} : BaseDurationMod, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Multiplier";
+				value = 1.5f;
+			} : ConstantStatModifier
+		];
+	} : BaseStatusEffect.BaseQuickHackDurationBlind;
+}
+
+MajorQuickHackBlind : MajorBlind
+{
+	gameplayTags += 
+	[
+		"Quickhack", "QuickHackBlind"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDurationBlind;
+}
+
+AndroidHeadRemovedBlind : Blind
+{
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+	];
+	VFX = [];
+	SFX = [];
+}
+

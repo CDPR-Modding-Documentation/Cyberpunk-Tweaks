@@ -1,0 +1,102 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage
+
+[ notQueryable ]
+Smasher_Auto_Shotgun : Base_Shotgun
+{
+	entityName = "smasher_shotgun";
+	audioName = "wea_set_smasher_shotgun";
+	tags += 
+	[
+		"Preload", "Weapon", "Shotgun", "AnimCycleRound"
+	];
+	rangedAttacks = "Attacks.SmasherShotgunBulletPackage";
+	triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	primaryTriggerMode = "TriggerMode.SemiAuto";
+	attacks += 
+	[
+		"Attacks.SmasherShotgunBulletEffect", "Attacks.SmasherShotgunBulletProjectile", "NPCAttacks.StrongAttackKnockdown", "NPCAttacks.StrongAttackStompKnockdown", "NPCAttacks.SmasherStrongAttackKnockdown", "NPCAttacks.SmasherStrongAttack", "NPCAttacks.SmasherStompAttackStagger", "NPCAttacks.SmasherStrongAttackStompKnockdown"
+	];
+	placementSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.RightWrist"
+	];
+	fxPackage = "WeaponFxPackage.TechShotgunAdamSmasher";
+	manufacturer = "WeaponManufacturer.Corporation";
+	evolution = "WeaponEvolution.Power";
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups = 
+		[
+			"Items.Smasher_Shotgun_RPG_Stats", "Items.Base_HMG_Misc_Stats", "Items.Smasher_Shotgun_Technical_Stats"
+		];
+	} : Base_HMG_NPC_Data;
+}
+
+Smasher_Shotgun_RPG_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_rifles_RPG_stats";
+			column = "item_level_to_DPS";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier
+	];
+}
+
+Smasher_Shotgun_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.1f;
+		} : CycleTimeModifier, 
+		{
+			value = 300.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 300.0f;
+		} : ReloadAmountModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 100.f;
+		} : OverheatModifier, 
+		{
+			value = 50.f;
+		} : EffectiveRangeModifier, 
+		{
+			value = 30.f;
+		} : PhysicalImpulseModifier
+	];
+}
+

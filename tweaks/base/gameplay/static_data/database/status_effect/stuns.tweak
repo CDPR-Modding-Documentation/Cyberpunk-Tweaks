@@ -1,0 +1,433 @@
+package BaseStatusEffect
+using RTDB, Effectors
+
+Stun : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Stunned";
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_stunned";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "status_stunned";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 4.6f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.StunImmunity"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.StunImmunity";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					statusEffect = "BaseStatusEffect.StunImmunity";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Stoppable";
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 0.5f;
+		float cameraShakeStrength = 1.f;
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "LocKey#40948";
+		description = "LocKey#77835";
+		string iconPath = "stun_icon";
+		priority = 2.0f;
+	};
+}
+
+NeurotoxinDelayedStun : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Stunned";
+	bool replicated = true;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3.f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					statusEffect = "BaseStatusEffect.Stun";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.StunImmunity"
+	];
+}
+
+NeurotoxinHeadshotDelayedStun : NeurotoxinDelayedStun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ExplosionStun : Stun
+{
+	gameplayTags += 
+	[
+		"UseCustomAdditives"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.2f;
+		float cameraShakeStrength = 0.f;
+	};
+}
+
+Parry : Stun
+{
+	bool replicated = true;
+	gameplayTags += 
+	[
+		"UseCustomAdditives"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "fx_damage_medium";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = [];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.8;
+			} : ConstantStatModifier
+		];
+	};
+	fk< Stat >[] immunityStats = [];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Deceleration";
+					modifierType = "Additive";
+					value = 32;
+				} : ConstantStatModifier
+			];
+		}
+	];
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 3.0f;
+		float cameraShakeStrength = 0.f;
+		bool forceUnequipWeapon = false;
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Parried";
+		string iconPath = "parry_icon";
+		priority = 3.0f;
+	};
+}
+
+QuickMeleeStun : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Stunned";
+	bool replicated = true;
+	gameplayTags += 
+	[
+		"UseCustomAdditives"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "fx_damage_medium";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = [];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< Stat >[] immunityStats = [];
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 3.0f;
+		float cameraShakeStrength = 0.f;
+		bool forceUnequipWeapon = false;
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Stunned";
+		string iconPath = "stun_icon";
+		priority = 1.5f;
+	};
+}
+
+MeleePerkStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.5f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+CementPowder : Stun
+{
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_cement_dust";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "status_cement_dust";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.0;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 0.2f;
+		float cameraShakeStrength = 0.3f;
+	};
+}
+
+BorgStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = [];
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.f;
+		float cameraShakeStrength = 0.2f;
+	};
+}
+
+EdgerunnersStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = [];
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.5f;
+		float cameraShakeStrength = 0.4f;
+	};
+}
+
+StunImmunity : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.StunImmunity";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+NpcMeleeAttackStun : Stun
+{
+	bool replicated = true;
+	gameplayTags += 
+	[
+		"UseCustomAdditives"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "fx_damage_medium";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = [];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< Stat >[] immunityStats = [];
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.5f;
+		float cameraShakeStrength = 0.f;
+		bool forceUnequipWeapon = false;
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BlockBroken : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 0.3f;
+		float cameraShakeStrength = 2f;
+	};
+	immunityStats = [];
+}
+

@@ -1,0 +1,606 @@
+package BaseStatusEffect
+using RTDB, Perks, Prereqs, Effectors
+
+BurningBuffEffector : ApplyStatGroupEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statType = "HasBurningBuffs";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				prereqClassName = "IsPlayerPrereq";
+				bool invert = true;
+			} : IPrereq
+		];
+	} : Prereqs.ANDPrereq;
+	CName effectorClassName = "ApplyStatGroupEffector";
+	fk< StatModifierGroup > statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxSpeed";
+				modifierType = "Multiplier";
+				value = 0.6f;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.JumpHeight";
+				modifierType = "Multiplier";
+				value = 0.7f;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.HasDodge";
+				modifierType = "Multiplier";
+				value = 0;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.CanCrouch";
+				modifierType = "Multiplier";
+				value = 0;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+}
+
+PlayerBurning : Burning
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refStat = "BaseStats.DurationReductionDot";
+				refObject = "Player";
+				opSymbol = "*";
+				value = -0.01f;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningBuffEffector", {
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasBurningBuffs";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.NPCThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.PostProcessHitTriggered", {
+								statType = "HasBurningBuffs";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : MultiPrereq;
+					CName effectorClassName = "AddStatusEffectToAttackEffector";
+					statusEffect = "BaseStatusEffect.Burning";
+					bool isRandom = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Burning : DoTStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Burning";
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_burning";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusBurning";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningBuffEffector", {
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasBurningBuffs";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.PostProcessHitTriggered", {
+								statType = "HasBurningBuffs";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : MultiPrereq;
+					CName effectorClassName = "AddStatusEffectToAttackEffector";
+					statusEffect = "BaseStatusEffect.Burning";
+					bool isRandom = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.BurningImmunity"
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				statType = "HasBurningBuffs";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human"
+				];
+			} : NPCTypePrereq, 
+			{
+				statType = "IsMechanical";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		fk< StatModifier >[] behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+		shouldDelayStatusEffectApplication = true;
+	};
+	uiData = "BaseStatusEffect.BaseBurningUI";
+}
+
+MediumBurning : Burning
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 6;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusBurning";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.7f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanCrouch";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LightBurning : Burning
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 4;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusBurning";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.7f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanCrouch";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.LightThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+StackableMediumBurning : Burning
+{
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.7f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanCrouch";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Liberty_Padre_Burning : Burning
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningBuffEffector", {
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.PostProcessHitTriggered", {
+								statType = "HasBurningBuffs";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : MultiPrereq;
+					CName effectorClassName = "AddStatusEffectToAttackEffector";
+					statusEffect = "BaseStatusEffect.Burning";
+					bool isRandom = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.Defeated";
+								checkType = "CheckType.Type";
+							} : StatusEffectPrereq, 
+							{
+								statusEffect = "BaseStatusEffect.Unconscious";
+								checkType = "CheckType.Type";
+							} : StatusEffectPrereq, 
+							{
+								valueToCheck = 0f;
+								statPoolType = "Health";
+								comparisonType = "Equal";
+							} : StatPoolPrereq
+						];
+					} : ORPrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.Liberty_Padre_Burning"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BurningParticleStatus : Burning
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = "";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningParticleStatusSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 1.1f;
+					attackRecord = "Attacks.EnvironmentalThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.PostProcessHitTriggered", {
+								statType = "HasBurningBuffs";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : MultiPrereq;
+					CName effectorClassName = "AddStatusEffectToAttackEffector";
+					statusEffect = "BaseStatusEffect.Burning";
+					bool isRandom = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BaseBurningUI : StatusEffectUIData
+{
+	string displayName = "LocKey#40944";
+	description = "LocKey#77829";
+	string iconPath = "burning_icon";
+	priority = -3.0f;
+}
+
+BurningSFX : Effector
+{
+	prereqRecord = 
+	{
+		prereqClassName = "IsPlayerPrereq";
+	} : IPrereq;
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_burning_start";
+	CName deactivationSFXName = "vfx_fullscreen_burning_stop";
+	bool unique = true;
+}
+
+BurningParticleStatusSFX : Effector
+{
+	prereqRecord = 
+	{
+		prereqClassName = "IsPlayerPrereq";
+	} : IPrereq;
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_burning_start";
+	CName deactivationSFXName = "vfx_fullscreen_burning_stop";
+	bool unique = true;
+}
+

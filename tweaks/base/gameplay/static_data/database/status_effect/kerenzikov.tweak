@@ -1,0 +1,48 @@
+package BaseStatusEffect
+using RTDB, Effectors
+
+KerenzikovPlayerBuff : BuffStatusEffect
+{
+	bool isAffectedByTimeDilationNPC = false;
+	bool isAffectedByTimeDilationPlayer = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.f;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Self";
+				refStat = "BaseStats.TimeDilationKerenzikovDuration";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.KerenzikovCooldown";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40843";
+		description = "LocKey#77875";
+		iconPath = "sandevistan_buff_icon";
+		priority = -5.0f;
+	};
+}
+

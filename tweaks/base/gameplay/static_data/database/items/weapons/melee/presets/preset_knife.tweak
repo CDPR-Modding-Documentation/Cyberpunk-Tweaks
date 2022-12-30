@@ -1,0 +1,1332 @@
+package Items
+using RTDB, BaseStats, Prereqs, Perks
+
+Preset_Knife_Default : Base_Knife
+{
+	displayName = "LocKey#832";
+	localizedDescription = "LocKey#833";
+	CName appearanceResourceName = "Preset_Knife_Default";
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Knife_Default";
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_knife_common_grip";
+		}
+	];
+	previewBBoxOverride = 
+	[
+		( -0.025f, -0.0178f, -0.1039f ), ( 0.025f, 0.0324f, 0.20194f )
+	];
+	statModifierGroups += 
+	[
+		"Items.Knife_Stat_Modifiers"
+	];
+}
+
+Knife_Stat_Modifiers : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = 0.5;
+		} : ConstantStatModifier
+	];
+}
+
+Preset_Knife_Military : Preset_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+}
+
+Preset_Tanto_Default : Base_Knife
+{
+	displayName = "LocKey#40190";
+	localizedDescription = "LocKey#40189";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
+	CName appearanceResourceName = "Preset_Tanto_Default";
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Knife_Tanto";
+	projectileTemplateName = "tanto";
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"knife_thumb_override", "w_tanto"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								CName weaponType = "Melee";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								float distanceRequired = 5f;
+								string comparisonType = "LessOrEqual";
+							} : Prereqs.DistanceCoveredHitPrereqCondition
+						];
+					} : PreProcessHitTriggered;
+					value = 1.1f;
+				} : MultiplyDamage
+			];
+		}
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_knife_tanto_grip";
+		}
+	];
+	statModifierGroups += 
+	[
+		"Items.Tanto_Knife_Stat_Modifiers"
+	];
+}
+
+Tanto_Knife_Stat_Modifiers : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThrowRecovery";
+			modifierType = "Additive";
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttackSpeed";
+			modifierType = "Additive";
+			value = -0.35;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ShortDistanceDamageIncrease";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier
+	];
+}
+
+Preset_Neurotoxin_Knife_Default : Base_Knife
+{
+	displayName = "LocKey#81673";
+	localizedDescription = "LocKey#81678";
+	CName appearanceResourceName = "Preset_Combat_Knife_Default";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
+	CName projectileTemplateName = "neurotoxin_knife";
+	useProjectileAppearance = true;
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.NeurotoxinKnife";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_knife_combat_grip";
+		}
+	];
+	previewBBoxOverride = 
+	[
+		( -0.025f, -0.0254f, -0.1137f ), ( 0.025f, 0.035f, 0.2092f )
+	];
+	statModifierGroups += 
+	[
+		"Items.Neurotoxin_Knife_Stat_Modifiers"
+	];
+	OnAttach += 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"w_neurotoxin"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								CName weaponType = "Melee";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive;
+					statusEffect = "BaseStatusEffect.KnifeNeurotoxin";
+					isRandom = false;
+				} : AddStatusEffectToAttackEffector
+			];
+		}
+	];
+}
+
+Neurotoxin_Knife_Stat_Modifiers : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = -0.35f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.35f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PoisonedApplicationRate";
+			modifierType = "Additive";
+			value = 15.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EnemyChemicalResistanceReduction";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+}
+
+Preset_Neurotoxin_Knife_Military : Preset_Neurotoxin_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+}
+
+Preset_Neurotoxin_Knife_Neon : Preset_Neurotoxin_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+}
+
+Preset_Neurotoxin_Knife_Pimp : Preset_Neurotoxin_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+}
+
+Preset_Punk_Knife_Default : Base_Knife
+{
+	displayName = "LocKey#81677";
+	localizedDescription = "LocKey#81679";
+	CName appearanceResourceName = "Preset_Punk_Knife_Default";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
+	projectileTemplateName = "punk_knife";
+	useProjectileAppearance = true;
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.PunkKnife";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_knife_punk_grip";
+		}
+	];
+	previewBBoxOverride = 
+	[
+		( -0.025f, -0.0232f, -0.1007f ), ( 0.025f, 0.0344f, 0.2014f )
+	];
+	statModifierGroups += 
+	[
+		"Items.Punk_Knife_Stat_Modifiers"
+	];
+}
+
+Punk_Knife_Stat_Modifiers : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThrowRecovery";
+			modifierType = "Additive";
+			value = -2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EquipDuration";
+			modifierType = "AdditiveMultiplier";
+			value = -0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.UnequipDuration";
+			modifierType = "AdditiveMultiplier";
+			value = -0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponSwapDuration";
+			modifierType = "Additive";
+			value = -15;
+		} : ConstantStatModifier
+	];
+}
+
+Preset_Punk_Knife_Military : Preset_Punk_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+}
+
+Preset_Punk_Knife_Neon : Preset_Punk_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+}
+
+Preset_Punk_Knife_Pimp : Preset_Punk_Knife_Default
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Butchers_Knife_Default : Preset_Knife_Default
+{
+}
+
+Preset_Chefs_Knife_Default : Base_Knife
+{
+	displayName = "LocKey#40199";
+	localizedDescription = "LocKey#40200";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
+	CName appearanceResourceName = "Preset_Chefs_Knife_Default";
+	CName projectileTemplateName = "chef_knife";
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"w_chefs_knife"
+			];
+		} : GameplayLogicPackage
+	];
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Knife_Chefs";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_chefs_knife_common_grip";
+		}
+	];
+	audioWeaponConfiguration = "audio_melee_metadata_chefs_knife";
+	previewBBoxOverride = 
+	[
+		( -0.025f, -0.0183f, -0.0931f ), ( 0.025f, 0.0341f, 0.241f )
+	];
+	statModifierGroups += 
+	[
+		"Items.Chefs_Knife_Stat_Modifiers"
+	];
+}
+
+Chefs_Knife_Stat_Modifiers : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThrowRecovery";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BleedingApplicationRate";
+			modifierType = "Additive";
+			value = 20.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttackSpeed";
+			modifierType = "Additive";
+			value = -0.15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DurationBonusBleeding";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.8;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Craftable_Common_Knife : Preset_Knife_Default
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Uncommon_Knife : Craftable_Common_Knife
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Proficiency_Craftable_Rare_Knife : Craftable_Common_Knife
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_02_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Epic_Knife : Craftable_Common_Knife
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Legendary_Knife : Craftable_Common_Knife
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Common_Tanto : Preset_Tanto_Default
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Uncommon_Tanto : Craftable_Common_Tanto
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Rare_Tanto : Craftable_Common_Tanto
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_02_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Epic_Tanto : Craftable_Common_Tanto
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Legendary_Tanto : Craftable_Common_Tanto
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Common_Neurotoxin_Knife : Preset_Neurotoxin_Knife_Default
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Uncommon_Neurotoxin_Knife : Craftable_Common_Neurotoxin_Knife
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Rare_Neurotoxin_Knife : Craftable_Common_Neurotoxin_Knife
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_02_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Epic_Neurotoxin_Knife : Craftable_Common_Neurotoxin_Knife
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Legendary_Neurotoxin_Knife : Craftable_Common_Neurotoxin_Knife
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Common_Punk_Knife : Preset_Punk_Knife_Default
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Uncommon_Punk_Knife : Craftable_Common_Punk_Knife
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Rare_Punk_Knife : Craftable_Common_Punk_Knife
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_02_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Epic_Punk_Knife : Craftable_Common_Punk_Knife
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Legendary_Punk_Knife : Craftable_Common_Punk_Knife
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Common_Butchers_Knife : Craftable_Common_Knife
+{
+}
+
+[ notQueryable ]
+Craftable_Uncommon_Butchers_Knife : Craftable_Uncommon_Knife
+{
+}
+
+[ notQueryable ]
+Craftable_Rare_Butchers_Knife : Proficiency_Craftable_Rare_Knife
+{
+}
+
+[ notQueryable ]
+Craftable_Epic_Butchers_Knife : Craftable_Epic_Knife
+{
+}
+
+[ notQueryable ]
+Craftable_Legendary_Butchers_Knife : Craftable_Legendary_Knife
+{
+}
+
+[ notQueryable ]
+Craftable_Common_Chefs_Knife : Preset_Chefs_Knife_Default
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Uncommon_Chefs_Knife : Craftable_Common_Chefs_Knife
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+Craftable_Rare_Chefs_Knife : Craftable_Common_Chefs_Knife
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_02_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Epic_Chefs_Knife : Craftable_Common_Chefs_Knife
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Craftable_Legendary_Chefs_Knife : Craftable_Common_Chefs_Knife
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+}
+
+[ notQueryable ]
+Preset_Knife_Stinger : Preset_Knife_Default
+{
+	displayName = "LocKey#40601";
+	tags += 
+	[
+		"MQ001"
+	];
+	visualTags = 
+	[
+		"Scorpion_Knife"
+	];
+	quality = "Quality.Rare";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	localizedDescription = "LocKey#40602";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Knife_NPC_Data;
+	bool scaleToPlayer = true;
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.IconicMeleeWeaponMod1";
+			itemPartPreset = "Items.ScorpionKnifeWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.Base_Knife_RPG_Stats", "Items.Base_Knife_RPG_Randomized_Stats", "Items.Base_Knife_Handling_Stats", "Items.Base_Knife_Misc_Stats", "Proficiencies.KenjutsuWeaponPassives", "Items.Stinger_Elemental_Damage_Type_Stats", "Items.Base_Melee_Elemental_Damage_Type_Min_Max"
+	];
+	CraftingData = "Items.Iconic_Small_Rare_Crafting_Materials_Weapon";
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Knife_Stinger_Epic";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Knife_Stinger_Epic : Preset_Knife_Stinger
+{
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe = 
+		[
+			{
+				ingredient = "Items.mq001_scorpions_knife";
+				amount = 1;
+			}, 
+			{
+				ingredient = "Items.UncommonMaterial1";
+				amount = 30;
+			}, 
+			{
+				ingredient = "Items.RareMaterial1";
+				amount = 25;
+			}, 
+			{
+				ingredient = "Items.EpicMaterial1";
+				amount = 30;
+			}, 
+			{
+				ingredient = "Items.LegendaryMaterial1";
+				amount = 1;
+			}
+		];
+	};
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Knife_Stinger_Legendary";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Knife_Stinger_Legendary : Preset_Knife_Stinger
+{
+	quality = "Quality.Legendary";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe = 
+		[
+			{
+				ingredient = "Items.Preset_Knife_Stinger_Epic";
+				amount = 1;
+			}, 
+			{
+				ingredient = "Items.RareMaterial1";
+				amount = 40;
+			}, 
+			{
+				ingredient = "Items.EpicMaterial1";
+				amount = 35;
+			}, 
+			{
+				ingredient = "Items.LegendaryMaterial1";
+				amount = 5;
+			}
+		];
+	};
+}
+
+[ notQueryable ]
+Recipe_Preset_Knife_Stinger_Epic : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Knife_Stinger_Epic";
+	};
+}
+
+[ notQueryable ]
+Recipe_Preset_Knife_Stinger_Legendary : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Knife_Stinger_Legendary";
+	};
+}
+
+Stinger_Elemental_Damage_Type_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.35f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.35f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+Preset_Neurotoxin_Knife_Iconic : Preset_Neurotoxin_Knife_Default
+{
+	displayName = "LocKey#81571";
+	localizedDescription = "LocKey#81587";
+	tags += 
+	[
+		"VendorIconicItem"
+	];
+	visualTags = 
+	[
+		"Neurotoxin_Knife_Iconic"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem", {
+			statType = "BaseStats.ThrowRecovery";
+			modifierType = "Additive";
+			value = 6;
+		} : ConstantStatModifier
+	];
+	quality = "Quality.Rare";
+	bool scaleToPlayer = true;
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.IconicMeleeWeaponMod1";
+			itemPartPreset = "Items.IconicNeurotoxinKnifeWeaponMod";
+		}
+	];
+	CraftingData = "Items.Iconic_Small_Rare_Crafting_Materials_Weapon";
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Neurotoxin_Knife_Iconic_Epic";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Neurotoxin_Knife_Iconic_Epic : Preset_Neurotoxin_Knife_Iconic
+{
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe += 
+		[
+			{
+				ingredient = "Items.Preset_Neurotoxin_Knife_Iconic";
+				amount = 1;
+			}
+		];
+	} : Iconic_Small_Epic_Crafting_Materials_Weapon;
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Neurotoxin_Knife_Iconic_Legendary";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Neurotoxin_Knife_Iconic_Legendary : Preset_Neurotoxin_Knife_Iconic
+{
+	quality = "Quality.Legendary";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe += 
+		[
+			{
+				ingredient = "Items.Preset_Neurotoxin_Knife_Iconic_Epic";
+				amount = 1;
+			}
+		];
+	} : Iconic_Small_Legendary_Crafting_Materials_Weapon;
+}
+
+[ notQueryable ]
+Recipe_Preset_Neurotoxin_Knife_Iconic_Epic : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Neurotoxin_Knife_Iconic_Epic";
+	};
+}
+
+[ notQueryable ]
+Recipe_Preset_Neurotoxin_Knife_Iconic_Legendary : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Neurotoxin_Knife_Iconic_Legendary";
+	};
+}
+
+[ notQueryable ]
+Preset_Punk_Knife_Iconic : Preset_Punk_Knife_Default
+{
+	displayName = "LocKey#81565";
+	localizedDescription = "LocKey#81588";
+	visualTags = 
+	[
+		"Punk_Knife_Iconic"
+	];
+	tags += 
+	[
+		"BountyHunterIconicKnife", "VendorIconicItem"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem", {
+			statType = "BaseStats.ThrowRecovery";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier
+	];
+	quality = "Quality.Rare";
+	bool scaleToPlayer = true;
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.IconicMeleeWeaponMod1";
+			itemPartPreset = "Items.IconicPunkKnifeWeaponMod";
+		}
+	];
+	CraftingData = "Items.Iconic_Small_Rare_Crafting_Materials_Weapon";
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Punk_Knife_Iconic_Epic";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Punk_Knife_Iconic_Epic : Preset_Punk_Knife_Iconic
+{
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe += 
+		[
+			{
+				ingredient = "Items.Preset_Punk_Knife_Iconic";
+				amount = 1;
+			}
+		];
+	} : Iconic_Small_Epic_Crafting_Materials_Weapon;
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Punk_Knife_Iconic_Legendary";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Punk_Knife_Iconic_Legendary : Preset_Punk_Knife_Iconic
+{
+	quality = "Quality.Legendary";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe += 
+		[
+			{
+				ingredient = "Items.Preset_Punk_Knife_Iconic_Epic";
+				amount = 1;
+			}
+		];
+	} : Iconic_Small_Legendary_Crafting_Materials_Weapon;
+}
+
+[ notQueryable ]
+Recipe_Preset_Punk_Knife_Iconic_Epic : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Punk_Knife_Iconic_Epic";
+	};
+}
+
+[ notQueryable ]
+Recipe_Preset_Punk_Knife_Iconic_Legendary : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Punk_Knife_Iconic_Legendary";
+	};
+}
+
+[ notQueryable ]
+Preset_Butchers_Knife_Iconic : Base_One_Hand_Blade
+{
+	displayName = "LocKey#40197";
+	localizedDescription = "LocKey#81860";
+	quality = "Quality.Rare";
+	CName[] visualTags = 
+	[
+		"Butchers_Cleaver"
+	];
+	CName appearanceResourceName = "Preset_Butchers_Knife_Default";
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.ButchersKnife";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			itemPartPreset = "Items.w_butchers_knife_common_grip";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicMeleeWeaponMod1";
+			itemPartPreset = "Items.ButchersKnifeWeaponMod";
+		}
+	];
+	audioWeaponConfiguration = "audio_melee_metadata_butchers_knife";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Knife_NPC_Data;
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Butchers_Knife_Iconic_Epic";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Butchers_Knife_Iconic_Epic : Preset_Butchers_Knife_Iconic
+{
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_06_Perk_3";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe += 
+		[
+			{
+				ingredient = "Items.Preset_Butchers_Knife_Iconic";
+				amount = 1;
+			}
+		];
+	} : Iconic_Small_Epic_Crafting_Materials_Weapon;
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.Recipe_Preset_Butchers_Knife_Iconic_Legendary";
+				}
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Butchers_Knife_Iconic_Legendary : Preset_Butchers_Knife_Iconic
+{
+	quality = "Quality.Legendary";
+	equipPrereqs = 
+	[
+		{
+			perk = "Crafting_Area_09_Perk_1";
+		} : PerkPrereq
+	];
+	CraftingData = 
+	{
+		craftingRecipe += 
+		[
+			{
+				ingredient = "Items.Preset_Butchers_Knife_Iconic_Epic";
+				amount = 1;
+			}
+		];
+	} : Iconic_Small_Legendary_Crafting_Materials_Weapon;
+}
+
+[ notQueryable ]
+Recipe_Preset_Butchers_Knife_Iconic_Epic : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Butchers_Knife_Iconic_Epic";
+	};
+}
+
+[ notQueryable ]
+Recipe_Preset_Butchers_Knife_Iconic_Legendary : ItemRecipe
+{
+	displayName = "";
+	craftingResult = 
+	{
+		item = "Items.Preset_Butchers_Knife_Iconic_Legendary";
+	};
+}
+
+KnifeTypesLoot : LootTable
+{
+	minItemsToLoot = 1;
+	maxItemsToLoot = 1;
+	lootGenerationType = "dropChance";
+}
+
+KnifeLootTable : KnifeTypesLoot
+{
+	lootItems = 
+	[
+		{
+			dropChance = 0.5;
+			itemID = "Items.Preset_Knife_Default";
+		} : LootItem
+	];
+}
+
+TantoLootTable : KnifeTypesLoot
+{
+	lootItems = 
+	[
+		{
+			dropChance = 0.5;
+			itemID = "Items.Preset_Tanto_Default";
+		} : LootItem
+	];
+}
+
+PunkKnifeLootTable : KnifeTypesLoot
+{
+	lootItems = 
+	[
+		{
+			dropChance = 0.5;
+			itemID = "Items.Preset_Punk_Knife_Default";
+		} : LootItem
+	];
+}
+
+NeurotoxinKnifeLootTable : KnifeTypesLoot
+{
+	lootItems = 
+	[
+		{
+			dropChance = 0.5;
+			itemID = "Items.Preset_Neurotoxin_Knife_Default";
+		} : LootItem
+	];
+}
+

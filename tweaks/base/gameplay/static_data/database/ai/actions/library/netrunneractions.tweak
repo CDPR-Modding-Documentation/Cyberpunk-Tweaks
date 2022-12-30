@@ -1,0 +1,722 @@
+package NetrunnerActions
+using RTDB, Tickets
+
+HackActionSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CanHack", "Condition.HackSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"NetrunnerActions.HackOverheat", "NetrunnerActions.HackLocomotion", "NetrunnerActions.HackWeaponMalfunction", "NetrunnerActions.HackDeath", "NetrunnerActions.HackOverload"
+	];
+}
+
+HackBuffSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FurthestSquadmate", "Condition.HackSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"NetrunnerActions.HackBuffCamo", "NetrunnerActions.HackBuffSturdiness"
+	];
+}
+
+CoverHackSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CanHack", "Condition.CoverHackSelectorCondition", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"NetrunnerActions.CoverHackOverheat", "NetrunnerActions.CoverHackLocomotion", "NetrunnerActions.CoverHackWeaponMalfunction", "NetrunnerActions.CoverHackDeath", "NetrunnerActions.CoverHackOverload"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+CommandCoverHackSelector : CoverHackSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CanHack", "Condition.CoverHackSelectorCondition", "Condition.CurrentCoverToTargetAbove9mPrediction", "Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotDesiredCoverChanged", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption"
+			];
+		} : AIActionAND;
+	};
+}
+
+HackAppliedCooldown : AIActionCooldown
+{
+	name = "HackApplied";
+	duration = 8.f;
+}
+
+HackAction : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Quickhack"
+	];
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.HackingInterruptedStatusEffects", "Condition.ShootingInterruptedByCoverConditions", "Condition.TargetBelow5m", "Condition.CurrentNetrunnerProxyHitTimeout1Severity3", "Condition.NotCurrentNetrunnerProxyIsActive", "Condition.NotCurrentNetrunnerProxyDeviceIsActive"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.Hacking"
+			];
+			remove = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			name = "eye_glow_red";
+		} : AISubActionSpawnFX
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.Hacking"
+			];
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.HackingInterrupted"
+			];
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"NetrunnerActions.HackAppliedCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "NetrunnerHacking";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "QuickHacking";
+		weaponOverride = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+
+HackLocomotion : HackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackLocomotion";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBetween10and30m", "Condition.AbilityCanLocomotionMalfunctionQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackLocomotion";
+		} : AISubActionQuickHack
+	];
+}
+
+HackOverload : HackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackOverload";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanOverloadQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackOverload";
+		} : AISubActionQuickHack
+	];
+}
+
+HackOverheat : HackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackOverheat";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanOverheatQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackOverheat";
+		} : AISubActionQuickHack
+	];
+}
+
+HackDeath : HackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackDeath";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanDeathQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackDeath";
+		} : AISubActionQuickHack
+	];
+}
+
+HackWeaponMalfunction : HackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackWeaponMalfunction";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanWeaponMalfunctionQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackWeaponMalfunction";
+		} : AISubActionQuickHack
+	];
+}
+
+HackAllyAction : HackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackAllyAction";
+			duration = 12.f;
+		}
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.Hacking"
+			];
+			remove = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			name = "eye_glow_red";
+		} : AISubActionSpawnFX
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"NetrunnerActions.HackAppliedCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+HackBuffCamo : HackAllyAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackBuffCamo";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanBuffCamoQuickHack", "Condition.FurthestSquadmate"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.FurthestSquadmate";
+			actionResult = "AIQuickHack.BuffCamo";
+		} : AISubActionQuickHack
+	];
+}
+
+HackBuffSturdiness : HackAllyAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackBuffSturdiness";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanBuffSturdinessQuickHack", "Condition.FurthestSquadmate"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.FurthestSquadmate";
+			actionResult = "AIQuickHack.BuffSturdiness";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackAction : HackAction
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.HackingInterruptedStatusEffects", "CorpoNetrunner.CoverDeactivationCondition", "Condition.HitTimeout1dot5MinSeverity2", "Condition.CurrentNetrunnerProxyHitTimeout1Severity3", "Condition.NotCurrentNetrunnerProxyIsActive", "Condition.NotCurrentNetrunnerProxyDeviceIsActive"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+	subActions += 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	animData = 
+	{
+		animFeature = "CoverQuickHacking";
+		weaponOverride = 1;
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+CoverHackAlly : HackAllyAction
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.HackingInterruptedStatusEffects", "CorpoNetrunner.CoverDeactivationCondition", "Condition.HitTimeout1dot5MinSeverity2", "Condition.CurrentNetrunnerProxyHitTimeout1Severity3", "Condition.NotCurrentNetrunnerProxyIsActive", "Condition.NotCurrentNetrunnerProxyDeviceIsActive"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+	subActions += 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	animData = 
+	{
+		animFeature = "CoverQuickHacking";
+		weaponOverride = 1;
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+CoverHackLocomotion : CoverHackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackLocomotion";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanLocomotionMalfunctionQuickHack", "Condition.TargetBetween10and30m"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackLocomotion";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackOverload : CoverHackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackOverload";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanOverloadQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackOverload";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackOverheat : CoverHackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackOverheat";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanOverheatQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackOverheat";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackDeath : CoverHackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackDeath";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanDeathQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackDeath";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackWeaponMalfunction : CoverHackAction
+{
+	cooldowns = 
+	[
+		{
+			name = "HackWeaponMalfunction";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanWeaponMalfunctionQuickHack"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackWeaponMalfunction";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackBuffCamo : CoverHackAlly
+{
+	cooldowns = 
+	[
+		{
+			name = "HackBuffCamo";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanBuffCamoQuickHack", "Condition.FurthestSquadmate"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.FurthestSquadmate";
+			actionResult = "AIQuickHack.BuffCamo";
+		} : AISubActionQuickHack
+	];
+}
+
+CoverHackBuffSturdiness : CoverHackAlly
+{
+	cooldowns = 
+	[
+		{
+			name = "HackBuffSturdiness";
+			duration = 12.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanBuffSturdinessQuickHack", "Condition.FurthestSquadmate"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions += 
+	[
+		{
+			target = "AIActionTarget.FurthestSquadmate";
+			actionResult = "AIQuickHack.BuffSturdiness";
+		} : AISubActionQuickHack
+	];
+}
+

@@ -1,0 +1,7655 @@
+package OdaBoss
+using RTDB, VehicleActions, SpecialActions, DashAndDodgeActions, MeleeActions, MovementActions, ReactionsActions, AIActionTarget, StatusEffectActions
+
+Map : ActionMap
+{
+	defaultMap = 
+	{
+		map = 
+		[
+			{
+				node = "GenericArchetype.SE_Blind";
+				isOverriddenBy = "OdaBoss.SE_Blind";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackFreezeLocomotion";
+				isOverriddenBy = "OdaBoss.SE_QuickHackFreezeLocomotion";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackStaggerLocomotion";
+				isOverriddenBy = "OdaBoss.SE_QuickHackFreezeLocomotion";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationHigh";
+				isOverriddenBy = "OdaBoss.DeviceInvestigationHigh";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationHighUnarmed";
+				isOverriddenBy = "OdaBoss.DeviceInvestigationHighUnarmed";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationLow";
+				isOverriddenBy = "OdaBoss.DeviceInvestigationLow";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationLowUnarmed";
+				isOverriddenBy = "OdaBoss.DeviceInvestigationLowUnarmed";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigation";
+				isOverriddenBy = "OdaBoss.DeviceInvestigation";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationUnarmed";
+				isOverriddenBy = "OdaBoss.DeviceInvestigationUnarmed";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationLookat";
+				isOverriddenBy = "OdaBoss.DeviceInvestigationLookat";
+			}, 
+			{
+				node = "ReactionsActions.MoveToStimSourceInvestigate";
+				isOverriddenBy = "OdaBoss.MoveToStimSourceInvestigate";
+			}, 
+			{
+				node = "ReactionsActions.HearDeviceNoiseBack";
+				isOverriddenBy = "OdaBoss.HearDeviceNoiseBack";
+			}, 
+			{
+				node = "ReactionsActions.HearDeviceNoiseFront";
+				isOverriddenBy = "OdaBoss.HearDeviceNoiseFront";
+			}, 
+			{
+				node = "ReactionsActions.DeviceInvestigationBossCustomSequence";
+				isOverriddenBy = "OdaBoss.BossInvestigateCustomComposite";
+			}, 
+			{
+				node = "ItemHandling.UnequipAnyWeapon";
+				isOverriddenBy = "OdaBoss.UnequipAllWeapon";
+			}, 
+			{
+				node = "ItemHandling.IsPatrolling";
+				isOverriddenBy = "OdaBoss.PatrolUnequipWeaponConditions";
+			}, 
+			{
+				node = "GenericArchetype.DodgeBulletSelectorCondition";
+				isOverriddenBy = "OdaBoss.DodgeBulletSelectorCondition";
+			}
+		];
+	};
+}
+
+DodgeBulletSelectorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"OdaBoss.OdaDodgeBulletConditionDefinition", "Condition.AbilityHasKerenzikov"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+OdaDodgeBulletConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.StatusEffectSandevistanBuff", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.TargetBelow180deg", "Condition.TargetAbove4m", "Condition.TargetPOVBelow45deg", "Condition.AbilityCanUseLegs", "Condition.MaxDodgeCount3", "Condition.NotHasRangedWeapon", "Condition.NotOdaNoDodge", {
+			OR = 
+			[
+				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
+			];
+		} : AIActionOR
+	];
+}
+
+UnequipAnyWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyItem"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+UnequipMantisBladesStealth : OdaBoss.UnequipAnyWeapon
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			packages = 
+			[
+				{
+					animationWrapperOverrides = 
+					[
+						"combatLocomotion"
+					];
+				}
+			];
+		} : AISubActionGameplayLogicPackage, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip
+	];
+}
+
+VisibilityTestCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+ReevaluationBreak : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+}
+
+ResetAllLoopCooldown : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "OdaBoss.SetSwitchToLoop2Cooldown", "GenericArchetype.Success"
+	];
+}
+
+RemoveStatusEffectEmergency : AIAction
+{
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Emergency"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+InitialCombatActionSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "OdaBoss.EquipMantisBladesInstantly", "GenericArchetype.ImmediateSuccess"
+	];
+}
+
+SetMantisPhase : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.OdaMantisPhase"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaSMGPhase"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaRoamingPhase"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SetSMGPhase : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.OdaMantisPhase"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaSMGPhase"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaRoamingPhase"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SetRoamingPhase : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.OdaMantisPhase"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaSMGPhase"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaRoamingPhase"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+NotOnOffmeshLinkCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+BehaviorLoop1EnterCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+pathCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToTargetOdaJump"
+			];
+		} : AIActionAND;
+	};
+}
+
+noPathCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCalculatePathToTargetOdaJump"
+			];
+		} : AIActionAND;
+	};
+}
+
+pathFindingFailedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PathFindingFailed"
+			];
+		} : AIActionAND;
+	};
+}
+
+pathFindingSucceededCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPathFindingFailed"
+			];
+		} : AIActionAND;
+	};
+}
+
+directPathCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToPhase2Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthBelow50perc"
+			];
+		} : AIActionAND;
+	};
+}
+
+RemoveInvulnerability : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Invulnerable"
+			];
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyHurt : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Hurt"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SwitchToPhase2ActionSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SE_Hurt", "OdaBoss.Vanish", "GenericArchetype.Success"
+	];
+}
+
+CombatBehaviorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotOdaHurt"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_Blind : AIActionSelector
+{
+	actions = 
+	[
+		"OdaBoss.SE_BlindQuickhack", "OdaBoss.SE_BlindArmed"
+	];
+}
+
+SE_BlindBase : AIAction
+{
+	startup = 
+	{
+		duration = 2.f;
+	};
+	loop = 
+	{
+		duration = 6.f;
+	};
+	recovery = 
+	{
+		duration = 0.05f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Hacked";
+		} : AISubActionTriggerStim, 
+		{
+			name = "danger";
+			delay = 0.f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "boss_blinded";
+		} : AISubActionAddFact
+	];
+	recoverySubActions = 
+	[
+		{
+			delay = 0.f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.QuickHackBlind"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			delay = 0.f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.QuickHackBlindLevel2"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			delay = 0.f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.QuickHackBlindLevel3"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			delay = 0.f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.QuickHackBlindLevel4"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_Blind";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BlindArmed : OdaBoss.SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedRegular"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_BlindQuickhack : OdaBoss.SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_QuickHackFreezeLocomotion : StatusEffectActions.AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerLocomotionFull";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Hurt : AIAction
+{
+	loop = 
+	{
+		duration = 1.267f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Hurt"
+			];
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_Staggered";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CamoCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCloakedOda", "Condition.NotOdaRevealed"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop2Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.Vanish", "OdaBoss.SetDashAttackAmbushCooldown", "OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop0CooldownMin", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "OdaBoss.RemoveInvulnerability", "GenericArchetype.Success"
+	];
+}
+
+SwitchToLoop2ConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop2Cooldown"
+	];
+}
+
+SwitchToLoop2ConditionDistance : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop2ConditionLife : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthBelow75perc", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop2ConditionStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.OdaEmergency", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop2ConditionOffmeshLinks : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetSwitchToLoop2Cooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.SwitchToLoop2Cooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SwitchToLoop1Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop0CooldownMin", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "GenericArchetype.Success"
+	];
+}
+
+SwitchToLoop1ConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop1Cooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop1ConditionCooldownMin : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop1CooldownMin"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove10m", "Condition.NotIsUsingOffMeshLink", "Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop1ConditionDistance : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop1CooldownMin"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3m", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop1ConditionPath : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCalculatePathToTargetOdaJump", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetSwitchToLoop1Cooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.SwitchToLoop1Cooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetSwitchToLoop1CooldownMin : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.SwitchToLoop1CooldownMin"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SwitchToLoop0Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "OdaBoss.SetActivateKerenzikovCooldown", "GenericArchetype.Success"
+	];
+}
+
+SwitchToLoop0ConditionCloaked : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCloakedOda", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop0ConditionDistance : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop0CooldownMin"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3mPrediction", "Condition.TargetUpTo0dot5mZDiff", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop0ConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop0Cooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop0ConditionLos : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop0CooldownMin"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetIsVisible", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop0ConditionPath : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop0CooldownMin"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCalculatePathToTargetOdaJump", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwitchToLoop0LineOfSightVector : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.SwitchToLoop0CooldownMin"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetIsVisible", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetSwitchToLoop0Cooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.SwitchToLoop0Cooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetSwitchToLoop0CooldownMin : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.SwitchToLoop0CooldownMin"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+FindShootPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "jumpSpot";
+			rangeFromOwner = ( 10.f, 30.f );
+			rangeFromObj = ( 7.5, 15.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+			allowedOffMeshTags = 
+			[
+				"OdaJump"
+			];
+			lineOfSightTarget = "AIActionTarget.CombatTarget";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindShootPositionFailsafe : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "jumpSpot";
+			rangeFromOwner = ( 10.f, 100.f );
+			rangeFromObj = ( 10f, 20.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+			allowedOffMeshTags = 
+			[
+				"OdaJump"
+			];
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindRoamPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "roamSpot";
+			rangeFromOwner = ( 10.f, 20.f );
+			rangeFromObj = ( 10.f, -1.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+			allowedOffMeshTags = 
+			[
+				"OdaJump"
+			];
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindHealPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "healSpot";
+			rangeFromOwner = ( 10.f, 100.f );
+			rangeFromObj = ( 20.f, 100.f );
+			avoidSelectingSameTargetMethod = 0;
+			allowedOffMeshTags = 
+			[
+				"OdaJump"
+			];
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+HealSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.FindHealPosition", "OdaBoss.SprintToRoamDestination", "OdaBoss.RotateToTarget", "OdaBoss.Heal", "GenericArchetype.Success"
+	];
+}
+
+HealCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = [];
+		} : AIActionAND;
+	};
+}
+
+Heal : AIAction
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotOdaHealing", "Condition.TargetBelow8m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Healing"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "cloak_healing";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "OdaHeal";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+EquipMantisBladesSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.EquipMantisBlades", "OdaBoss.SetDashAttackAmbushCooldown", "GenericArchetype.Success"
+	];
+}
+
+EquipMantisBladesInstantlySequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.EquipMantisBladesInstantly", "OdaBoss.SetDashAttackAmbushCooldown", "GenericArchetype.Success"
+	];
+}
+
+EquipMantisBladesCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipMantisBlades : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.367;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "BladesOn";
+		} : AISubActionQueueAIEvent, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Oda_Mantis_Blades";
+			animationTime = 1.367f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipMantisBladesInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Oda_Mantis_Blades";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			name = "BladesOn";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+EquipSMGSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.EquipSMG", "GenericArchetype.Success"
+	];
+}
+
+EquipSMGCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipSMGBackflipCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRangedWeapon", "Condition.CalculatePathStraightBackClose", "Condition.NotOdaLeapBlocker"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipSMG : AIAction
+{
+	loop = 
+	{
+		duration = 1.5;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.Oda_Shingen";
+			animationTime = 1.5f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipSMGBackFlip : AIAction
+{
+	startup = 
+	{
+		duration = 2.567f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.033;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.f;
+			itemID = "Items.Oda_Shingen";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.f;
+		} : AISubActionForceUnequip, 
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 99;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoOdaShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Invulnerable"
+			];
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "EquipOdaRangedJump";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+EquipMantisBladesBackFlip : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.133;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.767f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.Invulnerable"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "BladesOn";
+		} : AISubActionQueueAIEvent, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Oda_Mantis_Blades";
+		} : AISubActionForceEquip, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			delay = 0;
+			numberOfShots = -1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoOdaShootingPackage"
+			];
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "EquipOdaRangedJump";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+EquipMantisBladesSMGCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasSMG", "Condition.NotHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipMantisBladesSMG : AIAction
+{
+	startup = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Oda_Mantis_Blades";
+		} : AISubActionForceEquip, 
+		{
+			name = "BladesOn";
+			delay = 0.f;
+		} : AISubActionQueueAIEvent
+	];
+	animData = 
+	{
+		animFeature = "EquipOdaMantisBladeSMG";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+EquipMantisBladesComboCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow5m", "Condition.CalculatePathStraightToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipMantisBladesComboSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.EquipMantisBladesInstantly", "OdaBoss.EquipMantisBladesCombo01P1", "OdaBoss.EquipMantisBladesCombo01P2", "OdaBoss.EquipMantisBladesCombo01P3", "OdaBoss.EquipMantisBladesCombo01P3Recovery", "GenericArchetype.Success"
+	];
+}
+
+EquipMantisBladesCombo01P1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.467f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseCombo01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaEquipMantisBladeCombo01P1";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+EquipMantisBladesCombo01P2 : AIAction
+{
+	startup = 
+	{
+		duration = 0.167f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseCombo01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaEquipMantisBladeCombo01P2";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+EquipMantisBladesCombo01P3 : AIAction
+{
+	startup = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseCombo02MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaEquipMantisBladeCombo01P3";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			recoverySlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+EquipMantisBladesCombo01P3Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaEquipMantisBladeCombo01P3Recovery";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+RotateToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove120deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow45deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+DashForwardToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightToTarget", "Condition.TargetAbove3mPrediction", "Condition.TargetBelow10m", "Condition.TargetIsVisible", "Condition.MinAccuracySharedValue0dot5"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.TargetBelow3m"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 0.2;
+	};
+	animData = 
+	{
+		animFeature = "DashForwardLong";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.DashForwardSlideData";
+		};
+	};
+}
+
+SprintToMovementDestinationSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SprintToMovementDestination", "OdaBoss.SprintToMovementDestinationNoSandevistan", "GenericArchetype.Success"
+	];
+}
+
+SprintToMovementRoamDestinationSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.FindRoamPosition", "OdaBoss.SprintToMovementRoamDestination", "GenericArchetype.Success"
+	];
+}
+
+SprintToMovementRoamDestinationNoInterruptSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.FindRoamPosition", "OdaBoss.SprintToMovementRoamDestinationNoInterrupt", "GenericArchetype.Success"
+	];
+}
+
+SprintToMovementDestinationCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToTargetOdaJump", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToMovementDestinationConditionThreat : AIAction
+{
+}
+
+SprintToMovementDestinationConditionLos : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToMovementDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = "OdaBoss.SprintToMovementDestinationLoopPhase";
+	loopSubActions = 
+	[
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect
+	];
+}
+
+SprintToMovementDestinationNoSandevistan : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "OdaBoss.SprintToMovementDestinationLoopPhase";
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.NoSandevistanMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaCybMalfunctionWrapper"
+	];
+}
+
+SprintToMovementDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+SprintToMovementRoamDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "OdaBoss.SprintToMovementRoamDestinationLoopPhase";
+	loopSubActions = 
+	[
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect
+	];
+}
+
+SprintToMovementRoamDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		dontUseStop = true;
+		avoidThreatRange = 0.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m", {
+								AND = 
+								[
+									"Condition.TargetBelow8m", "Condition.TargetBelow90deg"
+								];
+							} : AIActionAND
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+DashAttackAmbushConditionNoCooldown : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m", "Condition.TargetBelow140deg", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToMovementRoamDestinationNoInterrupt : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "OdaBoss.SprintToMovementRoamDestinationNoInterruptLoopPhase";
+	loopSubActions = 
+	[
+		{
+			multiplier = 2.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX
+	];
+}
+
+SprintToMovementRoamDestinationNoInterruptLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		dontUseStop = true;
+		avoidThreatRange = 0.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+WalkToTargetNoPath : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetIsVisible", "Condition.NotCalculatePathToTargetOdaJump", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			keepLineOfSight = "Keep";
+			movementType = "Sprint";
+			tolerance = 10.f;
+			distance = 1.5f;
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.TargetIsVisible", "Condition.NotIsUsingOffMeshLink"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.StealthMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaSearchingCustom"
+	];
+}
+
+SprintToRoamDestinationSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.FindRoamPosition", "OdaBoss.SprintToRoamDestination", "GenericArchetype.Success"
+	];
+}
+
+SprintToRoamDestinationCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToTargetOdaJump", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToRoamDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove3m"
+			];
+		} : AIActionAND;
+	};
+	loop = "OdaBoss.SprintToMovementDestinationLoopPhase";
+	loopSubActions = 
+	[
+		{
+			multiplier = 3.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX
+	];
+}
+
+SprintToRoamDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+		dontUseStart = true;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+SprintToTargetSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SprintToTarget", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetDashSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SprintToTargetDash", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetMeleeSandevistanSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.DashForwardToTarget", "OdaBoss.SprintToTargetMeleeSandevistan", "OdaBoss.SprintToTargetMelee", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetMeleeSandevistanSelector : AIActionSelector
+{
+	actions = 
+	[
+		"OdaBoss.DashForwardToTarget", "OdaBoss.SprintToTargetMeleeSandevistan", "OdaBoss.SprintToTargetMelee", "OdaBoss.SprintToTargetLos", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetMeleeSandevistanSequenceConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MinAccuracySharedValue0dot5"
+			];
+		} : AIActionAND;
+	};
+}
+
+ChargeToTargetMeleeSandevistanSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SandevistanActivation", "OdaBoss.SprintToTargetMeleeSandevistan", "OdaBoss.SprintToTargetMelee", "GenericArchetype.Success"
+	];
+}
+
+ChargeToTargetMeleeSandevistanSequenceConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove4m", "Condition.CalculatePathToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToTargetDashSandevistanSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SprintToTargetDashSandevistan", "OdaBoss.SprintToTargetMelee", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetDashSandevistanSequenceConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToTargetDashAmbushSandevistanSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SprintToTargetDashAmbushSandevistan", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetDashAmbushSandevistanConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToTargetCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToTarget : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			distance = 1.4f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2mPrediction", "Condition.PathFindingFailed", "Condition.NotCalculatePathToTargetOdaJump", "Condition.NotMinAccuracySharedValue0dot5", {
+									AND = 
+									[
+										"Condition.TargetBelow5mPrediction", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetLos : SprintToTargetMelee
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", "Condition.TargetBelow4m"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetMeleeSandevistanLos : SprintToTargetMeleeSandevistan
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove5mPrediction", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack", "Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStart = true;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", "Condition.TargetBelow4m"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetMelee : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
+									AND = 
+									[
+										"Condition.TargetBelow4m", "Condition.TargetUpTo0dot5mZDiff"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.NoSandevistanMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaCybMalfunctionWrapper"
+	];
+}
+
+SprintToTargetMeleeSandevistan : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.TargetAbove1dot4mZDiff", "Condition.CalculatePathToTargetOdaJump", "Condition.MinAccuracySharedValue0dot5"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.CalculatePathToTargetOdaJump", "Condition.TargetAbove5mPrediction", "Condition.MinAccuracySharedValue0dot5", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStart = true;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
+									AND = 
+									[
+										"Condition.TargetBelow4m", "Condition.TargetUpTo0dot5mZDiff"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			multiplier = 3.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"Oda.OdaNoDodge"
+			];
+		} : AISubActionStatusEffect
+	];
+}
+
+SprintToTargetDashSandevistan : SprintToTargetMeleeSandevistan
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStart = true;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			dynamicTargetUpdateDistance = 4.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
+									AND = 
+									[
+										"Condition.TargetBelow4m", "Condition.TargetUpTo0dot5mZDiff"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetDash : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStart = true;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", {
+									AND = 
+									[
+										"Condition.TargetBelow3mPrediction", "Condition.TargetUpTo0dot5mZDiff"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetDashAmbushSandevistan : SprintToTargetDashSandevistan
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStart = true;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotCalculatePathToTargetOdaJump", {
+									AND = 
+									[
+										"Condition.TargetBelow8m", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetLeapSandevistan : SprintToTargetMeleeSandevistan
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStart = true;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", {
+									AND = 
+									[
+										"Condition.TargetBelow18m", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetDashAmbush : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotCalculatePathToTargetOdaJump", {
+									AND = 
+									[
+										"Condition.TargetBelow8m", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetLeap : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", {
+									AND = 
+									[
+										"Condition.TargetBelow30m", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SprintToTargetDashAmbushSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.SprintToTargetDashAmbush", "GenericArchetype.Success"
+	];
+}
+
+SandevistanStraightCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackSMGSelector : AIActionSelector
+{
+	actions = 
+	[
+		"OdaBoss.MeleeAttackSMG"
+	];
+}
+
+SetMeleeAttackSMGCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.MeleeAttackCooldown"
+	];
+}
+
+MeleeAttackSMGCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.MeleeAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow4mPrediction", "Condition.CalculatePathStraightToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackSMG : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.MeleeAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.MovementDestinationBelow1m", "Condition.TargetUpTo0dot5mZDiff"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.QuickAttackStagger";
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeQuickStatic";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+MeleeComboCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MinAccuracySharedValue0dot5"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboFarCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove3m"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboLosCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove5m", "Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboCloseCondition : AIAction
+{
+}
+
+MeleeCombo01Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeCombo01P1", "OdaBoss.MeleeCombo01P2", "OdaBoss.MeleeCombo01P3", "OdaBoss.MeleeCombo01P3Recovery", "GenericArchetype.Success"
+	];
+}
+
+MeleeCombo01P1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.633f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "OdaMeleeCombo01P1";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P1";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo01P2 : AIAction
+{
+	startup = 
+	{
+		duration = 0.3f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "Combo02MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P2";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo01P3 : AIAction
+{
+	startup = 
+	{
+		duration = 0.733;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "Combo02MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P3";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo01P3Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P3Recovery";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+MeleeCombo01CloseSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeCombo01CloseP1", "OdaBoss.MeleeCombo01CloseP2", "OdaBoss.MeleeCombo01CloseP3", "OdaBoss.MeleeCombo01CloseP3Recovery", "GenericArchetype.Success"
+	];
+}
+
+MeleeCombo01CloseP1 : AIAction
+{
+	startup = 
+	{
+		duration = 1.233;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "Combo02MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P1";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo01CloseP2 : AIAction
+{
+	startup = 
+	{
+		duration = 0.067f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "Combo02MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P2";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo01CloseP3 : AIAction
+{
+	startup = 
+	{
+		duration = 0.667;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "Combo02MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P3";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo01CloseP3Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo01P3Recovery";
+		animVariation = 1;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+MeleeCombo02Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeCombo02P1", "OdaBoss.MeleeCombo02P2", "OdaBoss.MeleeCombo02P2Recovery", "GenericArchetype.Success"
+	];
+}
+
+MeleeCombo02P1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P1";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo02P1Close : AIAction
+{
+	startup = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P1";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo02P2 : AIAction
+{
+	startup = 
+	{
+		duration = 0.167f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStompAttack";
+			attackName = "CloseSingleRight01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P2";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo02P2Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 1.133f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P2Recovery";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+MeleeCombo02CloseSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeCombo02P1Close", "OdaBoss.MeleeCombo02P2", "OdaBoss.MeleeCombo02P2Recovery", "GenericArchetype.Success"
+	];
+}
+
+MeleeCombo02CloseP1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P1";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo02CloseP2 : AIAction
+{
+	startup = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleRight01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P2";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo02CloseP2Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.8f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo02P2Recovery";
+		animVariation = 1;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+MeleeCombo03Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeCombo03P1", "OdaBoss.MeleeCombo03P2", "OdaBoss.MeleeCombo03P3", "OdaBoss.MeleeCombo03P4", "OdaBoss.MeleeCombo03P4Recovery", "GenericArchetype.Success"
+	];
+}
+
+MeleeCombo03CloseSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeCombo03P1OnPlace", "OdaBoss.MeleeCombo03P2", "OdaBoss.MeleeCombo03P3", "OdaBoss.MeleeCombo03P4", "OdaBoss.MeleeCombo03P4Recovery", "GenericArchetype.Success"
+	];
+}
+
+MeleeCombo03P1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo03P1";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo03P1OnPlace : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo03P1";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo03P2 : AIAction
+{
+	startup = 
+	{
+		duration = 0.3f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo03P2";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo03P3 : AIAction
+{
+	startup = 
+	{
+		duration = 0.3f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo03P3";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo03P4 : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo03P4";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+MeleeCombo03P4Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaMeleeCombo03P4Recovery";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+MeleeComboTurnCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.TurnAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove270deg", "Condition.TargetBelow3m"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboTurn180Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove270deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboTurn270Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow45deg", "Condition.TargetLeft"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboTurn90Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow45deg", "Condition.TargetRight"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeComboTurn180RSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeComboTurn180R", "GenericArchetype.Success"
+	];
+}
+
+MeleeComboTurn180LSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeComboTurn180L", "GenericArchetype.Success"
+	];
+}
+
+MeleeComboTurn270Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeComboTurn270", "GenericArchetype.Success"
+	];
+}
+
+MeleeComboTurn90Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.MeleeComboTurn90", "GenericArchetype.Success"
+	];
+}
+
+MeleeComboTurn180L : AIAction
+{
+	startup = 
+	{
+		duration = 0.533f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleBack01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeComboTurnAttackTurn";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeComboTurn180R : AIAction
+{
+	startup = 
+	{
+		duration = 0.367f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.767f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleRight01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeComboTurnAttackTurn";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeComboTurn270 : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleBack01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeComboTurnAttackTurn";
+		animVariation = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeComboTurn90 : AIAction
+{
+	startup = 
+	{
+		duration = 0.467f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "DeflectedLeftArmToLeftDefinition";
+			colliderBoxSize = ( 2.f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaMeleeComboTurnAttackTurn";
+		animVariation = 3;
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashAttackPattern01Sequence : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"OdaBoss.DashAttack01Sequence", "OdaBoss.DashRight", "OdaBoss.DashAttack02Sequence", "OdaBoss.DashBack", "OdaBoss.DashAttack03Sequence", "OdaBoss.SetDashAttackCooldown", "GenericArchetype.Success"
+	];
+}
+
+DashAttackCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m", "Condition.TargetAbove2dot5m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetDashAttackCooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.DashAttackCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+DashAttack01Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo0dot5mZDiff", "Condition.CalculatePathStraightToTarget", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+DashAttack01Sequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"OdaBoss.DashAttack01", "GenericArchetype.Success"
+	];
+}
+
+DashAttack01 : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.133;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.9f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.05f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttack";
+		animVariation = 0;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttack01Startup : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackStartup";
+		animVariation = 0;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+DashAttack01Loop : AIAction
+{
+	loop = 
+	{
+		duration = 0.133;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackLoop";
+		animVariation = 0;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttack01Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.9f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.05f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttackRecovery";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashAttack02Condition : DashAttack01Condition
+{
+}
+
+DashAttack02Sequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"OdaBoss.DashAttack02", "GenericArchetype.Success"
+	];
+}
+
+DashAttack02 : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 1.133f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.133;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.9f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.05f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttack";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttack02Startup : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	loop = 
+	{
+		duration = 1.133f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackStartup";
+		animVariation = 1;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+DashAttack02Loop : AIAction
+{
+	loop = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackLoop";
+		animVariation = 1;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttack02Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.9f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.075f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttackRecovery";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashAttack03Condition : DashAttack01Condition
+{
+}
+
+DashAttack03Sequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"OdaBoss.DashAttack03", "GenericArchetype.Success"
+	];
+}
+
+DashAttack03 : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.133;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.967f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.05f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttack";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttack03Startup : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackCooldown"
+	];
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackStartup";
+		animVariation = 2;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+DashAttack03Loop : AIAction
+{
+	loop = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackLoop";
+		animVariation = 2;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttack03Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.967f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.075f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttackRecovery";
+		animVariation = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashAttackAmbushConditionSequence : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo0dot5mZDiff", "Condition.CalculatePathStraightToTarget", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+}
+
+DashAttackAmbushSequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"OdaBoss.DashAttackAmbush", "OdaBoss.DashBack", "GenericArchetype.Success"
+	];
+}
+
+DashAttackAmbushConditionHealth : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthAbove60perc", "Condition.HealthBelow100perc"
+			];
+		} : AIActionAND;
+	};
+}
+
+DashAttackAmbushConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.DashAttackAmbushCooldown"
+	];
+}
+
+SetDashAttackAmbushCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000000000001f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.DashAttackAmbushCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+DashAttackAmbush : DashAttack03
+{
+}
+
+DashAttackAmbushStartup : AIAction
+{
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackStartup";
+		animVariation = 2;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+DashAttackAmbushLoop : AIAction
+{
+	loop = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaDashAttackLoop";
+		animVariation = 2;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeDashAttackSlideData";
+		};
+	};
+}
+
+DashAttackAmbushRecovery : AIAction
+{
+	loop = 
+	{
+		duration = 0.967f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.075f;
+			attackRange = 5.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleLeft01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaDashAttackRecovery";
+		animVariation = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+ChargeAttackCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.ChargeAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove10m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SandevistanActivation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove10m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.733f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "OdaSandevistanActivation";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+ChargeAttack01Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.ChargeAttack01P1", "OdaBoss.ChargeAttack01P1Recovery", "GenericArchetype.Success"
+	];
+}
+
+ChargeAttack01P1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.8f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.05f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "Combo01MeleeAttackLight02";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaChargeAttack01P1";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+ChargeAttack01P1Recovery : AIAction
+{
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaChargeAttack01P1Recovery";
+		animVariation = 0;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+ChargeAttack02Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.ChargeAttack02P1", "OdaBoss.ChargeAttack02P1Recovery", "GenericArchetype.Success"
+	];
+}
+
+ChargeAttack02P1 : AIAction
+{
+	startup = 
+	{
+		duration = 0.8f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.05f;
+			attackRange = 3.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleBack01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaChargeAttack02P1";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.OdaMeleeAttackSlideData";
+			loopSlide = "OdaBoss.OdaMeleeAttackSlideData";
+		};
+	};
+}
+
+ChargeAttack02P1Recovery : AIAction
+{
+	loop = 
+	{
+		duration = 1.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaChargeAttack02P1Recovery";
+		animVariation = 0;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.MeleeSlideCollsionPrevention";
+		};
+	};
+}
+
+LeapAttack01Sequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.LeapAttack02", "OdaBoss.SetLeapAttackCooldown", "GenericArchetype.Success"
+	];
+}
+
+LeapAttackCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.LeapAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m", "Condition.TargetBelow15m", "Condition.TargetUpTo0dot5mZDiff", "Condition.CalculatePathStraightToTarget", "Condition.NotOdaLeapBlocker"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetLeapAttackCooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.LeapAttackCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+LeapAttack01 : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.LeapAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 3.f;
+			attackTime = 0.3f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleRight01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaLeapAttack";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.LeapAttack01StartSlideData";
+			recoverySlide = "OdaBoss.LeapAttack01RecoverySlideData";
+		};
+	};
+}
+
+LeapAttack02 : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.LeapAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 1.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.15f;
+			attackRange = 3.f;
+			attackTime = 0.f;
+			attack = "NPCAttacks.OdaStrongAttack";
+			attackName = "CloseSingleRight01MeleeAttackLight01";
+			colliderBoxSize = ( 2.f, 0.3f, 3.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaLeapAttack";
+		animVariation = 0;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+			loopSlide = "OdaBoss.LeapAttack02StartSlideData";
+			recoverySlide = "OdaBoss.LeapAttack02RecoverySlideData";
+		};
+	};
+}
+
+ReloadSMGCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove3m"
+			];
+		} : AIActionAND;
+	};
+}
+
+ReloadLMG : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 1.9f;
+		changeNPCState = 
+		{
+			upperBodyState = "Reload";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.TargetPOVAbove180deg"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Reload";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaReload";
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+			loopSlide = "OdaBoss.RotateSlideData";
+			recoverySlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+CheckHitAimAttackSMG : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.EmergencyEscapeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HitCount7Timeout5"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetEmergencyEscapeCooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.EmergencyEscapeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+AimAttackSMGSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.RotateToTarget", "OdaBoss.AimAttackSMGOnPlace", "GenericArchetype.Success"
+	];
+}
+
+AimAttackSMGConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackSMGConditionDistance : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove3m"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackSMGLOSMonitorAction : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 3.f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotMaxVisibilityToTargetDistanceChest3m"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "Lost";
+			delay = -1;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+AimAttackSMGOnPlace : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.AimAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MaxVisibilityToTargetDistanceChest3m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		conditionSuccessDuration = 0.15f;
+		toNextPhaseConditionCheckInterval = 0.15f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.TargetBelow3mPrediction", "Condition.TargetUpTo0dot5mZDiff"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			name = "laser";
+		} : AISubActionSpawnFX, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 15;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoOdaShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Handgun_LeftHand_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+SwipeAttackSMGSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.RotateToTarget", "OdaBoss.SwipeAttackSMGOnPlace", "GenericArchetype.Success"
+	];
+}
+
+SwipeAttackSMGConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon", "Condition.TargetIsVisible", "Condition.TargetAbove10m", "Condition.TargetBelow180deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwipeAttackSMGOnPlace : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo0dot5mZDiff"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 1.25f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.633f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			delay = 0.5f;
+			numberOfShots = 99;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoOdaShootingPackage"
+			];
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "OdaSwipe";
+		animVariation = 0;
+		animSlot = 
+		{
+			startupSlide = "OdaBoss.RotateSlideData";
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+DashCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow5m", "Condition.TargetBelow180deg", "Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+DashBackSelector : AIActionSelector
+{
+	actions = 
+	[
+		"OdaBoss.DashBack", "OdaBoss.DashLeft", "OdaBoss.DashRight"
+	];
+}
+
+DashLeftSelector : AIActionSelector
+{
+	actions = 
+	[
+		"OdaBoss.DashLeft", "OdaBoss.DashRight", "OdaBoss.DashBack"
+	];
+}
+
+DashRightSelector : AIActionSelector
+{
+	actions = 
+	[
+		"OdaBoss.DashRight", "OdaBoss.DashLeft", "OdaBoss.DashBack"
+	];
+}
+
+JumpBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightBack4m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.167f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OdaJumpBack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashBackCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3m", "Condition.TargetBelow180deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+DashBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightBackClose", "Condition.OdaBossDashBackCooldownCooldown"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.167f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "OdaDodgeBack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightLeftClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.8f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_left";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "OdaDodgeLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightRightClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.8f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_right";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "OdaDodgeRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DodgeOutFromLineOfSight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetPOVBelow10deg", "Condition.NotIsUsingOffMeshLink", "Condition.HasRangedWeapon", "Condition.NotTicketEquip", "Condition.NotTicketMeleeApproach", "Condition.TargetInStatesAim", "Condition.NotInStatesAttack"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.AimEscapeCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "MeleeDodgeOpportunity";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+Vanish : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasGrenadeInInventory"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "q112_oda_turns_invisible";
+		} : AISubActionAddFact, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			delay = 0.f;
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			itemID = "Items.GrenadeSmokeOda";
+		} : AISubActionForceEquip, 
+		{
+			statusEffects = 
+			[
+				"Oda.Invulnerable"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "smoke_screen";
+			delay = 0.7f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "enter_cloak";
+			delay = 0.7;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			delay = 0.7;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			delay = 0.7f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.Owner";
+			checkThrowQuery = false;
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "OdaVanish";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+VanishAlerted : Vanish
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasGrenadeInInventory", "Condition.NotCloakedOda"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "q112_oda_turns_invisible";
+		} : AISubActionAddFact
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			delay = 0.f;
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			itemID = "Items.GrenadeSmokeOda";
+		} : AISubActionForceEquip, 
+		{
+			name = "smoke_screen";
+			delay = 0.55f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "enter_cloak";
+			delay = 0.55f;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			delay = 0.55f;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.StealthMode"
+			];
+			delay = 0.f;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			name = "StealthMode";
+		} : AISubActionQueueAIEvent, 
+		{
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			delay = 0.7f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.Owner";
+			checkThrowQuery = false;
+		} : AISubActionThrowItem
+	];
+}
+
+RemoveVanishAlerted : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CloakedOda"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			delay = 0.7f;
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SetCloakCooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.CloakCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+ActivateKerenzikovSequence : AIActionSequence
+{
+	actions = 
+	[
+		"OdaBoss.RotateToTarget", "OdaBoss.ActivateKerenzikov", "OdaBoss.SetActivateKerenzikovCooldown", "GenericArchetype.Success"
+	];
+}
+
+ActivateKerenzikovCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.ActivateKerenzikovCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotStatusEffectSandevistanBuff"
+			];
+		} : AIActionAND;
+	};
+}
+
+ActivateKerenzikov : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000000000001f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.00000000000001;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "OdaKerenzikovActivation";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+SetActivateKerenzikovCooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"OdaBoss.ActivateKerenzikovCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetRangedMaskVFXCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetRangedMaskVFX : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	subActions = 
+	[
+		{
+			name = "screen_swipe";
+		} : AISubActionSpawnFX
+	];
+}
+
+SetMantisBladeVFXCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetMantisBladeVFXOn : AIAction
+{
+	loop = 
+	{
+		duration = 0.00000001f;
+	};
+	subActions = 
+	[
+		{
+			name = "BladesOn";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+SetMantisBladeVFXOff : AIAction
+{
+	loop = 
+	{
+		duration = 0.00000001f;
+	};
+	subActions = 
+	[
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+TauntCondition : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.TauntCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+Taunt01MantisBlade : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.TauntCooldown"
+	];
+	loop = 
+	{
+		duration = 1.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "MeleeCombatTaunt";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+
+Taunt02MantisBlade : Taunt01MantisBlade
+{
+	loop = 
+	{
+		duration = 1.967f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "MeleeSupportTaunt";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+Taunt03MantisBlade : Taunt01MantisBlade
+{
+	loop = 
+	{
+		duration = 1.333f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "MeleeCombatTaunt";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+Taunt04MantisBlade : Taunt01MantisBlade
+{
+	loop = 
+	{
+		duration = 1.4f;
+	};
+	animData = 
+	{
+		animFeature = "MeleeSupportTaunt";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+Taunt01SMG : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.TauntCooldown"
+	];
+	loop = 
+	{
+		duration = 2.567f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Taunt";
+		animVariation = 0;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+Taunt02SMG : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.TauntCooldown"
+	];
+	loop = 
+	{
+		duration = 3.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Taunt";
+		animVariation = 1;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+Taunt03SMG : AIAction
+{
+	cooldowns = 
+	[
+		"OdaBoss.TauntCooldown"
+	];
+	loop = 
+	{
+		duration = 2.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Taunt";
+		animVariation = 2;
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+EnableCamo : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			name = "enter_cloak";
+			delay = 0.7f;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+DisableCamo : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			name = "enter_cloak";
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+DodgeCooldown : AIActionCooldown
+{
+	name = "DodgeCooldown";
+	duration = 5.f;
+}
+
+MeleeAttackCooldown : AIActionCooldown
+{
+	name = "MeleeAttackCooldown";
+	duration = 3.f;
+}
+
+MeleeAttackInitCooldown : AIActionCooldown
+{
+	name = "MeleeAttackCooldown";
+	duration = 0.f;
+}
+
+TurnAttackCooldown : AIActionCooldown
+{
+	name = "TurnAttackCooldown";
+	duration = 3.f;
+}
+
+TurnAttackInitCooldown : AIActionCooldown
+{
+	name = "TurnAttackCooldown";
+	duration = 0.f;
+}
+
+LeapAttackCooldown : AIActionCooldown
+{
+	name = "LeapAttackCooldown";
+	duration = 15.f;
+}
+
+LeapAttackInitCooldown : AIActionCooldown
+{
+	name = "LeapAttackCooldown";
+	duration = 0.f;
+}
+
+ComboAttackCooldown : AIActionCooldown
+{
+	name = "ComboAttackCooldown";
+	duration = 0.f;
+}
+
+ComboAttackInitCooldown : AIActionCooldown
+{
+	name = "ComboAttackCooldown";
+	duration = 0.f;
+}
+
+ChargeAttackCooldown : AIActionCooldown
+{
+	name = "ChargeAttackCooldown";
+	duration = 7.5f;
+}
+
+ChargeAttackInitCooldown : AIActionCooldown
+{
+	name = "ChargeAttackCooldown";
+	duration = 0.f;
+}
+
+AimAttackCooldown : AIActionCooldown
+{
+	name = "AimAttackCooldown";
+	duration = 0.f;
+}
+
+AimAttackInitCooldown : AIActionCooldown
+{
+	name = "AimAttackCooldown";
+	duration = 0.f;
+}
+
+DashAttackCooldown : AIActionCooldown
+{
+	name = "DashAttackCooldown";
+	duration = 7.5f;
+}
+
+DashAttackInitCooldown : AIActionCooldown
+{
+	name = "DashAttackCooldown";
+	duration = 0.f;
+}
+
+DashAttackAmbushCooldown : AIActionCooldown
+{
+	name = "DashAttackAmbushCooldown";
+	duration = 7.5f;
+}
+
+DashAttackAmbushInitCooldown : AIActionCooldown
+{
+	name = "DashAttackAmbusCooldown";
+	duration = 0.f;
+}
+
+SwitchToLoop2Cooldown : AIActionCooldown
+{
+	name = "SwitchToLoop2Cooldown";
+	duration = 60.f;
+}
+
+SwitchToLoop2InitCooldown : AIActionCooldown
+{
+	name = "SwitchToLoop2Cooldown";
+	duration = 60.f;
+}
+
+SwitchToLoop1Cooldown : AIActionCooldown
+{
+	name = "SwitchToLoop1Cooldown";
+	duration = 30.f;
+}
+
+SwitchToLoop1InitCooldown : AIActionCooldown
+{
+	name = "SwitchToLoop1Cooldown";
+	duration = 10.f;
+}
+
+SwitchToLoop1CooldownMin : AIActionCooldown
+{
+	name = "SwitchToLoop1CooldownMin";
+	duration = 20.f;
+}
+
+SwitchToLoop1InitCooldownMin : AIActionCooldown
+{
+	name = "SwitchToLoop1CooldownMin";
+	duration = 7.5f;
+}
+
+SwitchToLoop0Cooldown : AIActionCooldown
+{
+	name = "SwitchToLoop0Cooldown";
+	duration = 30.f;
+}
+
+SwitchToLoop0InitCooldown : AIActionCooldown
+{
+	name = "SwitchToLoop0Cooldown";
+	duration = 20.f;
+}
+
+SwitchToLoop0CooldownMin : AIActionCooldown
+{
+	name = "SwitchToLoop0MinCooldown";
+	duration = 10.f;
+}
+
+ActivateKerenzikovCooldown : AIActionCooldown
+{
+	name = "ActivateKerenzikovCooldown";
+	duration = 15.f;
+}
+
+ActivateKerenzikovInitCooldown : AIActionCooldown
+{
+	name = "ActivateKerenzikovCooldown";
+	duration = 0.f;
+}
+
+TauntCooldown : AIActionCooldown
+{
+	name = "TauntCooldown";
+	duration = 5.f;
+}
+
+CloakCooldown : AIActionCooldown
+{
+	name = "CloakCooldown";
+	duration = 15.f;
+}
+
+DashBackCooldown : AIActionCooldown
+{
+	name = "DashBackCooldown";
+	duration = 1.5f;
+}
+
+EmergencyEscapeCooldown : AIActionCooldown
+{
+	name = "EmergencyEscapeCooldown";
+	duration = 10.f;
+}
+
+AimEscapeCooldown : AIActionCooldown
+{
+	name = "AimEscapeCooldown";
+	duration = 5.f;
+}
+
+RotateSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.f;
+	distance = 0.f;
+	offsetToTarget = 1.5f;
+	finalRotationAngle = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+}
+
+RotateToWeaponSlideData : RotateSlideData
+{
+	target = "AIActionTarget.TargetItem";
+	offsetToTarget = 0.f;
+}
+
+DashForwardSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.5f;
+	slideStartDelay = 0.f;
+	distance = 5.f;
+	positionSpeed = 2.f;
+	offsetToTarget = 2.f;
+	finalRotationAngle = 90;
+}
+
+OdaMeleeAttackSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.f;
+	slideStartDelay = 0.f;
+	distance = 4.f;
+	positionSpeed = 2.f;
+	offsetToTarget = 1.75f;
+	finalRotationAngle = 0.f;
+	zAlignmentCollisionThreshold = 2.0f;
+}
+
+MeleeSlideCollsionPrevention : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.1f;
+	distance = 1.f;
+	positionSpeed = 2.f;
+	offsetToTarget = 1.75f;
+}
+
+MeleeAttackSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.2f;
+	distance = 5.0f;
+	positionSpeed = 2.f;
+	offsetToTarget = 1.5f;
+}
+
+MeleeAttackCombo1P1SlideData : MeleeAttackSlideData
+{
+}
+
+MeleeAttackCombo1P2SlideData : MeleeAttackSlideData
+{
+}
+
+MeleeAttackCombo1P3SlideData : MeleeAttackSlideData
+{
+}
+
+MeleeAttackCombo1P4SlideData : MeleeAttackSlideData
+{
+}
+
+MeleeDashAttackSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.1f;
+	distance = 10.f;
+	positionSpeed = 5.f;
+	offsetToTarget = 1.75f;
+}
+
+MeleeDashAttackRecoverySlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.1f;
+	distance = 15.f;
+	positionSpeed = 10.f;
+	offsetToTarget = 1.75f;
+}
+
+MeleeDashAttack01SlideData : MeleeDashAttackSlideData
+{
+}
+
+MeleeDashAttack02SlideData : MeleeDashAttackSlideData
+{
+}
+
+MeleeDashAttack03SlideData : MeleeDashAttackSlideData
+{
+}
+
+LeapSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.f;
+	slideStartDelay = 0.f;
+	distance = 15.f;
+	positionSpeed = 10.f;
+	offsetToTarget = 2.25f;
+	useRotationSlide = false;
+}
+
+LeapAttack01StartSlideData : LeapSlideData
+{
+	slideStartDelay = 0.7f;
+	offsetToTarget = 3.f;
+	useRotationSlide = true;
+}
+
+LeapAttack01RecoverySlideData : LeapSlideData
+{
+	duration = 0.3f;
+	distance = 3.f;
+	offsetToTarget = 1.f;
+	useRotationSlide = false;
+}
+
+LeapAttack02StartSlideData : LeapSlideData
+{
+	slideStartDelay = 0.7f;
+	offsetToTarget = 1.5f;
+	useRotationSlide = true;
+}
+
+LeapAttack02RecoverySlideData : LeapSlideData
+{
+	duration = 0.3f;
+	distance = 3.f;
+	offsetToTarget = 1.f;
+	useRotationSlide = false;
+}
+
+OdaChargeJumpTag : MovementPolicyTagList
+{
+	tags = 
+	[
+		"OdaJump"
+	];
+}
+
+BossInvestigateCustomComposite : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"OdaBoss.DisableCamo", "OdaBoss.UnequipAnyWeapon", "OdaBoss.EquipHandgunDeviceInvestigate", "OdaBoss.AimAttackHandgunOnPlaceDevice", "OdaBoss.UnequipAnyWeapon", "OdaBoss.StealthIdleDelay", "OdaBoss.EquipSMGStealth", "ReactionsActions.LookAroundForIntruder", "OdaBoss.VanishAlerted", "GenericArchetype.Success"
+	];
+}
+
+EquipSMGStealth : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasSMG"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.Oda_Shingen";
+			animationTime = 1.5f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipSMGNoAnimation : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.Oda_Shingen";
+			delay = 0.f;
+		} : AISubActionForceEquip
+	];
+}
+
+MoveToStimSourceInvestigate : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSource", "Condition.CalculatePathToStimSource"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Walk";
+			dontUseStart = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StimSourceBelow5m", "Condition.NotIsUsingOffMeshLink"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "smasher_shotgun_barrage";
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Handgun_RightHand_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+DeviceInvestigationHigh : AIAction
+{
+	loop = 
+	{
+		duration = 0.05f;
+	};
+}
+
+DeviceInvestigationHighUnarmed : OdaBoss.DeviceInvestigationHigh
+{
+}
+
+DeviceInvestigationLow : OdaBoss.DeviceInvestigationHigh
+{
+}
+
+DeviceInvestigationLowUnarmed : OdaBoss.DeviceInvestigationHigh
+{
+}
+
+DeviceInvestigation : OdaBoss.DeviceInvestigationHigh
+{
+}
+
+DeviceInvestigationUnarmed : OdaBoss.DeviceInvestigationHigh
+{
+}
+
+DeviceInvestigationLookat : AIAction
+{
+	loop = 
+	{
+	};
+}
+
+HearDeviceNoiseBack : AIAction
+{
+	loop = 
+	{
+		duration = 0.05f;
+	};
+}
+
+HearDeviceNoiseBackUnarmed : OdaBoss.HearDeviceNoiseBack
+{
+}
+
+HearDeviceNoiseFront : OdaBoss.HearDeviceNoiseBack
+{
+}
+
+HearDeviceNoiseFrontUnarmed : OdaBoss.HearDeviceNoiseBack
+{
+}
+
+UnequipAllWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectStealthMode"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+UnequipRightHandWeaponWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeaponRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = 0.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip
+	];
+}
+
+EquipHandgunDeviceInvestigate : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasHandgunWeaponRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			delay = 0.7f;
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Preset_Unity_Default";
+			animationTime = 1.5f;
+		} : AISubActionForceEquip, 
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+AimAttackHandgunOnPlaceDevice : AIAction
+{
+	startup = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+		};
+	};
+	recovery = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CustomWorldPosition";
+			numberOfShots = 2;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.OdaDeviceShootingPackage"
+			];
+			delay = 0.5f;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+	};
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Handgun_RightHand_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+OdaVanishAlertedComposite : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"OdaBoss.UnequipMantisBladesStealth", "OdaBoss.StealthIdleDelay", "OdaBoss.EquipSMGStealth", "OdaBoss.VanishAlerted", "GenericArchetype.Success"
+	];
+}
+
+PatrolUnequipWeaponConditions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasSMG"
+			];
+		} : AIActionAND;
+	};
+}
+
+MoveCloserToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSource", "Condition.StimSourceInRestrictedMovementArea"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Sprint";
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.StimSourceBelow2dot5m", "Condition.NotCalculatePathToStimSource"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect, 
+		"AdamSmasherBoss.PlayStealthSearchVoiceOver"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+ApplyStealthMode : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectStealthMode"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.StealthMode"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveStealthMode : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectStealthMode"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.StealthMode"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+StealthIdleDelay : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+

@@ -1,0 +1,150 @@
+package TEST
+using RTDB, BaseStatusEffect, Perks
+
+InstantHeal : BaseStatusEffect.InhalerBuff
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 10000;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OverPowered : InhalerBuff
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 300;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 99.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 99.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 99.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 99.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPushFromGrapple";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanShootWhileCarryingBody";
+					modifierType = "Additive";
+					value = 1.0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprintWhileCarryingBody";
+					modifierType = "Additive";
+					value = 1.0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.PowerLevel";
+					modifierType = "Multiplier";
+					value = 4.0f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.DPS";
+								modifierType = "Multiplier";
+								value = 20.f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : Perks.ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+UltimateNetrunner : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MemoryCostModifier";
+					modifierType = "Additive";
+					value = -100.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.QuickhacksCooldownReduction";
+					modifierType = "Additive";
+					value = 0.99;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 1000000;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Memory";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+

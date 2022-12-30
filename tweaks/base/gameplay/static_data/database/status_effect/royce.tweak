@@ -1,0 +1,152 @@
+package Royce
+using RTDB, BaseStatusEffect, BaseStats, Effectors, QuickHack, Prereqs
+
+OverloadWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "Royce.Broken";
+			} : StatusEffectAbsentPrereq, 
+			"BaseStatusEffect.OverloadAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "Royce.RoyceExplodeExplosive";
+	removeWithEffector = false;
+}
+
+RoyceExplodeExplosive : BaseQuickHackStatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Jam";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"Debuff", "JamWeapon"
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "DestroyWeakspotEffector";
+					int weakSpotIndex = -1;
+				} : Effector, 
+				{
+					statusEffect = "Royce.Broken";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Broken : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+WeakSpotDestroyed : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = -25f;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HeadExploded : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"RoyceStatusEffect"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"Royce.HeadExplodedEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HeadExplodedEffector : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ChangeAppearanceEffector";
+	bool resetAppearance = false;
+	CName appearanceName = "royce_dead";
+}
+
+Phase1 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Phase2 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+

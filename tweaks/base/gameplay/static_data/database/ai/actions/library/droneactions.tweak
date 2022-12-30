@@ -1,0 +1,4026 @@
+package DroneActions
+using RTDB, AIActionTarget
+
+TryActivateIdleLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Idle";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+PlayAlertedSound : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "look_for_intruder";
+		} : AISubActionPlaySound
+	];
+}
+
+TryActivatAlertedLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.LookingForIntruder";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+PlayCombatSound : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "enter_combat";
+		} : AISubActionPlaySound
+	];
+}
+
+TryActivateCombatLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+UseRelaxedPose : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "RelaxedPose";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+GoBackToIdle : AIAction
+{
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "idle";
+		} : AISubActionPlaySound
+	];
+}
+
+MovementPolicyCompositeDefault : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"MovementActions.SuccessOnInterruptionSignals", "DroneActions.LocomotionMalfunction", "DroneActions.CombatWhistle", "DroneActions.GetToTargetsAltitudeSprint", "DroneActions.GetToTargetsAltitudeWalk", "DroneActions.CatchUpSharedVisibilityTargetUnreachable", "DroneActions.CatchUpSprintVisibility", "DroneActions.CatchUpWalkVisibility", "DroneActions.CatchUpDistance", "DroneActions.CatchUpFallbackProcedure", "DroneActions.HoldPositionWhileShooting", "DroneActions.RepositionWhileTargetUnreachableNear", "DroneActions.RepositionWhileTargetUnreachableFar", "DroneActions.WaitWhileTargetUnreachable", "DroneActions.RingSelector", "DroneActions.HoldPosition", "DroneActions.LookAtTargetDuringMoveCommand", "GenericArchetype.Success"
+	];
+}
+
+StrafeMovementPolicyComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DroneActions.StrafeSelectorTargetUnreachable", "DroneActions.StrafeSelectorTargetReachable", "GenericArchetype.Success"
+	];
+}
+
+WeaponHandlingComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfEquipping", "DroneActions.CommandForceShootSelector", "DroneActions.AllowToBeShotAt", "GenericArchetype.ShootDefault", "GenericArchetype.Success"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.4f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruptionCompound"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CommandWeaponHandlingComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfEquipping", "DroneActions.CommandForceShootSelector", "DroneActions.AllowToBeShotAt", "GenericArchetype.ShootDefault", "GenericArchetype.Success"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.4f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruptionCompound"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CommandWeaponHandlingCompositeDecorator : CommandWeaponHandlingComposite
+{
+	repeat = 0;
+}
+
+AllowToBeShotAt : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectDontShootAtMe"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.DontShootAtMe"
+			];
+			apply = false;
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+}
+
+ShootDefault : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow15deg", {
+					OR = 
+					[
+						"Condition.TargetIsVisible", "Condition.IsNPCBlinded"
+					];
+				} : AIActionOR, 
+				{
+					OR = 
+					[
+						"Condition.TargetUpTo3dot5mZDiff", "Condition.TargetAbove6m"
+					];
+				} : AIActionOR, 
+				"Condition.OptimalDistance10mTolerance", "Condition.NotFriendlyFire"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		conditionSuccessDuration = 1.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotTargetIsVisible", "Condition.NotAIForceShootCommand", "Condition.NotIsNPCBlinded"
+							];
+						} : AIActionAND, 
+						"Condition.CombatTargetChanged", "Condition.TargetAbove90deg", "Condition.FriendlyFire"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 3;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							{
+								AND = 
+								[
+									"Condition.NotTargetIsVisible", "Condition.NotAIForceShootCommand", "Condition.NotIsNPCBlinded"
+								];
+							} : AIActionAND, 
+							"Condition.DontShootCombatTarget", "Condition.TargetAbove90deg", "Condition.FriendlyFire"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+ShootWhileMounted : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MaxVisibilityToTargetDistance3m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		conditionSuccessDuration = 1.5f;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 3;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.FriendlyFire"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+DroneEquipAnyWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotHasAnyWeapon";
+	};
+}
+
+MadnessShootSelector : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DroneActions.MadnessShootStimTarget", "DroneActions.MadnessShootWithoutTarget"
+	];
+}
+
+MadnessShootStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeaponRight", "Condition.StimTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStimTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.StimTarget";
+			numberOfShots = 3;
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+MadnessShootWithoutTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeaponRight", "Condition.NotStimTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StimTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			numberOfShots = 3;
+		} : AISubActionShootWithWeapon
+	];
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+}
+
+ShootWithoutTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeaponRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			numberOfShots = 3;
+		} : AISubActionShootWithWeapon
+	];
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+}
+
+CommandForceShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.HasAnyWeapon", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.NotInStatesEquip", "Condition.TargetAbove2m", "Condition.TargetBelow75deg"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"GenericArchetype.CommandForceShoot"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+CommandForceShoot : ShootDefault
+{
+	commands = 
+	[
+		"AIForceShootCommand"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIHoldPositionCommand"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsUsingOffMeshLink", "Condition.NotAIForceShootCommand", "Condition.AIHoldPositionCommand", "Condition.Sprint", "Condition.CombatTargetChanged", "Condition.TargetBelow2m", "Condition.TargetAbove270deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+DodgeMeleeCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DroneActions.DodgeLeft", "DroneActions.DodgeRight"
+	];
+}
+
+DodgeSelector : AIActionSelector
+{
+	actions = 
+	[
+		"DroneActions.DodgeLeftSpread", "DroneActions.DodgeRightSpread", "DroneActions.DodgeLeftConverge", "DroneActions.DodgeRightConverge"
+	];
+}
+
+DodgeMeleeSelectorCondition : MeleeDodgeCondition
+{
+}
+
+DodgeCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.DodgeCooldown", "Condition.AbilityHasDodge", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.NotStatusEffectWhistleLvl3", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.CanMoveInRegardsToShooting", {
+			OR = 
+			[
+				"Condition.CalculatePathStraightFullCheckLeft1dot5m", "Condition.CalculatePathStraightFullCheckRight1dot5m"
+			];
+		} : AIActionOR
+	];
+}
+
+AimingAtDodgeCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "DroneActions.DodgeCondition";
+	};
+}
+
+MeleeDodgeCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND += 
+			[
+				"Condition.MeleeDodgeCooldown", "Condition.TargetIsVisible", "Condition.TargetHasMeleeWeapon", "Condition.TargetBelow60deg", "Condition.TargetBelow3mLongPrediction"
+			];
+		} : DodgeCondition;
+	};
+}
+
+MeleeDodgeLeftCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetRight"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeDodgeLeft : AIActionSequence
+{
+	actions = 
+	[
+		"DroneActions.MeleeDodgeLeftMoveAway", "DroneActions.MeleeDodgeLeftDodgeAway"
+	];
+}
+
+MeleeDodgeLeftDodgeAway : AIAction
+{
+	loop = 
+	{
+		duration = 0.733f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.MeleeDodgeCooldown", "DroneActions.RingPolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DroneDodgeLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeDodgeLeftMoveAway : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Sprint";
+			tolerance = 1.f;
+			distance = 7.f;
+			circlingDirection = "Left";
+			keepLineOfSight = "Keep";
+			stopOnObstacle = true;
+			dynamicTargetUpdateTimer = 1.f;
+			ignoreLoSPrecheck = true;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAbilityCanSprint", "Condition.TargetAbove6m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MeleeDodgeRightCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetLeft"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeDodgeRight : AIActionSequence
+{
+	actions = 
+	[
+		"DroneActions.MeleeDodgeRightMoveAway", "DroneActions.MeleeDodgeRightDodgeAway"
+	];
+}
+
+MeleeDodgeRightDodgeAway : AIAction
+{
+	loop = 
+	{
+		duration = 0.733f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.MeleeDodgeCooldown", "DroneActions.RingPolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DroneDodgeRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeDodgeRightMoveAway : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Sprint";
+			tolerance = 1.f;
+			distance = 7.f;
+			circlingDirection = "Right";
+			keepLineOfSight = "Keep";
+			stopOnObstacle = true;
+			dynamicTargetUpdateTimer = 1.f;
+			ignoreLoSPrecheck = true;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAbilityCanSprint", "Condition.TargetAbove6m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.DodgeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+DodgeLeftCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CalculatePathStraightFullCheckLeft1dot5m", "DroneActions.DodgeCondition"
+	];
+}
+
+DodgeRightCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CalculatePathStraightFullCheckRight1dot5m", "DroneActions.DodgeCondition"
+	];
+}
+
+DodgeLeft : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.DodgeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = "DroneActions.DodgeLeftCondition";
+	};
+	loop = 
+	{
+		duration = 0.733f;
+	};
+	subActions = 
+	[
+		{
+			delay = 0.7f;
+			cooldowns = 
+			[
+				"DroneActions.DodgeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+	animData = 
+	{
+		animFeature = "DroneDodgeLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DodgeLeftSpread : DodgeLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FurthestSquadmate", "Condition.FurthestSquadmateRight", "Condition.FurthestSquadmateBelow3m", "DroneActions.DodgeLeftCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeLeftConverge : DodgeLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FurthestSquadmate", "Condition.FurthestSquadmateRight", "Condition.FurthestSquadmateAbove5m", "DroneActions.DodgeLeftCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeRight : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.DodgeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = "DroneActions.DodgeRightCondition";
+	};
+	loop = 
+	{
+		duration = 0.733f;
+	};
+	subActions = 
+	[
+		{
+			delay = 0.7f;
+			cooldowns = 
+			[
+				"DroneActions.DodgeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+	animData = 
+	{
+		animFeature = "DroneDodgeRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DodgeRightSpread : DodgeRight
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FurthestSquadmate", "Condition.FurthestSquadmateLeft", "Condition.FurthestSquadmateBelow3m", "DroneActions.DodgeRightCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeRightConverge : DodgeLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FurthestSquadmate", "Condition.FurthestSquadmateLeft", "Condition.FurthestSquadmateAbove5m", "DroneActions.DodgeRightCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeCooldown : AIActionCooldown
+{
+	name = "Dodge";
+	duration = 1.f;
+}
+
+MeleeDodgeCooldown : AIActionCooldown
+{
+	name = "MeleeDodge";
+	duration = 3.f;
+}
+
+RingSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.MinAccuracyValue0dot33"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"DroneActions.MediumRing", "DroneActions.MediumRingSlow", "DroneActions.FarRing", "DroneActions.FarRingSlow", "DroneActions.ExtremeRing", "DroneActions.ExtremeRingSlow"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+RingPolicyCooldown : AIActionCooldown
+{
+	name = "RingPolicy";
+	duration = 1.f;
+}
+
+RingDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", "Condition.GracefulCombatInterruptionCompound", {
+				AND = 
+				[
+					"Condition.TicketCheckCatchUp", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotMinAccuracySharedValue0dot95", "Condition.NotTargetIsVisible", "Condition.NotIsNPCBlinded"
+				];
+			} : AIActionAND, 
+			"Condition.NotCanMoveInRegardsToShooting", {
+				AND = 
+				[
+					"Condition.TargetAbove1dot4mZDiff", "Condition.NotIsUsingOffMeshLink"
+				];
+			} : AIActionAND, 
+			{
+				AND = 
+				[
+					"Condition.AbilityCanCatchUpDistance", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotValidCoversWithLOSCurrentRing", "Condition.NotOptimalDistance5mTolerance", "Condition.TargetAbove9m"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+MediumRingPolicy : MovementPolicy
+{
+	target = "AIActionTarget.CombatTarget";
+	strafingTarget = "AIActionTarget.CombatTarget";
+	deadAngle = 1.f;
+	movementType = "Run";
+	ring = "AIRingType.Medium";
+	keepLineOfSight = "Keep";
+	ignoreLoSPrecheck = true;
+	dynamicTargetUpdateTimer = 1.f;
+	avoidSafeArea = true;
+}
+
+MediumRing : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.RingPolicyCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.MediumRing"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = "DroneActions.MediumRingPolicy";
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotAbilityCanSprint"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.RingPolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+MediumRingSlow : MediumRing
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			movementType = "Walk";
+		} : MediumRingPolicy;
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanSprint"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+FarRingPolicy : MovementPolicy
+{
+	target = "AIActionTarget.CombatTarget";
+	strafingTarget = "AIActionTarget.CombatTarget";
+	deadAngle = 1.f;
+	movementType = "Run";
+	ring = "AIRingType.Far";
+	keepLineOfSight = "Keep";
+	ignoreLoSPrecheck = true;
+	dynamicTargetUpdateTimer = 1.f;
+	avoidSafeArea = true;
+}
+
+FarRing : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.RingPolicyCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.FarRing"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = "DroneActions.FarRingPolicy";
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotAbilityCanSprint"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.RingPolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+FarRingSlow : FarRing
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			movementType = "Walk";
+		} : FarRingPolicy;
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanSprint"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+ExtremeRingPolicy : MovementPolicy
+{
+	target = "AIActionTarget.CombatTarget";
+	strafingTarget = "AIActionTarget.CombatTarget";
+	deadAngle = 1.f;
+	movementType = "Run";
+	ring = "AIRingType.Extreme";
+	keepLineOfSight = "Keep";
+	ignoreLoSPrecheck = true;
+	dynamicTargetUpdateTimer = 1.f;
+	avoidSafeArea = true;
+}
+
+ExtremeRing : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.RingPolicyCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.ExtremeRing"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = "DroneActions.ExtremeRingPolicy";
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotAbilityCanSprint"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.RingPolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+ExtremeRingSlow : FarRing
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			movementType = "Walk";
+		} : ExtremeRingPolicy;
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanSprint"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+VisibilityCatchUpActivationCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.NotTargetIsVisible", "Condition.NotIsNPCBlinded", "Condition.NotMinAccuracyValue0dot95", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.CanMoveInRegardsToShooting", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTargetInVehicle", "Condition.NotIsUsingOffMeshLink"
+	];
+}
+
+CatchUpDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotIsUsingOffMeshLink", {
+				OR = 
+				[
+					"Condition.TargetIsVisible", "Condition.DestinationReached", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+CatchUpSharedVisibilityTargetUnreachable : AIAction
+{
+	cooldowns = 
+	[
+		"MovementActions.MovePolicyCooldown", "DroneActions.CatchUpCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetIsVisible", "Condition.MinAccuracySharedValue1", "Condition.NotCalculatePathToTarget", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsUsingOffMeshLink", "Condition.CanMoveInRegardsToShooting"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 5.f;
+			distance = 10.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.7f;
+		toNextPhaseConditionCheckInterval = 0.35f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetIsVisible", "Condition.NotMinAccuracySharedValue1", "Condition.CalculatePathToTarget", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.IsUsingOffMeshLink", "Condition.NotCanMoveInRegardsToShooting", "Condition.DestinationReached"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "dev_drone_wyvern_default_combat_target_lost";
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.TargetLost";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneWeapons";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CatchUpWalkVisibility : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CatchUp"
+	];
+	cooldowns = 
+	[
+		"MovementActions.MovePolicyCooldown", "DroneActions.CatchUpCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DroneActions.VisibilityCatchUpActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 5.f;
+			distance = 10.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.7f;
+		toNextPhaseConditionCheckInterval = 0.35f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.CatchUpDeactivationCondition"
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "dev_drone_wyvern_default_combat_target_lost";
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.TargetLost";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CatchUpSprintVisibility : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CatchUp"
+	];
+	cooldowns = 
+	[
+		"MovementActions.MovePolicyCooldown", "DroneActions.CatchUpCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DroneActions.VisibilityCatchUpActivationCondition", "Condition.TargetAbove15m", "Condition.AbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Sprint";
+			tolerance = 5.f;
+			distance = 10.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.7f;
+		toNextPhaseConditionCheckInterval = 0.35f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.CatchUpDeactivationCondition"
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "dev_drone_wyvern_default_combat_target_lost";
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.TargetLost";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CatchUpFarCooldown : AIActionCooldown
+{
+	name = "CatchUpFallback";
+	duration = 1.f;
+}
+
+CatchUpFarVisibility : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CatchUp"
+	];
+	cooldowns = 
+	[
+		"DroneActions.CatchUpFarCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DroneActions.VisibilityCatchUpActivationCondition", "Condition.AbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 10.f;
+			distance = 25.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.CatchUpDeactivationCondition"
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.TargetLost";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CatchUpDistance : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CatchUp"
+	];
+	cooldowns = 
+	[
+		"DroneActions.CatchUpCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.CombatTarget", "Condition.AbilityCanCatchUpDistance", "Condition.TargetAbove7m", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotTargetInVehicle"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 2.f;
+			distance = 0.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.NotTargetIsVisible", "Condition.TargetBelow10m", "Condition.TargetAbove25m"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CatchUpFallbackProcedure : AIActionSequence
+{
+	activationCondition = "DroneActions.CatchUpFallbackProcedureActivationCondition";
+	actions = 
+	[
+		"DroneActions.CatchUpCheckLow", "DroneActions.CatchUpCheckHigh", "DroneActions.CatchUpFarVisibility", "DroneActions.CatchUpWaitForReposition"
+	];
+}
+
+CatchUpFallbackProcedureActivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotDroneCatchUpCooldown", "Condition.DroneCatchUpFallbackProcedureCooldown", "Condition.NotTargetIsVisible", "Condition.NotIsNPCBlinded", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTargetInVehicle", "Condition.NotIsUsingOffMeshLink"
+		];
+	} : AIActionAND;
+}
+
+CatchUpAltitudeCheckDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.CalculatePathToTarget", "Condition.NotTargetIsVisible", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+		];
+	} : AIActionOR;
+}
+
+CatchUpCheckLow : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 15.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 1.f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.CatchUpAltitudeCheckDeactivationCondition"
+		];
+	};
+	subActions = 
+	[
+		{
+			altitudeOffset = -0.45f;
+		} : AISubActionDroneModifyAltitude
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CatchUpCheckHigh : CatchUpCheckLow
+{
+	subActions = 
+	[
+		{
+			altitudeOffset = 0.45f;
+		} : AISubActionDroneModifyAltitude, 
+		{
+			cooldowns = 
+			[
+				"DroneActions.CatchUpFallbackProcedureCooldown"
+			];
+			delay = -1.f;
+		} : AISubActionStartCooldown
+	];
+}
+
+CatchUpWaitForReposition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotDroneCatchUpCooldown", "Condition.NotDroneCatchUpFarCooldown", "Condition.NotTargetIsVisible", "Condition.NotIsNPCBlinded", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTargetInVehicle", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.DroneCatchUpCooldown", "Condition.CalculatePathToTarget", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.TargetInVehicle"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AltitudeCatchUpActivationCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.NotIsNPCBlinded", "Condition.NotIsUsingOffMeshLink", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.MinAccuracySharedValue1", "Condition.TargetAbove1dot4mZDiff", "Condition.CalculatePathToTarget"
+	];
+}
+
+AltitudeCatchUpDeactivationCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.NotIsUsingOffMeshLink", {
+			OR = 
+			[
+				"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.NotMinAccuracySharedValue1", "Condition.TargetUpTo1dot4mZDiff"
+			];
+		} : AIActionOR
+	];
+}
+
+GetToTargetsAltitudeSprint : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DroneActions.AltitudeCatchUpActivationCondition", "Condition.TargetAbove20m", "Condition.AbilityCanSprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Sprint";
+			ignoreSpotReservation = true;
+			keepLineOfSight = "Keep";
+			tolerance = 2.f;
+			distance = 3.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "DroneActions.AltitudeCatchUpDeactivationCondition";
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+GetToTargetsAltitudeWalk : AIAction
+{
+	activationCondition = 
+	{
+		condition = "DroneActions.AltitudeCatchUpActivationCondition";
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			ignoreSpotReservation = true;
+			keepLineOfSight = "Keep";
+			tolerance = 2.f;
+			distance = 3.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "DroneActions.AltitudeCatchUpDeactivationCondition";
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+TargetUnreachableRepositionNearCooldown : AIActionCooldown
+{
+	name = "TargetUnreachableRepositionNear";
+	duration = 15.f;
+}
+
+TargetUnreachableRepositionFarCooldown : AIActionCooldown
+{
+	name = "TargetUnreachableRepositionFar";
+	duration = 15.f;
+}
+
+TargetUnreachableRepositionActivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.TargetIsVisible", "Condition.NotCalculatePathToTarget", "Condition.CanMoveInRegardsToShooting", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsUsingOffMeshLink"
+		];
+	} : AIActionAND;
+}
+
+TargetUnreachableRepositionDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotCanMoveInRegardsToShooting", "Condition.PathFindingFailed", "Condition.IsNPCUnderLocomotionMalfunctionQuickhack", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", "Condition.NotTargetIsVisible", "Condition.CalculatePathToTarget"
+		];
+	} : AIActionOR;
+}
+
+RepositionWhileTargetUnreachableNear : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.TargetUnreachableRepositionNearCooldown"
+	];
+	activationCondition = "DroneActions.TargetUnreachableRepositionActivationCondition";
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 5.f;
+			distance = 10.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.TargetUnreachableRepositionDeactivationCondition"
+		];
+	};
+}
+
+RepositionWhileTargetUnreachableFar : RepositionWhileTargetUnreachableNear
+{
+	cooldowns = 
+	[
+		"DroneActions.TargetUnreachableRepositionFarCooldown"
+	];
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 10.f;
+			distance = 25.f;
+			keepLineOfSight = "Keep";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.TargetUnreachableRepositionDeactivationCondition"
+		];
+	};
+}
+
+WaitWhileTargetUnreachable : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible", "Condition.NotCalculatePathToTarget", "Condition.CanMoveInRegardsToShooting", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTargetIsVisible", "Condition.CalculatePathToTarget", "Condition.NotCanMoveInRegardsToShooting", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+LocomotionMalfunction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+	};
+	subActions = 
+	[
+		{
+			altitudeOffset = -0.35f;
+		} : AISubActionDroneModifyAltitude
+	];
+}
+
+CombatWhistle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectWhistleLvl3"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CustomWorldPosition";
+			strafingTarget = "AIActionTarget.CustomWorldPosition";
+			movementType = "Walk";
+			ignoreLoSPrecheck = true;
+			tolerance = 0.5f;
+			distance = 3.5f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.CustomWorldPositionBelow4m", {
+							AND = 
+							[
+								"Condition.TargetIsVisible", "Condition.TargetBelow4m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Run";
+			ignoreLoSPrecheck = true;
+			tolerance = 0.5f;
+			distance = 8.5f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.DestinationReached"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Malfunction";
+		} : AISubActionActivateLightPreset
+	];
+	recoverySubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WhistleLvl3"
+			];
+			apply = false;
+			remove = true;
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+}
+
+HoldPositionWhileShooting : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCanMoveInRegardsToShooting", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 15.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotInStatesShoot", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+HoldPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsUsingOffMeshLink", "Condition.TargetAbove4m", "Condition.TargetBelow10m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.3f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 1.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.TargetBelow4m", "Condition.TargetAbove10m", {
+							AND = 
+							[
+								"Condition.InStatesShoot", "Condition.FriendlyFire"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+LookAtTargetDuringMoveCommand : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIMoveCommand", "Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAIMoveCommand", "Condition.NotCombatTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+Scan : AIAction
+{
+	startup = 
+	{
+		duration = 0.2f;
+	};
+	loop = 
+	{
+		duration = 4.f;
+	};
+	recovery = 
+	{
+		duration = 0.8f;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+StrafeSelectorActivationCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.NotStatusEffectWhistleLvl3", "Condition.NotIsUsingOffMeshLink", "Condition.NotFollower", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.CanMoveInRegardsToShooting", "Condition.NotTargetInVehicle"
+	];
+}
+
+StrafeSelectorTargetReachable : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DroneActions.StrafeSelectorActivationCondition", "Condition.CalculatePathToTarget"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"DroneActions.StrafeLeftBackIntoView", "DroneActions.StrafeRightBackIntoView", "DroneActions.StrafeLeftFriendlyFireFast", "DroneActions.StrafeLeftFriendlyFireSlow", "DroneActions.StrafeRightFriendlyFireFast", "DroneActions.StrafeRightFriendlyFireSlow", "DroneActions.StrafeLeftAimFast", "DroneActions.StrafeLeftAimSlow", "DroneActions.StrafeRightAimFast", "DroneActions.StrafeRightAimSlow", "DroneActions.StrafeLeftSwitchSide", "DroneActions.StrafeRightSwitchSide"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+StrafeSelectorTargetUnreachable : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DroneActions.StrafeSelectorActivationCondition", "Condition.NotCalculatePathToTarget", "Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"DroneActions.CatchUpRepositionLeft", "DroneActions.CatchUpRepositionRight", "DroneActions.TargetUnreachableRepositionLeft", "DroneActions.TargetUnreachableRepositionRight", "DroneActions.TargetUnreachableRepositionRandom", "DroneActions.StrafeLeftFriendlyFireSlow", "DroneActions.StrafeRightFriendlyFireSlow"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+TargetUnreachableRepositionLeft : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.TargetUnreachableStrafeCooldown", "DroneActions.TargetUnreachableStrafeCooldownLeft"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckLeftClose", "Condition.NotInStatesStatic", "Condition.CanMoveInRegardsToShooting", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.TargetPOVBelow60degRight"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.TargetPOVAbove60degLeft"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CustomWorldPosition";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 0.5f;
+			distance = 0.f;
+			stopOnObstacle = true;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTargetIsVisible", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.DistanceToDestination0"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			minOffsetFromTarget = ( -4.0f, -3.0f, 0.0f );
+			maxOffsetFromTarget = ( -7.0f, 1.0f, 0.0f );
+		} : AISubActionSetWorldPosition
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneWeapons";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+TargetUnreachableRepositionRight : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.TargetUnreachableStrafeCooldown", "DroneActions.TargetUnreachableStrafeCooldownRight"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckLeftClose", "Condition.NotInStatesStatic", "Condition.CanMoveInRegardsToShooting", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.TargetPOVBelow60degLeft"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.TargetPOVAbove60degRight"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CustomWorldPosition";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 0.5f;
+			distance = 0.f;
+			stopOnObstacle = true;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTargetIsVisible", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.DistanceToDestination0"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			minOffsetFromTarget = ( 4.0f, -3.0f, 0.0f );
+			maxOffsetFromTarget = ( 7.0f, 1.0f, 0.0f );
+		} : AISubActionSetWorldPosition
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneWeapons";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+TargetUnreachableRepositionRandom : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.TargetUnreachableStrafeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesStatic", "Condition.CanMoveInRegardsToShooting"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CustomWorldPosition";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 0.f;
+			movementType = "Run";
+			tolerance = 0.5f;
+			distance = 0.f;
+			stopOnObstacle = true;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTargetIsVisible", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.DistanceToDestination0"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			minOffsetFromTarget = ( -4.0f, -5.0f, 0.0f );
+			maxOffsetFromTarget = ( 4.0f, 1.0f, 0.0f );
+		} : AISubActionSetWorldPosition
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneWeapons";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+InitiateStrafeCooldowns : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			cooldowns = 
+			[
+				"DroneActions.SwitchSideStrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+AimStrafeCooldown : AIActionCooldown
+{
+	name = "AimStrafing";
+	duration = 2.5f;
+}
+
+AimStrafeSlowCooldown : AIActionCooldown
+{
+	name = "AimStrafing";
+	duration = 4.f;
+}
+
+StrafeCooldown : AIActionCooldown
+{
+	name = "Strafing";
+	duration = 3.5f;
+}
+
+SwitchSideStrafeCooldown : AIActionCooldown
+{
+	name = "PeriodicalStrafing";
+	duration = 5.f;
+}
+
+CatchUpCooldown : AIActionCooldown
+{
+	name = "CatchUp";
+	duration = 5.f;
+}
+
+CatchUpFallbackProcedureCooldown : AIActionCooldown
+{
+	name = "CatchUpAltitudeCheck";
+	duration = 7.f;
+}
+
+VehicleTargetMovementCooldown : AIActionCooldown
+{
+	name = "VehicleTargetMovement";
+	duration = 5.f;
+}
+
+VehicleTargetStrafeCooldown : AIActionCooldown
+{
+	name = "VehicleTargetStrafe";
+	duration = 3.f;
+}
+
+VehicleTargetStrafeCooldownRight : AIActionCooldown
+{
+	name = "VehicleTargetStrafeRight";
+	duration = 5.f;
+}
+
+VehicleTargetStrafeCooldownLeft : AIActionCooldown
+{
+	name = "VehicleTargetStrafeLeft";
+	duration = 5.f;
+}
+
+TargetUnreachableStrafeCooldown : AIActionCooldown
+{
+	name = "TargetUnreachableStrafe";
+	duration = 10.f;
+}
+
+TargetUnreachableStrafeCooldownRight : AIActionCooldown
+{
+	name = "TargetUnreachableStrafeRight";
+	duration = 12.f;
+}
+
+TargetUnreachableStrafeCooldownLeft : AIActionCooldown
+{
+	name = "TargetUnreachableStrafeLeft";
+	duration = 12.f;
+}
+
+StrafeDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotCanMoveInRegardsToShooting", "Condition.PathFindingFailed", "Condition.IsUsingOffMeshLink", "Condition.IsNPCUnderLocomotionMalfunctionQuickhack", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", {
+				AND = 
+				[
+					"Condition.AbilityCanCatchUpDistance", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotOptimalDistance5mTolerance", "Condition.NotValidCoversWithLOSCurrentRing", "Condition.TargetAbove9m"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+CatchUpRepositionLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.NotInStatesStatic", "Condition.NotTargetIsVisible", "Condition.NotDroneCatchUpCooldown", "Condition.NotDroneCatchUpFallbackProcedureCooldown", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.TargetPOVLeft"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		movePolicy = "DroneActions.StrafeLeftWalkPolicy";
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition"
+		];
+	};
+}
+
+CatchUpRepositionRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.NotInStatesStatic", "Condition.NotTargetIsVisible", "Condition.NotDroneCatchUpCooldown", "Condition.NotDroneCatchUpFallbackProcedureCooldown", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.TargetPOVRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		movePolicy = "DroneActions.StrafeRightWalkPolicy";
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition"
+		];
+	};
+}
+
+StrafeLeftSprintPolicy : MovementPolicy
+{
+	target = "AIActionTarget.CombatTarget";
+	strafingTarget = "AIActionTarget.CombatTarget";
+	deadAngle = 0.f;
+	movementType = "Sprint";
+	tolerance = 50.f;
+	distance = 3.f;
+	circlingDirection = "Left";
+	keepLineOfSight = "Keep";
+	stopOnObstacle = true;
+	dynamicTargetUpdateTimer = 1.f;
+	ignoreLoSPrecheck = true;
+	avoidSafeArea = true;
+}
+
+StrafeLeftWalkPolicy : StrafeLeftSprintPolicy
+{
+	movementType = "Walk";
+}
+
+StrafeLeftSwitchSide : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.SwitchSideStrafeCooldown", "DroneActions.AimStrafeCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.AbilityCanSprint", "Condition.CalculatePathStraightLeftClose", "Condition.TargetPOVLeft", "Condition.TargetIsVisible", "Condition.NotInStatesStatic"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			distance = 4.f;
+			dynamicTargetUpdateTimer = 10.f;
+		} : StrafeLeftSprintPolicy;
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightLeftClose", "Condition.TargetPOVAbove45degRightLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetPOVBelow45degRightLongPrediction", "Condition.TargetPOVAbove25degRightLongPrediction", "Condition.NearestSquadmateBelow3m", "Condition.InFrontOfNearestSquadmate"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+	recoverySubActions = 
+	[
+		{
+			cooldowns = 
+			[
+				"DroneActions.SwitchSideStrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeLeftBackIntoView : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.StrafeCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.CalculatePathStraightLeftClose", "Condition.TargetPOVAbove75degLeft", "Condition.TargetPOVBelow90degLeft"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			distance = 1.f;
+		} : StrafeLeftWalkPolicy;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckLeftClose", "Condition.TargetPOVAbove80degLeft", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove45degLeftLongPrediction", "Condition.TargetPOVBelow75degLeftLongPrediction"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetBelow25m", "Condition.TargetPOVBelow15deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 1.9f;
+			cooldowns = 
+			[
+				"MovementActions.StrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeLeftAimFast : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.AimStrafeCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.AbilityCanSprint", "Condition.CalculatePathStraightLeftClose", "Condition.TargetBelow15m", "Condition.TargetPOVBelow20degRightLongPrediction", "Condition.NotInStatesStatic"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		movePolicy = "DroneActions.StrafeLeftSprintPolicy";
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightLeftClose", "Condition.TargetPOVAbove45degLeftLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetBelow25m", "Condition.TargetPOVAbove25deg", "Condition.TargetPOVBelow45deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.NearestSquadmateBelow3m", "Condition.InFrontOfNearestSquadmate"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.AimStrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeLeftAimSlow : StrafeLeftAimFast
+{
+	cooldowns = 
+	[
+		"DroneActions.AimStrafeCooldown", "DroneActions.AimStrafeSlowCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.NotInStatesStatic", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.TargetBelow15m", "Condition.TargetPOVBelow20degRightLongPrediction"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		movePolicy = "DroneActions.StrafeLeftWalkPolicy";
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckLeftClose", "Condition.TargetPOVAbove45degLeftLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetBelow25m", "Condition.TargetPOVAbove25deg", "Condition.TargetPOVBelow45deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.NearestSquadmateBelow3m", "Condition.InFrontOfNearestSquadmate"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.AimStrafeSlowCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+StrafeLeftFriendlyFireFast : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.AbilityCanSprint", "Condition.FriendlyFire", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.NotInStatesShoot"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			movementType = "Run";
+			distance = 3.f;
+		} : StrafeLeftSprintPolicy;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckLeftClose", "Condition.TargetPOVAbove80degLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove15deg", "Condition.TargetPOVBelow75deg", "Condition.NotFriendlyFire"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "dev_drone_wyvern_default_combat_no_clear_shot";
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.NoClearShot";
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeLeftFriendlyFireSlow : StrafeLeftFriendlyFireFast
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.FriendlyFire", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.NotInStatesShoot"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			distance = 3.f;
+		} : StrafeLeftWalkPolicy;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckLeftClose", "Condition.TargetPOVAbove80degLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove15deg", "Condition.TargetPOVBelow75deg", "Condition.NotFriendlyFire"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+StrafeRightSprintPolicy : MovementPolicy
+{
+	target = "AIActionTarget.CombatTarget";
+	strafingTarget = "AIActionTarget.CombatTarget";
+	deadAngle = 0.f;
+	movementType = "Sprint";
+	tolerance = 50.f;
+	distance = 3.f;
+	circlingDirection = "Right";
+	keepLineOfSight = "Keep";
+	stopOnObstacle = true;
+	dynamicTargetUpdateTimer = 1.f;
+	ignoreLoSPrecheck = true;
+	avoidSafeArea = true;
+}
+
+StrafeRightWalkPolicy : StrafeRightSprintPolicy
+{
+	movementType = "Walk";
+}
+
+StrafeRightSwitchSide : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.SwitchSideStrafeCooldown", "DroneActions.AimStrafeCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.AbilityCanSprint", "Condition.CalculatePathStraightRightClose", "Condition.TargetPOVRight", "Condition.TargetIsVisible", "Condition.NotInStatesStatic"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			distance = 3.f;
+			dynamicTargetUpdateTimer = 10.f;
+		} : StrafeRightSprintPolicy;
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightRightClose", "Condition.TargetPOVAbove45degLeftLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove25degLeftLongPrediction", "Condition.TargetPOVBelow45degLeftLongPrediction", "Condition.NearestSquadmateBelow3m", "Condition.InFrontOfNearestSquadmate"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+	recoverySubActions = 
+	[
+		{
+			cooldowns = 
+			[
+				"DroneActions.SwitchSideStrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeRightBackIntoView : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.StrafeCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.CalculatePathStraightRightClose", "Condition.TargetPOVAbove75degRight", "Condition.TargetPOVBelow90degRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			distance = 1.f;
+		} : StrafeRightWalkPolicy;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckRightClose", "Condition.TargetPOVAbove80degRight", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove45degRightLongPrediction", "Condition.TargetPOVBelow75degRightLongPrediction"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetBelow25m", "Condition.TargetPOVBelow15deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 1.9f;
+			cooldowns = 
+			[
+				"MovementActions.StrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeRightAimFast : AIAction
+{
+	cooldowns = 
+	[
+		"DroneActions.AimStrafeCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.AbilityCanSprint", "Condition.CalculatePathStraightRightClose", "Condition.TargetBelow15m", "Condition.TargetPOVBelow20degLeftLongPrediction", "Condition.NotInStatesStatic"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		movePolicy = "DroneActions.StrafeRightSprintPolicy";
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightRightClose", "Condition.TargetPOVAbove45degRightLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetBelow25m", "Condition.TargetPOVAbove25deg", "Condition.TargetPOVBelow45deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.NearestSquadmateBelow3m", "Condition.InFrontOfNearestSquadmate"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.AimStrafeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeRightAimSlow : StrafeRightAimFast
+{
+	cooldowns = 
+	[
+		"DroneActions.AimStrafeCooldown", "DroneActions.AimStrafeSlowCooldown", "MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.NotInStatesStatic", "Condition.CalculatePathStraightRightClose", "Condition.TargetBelow15m", "Condition.TargetPOVBelow20degLeftLongPrediction"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		movePolicy = "DroneActions.StrafeRightWalkPolicy";
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightRightClose", "Condition.TargetPOVAbove45degRightLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetBelow25m", "Condition.TargetPOVAbove25deg", "Condition.TargetPOVBelow45deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.NearestSquadmateBelow3m", "Condition.InFrontOfNearestSquadmate"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DroneActions.AimStrafeSlowCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+StrafeRightFriendlyFireFast : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.AbilityCanSprint", "Condition.FriendlyFire", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.NotInStatesShoot"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			movementType = "Run";
+			distance = 3.f;
+		} : StrafeRightSprintPolicy;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckRightClose", "Condition.TargetPOVAbove80degLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove15deg", "Condition.TargetPOVBelow75deg", "Condition.NotFriendlyFire"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "dev_drone_wyvern_default_combat_no_clear_shot";
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.NoClearShot";
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeRightFriendlyFireSlow : StrafeRightFriendlyFireFast
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketCatchUp", "Condition.FriendlyFire", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.NotInStatesShoot"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			distance = 3.f;
+		} : StrafeRightWalkPolicy;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			"DroneActions.StrafeDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckRightClose", "Condition.TargetPOVAbove80degLongPrediction", {
+							AND = 
+							[
+								"Condition.TargetPOVAbove15deg", "Condition.TargetPOVBelow75deg", "Condition.NotFriendlyFire"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+StrafeAroundVehicleSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.TargetAbove2m", "Condition.NotAIUseWorkspotCommand", "Condition.NotAIMoveCommand", "Condition.NotCombatTargetVehicleMoving"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"DroneActions.StrafeLeftFriendlyFireFast", "DroneActions.StrafeLeftFriendlyFireSlow", "DroneActions.StrafeRightFriendlyFireFast", "DroneActions.StrafeRightFriendlyFireSlow", "DroneActions.StrafeLeftAroundVehicle", "DroneActions.StrafeRightAroundVehicle"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+StrafeLeftAroundVehicle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightLeftClose", "Condition.NotFurthestSquadmateBelow15deg", "Condition.FurthestSquadmateLeft"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 1.f;
+			movementType = "Walk";
+			tolerance = 50.f;
+			distance = 4.f;
+			circlingDirection = "Left";
+			stopOnObstacle = true;
+			dynamicTargetUpdateTimer = 1.f;
+			ignoreLoSPrecheck = true;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed", "Condition.NotCalculatePathStraightLeftClose", "Condition.FurthestSquadmateBelow15deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+StrafeRightAroundVehicle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightRightClose", "Condition.NotFurthestSquadmateBelow15deg", "Condition.FurthestSquadmateRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			deadAngle = 1.f;
+			movementType = "Walk";
+			tolerance = 50.f;
+			distance = 4.f;
+			circlingDirection = "Right";
+			stopOnObstacle = true;
+			dynamicTargetUpdateTimer = 1.f;
+			ignoreLoSPrecheck = true;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed", "Condition.NotCalculatePathStraightRightClose", "Condition.FurthestSquadmateBelow15deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+FollowComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DroneActions.FollowSprint", "DroneActions.FollowWalk", "GenericArchetype.Success"
+	];
+}
+
+FollowSprint : AIAction
+{
+	cooldowns = 
+	[
+		"MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FollowerAbove9m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.FriendlyTarget";
+			strafingTarget = "AIActionTarget.FriendlyTarget";
+			movementType = "Run";
+			tolerance = 0.75f;
+			distance = 3.5f;
+			deadAngle = 90.f;
+			dynamicTargetUpdateTimer = 1.f;
+			ignoreLoSPrecheck = true;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.3f;
+		toNextPhaseConditionCheckInterval = 0.3f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.FollowerInVehicle"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+FollowWalk : AIAction
+{
+	cooldowns = 
+	[
+		"MovementActions.MovePolicyCooldown"
+	];
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.FriendlyTarget";
+			strafingTarget = "AIActionTarget.FriendlyTarget";
+			movementType = "Walk";
+			tolerance = 0.75f;
+			distance = 3.5f;
+			deadAngle = 90.f;
+			dynamicTargetUpdateTimer = 1.f;
+			ignoreLoSPrecheck = true;
+			avoidSafeArea = true;
+		};
+		conditionSuccessDuration = 0.3f;
+		toNextPhaseConditionCheckInterval = 0.3f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.FollowerAbove17m", "Condition.PathFindingFailed", "Condition.FollowerInVehicle"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+EvaluateTeleportToTarget : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotFollowerInVehicle", "Condition.FollowerPOVAbove180deg", {
+							OR = 
+							[
+								"Condition.NotCalculatePathToFollower", "Condition.FollowerAbove17m"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+LookAroundForIntruder : AIAction
+{
+	loop = 
+	{
+		duration = 5.2f;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+	animData = 
+	{
+		animFeature = "DroneScan";
+		animSlot = 
+		{
+		};
+	};
+}
+

@@ -1,0 +1,770 @@
+package CommandHandlerActions
+using RTDB, AIActionTarget
+
+Success : AIAction
+{
+}
+
+GoToCoverCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotGracefullyInterruptMoveToCover"
+			];
+		} : AIActionAND;
+	};
+}
+
+WalkToCoverCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InStatesStealth"
+			];
+		} : AIActionAND;
+	};
+}
+
+Cover : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			stanceState = "Cover";
+		};
+	};
+}
+
+NotInCoverFailer : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInCover"
+			];
+		} : AIActionAND;
+	};
+	completeWithFailure = true;
+	loop = 
+	{
+		duration = 1.f;
+	};
+}
+
+WaitInCover : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.GracefullyInterruptMoveToCover"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+WaitForPlayerActivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.IsFollower", {
+				OR = 
+				[
+					"Condition.FollowerAbove5m", "Condition.FollowerPOVAbove120deg"
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+WaitForPlayerPhase : AIActionPhase
+{
+	toNextPhaseConditionCheckInterval = 0.4f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.NotIsFollower", {
+						AND = 
+						[
+							"Condition.FollowerBelow6m", "Condition.FollowerPOVBelow90deg"
+						];
+					} : AIActionAND
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CoverSpecialActionIdlePhase : AIActionPhase
+{
+	toNextPhaseCondition = 
+	[
+		"CommandHandlerActions.CoverSpecialActionPeekCondition", "CommandHandlerActions.CoverSpecialActionQuietCondition", "CommandHandlerActions.CoverSpecialActionGoCondition"
+	];
+}
+
+SpecialActionPeekCooldown : AIActionCooldown
+{
+	duration = 12.f;
+	name = "SpecialActionPeek";
+}
+
+CoverSpecialActionPeekCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.SpecialActionPeekCooldown"
+		];
+	} : AIActionAND;
+}
+
+CoverSpecialActionPeek : AIAction
+{
+	cooldowns = 
+	[
+		"CommandHandlerActions.SpecialActionPeekCooldown"
+	];
+	activationCondition = "CommandHandlerActions.CoverSpecialActionPeekCondition";
+	startup = 
+	{
+		duration = 0.833f;
+	};
+	loop = 
+	{
+		duration = 2.500f;
+	};
+	recovery = 
+	{
+		duration = 1.667f;
+	};
+}
+
+SpecialActionQuietCooldown : AIActionCooldown
+{
+	duration = 12.f;
+	name = "SpecialActionQuiet";
+}
+
+CoverSpecialActionQuietCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.FollowerBelow6m", "Condition.FollowerPOVBelow90deg", "Condition.NotFriendlyTargetInStatesCrouch"
+		];
+	} : AIActionAND;
+}
+
+CoverSpecialActionQuiet : AIAction
+{
+	cooldowns = 
+	[
+		"CommandHandlerActions.SpecialActionQuietCooldown"
+	];
+	activationCondition = "CommandHandlerActions.CoverSpecialActionQuietCondition";
+	startup = 
+	{
+		duration = 0.700f;
+	};
+	loop = 
+	{
+		duration = 2.333f;
+	};
+	recovery = 
+	{
+		duration = 0.633f;
+	};
+}
+
+SpecialActionGoCooldown : AIActionCooldown
+{
+	duration = 12.f;
+	name = "SpecialActionGo";
+}
+
+CoverSpecialActionGoCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.SpecialActionGoCooldown", "Condition.FollowerAbove10m", "Condition.FollowerPOVBelow90deg"
+		];
+	} : AIActionAND;
+}
+
+CoverSpecialActionGo : AIAction
+{
+	cooldowns = 
+	[
+		"CommandHandlerActions.SpecialActionGoCooldown"
+	];
+	activationCondition = "CommandHandlerActions.CoverSpecialActionGoCondition";
+	startup = 
+	{
+		duration = 0.500f;
+	};
+	loop = 
+	{
+		duration = 1.833f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+}
+
+CoverHighLeft : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CommandHandlerActions.CoverHighLeftQuiet", "CommandHandlerActions.CoverHighLeftPeek", "CommandHandlerActions.CoverHighLeftGo", "CommandHandlerActions.CoverHighLeftTurnIdle"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.GracefullyInterruptMoveToCover"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CoverHighLeftWaitForPlayer : CoverHighLeftTurnIdle
+{
+	activationCondition = "CommandHandlerActions.WaitForPlayerActivationCondition";
+	loop = "CommandHandlerActions.WaitForPlayerPhase";
+}
+
+CoverHighLeftTurnStartup : AIAction
+{
+	startup = 
+	{
+		duration = 1.5f;
+	};
+	animData = 
+	{
+		animFeature = "CoverHighLeftTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverHighLeftTurnIdle : AIAction
+{
+	loop = "CommandHandlerActions.CoverSpecialActionIdlePhase";
+	animData = 
+	{
+		animFeature = "CoverHighLeftTurn";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighLeftTurnRecover : AIAction
+{
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "CoverHighLeftTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverHighLeftPeek : CoverSpecialActionPeek
+{
+	animData = 
+	{
+		animFeature = "CoverHighLeftPeek";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighLeftQuiet : CoverSpecialActionQuiet
+{
+	animData = 
+	{
+		animFeature = "CoverHighLeftQuiet";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighLeftGo : CoverSpecialActionGo
+{
+	animData = 
+	{
+		animFeature = "CoverHighLeftGo";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighRight : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CommandHandlerActions.CoverHighRightQuiet", "CommandHandlerActions.CoverHighRightPeek", "CommandHandlerActions.CoverHighRightGo", "CommandHandlerActions.CoverHighRightTurnIdle"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.GracefullyInterruptMoveToCover"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CoverHighRightWaitForPlayer : CoverHighRightTurnIdle
+{
+	activationCondition = "CommandHandlerActions.WaitForPlayerActivationCondition";
+	loop = "CommandHandlerActions.WaitForPlayerPhase";
+}
+
+CoverHighRightTurnStartup : AIAction
+{
+	startup = 
+	{
+		duration = 1.5f;
+	};
+	animData = 
+	{
+		animFeature = "CoverHighRightTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverHighRightTurnIdle : AIAction
+{
+	loop = "CommandHandlerActions.CoverSpecialActionIdlePhase";
+	animData = 
+	{
+		animFeature = "CoverHighRightTurn";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighRightTurnRecover : AIAction
+{
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "CoverHighRightTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverHighRightPeek : CoverSpecialActionPeek
+{
+	animData = 
+	{
+		animFeature = "CoverHighRightPeek";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighRightQuiet : CoverSpecialActionQuiet
+{
+	animData = 
+	{
+		animFeature = "CoverHighRightQuiet";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverHighRightGo : CoverSpecialActionGo
+{
+	animData = 
+	{
+		animFeature = "CoverHighRightGo";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowLeft : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CommandHandlerActions.CoverLowLeftQuiet", "CommandHandlerActions.CoverLowLeftPeek", "CommandHandlerActions.CoverLowLeftGo", "CommandHandlerActions.CoverLowLeftTurnIdle"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.GracefullyInterruptMoveToCover"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CoverLowLeftWaitForPlayer : CoverLowLeftTurnIdle
+{
+	activationCondition = "CommandHandlerActions.WaitForPlayerActivationCondition";
+	loop = "CommandHandlerActions.WaitForPlayerPhase";
+}
+
+CoverLowLeftTurnStartup : AIAction
+{
+	startup = 
+	{
+		duration = 1.5f;
+	};
+	animData = 
+	{
+		animFeature = "CoverLowLeftTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverLowLeftTurnIdle : AIAction
+{
+	loop = "CommandHandlerActions.CoverSpecialActionIdlePhase";
+	animData = 
+	{
+		animFeature = "CoverLowLeftTurn";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowLeftTurnRecover : AIAction
+{
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "CoverLowLeftTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverLowLeftPeek : CoverSpecialActionPeek
+{
+	animData = 
+	{
+		animFeature = "CoverLowLeftPeek";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowLeftQuiet : CoverSpecialActionQuiet
+{
+	animData = 
+	{
+		animFeature = "CoverLowLeftQuiet";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowLeftGo : CoverSpecialActionGo
+{
+	animData = 
+	{
+		animFeature = "CoverLowLeftGo";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowRight : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CommandHandlerActions.CoverLowRightQuiet", "CommandHandlerActions.CoverLowRightPeek", "CommandHandlerActions.CoverLowRightGo", "CommandHandlerActions.CoverLowRightTurnIdle"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.GracefullyInterruptMoveToCover"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CoverLowRightTurnStartup : AIAction
+{
+	startup = 
+	{
+		duration = 1.5f;
+	};
+	animData = 
+	{
+		animFeature = "CoverLowRightTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverLowRightWaitForPlayer : CoverLowRightTurnIdle
+{
+	activationCondition = "CommandHandlerActions.WaitForPlayerActivationCondition";
+	loop = "CommandHandlerActions.WaitForPlayerPhase";
+}
+
+CoverLowRightTurnIdle : AIAction
+{
+	loop = "CommandHandlerActions.CoverSpecialActionIdlePhase";
+	animData = 
+	{
+		animFeature = "CoverLowRightTurn";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowRightTurnRecover : AIAction
+{
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "CoverLowRightTurn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CoverLowRightPeek : CoverSpecialActionPeek
+{
+	animData = 
+	{
+		animFeature = "CoverLowRightPeek";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowRightQuiet : CoverSpecialActionQuiet
+{
+	animData = 
+	{
+		animFeature = "CoverLowRightQuiet";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+CoverLowRightGo : CoverSpecialActionGo
+{
+	animData = 
+	{
+		animFeature = "CoverLowRightGo";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+WalkToTakedown : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InStatesStealth"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 10.f;
+		movePolicy = 
+		{
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			tolerance = 0.8f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow1m", "Condition.NotTargetIsActive", "Condition.NotCalculatePathToTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SprintToTakedown : AIAction
+{
+	startup = 
+	{
+		duration = 10.f;
+		movePolicy = 
+		{
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			movementType = "Sprint";
+			tolerance = 0.8f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow1m", "Condition.NotTargetIsActive", "Condition.NotCalculatePathToTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+PerformTakedown : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsActive"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			effectName = "npc_takedowns";
+			effectTag = "Stealth";
+		} : AISubActionCreateGameEffect
+	];
+}
+

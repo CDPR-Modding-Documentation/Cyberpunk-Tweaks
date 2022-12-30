@@ -1,0 +1,3261 @@
+package QuickHack
+using RTDB, Attribute, Prereqs, Proficiencies, Perks, Effectors, Items
+
+MemoryCost : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		"QuickHack.MemoryCostReductionMod", "QuickHack.TargetResistance", "QuickHack.ConsumableCostReduction"
+	];
+}
+
+MemoryCostUltimate : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		"QuickHack.MemoryCostReductionMod", "QuickHack.TargetResistance", "QuickHack.TargetResistanceExtraUltimate", "QuickHack.ConsumableCostReduction", "QuickHack.UltimateMemoryCostReductionMod"
+	];
+}
+
+MemoryCostCovert : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		"QuickHack.MemoryCostReductionMod", "QuickHack.TargetResistanceCovert", "QuickHack.ConsumableCostReduction", "QuickHack.NetworkMemoryCostReductionMod"
+	];
+}
+
+MemoryCostControl : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		"QuickHack.MemoryCostReductionMod", "QuickHack.TargetResistanceControl", "QuickHack.ConsumableCostReduction"
+	];
+}
+
+MemoryCostDamage : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		"QuickHack.MemoryCostReductionMod", "QuickHack.TargetResistanceDamage", "QuickHack.ConsumableCostReduction"
+	];
+}
+
+MemoryIncreaseTier2 : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		{
+			value = 1;
+		} : MemoryMod
+	];
+}
+
+MemoryIncreaseTier3 : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		{
+			value = 2;
+		} : MemoryMod
+	];
+}
+
+MemoryIncreaseTier4 : StatPoolCost
+{
+	statPool = "BaseStatPools.Memory";
+	costMods += 
+	[
+		{
+			value = 3;
+		} : MemoryMod
+	];
+}
+
+DeviceMemoryCost : MemoryCost
+{
+	costMods += 
+	[
+		"QuickHack.DeviceMemoryCostReductionMod"
+	];
+}
+
+MemoryMod : ConstantStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+}
+
+MemoryCostReductionMod : CombinedStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refObject = "Player";
+	refStat = "BaseStats.MemoryCostReduction";
+	opSymbol = "*";
+	value = -1;
+}
+
+NetworkMemoryCostReductionMod : CombinedStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refObject = "Player";
+	refStat = "BaseStats.StealthHacksCostReduction";
+	opSymbol = "*";
+	value = -1;
+}
+
+DeviceMemoryCostReductionMod : CombinedStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refObject = "Player";
+	refStat = "BaseStats.DeviceMemoryCostReduction";
+	opSymbol = "*";
+	value = -1;
+}
+
+UltimateMemoryCostReductionMod : CombinedStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refObject = "Player";
+	refStat = "BaseStats.UltimateMemoryCostReduction";
+	opSymbol = "*";
+	value = -1;
+}
+
+TargetResistance : CombinedStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refObject = "Target";
+	refStat = "BaseStats.HackingResistance";
+	opSymbol = "*";
+	value = 1.f;
+}
+
+TargetResistanceExtraUltimate : TargetResistance
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refObject = "Target";
+	refStat = "BaseStats.HackingResistanceUltimate";
+	opSymbol = "*";
+	value = 1.f;
+}
+
+TargetResistanceCovert : TargetResistance
+{
+	value = 1f;
+}
+
+TargetResistanceDamage : TargetResistance
+{
+	value = 1f;
+}
+
+TargetResistanceControl : TargetResistance
+{
+	value = 1f;
+}
+
+ConsumableCostReduction : CombinedStatModifier
+{
+	statType = "BaseStats.Memory";
+	modifierType = "Additive";
+	refStat = "BaseStats.MemoryCostModifier";
+	CName opSymbol = "*";
+	float value = 1.f;
+}
+
+HackingResistanceUploadModifier : CurveStatModifier
+{
+	statType = "BaseStats.QuickHackUpload";
+	modifierType = "Additive";
+	id = "puppet_hacking_res_to_upload";
+	column = "puppet_hacking_res_to_upload_multiplier";
+	refStat = "BaseStats.HackingResistance";
+	refObject = "Target";
+}
+
+QuickHack : ObjectAction
+{
+	actionName = "";
+	priority = 0.f;
+	bool isQuickHack = true;
+	instigatorPrereqs = 
+	[
+		{
+			statType = "HasCyberdeck";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	targetActivePrereqs = 
+	[
+		"Prereqs.QuickHackUploadingPrereq"
+	];
+	objectActionType = "ObjectActionType.PuppetQuickHack";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Multiplier";
+			column = "intelligence_to_upload_time";
+		} : IntelligencePassive, 
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Multiplier";
+			refObject = "Player";
+			refStat = "BaseStats.UploadQuickHackMod";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+		} : QuickHack.HackingResistanceUploadModifier
+	];
+	startEffects = 
+	[
+		{
+			effectorToTrigger = "QuickHack.ModifyHackUploadTimeOnMechanicals";
+		}, 
+		{
+			effectorToTrigger = "Effectors.RemoveReduceNextHackCostReductionSE";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	completionEffects += 
+	[
+		{
+			effectorToTrigger = 
+			{
+				prereqRecord = "Prereqs.AlwaysTruePrereq";
+				statGroup = 
+				{
+					statModifiers = 
+					[
+						{
+							statType = "BaseStats.Armor";
+							modifierType = "AdditiveMultiplier";
+							refObject = "Player";
+							refStat = "BaseStats.HackedEnemyArmorReduction";
+							opSymbol = "*";
+							value = -1f;
+						} : CombinedStatModifier
+					];
+				};
+			} : ApplyStatGroupEffector;
+		}, 
+		{
+			effectorToTrigger = 
+			{
+				prereqRecord = "Prereqs.AlwaysTruePrereq";
+				CName effectorClassName = "RefreshPingEffector";
+			} : Effector;
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			statusEffect = "BaseStatusEffect.WasQuickHacked";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			statusEffect = "BaseStatusEffect.QuickHackUploaded";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	costs = 
+	[
+		"QuickHack.MemoryCost"
+	];
+	rewards = 
+	[
+		"RPGActionRewards.CombatHacking"
+	];
+	interactionLayer = "remote";
+}
+
+DamageHack : QuickHack
+{
+	hackCategory = "HackCategories.DamageHack";
+}
+
+UltimateHack : QuickHack
+{
+	startEffects += 
+	[
+		{
+			effectorToTrigger = "Effectors.RemoveReduceNextUltimateHackCostReductionSE";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	hackCategory = "HackCategories.UltimateHack";
+	targetActivePrereqs += 
+	[
+		"Prereqs.QuickHackTargetMortalPrereq"
+	];
+}
+
+ControlHack : QuickHack
+{
+	hackCategory = "HackCategories.ControlHack";
+}
+
+CovertHack : QuickHack
+{
+	hackCategory = "HackCategories.CovertHack";
+}
+
+BreachingHack : QuickHack
+{
+	hackCategory = "HackCategories.BreachingHack";
+}
+
+RemoteBreach : QuickHack
+{
+	actionName = "RemoteBreach";
+	gameplayCategory = "ActionCategories.TakeControl";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.RemoteBreachCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.NetworkNotBreachedActive", "Prereqs.ConnectedToBackdoorActive"
+	];
+	costs = [];
+	objectActionUI = "Interactions.RemoteBreach";
+	activationTime = [];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.RemoteBreachCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	rewards = [];
+}
+
+TriggerRobotPunch : QuickHack
+{
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 3;
+				} : MemoryMod
+			];
+		} : MemoryCost
+	];
+	objectActionUI = "Interactions.TriggerRobotPunch";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2;
+		} : ConstantStatModifier
+	];
+}
+
+BaseWeaponMalfunctionHack : QuickHack.ControlHack
+{
+	actionName = "WeaponMalfunction";
+	targetActivePrereqs += 
+	[
+		"Prereqs.RangedWeaponHeldCheckBothHandsActionPrereq", "Prereqs.WeaponMalfunctionPrereq", "Prereqs.RangedWeaponHeldMinotaurActionPrereq"
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostControl
+	];
+	objectActionUI = "Interactions.WeaponMalfunctionHack";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.WeaponMalfunctionHack";
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+WeaponMalfunctionHack : BaseWeaponMalfunctionHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunction";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+WeaponMalfunctionLvl2Hack : BaseWeaponMalfunctionHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl2";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.WeaponMalfunctionLvl2HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+WeaponMalfunctionLvl2HackSpread : WeaponMalfunctionLvl2Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+WeaponMalfunctionLvl3Hack : BaseWeaponMalfunctionHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl3";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.WeaponMalfunctionLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+WeaponMalfunctionLvl3HackSpread : WeaponMalfunctionLvl3Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+WeaponMalfunctionLvl4Hack : BaseWeaponMalfunctionHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl4";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.WeaponMalfunctionLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+WeaponMalfunctionLvl4HackSpread : WeaponMalfunctionLvl4Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+BaseLocomotionMalfunctionHack : QuickHack.ControlHack
+{
+	actionName = "LocomotionMalfunction";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostControl
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+	objectActionUI = "Interactions.LocomotionMalfunctionHack";
+	targetActivePrereqs += 
+	[
+		"Prereqs.LocomotionMalfunctionPrereq"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.LocomotionMalfunctionHack";
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+LocomotionMalfunctionHack : BaseLocomotionMalfunctionHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunction";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+LocomotionMalfunctionLvl2Hack : BaseLocomotionMalfunctionHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunctionLevel2";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.LocomotionMalfunctionLvl2HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+LocomotionMalfunctionLvl2HackSpread : LocomotionMalfunctionLvl2Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+LocomotionMalfunctionLvl3Hack : BaseLocomotionMalfunctionHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunctionLevel3";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.LocomotionMalfunctionLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+LocomotionMalfunctionLvl3HackSpread : LocomotionMalfunctionLvl3Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+LocomotionMalfunctionLvl4Hack : BaseLocomotionMalfunctionHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.LocomotionMalfunctionLevel4";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.LocomotionMalfunctionLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+LocomotionMalfunctionLvl4HackSpread : LocomotionMalfunctionLvl4Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+BaseCyberwareMalfunctionHack : QuickHack.ControlHack
+{
+	actionName = "CyberwareMalfunction";
+	targetActivePrereqs += 
+	[
+		"Prereqs.CyberwareMalfunctionPrereq", "Prereqs.TargetHasAnyCyberwareAbilityPrereq"
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostControl
+	];
+	objectActionUI = "Interactions.CyberwareMalfunctionHack";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CyberwareMalfunction";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.LocomotionMalfunctionHack";
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+CyberwareMalfunctionHack : BaseCyberwareMalfunctionHack
+{
+	priority = 1.f;
+	completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CyberwareMalfunction";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CyberwareMalfunctionLvl2Hack : CyberwareMalfunctionHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CyberwareMalfunctionLvl2";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.CyberwareMalfunctionLvl2HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+CyberwareMalfunctionLvl2HackSpread : CyberwareMalfunctionLvl2Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+CyberwareMalfunctionLvl3Hack : CyberwareMalfunctionHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CyberwareMalfunctionLvl3";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.CyberwareMalfunctionLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+CyberwareMalfunctionLvl3HackSpread : CyberwareMalfunctionLvl3Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+BaseBlindHack : QuickHack.CovertHack
+{
+	actionName = "Blind";
+	objectActionUI = "Interactions.BlindHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostControl
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.QuickHackBlindImmunePrereq", "Prereqs.QuickHackBlindPrereq", {
+			statusEffect = "BaseStatusEffect.BossNoInterrupt";
+		} : StatusEffectAbsentPrereq
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.RebootOpticsCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BlindHack";
+			} : SpreadInitEffector;
+		}, 
+		{
+			statusEffect = "BaseStatusEffect.RebootOpticsCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+}
+
+BlindHack : BaseBlindHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlind";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BlindLvl2Hack : BaseBlindHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlindLevel2";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BlindLvl2HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+BlindLvl2HackSpread : BlindLvl2Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+BlindLvl3Hack : BaseBlindHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlindLevel3";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BlindLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+BlindLvl3HackSpread : BlindLvl3Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+BlindLvl4Hack : BaseBlindHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.QuickHackBlindLevel4";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BlindLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+BlindLvl4HackSpread : BlindLvl4Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+}
+
+SuicideHackBase : QuickHack.UltimateHack
+{
+	actionName = "Suicide";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	targetPrereqs = [];
+	targetActivePrereqs += 
+	[
+		"Prereqs.GunSuicidePrereq"
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 8.f;
+		} : ConstantStatModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 11;
+				} : MemoryMod
+			];
+		} : MemoryCostUltimate
+	];
+	objectActionUI = "Interactions.SuicideHack";
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideWithWeapon";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.SuicideLvl3Hack";
+				spreadCount = 1;
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+SuicideLvl3Hack : SuicideHackBase
+{
+	priority = 3.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideWithWeapon";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.SuicideLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+SuicideLvl3HackSpread : SuicideLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+SuicideLvl4Hack : SuicideHackBase
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideWithWeapon";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.SuicideLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+SuicideLvl4HackSpread : SuicideLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+SystemCollapseHackBase : QuickHack.UltimateHack
+{
+	actionName = "SystemCollapse";
+	objectActionUI = "Interactions.SystemCollapseHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 10;
+				} : MemoryMod
+			];
+		} : MemoryCostUltimate
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SystemCollapseCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.SystemCollapsePrereq", "Prereqs.IsNotImmuneToSystemCollapse"
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 8.f;
+		} : ConstantStatModifier
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SystemCollapseCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.SystemCollapseLvl3Hack";
+				spreadCount = 1;
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+SystemCollapseLvl3Hack : SystemCollapseHackBase
+{
+	priority = 3.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SystemCollapse";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.SystemCollapseLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+SystemCollapseLvl3HackSpread : SystemCollapseLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+SystemCollapseLvl4Hack : SystemCollapseHackBase
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SystemCollapse";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.SystemCollapseLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+SystemCollapseLvl4HackSpread : SystemCollapseLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+GrenadeHackBase : QuickHack.UltimateHack
+{
+	actionName = "Grenade";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.GrenadeCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.GrenadeExplodePrereq", "Prereqs.CanNpcUseGrenadesPrereq"
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 8;
+		} : ConstantStatModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 11;
+				} : MemoryMod
+			];
+		} : MemoryCostUltimate
+	];
+	objectActionUI = "Interactions.GrenadeHack";
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.GrenadeCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.GrenadeLvl3Hack";
+				spreadCount = 1;
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+GrenadeLvl3Hack : GrenadeHackBase
+{
+	priority = 3.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideWithGrenade";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.GrenadeLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+GrenadeLvl3HackSpread : GrenadeLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+GrenadeLvl4Hack : GrenadeHackBase
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideWithGrenade";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.GrenadeLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+GrenadeLvl4HackSpread : GrenadeLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+GrenadeTutorialHack : GrenadeLvl3Hack
+{
+	priority = 99.f;
+	activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 9;
+				} : MemoryMod
+			];
+		} : MemoryCostUltimate
+	];
+}
+
+MadnessHackBase : QuickHack.UltimateHack
+{
+	actionName = "Madness";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MadnessCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.IsNotCyberpsycho"
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 12;
+				} : MemoryMod
+			];
+		} : MemoryCostUltimate
+	];
+	objectActionUI = "Interactions.MadnessHack";
+	activationTime += 
+	[
+		{
+			value = 8;
+		} : UploadTimeModifier
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MadnessCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.MadnessLvl3Hack";
+				spreadCount = 1;
+			} : SpreadInitEffector;
+		}
+	];
+}
+
+MadnessLvl3Hack : MadnessHackBase
+{
+	priority = 3.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Madness";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.MadnessLvl3HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+MadnessLvl3HackSpread : MadnessLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+MadnessLvl4Hack : MadnessHackBase
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Madness";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.MadnessLvl4HackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+MadnessLvl4HackSpread : MadnessLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+MadnessSetFriendlyBase : MadnessHackBase
+{
+	priority = 0.f;
+	actionName = "MadnessFriendly";
+}
+
+MadnessSetFriendlyHack : MadnessSetFriendlyBase
+{
+	priority = 1.f;
+	objectActionUI = "Interactions.SetFriendlyHack";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 4;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SetFriendly";
+			recipient = "ObjectActionReference.Target";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.MadnessSetFriendlyHackSpread";
+			} : SpreadEffector;
+		}
+	];
+}
+
+MadnessSetFriendlyHackSpread : MadnessLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "UltimateHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+}
+
+OverloadBaseHack : QuickHack.DamageHack
+{
+	actionName = "Overload";
+	objectActionUI = "Interactions.EMPOverloadHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 3;
+				} : MemoryMod
+			];
+		} : MemoryCostDamage
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverloadHack";
+			} : Items.DamageHacksSpreadInitEffector;
+		}
+	];
+}
+
+OverloadHack : OverloadBaseHack
+{
+	priority = 1.f;
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverloadHackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Overload";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadHackSpread : OverloadBaseHack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Overload";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadLvl2Hack : OverloadBaseHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverloadLvl2HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadLvl2HackSpread : OverloadLvl2Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadLvl3Hack : OverloadBaseHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverloadLvl3HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadLvl3HackSpread : OverloadLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadLvl4Hack : OverloadBaseHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverloadLvl4HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverloadLvl4HackSpread : OverloadLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BrainMeltBaseHack : QuickHack.DamageHack
+{
+	actionName = "BrainMelt";
+	objectActionUI = "Interactions.BrainMeltHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostDamage
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 4;
+		} : ConstantStatModifier
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BrainMeltLvl2Hack";
+			} : Items.DamageHacksSpreadInitEffector;
+		}
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.BrainMeltPrereq"
+	];
+}
+
+BrainMeltLvl2Hack : BrainMeltBaseHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BrainMeltLvl2HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BrainMeltLvl2HackSpread : BrainMeltLvl2Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BrainMeltLvl3Hack : BrainMeltBaseHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BrainMeltLvl3HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BrainMeltLvl3HackSpread : BrainMeltLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BrainMeltLvl4Hack : BrainMeltBaseHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.BrainMeltLvl4HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BrainMeltLvl4HackSpread : BrainMeltLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BrainMeltLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BaseOverheatHack : QuickHack.DamageHack
+{
+	actionName = "Overheat";
+	objectActionUI = "Interactions.OverheatHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 3;
+				} : MemoryMod
+			];
+		} : MemoryCostDamage
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 3.0;
+		} : ConstantStatModifier
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverheatHack";
+			} : Items.DamageHacksSpreadInitEffector;
+		}
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.QuickHackBurningImmunePrereq", "Prereqs.OverheatPrereq"
+	];
+}
+
+OverheatHack : BaseOverheatHack
+{
+	priority = 1.f;
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverheatHackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel1";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatHackSpread : OverheatHack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel1";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatLvl2Hack : BaseOverheatHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverheatLvl2HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatLvl2HackSpread : OverheatLvl2Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatLvl3Hack : BaseOverheatHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverheatLvl3HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatLvl3HackSpread : OverheatLvl3Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatLvl4Hack : BaseOverheatHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.OverheatLvl4HackSpread";
+				spreadToAllTargetsInTheArea = true;
+			} : SpreadEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+OverheatLvl4HackSpread : OverheatLvl4Hack
+{
+	instigatorPrereqs = 
+	[
+		{
+			statType = "DamageHackSpread";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	startEffects = [];
+	costs = [];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BasePingHack : QuickHack.CovertHack
+{
+	actionName = "Ping";
+	gameplayCategory = "ActionCategories.Ping";
+	objectActionUI = "Interactions.PingHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 1;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.PingPrereq"
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+PingHack : BasePingHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Ping";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+PingLvl2Hack : BasePingHack
+{
+	priority = 2.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.PingLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+PingLvl3Hack : BasePingHack
+{
+	priority = 3.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.PingLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+PingLvl4Hack : BasePingHack
+{
+	priority = 4.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.PingLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+PingHackTutorial : BasePingHack
+{
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 1;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Ping";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+HeartAttackHack : QuickHack
+{
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 8;
+				} : MemoryMod
+			];
+		} : MemoryCost
+	];
+	objectActionUI = "Interactions.HeartattackHack";
+	cooldown = 
+	{
+		duration = 30.f;
+	} : Cooldown;
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.HeartAttack";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+UploadTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.QuickHackUpload";
+	modifierType = "Additive";
+}
+
+BaseCommsNoiseHack : QuickHack.ControlHack
+{
+	actionName = "CommsNoise";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 3;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.CommsNoisePrereq"
+	];
+	objectActionUI = "Interactions.CommsNoiseHack";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsNoiseCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsNoiseCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier
+	];
+}
+
+CommsNoiseHack : BaseCommsNoiseHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsNoise";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsNoiseLvl2Hack : BaseCommsNoiseHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsNoiseLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsNoiseLvl3Hack : BaseCommsNoiseHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsNoiseLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsNoiseLvl4Hack : BaseCommsNoiseHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsNoiseLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BaseCommsCallOutHack : QuickHack.CovertHack
+{
+	actionName = "CommsCallOut";
+	targetActivePrereqs += 
+	[
+		"Prereqs.TargetNotInCombatActionPrereq", "Prereqs.CommsCallOutPrereq"
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CallOutCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 2;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	objectActionUI = "Interactions.CommsCallOutHack";
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CallOutCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier
+	];
+}
+
+CommsCallOutHack : BaseCommsCallOutHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsCallOut";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsCallOutLvl3Hack : BaseCommsCallOutHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsCallOutLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsCallOutLvl4Hack : BaseCommsCallOutHack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier4"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsCallOutLevel4";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BaseCommsCallInHack : QuickHack.CovertHack
+{
+	actionName = "CommsCallIn";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CallInCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	objectActionUI = "Interactions.CommsCallInHack";
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CallInCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier
+	];
+}
+
+CommsCallInHack : BaseCommsCallInHack
+{
+	priority = 1.f;
+	targetActivePrereqs += 
+	[
+		"Prereqs.TargetNotInCombatActionPrereq", "Prereqs.NearestNavigableSquadmateFoundPrereq"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsCallIn";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsCallInLvl3Hack : BaseCommsCallInHack
+{
+	priority = 3.f;
+	targetActivePrereqs += 
+	[
+		"Prereqs.NearestNavigableSquadmateFoundPrereq"
+	];
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CommsCallInLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+CommsCallInTutorialHack : CommsCallInHack
+{
+	priority = 99.f;
+}
+
+BaseWhistleHack : QuickHack.CovertHack
+{
+	actionName = "Whistle";
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WhistleCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.PlayerReachableActionPrereq"
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 2;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	objectActionUI = "Interactions.WhistleHack";
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WhistleCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+}
+
+WhistleHack : BaseWhistleHack
+{
+	priority = 1.f;
+	targetActivePrereqs += 
+	[
+		"Prereqs.TargetNotInCombatActionPrereq", "Prereqs.WhistlePrereq"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Whistle";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+WhistleLvl2Hack : BaseWhistleHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	targetActivePrereqs += 
+	[
+		"Prereqs.TargetNotInCombatActionPrereq", "Prereqs.WhistlePrereq"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WhistleLvl2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+WhistleLvl3Hack : BaseWhistleHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WhistleLvl3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BaseMemoryWipeHack : QuickHack.CovertHack
+{
+	actionName = "MemoryWipe";
+	targetActivePrereqs += 
+	[
+		"Prereqs.MemoryWipeImmunityStatusEffect", "Prereqs.MemoryWipePrereq", "Prereqs.IsNotImmuneToMemoryWipe"
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 3;
+				} : MemoryMod
+			];
+		} : MemoryCostCovert
+	];
+	objectActionUI = "Interactions.MemoryWipeHack";
+	startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier
+	];
+}
+
+MemoryWipeLvl2Hack : BaseMemoryWipeHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeLevel2";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+MemoryWipeLvl3Hack : BaseMemoryWipeHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MemoryWipeLevel3";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BaseContagionHack : QuickHack.DamageHack
+{
+	actionName = "Contagion";
+	targetActivePrereqs += 
+	[
+	];
+	instigatorPrereqs += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ContagionCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : MemoryMod
+			];
+		} : MemoryCostDamage
+	];
+	objectActionUI = "Interactions.ContagionHack";
+	startEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Instigator";
+			statusEffect = "BaseStatusEffect.ContagionCooldown";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionHackSpread";
+				bonusJumps = 1;
+			} : SpreadInitEffector;
+		}
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				prereqRecord = "Prereqs.NPCIsNotHuman";
+				statusEffect = "BaseStatusEffect.ContagionMechanical";
+				removeWithEffector = false;
+			} : ApplyStatusEffectEffector;
+		}
+	];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+}
+
+ContagionHack : BaseContagionHack
+{
+	priority = 1.f;
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				prereqRecord = "Prereqs.NPCIsHuman";
+				statusEffect = "BaseStatusEffect.Contagion";
+				removeWithEffector = false;
+			} : ApplyStatusEffectEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionHackSpread";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionShortPoison";
+		}
+	];
+}
+
+ContagionHackSpread : ContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+}
+
+ContagionLvl2Hack : BaseContagionHack
+{
+	priority = 2.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				prereqRecord = "Prereqs.NPCIsHuman";
+				statusEffect = "BaseStatusEffect.Contagion";
+				removeWithEffector = false;
+			} : ApplyStatusEffectEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl2HackSpread";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoison";
+		}
+	];
+}
+
+ContagionLvl2HackSpread : ContagionLvl2Hack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+}
+
+ContagionLvl3Hack : BaseContagionHack
+{
+	priority = 3.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier3"
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				prereqRecord = "Prereqs.NPCIsHuman";
+				statusEffect = "BaseStatusEffect.Contagion";
+				removeWithEffector = false;
+			} : ApplyStatusEffectEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce2";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoison";
+		}
+	];
+}
+
+ContagionLvl3HackBounce2 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce2";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce3";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce2";
+		}
+	];
+}
+
+ContagionLvl3HackBounce3 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce3";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce4";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce3";
+		}
+	];
+}
+
+ContagionLvl3HackBounce4 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce4";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce5";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce4";
+		}
+	];
+}
+
+ContagionLvl3HackBounce5 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce5";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce6";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce5";
+		}
+	];
+}
+
+ContagionLvl3HackBounce6 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce6";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce7";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce6";
+		}
+	];
+}
+
+ContagionLvl3HackBounce7 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce7";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce8";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce7";
+		}
+	];
+}
+
+ContagionLvl3HackBounce8 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce8";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce9";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce8";
+		}
+	];
+}
+
+ContagionLvl3HackBounce9 : BaseContagionHack
+{
+	instigatorPrereqs = [];
+	startEffects = [];
+	costs = [];
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionBounce9";
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			effectorToTrigger = 
+			{
+				objectAction = "QuickHack.ContagionLvl3HackBounce9";
+			} : SpreadEffector;
+		}, 
+		{
+			recipient = "ObjectActionReference.Target";
+			statusEffect = "BaseStatusEffect.ContagionPoisonBounce9";
+		}
+	];
+}
+
+ContagionLvl4Hack : ContagionLvl3Hack
+{
+	priority = 4.f;
+	costs += 
+	[
+		"QuickHack.MemoryIncreaseTier2"
+	];
+}
+
+AndroidTurnOnHack : QuickHack.UltimateHack
+{
+	targetPrereqs += [];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 1;
+				} : MemoryMod
+			];
+		} : DeviceMemoryCost
+	];
+	objectActionUI = "Interactions.AndroidTurnOn";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.AndroidTurnOn";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+AndroidTurnOffHack : QuickHack.UltimateHack
+{
+	targetPrereqs += [];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 1;
+				} : MemoryMod
+			];
+		} : DeviceMemoryCost
+	];
+	objectActionUI = "Interactions.AndroidTurnOff";
+	activationTime += 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier
+	];
+	completionEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.AndroidTurnOff";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+ModifyHackUploadTimeOnMechanicals : ApplyStatGroupEffector
+{
+	prereqRecord = "Perks.IsMechanical";
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.UploadQuickHackMod";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.UploadQuickHackMod";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier
+		];
+	};
+}
+

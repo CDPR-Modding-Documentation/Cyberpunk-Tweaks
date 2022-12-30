@@ -1,0 +1,498 @@
+package Items
+using RTDB, Prereqs
+
+[ notQueryable ]
+ProjectileLauncherPartBase : Fragment
+{
+	bool isSingleInstance = false;
+	bool isPart = true;
+	fk< ParentAttachmentType > parentAttachmentType = "ParentAttachmentType.Slot";
+	iconPath = "launcher_rounds_explosive";
+	buyPrice += 
+	[
+		"Price.LauncherFragment"
+	];
+	sellPrice += 
+	[
+		"Price.LauncherFragment"
+	];
+}
+
+[ notQueryable ]
+ProjectileLauncherRoot : ProjectileLauncherPartBase
+{
+	bool isCustomizable = true;
+	CName[] tags += 
+	[
+		"parentPart", "SkipActivityLog"
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.CyberwareRoot"
+	];
+	string friendlyName = "ProjectileLauncherRoot";
+	CName appearanceName = "unholstered_launcher";
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes = [];
+	buyPrice = [];
+	sellPrice = [];
+}
+
+[ notQueryable ]
+ProjectileLauncherRoundBase : ProjectileLauncherPartBase
+{
+	displayName = "LocKey#51198";
+	CName[] tags += 
+	[
+		"itemPart"
+	];
+	quality = "Quality.Rare";
+	visualTags = 
+	[
+		"BaseRound"
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.ProjectileLauncherRound"
+	];
+	CName projectileTemplateName = "launcher_round";
+	CName appearanceResourceName = "a0_006_ma__launcher_fragment";
+	float lifetime = 5.f;
+	CName quickActionlaunchMode = "Tracking";
+	CName chargeActionlaunchMode = "Tracking";
+	CName launchTrajectory = "";
+	float quickActionChargeCost = 25.f;
+	float chargeActionChargeCost = 50.f;
+	bool canTargetDevices = false;
+	bool canTargetVehicles = false;
+	float startVelocity = 10.f;
+	float startVelocityCharged = 10.f;
+	Vector3 gravitySimulation = ( 0.0f, 0.0f, 0.0f );
+	float angle = 45.;
+	float linearTimeRatio = 0.9;
+	float interpolationTimeRatio = 0.2;
+	float returnTimeMargin = 0.1;
+	float bendTimeRatio = 0.4;
+	float bendFactor = 2.6;
+	float halfLeanAngle = 50.;
+	float endLeanAngle = 0.;
+	float angleInterpolationDuration = 0.;
+	bool applyAdditiveProjectileSpiraling = false;
+	float rampUpDistanceStart = 0.f;
+	float rampUpDistanceEnd = 0.f;
+	float rampDownDistanceStart = 0.f;
+	float rampDownDistanceEnd = 0.f;
+	float rampDownFactor = 0.f;
+	bool randomizePhase = false;
+	bool randomizeDirection = false;
+	CName collisionAction = "Stop";
+	CName collisionActionCharged = "Stop";
+	float detonationDelay = -1;
+	int maxBounceCount = 0;
+	float energyLossFactor = 0.5f;
+	float onCollisionStimBroadcastRadius = -1.f;
+	float onCollisionStimBroadcastLifetime = -1.f;
+	CName onCollisionStimType = "";
+	string attack = "";
+	string secondaryAttack = "";
+	float deepWaterDepth = -0.5f;
+	float sinkingDetonationDelay = 1.5f;
+	float waterSurfaceImpactImpulseRadius = 0.05f;
+	float waterSurfaceImpactImpulseStrength = 0.008f;
+	float waterDetonationImpulseRadius = 1.25f;
+	float waterDetonationImpulseStrength = 0.005f;
+	fk< CraftingPackage > CraftingData = 
+	{
+		fk< RecipeElement >[] craftingRecipe += 
+		[
+			{
+				ingredient = "Items.UncommonMaterial1";
+				amount = 15;
+			}, 
+			{
+				ingredient = "Items.RareMaterial1";
+				amount = 15;
+			}
+		];
+	};
+}
+
+ExplosiveDamageRound : ProjectileLauncherRoundBase
+{
+	displayName = "LocKey#23231";
+	visualTags = 
+	[
+		"ExplosiveRound"
+	];
+	iconPath = "cwf_explosivedamageround";
+	lifetime = 3.f;
+	startVelocity = 80.f;
+	startVelocityCharged = 110.f;
+	linearTimeRatio = 0.9;
+	interpolationTimeRatio = 0.2;
+	returnTimeMargin = 0.1;
+	bendTimeRatio = 0.4;
+	bendFactor = 2.6;
+	halfLeanAngle = 50.;
+	endLeanAngle = 0.;
+	angleInterpolationDuration = 0.;
+	collisionAction = "Stop";
+	collisionActionCharged = "Stop";
+	detonationDelay = 1.5f;
+	onCollisionStimBroadcastRadius = 15.f;
+	onCollisionStimType = "Explosion";
+	attack = "Attacks.MissileProjectile";
+	secondaryAttack = "Attacks.MissileProjectileCharged";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#23236";
+			};
+		}
+	];
+}
+
+ElectricDamageRound : ProjectileLauncherRoundBase
+{
+	displayName = "LocKey#23232";
+	visualTags = 
+	[
+		"ElectricRound"
+	];
+	iconPath = "cwf_electricdamageround";
+	lifetime = 2.0f;
+	startVelocity = 60.f;
+	startVelocityCharged = 35.f;
+	collisionAction = "Stop";
+	collisionActionCharged = "Bounce";
+	maxBounceCount = 2;
+	energyLossFactor = 0.15f;
+	onCollisionStimBroadcastRadius = 10.f;
+	onCollisionStimType = "Explosion";
+	attack = "Attacks.EMPProjectile";
+	secondaryAttack = "Attacks.EMPProjectileCharged";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#23237";
+			};
+		}
+	];
+}
+
+ThermalDamageRound : ProjectileLauncherRoundBase
+{
+	displayName = "LocKey#23233";
+	visualTags = 
+	[
+		"ThermalRound"
+	];
+	iconPath = "cwf_thermaldamageround";
+	startVelocity = 60.f;
+	startVelocityCharged = 90.f;
+	onCollisionStimBroadcastRadius = 10.f;
+	onCollisionStimType = "Explosion";
+	attack = "Attacks.ThermalProjectile";
+	secondaryAttack = "Attacks.ThermalProjectileCharged";
+	OnAttach = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "WeaponFullyCharged";
+								invert = true;
+							} : HitFlagHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitTriggered;
+					statusEffect = "BaseStatusEffect.Burning";
+					float applicationChance = 0.2f;
+				} : AddStatusEffectToAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "WeaponFullyCharged";
+							} : HitFlagHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitTriggered;
+					statusEffect = "BaseStatusEffect.Burning";
+					float applicationChance = 0.5f;
+				} : AddStatusEffectToAttackEffector
+			];
+		}
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#23238";
+			};
+		}
+	];
+}
+
+ChemicalDamageRound : ProjectileLauncherRoundBase
+{
+	displayName = "LocKey#23234";
+	visualTags = 
+	[
+		"ChemicalRound"
+	];
+	iconPath = "cwf_chemicaldamageround";
+	startVelocity = 60.f;
+	startVelocityCharged = 90.f;
+	onCollisionStimBroadcastRadius = 10.f;
+	onCollisionStimType = "Explosion";
+	attack = "Attacks.ChemicalProjectile";
+	secondaryAttack = "Attacks.ChemicalProjectileCharged";
+	OnAttach = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "WeaponFullyCharged";
+								invert = true;
+							} : HitFlagHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitTriggered;
+					statusEffect = "BaseStatusEffect.Poisoned";
+					float applicationChance = 0.2f;
+				} : AddStatusEffectToAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "WeaponFullyCharged";
+							} : HitFlagHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitTriggered;
+					statusEffect = "BaseStatusEffect.Poisoned";
+					float applicationChance = 0.5f;
+				} : AddStatusEffectToAttackEffector
+			];
+		}
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#23239";
+			};
+		}
+	];
+}
+
+TranquilizerRound : ProjectileLauncherRoundBase
+{
+	displayName = "LocKey#23235";
+	visualTags = 
+	[
+		"TranquilizerRound"
+	];
+	iconPath = "cwf_tranquilizerround";
+	startVelocity = 40.f;
+	startVelocityCharged = 70.f;
+	quickActionChargeCost = 33.4f;
+	chargeActionChargeCost = 33.4f;
+	collisionAction = "StopAndStickPerpendicular";
+	collisionActionCharged = "StopAndStickPerpendicular";
+	onCollisionStimBroadcastRadius = 5.f;
+	onCollisionStimType = "SoundDistraction";
+	detonationDelay = 0.1f;
+	attack = "Attacks.TranquilizerProjectile";
+	secondaryAttack = "Attacks.TranquilizerProjectileCharged";
+	OnEquip = 
+	[
+		"EquipmentGLP.NonLethal", {
+			UIData = 
+			{
+				localizedDescription = "LocKey#23240";
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+ProjectileLauncherWiringBase : ProjectileLauncherPartBase
+{
+	displayName = "LocKey#51200";
+	CName[] tags += 
+	[
+		"itemPart"
+	];
+	quality = "Quality.Epic";
+	visualTags = 
+	[
+		"default"
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.ProjectileLauncherWiring"
+	];
+	CName appearanceResourceName = "projectile_launcher_wiring";
+}
+
+NeoplasticPlating : ProjectileLauncherWiringBase
+{
+	displayName = "LocKey#40391";
+	localizedDescription = "LocKey#40392";
+	visualTags = 
+	[
+		"DefaultWiring"
+	];
+	quality = "Quality.Rare";
+	iconPath = "cwf_neoplasticplatinground";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#51202";
+				intValues = 
+				[
+					2
+				];
+			};
+		}
+	];
+	fk< CraftingPackage > CraftingData = 
+	{
+		fk< RecipeElement >[] craftingRecipe += 
+		[
+			{
+				ingredient = "Items.CommonMaterial1";
+				amount = 18;
+			}, 
+			{
+				ingredient = "Items.RareMaterial1";
+				amount = 7;
+			}
+		];
+	};
+}
+
+MetalPlating : ProjectileLauncherWiringBase
+{
+	displayName = "LocKey#52628";
+	localizedDescription = "LocKey#52630";
+	quality = "Quality.Rare";
+	iconPath = "cwf_metalplatinground";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#40798";
+				intValues = 
+				[
+					10
+				];
+			};
+		}
+	];
+	fk< CraftingPackage > CraftingData = 
+	{
+		fk< RecipeElement >[] craftingRecipe += 
+		[
+			{
+				ingredient = "Items.CommonMaterial1";
+				amount = 18;
+			}, 
+			{
+				ingredient = "Items.RareMaterial1";
+				amount = 7;
+			}
+		];
+	};
+}
+
+TitaniumPlating : ProjectileLauncherWiringBase
+{
+	displayName = "LocKey#52629";
+	localizedDescription = "LocKey#52631";
+	quality = "Quality.Epic";
+	iconPath = "cwf_titaniumplatinground";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "AdditiveMultiplier";
+					value = 0.07f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#51205";
+				intValues = 
+				[
+					7
+				];
+			};
+		}
+	];
+	fk< CraftingPackage > CraftingData = 
+	{
+		fk< RecipeElement >[] craftingRecipe += 
+		[
+			{
+				ingredient = "Items.RareMaterial1";
+				amount = 15;
+			}, 
+			{
+				ingredient = "Items.EpicMaterial1";
+				amount = 7;
+			}
+		];
+	};
+}
+

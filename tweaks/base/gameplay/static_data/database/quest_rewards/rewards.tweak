@@ -1,0 +1,197 @@
+package QuestRewards
+using RTDB, Proficiencies
+
+test1 : RewardBase
+{
+	string name = "q001_reward";
+	fk< XPPoints >[] experience = 
+	[
+		{
+			type = "Proficiencies.Level";
+		}, 
+		{
+			type = "Proficiencies.StreetCred";
+		}
+	];
+	fk< InventoryItem >[] items = 
+	[
+		{
+			item = "Items.Preset_Base_Lexington";
+			quantity = 14;
+		}
+	];
+	fk< CurrencyReward >[] currencyPackage = 
+	[
+		{
+			int amount = 678;
+		}
+	];
+}
+
+E3_AfterScavengerReward : RewardBase
+{
+	string name = "Saved the girl";
+	fk< XPPoints >[] experience = 
+	[
+		{
+			quantityModifiers = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					value = 1000;
+				} : ConstantStatModifier
+			];
+			type = "Proficiencies.Level";
+		}
+	];
+}
+
+E3_AfterBossReward : RewardBase
+{
+	string name = "Killed Royce";
+	fk< XPPoints >[] experience = 
+	[
+		{
+			quantityModifiers = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					value = 400;
+				} : ConstantStatModifier
+			];
+			type = "Proficiencies.StreetCred";
+		}
+	];
+}
+
+E32019TurretSceneReward : RewardBase
+{
+	string name = "Turret Mayhem";
+	fk< XPPoints >[] experience = 
+	[
+		{
+			quantityModifiers = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					value = 200;
+				} : ConstantStatModifier
+			];
+			type = "Proficiencies.Level";
+		}
+	];
+}
+
+E32019NetwatchRebootReward : RewardBase
+{
+	string name = "Who watches the Netwatch?";
+	fk< XPPoints >[] experience = 
+	[
+		{
+			quantityModifiers = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					value = 150;
+				} : ConstantStatModifier
+			];
+			type = "Proficiencies.StreetCred";
+		}, 
+		{
+			quantityModifiers = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					value = 200;
+				} : ConstantStatModifier
+			];
+			type = "Proficiencies.Level";
+		}
+	];
+}
+
+MinigameMoneyAmount : CurrencyReward
+{
+	quantityModifiers = 
+	[
+		{
+			statType = "BaseStats.Quantity";
+			modifierType = "Additive";
+			id = "puppet_bounty_scaling";
+			column = "power_level_to_money";
+			refStat = "BaseStats.PowerLevel";
+			refObject = "Target";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Quantity";
+			modifierType = "Multiplier";
+			column = "hacking_to_access_point_money";
+		} : HackingPassive
+	];
+}
+
+MinigameMoney : RewardBase
+{
+	name = "Eddies";
+	currencyPackage = 
+	[
+		"QuestRewards.MinigameMoneyAmount"
+	];
+}
+
+MinigameMoneyVeryLow : RewardBase
+{
+	currencyPackage = 
+	[
+		{
+			quantityModifiers += 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Multiplier";
+					value = 0.5;
+				} : ConstantStatModifier
+			];
+		} : MinigameMoneyAmount
+	];
+}
+
+MinigameMoneyLow : RewardBase
+{
+	currencyPackage = 
+	[
+		{
+			quantityModifiers += 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Multiplier";
+					value = 0.75;
+				} : ConstantStatModifier
+			];
+		} : MinigameMoneyAmount
+	];
+}
+
+MinigameMoneyHigh : RewardBase
+{
+	currencyPackage = 
+	[
+		{
+			quantityModifiers += 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Multiplier";
+					value = 1.5;
+				} : ConstantStatModifier
+			];
+		} : MinigameMoneyAmount
+	];
+}
+

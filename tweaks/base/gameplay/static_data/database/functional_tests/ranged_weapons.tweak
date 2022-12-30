@@ -1,0 +1,330 @@
+package FunctionalTests
+using RTDB, Items, BaseStats, WeaponFxPackage
+
+[ notQueryable ]
+Preset_Satara_FunctionalTest : Preset_Satara_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__mag_stdr";
+		}
+	];
+	statModifierGroups += 
+	[
+		"FunctionalTests.Base_Satara_FunctionalTest_Stats"
+	];
+}
+
+Base_Satara_FunctionalTest_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadEvenDistributionJitterSize";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Preset_BaseLexington_FunctionalTests : Preset_Lexington_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__mag_stdr";
+		}
+	];
+	statModifierGroups += 
+	[
+		"FunctionalTests.BaseLexington_FunctionalTests_Stats"
+	];
+}
+
+BaseLexington_FunctionalTests_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.AimFOV";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RicochetCount";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Base_Silencer_FunctionalTests : WeaponMuzzleBase
+{
+	displayName = "LocKey#1344";
+	localizedDescription = "LocKey#1346";
+	CName appearanceResourceName = "w_att__power_01";
+	tags += 
+	[
+		"Silenced"
+	];
+	iconPath = "silencer_2";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			value = -10;
+		} : WeaponNoiseModifier, 
+		{
+			statType = "BaseStats.CanSilentKill";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RicochetCount";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier
+	];
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.Silenced", {
+			UIData = 
+			{
+				localizedDescription = "LocKey#48670";
+				floatValues = 
+				[
+					30
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+Base_Short_Scope_FunctionalTests : WeaponScopeBase
+{
+	quality = "Quality.Rare";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ScopeFOV";
+			modifierType = "Additive";
+			value = 26.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ScopeOffset";
+			modifierType = "Additive";
+			value = -0.0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"FunctionalTests.Base_Short_Scope_Stats_FunctionalTests"
+	];
+}
+
+Base_Short_Scope_Stats_FunctionalTests : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.AimInTime";
+			modifierType = "Additive";
+			id = "scope_rpg_stats";
+			column = "AimInOutTimeCurveShort";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.AimInTime";
+			modifierType = "Additive";
+			value = -0.015f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AimOutTime";
+			modifierType = "Additive";
+			id = "scope_rpg_stats";
+			column = "AimInOutTimeCurveShort";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.AimOutTime";
+			modifierType = "Additive";
+			value = -0.015f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Charge";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Charge";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 2.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CPUPower";
+			modifierType = "Additive";
+			refStat = "BaseStats.CanJump";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 100.0f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+Preset_Lexington_LowDamage_FunctionalTests : Preset_Lexington_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun_militech_lexington__mag_stdr";
+		}
+	];
+	statModifierGroups += 
+	[
+		"FunctionalTests.Base_Lexington_LowDamage_FunctionalTests_Stats"
+	];
+}
+
+Base_Lexington_LowDamage_FunctionalTests_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Base_Overture_HighDamage_FunctionalTests : Preset_Overture_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_stdr";
+		}
+	];
+	statModifierGroups += 
+	[
+		"FunctionalTests.Base_Overture_HighDamage_FunctionalTests_Stats"
+	];
+}
+
+Base_Overture_HighDamage_FunctionalTests_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 200f;
+		} : ConstantStatModifier
+	];
+}
+

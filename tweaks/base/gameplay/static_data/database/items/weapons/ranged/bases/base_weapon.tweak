@@ -1,0 +1,1538 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage, Crafting, ItemAction
+
+[ notQueryable ]
+Base_Weapon : WeaponItem
+{
+	bool isSingleInstance = false;
+	CName entityName = "weapon_root";
+	stateMachineName = "Weapon";
+	bool hide_nametag = true;
+	bool IsIKEnabled = true;
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Default";
+	tags += 
+	[
+		"RangedWeapon"
+	];
+	fk< WeaponFxPackage > fxPackageQuickMelee = "WeaponFxPackage.QuickMeleeFxPackage";
+	fk< Quality > quality = "Quality.Random";
+	CName[] visualTags = 
+	[
+		"Default", "Neon", "Military", "Pimp"
+	];
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ItemSlotSniperRifle", "AttachmentSlots.ItemSlotSMG", "AttachmentSlots.ItemSlotTechRifle", "AttachmentSlots.ItemSlotHandgunLeftJackie", "AttachmentSlots.ItemSlotHandgunRightJackie", "AttachmentSlots.ItemSlotGenericMelee", "AttachmentSlots.ItemSlotHammer", "AttachmentSlots.ItemSlotKatana", "AttachmentSlots.ItemSlotKnifeRight", "AttachmentSlots.ItemSlotKnifeLeft", "AttachmentSlots.ItemSlotGenericRanged", "AttachmentSlots.ItemSlotHandgunRight", "AttachmentSlots.ItemSlotHandgunLeft"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			min = 0f;
+			max = 0.95f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChargeTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseChargeTime";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			id = "quality_curves";
+			column = "quality_to_dps_multiplier";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTime";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTimeBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTimeBonus";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CycleTime";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CycleTimeBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CycleTimeBonus";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MagazineCapacity";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MagazineCapacityBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MagazineCapacityBonus";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCycleBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCycle";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCyclePlusReloadBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCyclePlusReload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecondBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecond";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHit";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BaseDamage";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ProjectilesPerShot";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.IsItemCrafted";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BleedingApplicationRate";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BurningApplicationRate";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PoisonedApplicationRate";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectrocutedApplicationRate";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CritChance";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CritDamage";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WasItemUpgraded";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			value = 0.5f;
+		} : BulletSurroundingHitVFxChanceModifier, 
+		{
+			value = 0.5f;
+		} : BulletPseudoPierceHitVFxChanceModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 10f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ReloadTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.ReloadTimeBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ReloadTime";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.ReloadTimeBonus";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CycleTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.CycleTimeBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CycleTime";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CycleTimeBonus";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MagazineCapacity";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacityBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MagazineCapacity";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.MagazineCapacityBonus";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ProjectilesPerShot";
+			modifierType = "Additive";
+			refStat = "BaseStats.ProjectilesPerShotBonus";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCycleBase";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacityBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCycleBase";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.CycleTimeBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCyclePlusReloadBase";
+			modifierType = "Additive";
+			refStat = "BaseStats.ClipTimesCycleBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCyclePlusReloadBase";
+			modifierType = "Additive";
+			refStat = "BaseStats.ReloadTimeBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCycle";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCycle";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.CycleTime";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCyclePlusReload";
+			modifierType = "Additive";
+			refStat = "BaseStats.ClipTimesCycle";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ClipTimesCyclePlusReload";
+			modifierType = "Additive";
+			refStat = "BaseStats.ReloadTime";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecondBase";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacityBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecondBase";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.ClipTimesCyclePlusReloadBase";
+			opSymbol = "inv";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecondBase";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.ProjectilesPerShotBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecond";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecond";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.ClipTimesCyclePlusReload";
+			opSymbol = "inv";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttacksPerSecond";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.ProjectilesPerShot";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.AttacksPerSecond";
+			opSymbol = "inv";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.BonusDamagePerHit";
+			opSymbol = "*";
+			value = 0.01f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BaseDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.3f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BaseDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BaseDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BaseDamageMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseDamage";
+			opSymbol = "*";
+			value = 0.9f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BaseDamageMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseDamage";
+			opSymbol = "*";
+			value = 1.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseDamageMin";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.PhysicalDamageMin";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamageMin";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamageMin";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamageMin";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseDamageMax";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.PhysicalDamageMax";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamageMax";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamageMax";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamageMax";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHit";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHit";
+			modifierType = "Additive";
+			refStat = "BaseStats.PhysicalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHit";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHit";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHit";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritChanceTimeCritDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.CritChance";
+			opSymbol = "/";
+			value = 100f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritChanceTimeCritDamage";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.CritDamage";
+			opSymbol = "/";
+			value = 100f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritDPSBonus";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CritDPSBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.CritChanceTimeCritDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitTimesAttacksPerSecond";
+			modifierType = "Additive";
+			refStat = "BaseStats.EffectiveDamagePerHit";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDamagePerHitTimesAttacksPerSecond";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.AttacksPerSecond";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Additive";
+			refStat = "BaseStats.EffectiveDamagePerHitTimesAttacksPerSecond";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.CritDPSBonus";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusWeaponDamage2";
+			modifierType = "Additive";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusWeaponDamage2";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.IsItemCrafted";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			modifierType = "Additive";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 1f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.IsItemCrafted";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	statModifierGroups = 
+	[
+		"Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Randomization", "Items.QualityRandomization"
+	];
+	CName effectiveRangeCurve = "";
+	CName effectiveRangeFalloffCurve = "StandardFalloff";
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.Bullet_GameEffect", "Attacks.ThermalBulletEffect", "Attacks.ChemicalBulletEffect", "Attacks.ElectricBulletEffect", "Attacks.BurningBulletEffect", "Attacks.SmartBulletLow", "Attacks.SmartBulletMed", "Attacks.SmartBulletHigh", "Attacks.SmartBulletTwoStage", "Attacks.QuickMelee", "Attacks.Bullet_Projectile", "Attacks.ThermalBulletProjectile", "Attacks.ChemicalBulletProjectile", "Attacks.ElectricBulletProjectile", "Attacks.BurningBulletProjectile", "Attacks.PowerRounds_Projectile", "Attacks.PowerBuckshots_Projectile", "Attacks.PowerBullets_Projectile", "Attacks.NPCBulletEffect", "Attacks.NPCThermalBulletEffect", "Attacks.NPCChemicalBulletEffect", "Attacks.NPCElectricBulletEffect", "Attacks.NPCBurningBulletEffect", "Attacks.NPCSmartBullet", "Attacks.NPCBulletProjectile", "Attacks.NPCThermalBulletProjectile", "Attacks.NPCChemicalBulletProjectile", "Attacks.NPCElectricBulletProjectile", "Attacks.NPCBurningBulletProjectile", "NPCAttacks.QuickMelee", "NPCAttacks.StompAttackStagger", "NPCAttacks.StrongAttackStagger", "NPCAttacks.StrongAttackStompKnockdown", "NPCAttacks.StrongAttackStompStun", "NPCAttacks.PushEffect", "NPCAttacks.ParryEffect", "Attacks.BaseLaserSight", "Attacks.TechLaserSight"
+	];
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.PhysicalBulletPackage";
+	objectActions += 
+	[
+		"ItemAction.WeaponDisassemble"
+	];
+	float safeActionDuration = 2.f;
+	float weaponNearPlane = 5.f;
+	float weaponFarPlane = 50.f;
+	float weaponEdgesSharpness = 0.0f;
+	float weaponVignetteIntensity = 0.f;
+	float weaponVignetteRadius = 0.f;
+	float weaponVignetteCircular = 0.0f;
+	float weaponBlurIntensity = 1.0f;
+	float weaponNearPlane_aim = 15.f;
+	float weaponFarPlane_aim = 50.f;
+	float weaponEdgesSharpness_aim = 0.0f;
+	float weaponVignetteIntensity_aim = 0.5f;
+	float weaponVignetteRadius_aim = 0.6f;
+	float weaponVignetteCircular_aim = 1.0f;
+	float weaponBlurIntensity_aim = 1.f;
+	itemSecondaryAction = "ItemAction.Equip";
+	buyPrice += 
+	[
+		"Price.RangedWeapon", "Price.RangedWeaponPowerLevelMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.RangedWeapon", "Price.RangedWeaponPowerLevelMultiplier"
+	];
+}
+
+Base_NPC_RPG_Data : RPGDataPackage
+{
+	statModifierGroups = 
+	[
+		"Items.QualityRandomization"
+	];
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.MagazineCapacityBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MagazineCapacity";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacityBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CycleTimeBase";
+			modifierType = "Additive";
+			value = 0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CycleTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.CycleTimeBase";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_PlayerState_Spread_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = -0.25f;
+		} : SpreadCrouchDefaultMultModifier, 
+		{
+			value = -0.25f;
+		} : SpreadCrouchMaxMultModifier, 
+		{
+			value = 1.0f;
+		} : SpreadFastSpeedMinModifier, 
+		{
+			value = 1.25f;
+		} : SpreadFastSpeedMaxModifier, 
+		{
+			value = 0.25f;
+		} : SpreadFastSpeedMinAddModifier, 
+		{
+			value = 0.25f;
+		} : SpreadFastSpeedMaxAddModifier, 
+		{
+			value = 1.0f;
+		} : SpreadAdsFastSpeedMinModifier, 
+		{
+			value = 1.25f;
+		} : SpreadAdsFastSpeedMaxModifier, 
+		{
+			value = 0.35f;
+		} : SpreadAdsFastSpeedMinAddModifier, 
+		{
+			value = 0.35f;
+		} : SpreadAdsFastSpeedMaxAddModifier
+	];
+}
+
+Base_NPC_SmartGun_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 3.0f;
+		} : SmartGunNPCLockOnTimeModifier, 
+		{
+			value = 3.0f;
+		} : SmartGunNPCLockTimeoutModifier, 
+		{
+			value = 10.f;
+		} : SmartGunNPCLockingAnglePitchModifier, 
+		{
+			value = 10.f;
+		} : SmartGunNPCLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunNPCShootProjectilesOnlyStraightModifier, 
+		{
+			value = 0.15f;
+		} : SmartGunNPCTrajectoryCurvatureMultiplierModifier, 
+		{
+			value = 30.f;
+		} : SmartGunNPCProjectileStartingOrientationAngleOffsetModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunNPCApplySpreadAtHitplaneModifier, 
+		{
+			value = 0.1f;
+		} : SmartGunNPCSpreadMultiplierModifier, 
+		{
+			value = 35.f;
+		} : SmartGunNPCProjectileVelocityModifier, 
+		{
+			value = 1.f;
+		} : SmartGunHitProbabilityModifier, 
+		"AttackModifier.SmartGunTBHModifier"
+	];
+}
+
+Base_Weapon_Status_Effect_Application_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DealsPhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.PhysicalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DealsThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DealsChemicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DealsElectricDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BleedingApplicationRate";
+			modifierType = "Additive";
+			id = "random_distributions";
+			column = "quality_to_debuff_application_rate_on_ranged";
+			refStat = "BaseStats.Quality";
+			refObject = "Self";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.BleedingApplicationRate";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.DealsPhysicalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BurningApplicationRate";
+			modifierType = "Additive";
+			id = "random_distributions";
+			column = "quality_to_debuff_application_rate_on_ranged";
+			refStat = "BaseStats.Quality";
+			refObject = "Self";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.BurningApplicationRate";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.DealsThermalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PoisonedApplicationRate";
+			modifierType = "Additive";
+			id = "random_distributions";
+			column = "quality_to_debuff_application_rate_on_ranged";
+			refStat = "BaseStats.Quality";
+			refObject = "Self";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.PoisonedApplicationRate";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.DealsChemicalDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectrocutedApplicationRate";
+			modifierType = "Additive";
+			id = "random_distributions";
+			column = "quality_to_debuff_application_rate_on_ranged";
+			refStat = "BaseStats.Quality";
+			refObject = "Self";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ElectrocutedApplicationRate";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.DealsElectricDamage";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Weapon_Damage_Type_Randomization : StatModifierGroup
+{
+	drawBasedOnStatType = true;
+	statModsLimit = 1;
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Weapon_Damage_Type_Min_Max : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamageMin";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamageMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.PhysicalDamage";
+			opSymbol = "*";
+			value = 0.9f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamageMax";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamageMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.PhysicalDamage";
+			opSymbol = "*";
+			value = 1.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamageMin";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamageMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamage";
+			opSymbol = "*";
+			value = 0.9f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamageMax";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamageMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamage";
+			opSymbol = "*";
+			value = 1.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamageMin";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamageMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamage";
+			opSymbol = "*";
+			value = 0.9f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamageMax";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamageMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamage";
+			opSymbol = "*";
+			value = 1.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamageMin";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamageMin";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamage";
+			opSymbol = "*";
+			value = 0.9f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamageMax";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamageMax";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamage";
+			opSymbol = "*";
+			value = 1.1f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Tech_Stats : StatModifierGroup
+{
+	statModifiers += 
+	[
+		{
+			value = 0.25;
+		} : ChargeMultiplierModifier, 
+		{
+			statType = "BaseStats.ChargeFullMultiplier";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChargeMultiplier";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			value = 10.f;
+		} : TechPierceScanAngleModifier, 
+		{
+			value = -0.2f;
+		} : TechPierceDamageFactorModifier
+	];
+}
+
+Base_Weapon_Damage_Type_Physical : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Weapon_Damage_Type_Thermal : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Weapon_Damage_Type_Chemical : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Weapon_Damage_Type_Electric : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+RangedWeaponPossibleMuzzleList : SlotItemPartListElement
+{
+	slot = "AttachmentSlots.PowerModule";
+	itemPartList = 
+	[
+		{
+			item = "Items.w_silencer_01";
+		}, 
+		{
+			item = "Items.w_silencer_02";
+		}, 
+		{
+			item = "Items.w_silencer_03";
+		}, 
+		{
+			item = "Items.w_silencer_04";
+		}
+	];
+}
+
+CraftedWeaponStatGroup : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 10f;
+		} : CombinedStatModifier
+	];
+}
+
+GenericModList : SlotItemPartPreset
+{
+	itemPartList = 
+	[
+		{
+			item = "";
+			weight = 0.8f;
+		}, 
+		{
+			item = "Items.DummyWeaponMod";
+			weight = 0.8f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod01";
+			weight = 0.1f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod02";
+			weight = 0.1f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod03";
+			weight = 0.1f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod04";
+			weight = 0.1f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod11";
+			weight = 0.1f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod12";
+			weight = 0.1f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod13";
+			weight = 0.1f;
+		}
+	];
+}
+
+GenericPowerModList : GenericModList
+{
+	itemPartList += 
+	[
+	];
+}
+
+GenericSmartModList : GenericModList
+{
+	itemPartList += 
+	[
+	];
+}
+
+GenericTechModList : GenericModList
+{
+	itemPartList += 
+	[
+	];
+}
+
+BaseDedicatedPowerModList : SlotItemPartPreset
+{
+	itemPartList = 
+	[
+		{
+			item = "Items.PowerWeaponMod01";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.PowerWeaponMod02";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.PowerWeaponMod03";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.PowerWeaponMod04";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.PowerWeaponMod05";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.PowerWeaponMod06";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.PowerWeaponMod07";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod08";
+			weight = 0.2f;
+		}
+	];
+}
+
+RareDedicatedPowerModList : BaseDedicatedPowerModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.8f;
+		}
+	];
+}
+
+EpicDedicatedPowerModList : BaseDedicatedPowerModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.4f;
+		}
+	];
+}
+
+LegendaryDedicatedPowerModList : BaseDedicatedPowerModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.1f;
+		}
+	];
+}
+
+BaseDedicatedSmartModList : SlotItemPartPreset
+{
+	itemPartList = 
+	[
+		{
+			item = "Items.SimpleWeaponMod15";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.SmartWeaponMod01";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.SmartWeaponMod02";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.SmartWeaponMod03";
+			weight = 0.2f;
+		}, 
+		{
+			item = "Items.SmartWeaponMod05";
+			weight = 0.2f;
+		}
+	];
+}
+
+RareDedicatedSmartModList : BaseDedicatedSmartModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.8f;
+		}
+	];
+}
+
+EpicDedicatedSmartModList : BaseDedicatedSmartModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.4f;
+		}
+	];
+}
+
+LegendaryDedicatedSmartModList : BaseDedicatedSmartModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.1f;
+		}
+	];
+}
+
+BaseDedicatedTechModList : SlotItemPartPreset
+{
+	itemPartList = 
+	[
+		{
+			item = "Items.SimpleWeaponMod09";
+			weight = 0.5f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod10";
+			weight = 0.5f;
+		}, 
+		{
+			item = "Items.SimpleWeaponMod14";
+			weight = 0.15f;
+		}, 
+		{
+			item = "Items.TechWeaponMod01";
+			weight = 0.15f;
+		}, 
+		{
+			item = "Items.TechWeaponMod02";
+			weight = 0.15f;
+		}, 
+		{
+			item = "Items.TechWeaponMod03";
+			weight = 0.15f;
+		}, 
+		{
+			item = "Items.TechWeaponMod04";
+			weight = 0.15f;
+		}
+	];
+}
+
+RareDedicatedTechModList : BaseDedicatedTechModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.8f;
+		}
+	];
+}
+
+EpicDedicatedTechModList : BaseDedicatedTechModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.4f;
+		}
+	];
+}
+
+LegendaryDedicatedTechModList : BaseDedicatedTechModList
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			weight = 0.1f;
+		}
+	];
+}
+

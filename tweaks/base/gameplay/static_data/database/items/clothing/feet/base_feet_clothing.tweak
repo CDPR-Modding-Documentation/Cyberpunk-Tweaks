@@ -1,0 +1,290 @@
+package Items
+using RTDB, Crafting, Prereqs
+
+[ notQueryable ]
+FootClothingBase : RTDB.Clothing
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.Feet"
+	];
+	fk< EquipmentArea > equipArea = "EquipmentArea.Feet";
+	CName[] tags += 
+	[
+		"FeetClothing"
+	];
+	fk< ItemType > itemType = "ItemType.Clo_Feet";
+	fk< ItemBlueprint > blueprint = "Items.FootClothingBlueprint";
+	CName entityName = "player_feet_item";
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes = 
+	[
+		"itemsFactoryAppearanceSuffix.Gender"
+	];
+	bool[] appearanceSuffixesOwnerOverride = 
+	[
+		true
+	];
+	fk< EquipmentMovementSound > movementSound = 
+	{
+		audioMovementName = "boots";
+		priority = 1.f;
+	};
+	buyPrice += 
+	[
+		"Price.FeetClothing"
+	];
+	sellPrice += 
+	[
+		"Price.FeetClothing"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			min = 0f;
+			max = 0.95f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "Additive";
+			id = "item_clothing_RPG_stats";
+			column = "foot_clothing_power_level_to_armor";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 10f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Additive";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.IsItemCrafted";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+GenericFootClothing : FootClothingBase
+{
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem", {
+			slot = "AttachmentSlots.FootFabricEnhancer1";
+		} : BootsClothingSlotBaseItemList
+	];
+}
+
+[ notQueryable ]
+EmptySlotsFootClothing : FootClothingBase
+{
+	tags += 
+	[
+		"EmptySlots"
+	];
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem"
+	];
+}
+
+FootClothingBlueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.GenericItemRoot";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.FootFabricEnhancer1";
+				prereqID = 
+				{
+					valueToCheck = 0;
+				} : ItemQualityPrereq;
+			}
+		];
+	};
+}
+
+[ notQueryable ]
+FormalShoes : GenericFootClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.FormalShoes"
+	];
+	sellPrice += 
+	[
+		"Price.FormalShoes"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsFormalShoes : EmptySlotsFootClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.FormalShoes"
+	];
+	sellPrice += 
+	[
+		"Price.FormalShoes"
+	];
+}
+
+[ notQueryable ]
+CasualShoes : GenericFootClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.CasualShoes"
+	];
+	sellPrice += 
+	[
+		"Price.CasualShoes"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsCasualShoes : EmptySlotsFootClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.CasualShoes"
+	];
+	sellPrice += 
+	[
+		"Price.CasualShoes"
+	];
+}
+
+[ notQueryable ]
+Boots : GenericFootClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Boots"
+	];
+	sellPrice += 
+	[
+		"Price.Boots"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsBoots : EmptySlotsFootClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Boots"
+	];
+	sellPrice += 
+	[
+		"Price.Boots"
+	];
+}
+

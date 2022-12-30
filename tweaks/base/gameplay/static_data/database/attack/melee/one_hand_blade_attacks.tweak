@@ -1,0 +1,451 @@
+package OneHandBladeAttacks
+using RTDB, Attacks, AttackDirections
+
+OneHandBladeComboAttackAbstract : Slash
+{
+	attackSubtype = "AttackType.ComboAttack";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 0.5f;
+	float idleTransitionTime = 1.2f;
+	float blockTransitionTime = 0.7f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.f;
+	float attackEffectDelay = 0.24f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	audioTag = "slash";
+	bool incrementsCombo = true;
+	float startupDuration = 0.267f;
+	float activeDuration = 0.4f;
+	float recoverDuration = 1.167f;
+	Vector3 ikOffset = ( 0.029f, -0.059f, -0.066f );
+	hitReactionSeverityMin = 1;
+	hitReactionSeverityMax = 1;
+}
+
+OneHandBladeComboAttack1 : OneHandBladeComboAttackAbstract
+{
+	attackName = "MeleeComboAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightUpToLeftDown";
+	audioAttackIndex = 0.0f;
+}
+
+OneHandBladeComboAttack2 : OneHandBladeComboAttackAbstract
+{
+	attackName = "MeleeComboAttack1";
+	float startupDuration = 0.267f;
+	float activeDuration = 0.167f;
+	float recoverDuration = 1.4f;
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	audioAttackIndex = 1.0f;
+}
+
+OneHandBladeComboAttack3 : OneHandBladeComboAttackAbstract
+{
+	attackName = "MeleeComboAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.ThrustRightToLeft";
+	audioAttackIndex = 2.0f;
+}
+
+OneHandBladeComboAttack4 : OneHandBladeComboAttackAbstract
+{
+	attackName = "MeleeComboAttack3";
+	fk< AttackDirection > attackDirection = "AttackDirections.Center";
+	audioAttackIndex = 3.0f;
+}
+
+OneHandBladeFinalAttackAbstract : Slash
+{
+	attackSubtype = "AttackType.FinalAttack";
+	float attackWindowOpen = 0.37f;
+	float attackWindowClosed = 1.0f;
+	float idleTransitionTime = 1.2f;
+	float blockTransitionTime = 0.7f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 0.f;
+	float attackEffectDelay = 0.24f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	audioTag = "slash";
+	bool incrementsCombo = true;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+OneHandBladeFinalAttack1 : OneHandBladeFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
+	audioAttackIndex = 0.0f;
+}
+
+OneHandBladeFinalAttack2 : OneHandBladeFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack1";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
+	audioAttackIndex = 1.0f;
+}
+
+OneHandBladeFinalAttack3 : OneHandBladeFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
+	audioAttackIndex = 2.0f;
+}
+
+OneHandBladeStrongAttackAbstract : StrongSlash
+{
+	float attackWindowOpen = 0.37f;
+	float attackWindowClosed = 0.7f;
+	float idleTransitionTime = 1.2f;
+	float blockTransitionTime = 0.7f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 0.f;
+	float attackEffectDelay = 0.29f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	bool hasDeflectAnim = false;
+	bool hasHitAnim = true;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	audioTag = "stab";
+	bool incrementsCombo = true;
+	bool enableAdjustingPlayerPositionToTarget = true;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.HitReactionDamageHealthFactor";
+			modifierType = "AdditiveMultiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
+	];
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+OneHandBladeStrongAttack1 : OneHandBladeStrongAttackAbstract
+{
+	attackName = "MeleeStrongAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+	audioAttackIndex = 0.0f;
+}
+
+OneHandBladeStrongAttack2 : OneHandBladeStrongAttackAbstract
+{
+	attackName = "MeleeStrongAttack1";
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftDownToRightUp";
+	audioAttackIndex = 1.0f;
+}
+
+OneHandBladeStrongAttack3 : OneHandBladeStrongAttackAbstract
+{
+	attackName = "MeleeStrongAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
+	audioAttackIndex = 2.0f;
+}
+
+OneHandBladeBlockAttack : OneHandBladeComboAttackAbstract
+{
+	attackSubtype = "AttackType.BlockAttack";
+	attackName = "MeleeBlockAttack0";
+	float attackWindowOpen = 0.37f;
+	float attackWindowClosed = 0.7f;
+	float idleTransitionTime = 1.0f;
+	float blockTransitionTime = 1.0f;
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	bool dontScaleWithAttackSpeed = false;
+	bool hasDeflectAnim = false;
+	bool hasHitAnim = false;
+	bool incrementsCombo = false;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	audioAttackIndex = 0.0f;
+}
+
+OneHandBladeSafeAttack : OneHandBladeComboAttackAbstract
+{
+	attackSubtype = "AttackType.SafeAttack";
+	attackName = "MeleeSafeAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	bool dontScaleWithAttackSpeed = false;
+	bool hasDeflectAnim = false;
+	bool hasHitAnim = false;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	audioAttackIndex = 0.0f;
+	bool incrementsCombo = false;
+}
+
+OneHandBladeDeflectAttack : OneHandBladeComboAttackAbstract
+{
+	attackSubtype = "AttackType.DeflectAttack";
+	attackName = "MeleeDeflectAttack0";
+	float attackWindowOpen = 0.37f;
+	float attackWindowClosed = 0.5f;
+	float idleTransitionTime = 0.5f;
+	float blockTransitionTime = 0.5f;
+	float addedImpulse = 5.f;
+	float addedImpulseDelay = 0.33f;
+	float minimumDistanceToTargetToAddImpulse = 4.f;
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	float attackEffectDelay = 0.24f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.2f;
+	float trailStopDelay = 0.6f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	bool disableAdjustingPlayerPositionToTarget = true;
+	bool hasHitAnim = false;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+OneHandBladeSprintAttack : Slash
+{
+	attackSubtype = "AttackType.SprintAttack";
+	attackName = "MeleeSprintAttack0";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 0.5f;
+	float idleTransitionTime = 1.2f;
+	float blockTransitionTime = 0.5f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 0.f;
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	float attackEffectDelay = 0.2f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.DashAttackStaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	audioTag = "slash";
+	audioAttackIndex = 0.0f;
+	bool incrementsCombo = true;
+	hitReactionSeverityMin = 1;
+	hitReactionSeverityMax = 1;
+}
+
+OneHandBladeJumpAttack : Slash
+{
+	attackSubtype = "AttackType.JumpAttack";
+	attackName = "MeleeJumpAttack0";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 0.5f;
+	float idleTransitionTime = 0.5f;
+	float blockTransitionTime = 0.5f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	float attackEffectDelay = 0.14f;
+	float attackEffectDuration = 0.06f;
+	bool incrementsCombo = false;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	audioTag = "slash";
+	audioAttackIndex = 0.0f;
+	hitReactionSeverityMin = 1;
+	hitReactionSeverityMax = 1;
+}
+
+OneHandBladeCrouchAttack : Slash
+{
+	attackSubtype = "AttackType.CrouchAttack";
+	attackName = "MeleeCrouchAttack0";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 1.0f;
+	float idleTransitionTime = 1.5f;
+	float blockTransitionTime = 1.0f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 0.f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.4f;
+	fk< AttackDirection > attackDirection = "AttackDirections.DownToUp";
+	float attackEffectDelay = 0.2f;
+	float attackEffectDuration = 0.06f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	audioTag = "slash";
+	audioAttackIndex = 0.0f;
+	bool incrementsCombo = false;
+	hitReactionSeverityMin = 1;
+	hitReactionSeverityMax = 1;
+}
+
+NPCQuickAttack : Slash
+{
+	attackName = "NPCQuickAttack";
+}
+
+NPCQuickAttackStagger : Slash
+{
+	attackName = "NPCQuickAttackStagger";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Stun";
+			resistPool = "BaseStatPools.StunTrigger";
+			applyImmediately = true;
+		}
+	];
+}
+
+NPCStrongAttack : StrongSlash
+{
+	attackName = "NPCStrongAttack";
+}
+
+NPCParryEffect : Attack_Melee
+{
+	attackName = "NPCParryEffect";
+	attackType = "AttackType.Melee";
+	effectName = "melee";
+	effectTag = "swing";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Stun";
+			resistPool = "BaseStatPools.StunTrigger";
+			applyImmediately = true;
+		}
+	];
+}
+

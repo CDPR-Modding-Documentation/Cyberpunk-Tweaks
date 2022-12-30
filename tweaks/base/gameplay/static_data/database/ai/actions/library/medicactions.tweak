@@ -1,0 +1,97 @@
+package MedicActions
+using RTDB
+
+SprintToBody : AIAction
+{
+	cooldowns = 
+	[
+		"MovementActions.MovePolicyCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CanReanimateSquadmate", "Condition.NotTicketTakeCover"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.NearestDefeatedSquadmate";
+			movementType = "Sprint";
+			tolerance = 0.0f;
+			distance = 0.5f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotNearestDefeatedSquadmate", "Condition.TicketTakeCover", {
+							AND = 
+							[
+								"Condition.NearestDefeatedSquadmateBelow1m", "Condition.NearestDefeatedSquadmateBelow120deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+ResurrectCooldown : AIActionCooldown
+{
+	name = "ResurrectCooldown";
+	duration = 0.5f;
+}
+
+Resurrect : AIAction
+{
+	cooldowns = 
+	[
+		"MedicActions.ResurrectCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CanReanimateSquadmate", "Condition.NearestDefeatedSquadmateBelow1m", "Condition.NearestDefeatedSquadmateBelow120deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.25f;
+	};
+	recovery = 
+	{
+		duration = 1.183f;
+	};
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Defeated"
+			];
+			apply = false;
+			target = "AIActionTarget.NearestDefeatedSquadmate";
+			delay = 2.25f;
+		} : AISubActionStatusEffect
+	];
+}
+

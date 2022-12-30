@@ -1,0 +1,297 @@
+package playerStateMachineInputContext
+using playerStateMachineStateBase
+
+inputContextStateBase : baseState
+{
+}
+
+initialState : inputContextStateBase
+{
+	string[] transitionTo = 
+	[
+		"uiContext", "vehicleGameplayContext", "baseContext"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", ""
+	];
+}
+
+abstractForcedContext : inputContextStateBase
+{
+	CName forceInputContext = "Exploration";
+	alias = 
+	[
+		"allForcedContexts"
+	];
+	bool hasEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"ExitCondition"
+	];
+}
+
+deadContext : abstractForcedContext
+{
+	CName forceInputContext = "Dead";
+}
+
+braindanceContext : abstractForcedContext
+{
+	CName forceInputContext = "Braindance";
+	string[] transitionTo = 
+	[
+		"deadContext", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ExitCondition"
+	];
+}
+
+deviceControlContext : abstractForcedContext
+{
+	CName forceInputContext = "DeviceControl";
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"deadContext", "uiQuickHackPanelContext", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "ExitCondition"
+	];
+}
+
+uiQuickHackPanelContext : abstractForcedContext
+{
+	CName forceInputContext = "UI_QuickHackPanel";
+	bool hasOnEnter = true;
+	string[] transitionTo = 
+	[
+		"deadContext", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ExitCondition"
+	];
+}
+
+gameplayContext : inputContextStateBase
+{
+	CName forceInputContext = "Exploration";
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "vehicleGameplayContext", "allGameplayContexts"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+}
+
+abstractGameplayContext : inputContextStateBase
+{
+	alias = 
+	[
+		"allGameplayContexts"
+	];
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "ExitCondition"
+	];
+}
+
+baseContext : abstractGameplayContext
+{
+	CName forceInputContext = "Exploration";
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] enterConstraintsStates = 
+	[
+		"InputContext.baseContext"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false
+	];
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "vehicleGameplayContext", "allGameplayContexts"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", ""
+	];
+}
+
+aimingContext : abstractGameplayContext
+{
+	CName forceInputContext = "Aiming";
+	bool hasEnterCondition = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "vehicleGameplayContext", "visionContext", "baseContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "ExitCondition"
+	];
+}
+
+visionContext : abstractGameplayContext
+{
+	CName forceInputContext = "Vision";
+	bool hasEnterCondition = true;
+}
+
+ladderEnterContext : abstractGameplayContext
+{
+	CName forceInputContext = "LadderEnter";
+	bool hasEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "vehicleGameplayContext", "visionContext", "baseContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "ExitCondition"
+	];
+}
+
+abstractUIContext : inputContextStateBase
+{
+	alias = 
+	[
+		"allUIContexts"
+	];
+	bool hasEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "ExitCondition"
+	];
+}
+
+uiContext : abstractUIContext
+{
+	CName forceInputContext = "UI";
+}
+
+uiRadialContext : abstractUIContext
+{
+	CName forceInputContext = "UI_DPad_Wheel";
+	bool hasOnUpdate = true;
+}
+
+uiVendorContext : abstractUIContext
+{
+	CName forceInputContext = "UI_Storekeeper";
+}
+
+uiPhoneContext : abstractUIContext
+{
+	CName forceInputContext = "UI_Phone";
+}
+
+vehicleGameplayContext : inputContextStateBase
+{
+	CName forceInputContext = "InputBlocked";
+	bool hasEnterCondition = true;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"allVehicleContexts"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+abstractVehicleContext : inputContextStateBase
+{
+	alias = 
+	[
+		"allVehicleContexts"
+	];
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "ExitCondition"
+	];
+}
+
+vehicleBlockInputContext : abstractVehicleContext
+{
+	CName forceInputContext = "InputBlocked";
+	bool hasOnExit = false;
+}
+
+vehicleTankDriverContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleTankDrive";
+	bool hasOnEnter = false;
+	bool hasOnExit = false;
+}
+
+vehicleDriverContext : abstractVehicleContext
+{
+	bool hasOnUpdate = true;
+	CName forceInputContext = "VehicleDrive";
+}
+
+vehicleNoDriveContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleNoDrive";
+}
+
+vehiclePassengerContext : abstractVehicleContext
+{
+	bool hasOnUpdate = true;
+	CName forceInputContext = "VehiclePassenger";
+}
+
+vehicleQuestRestrictedContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleOnlyForward";
+}
+
+vehicleDriverCombatContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleDriverCombat";
+}
+
+vehicleNoDriveCombatContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleNoDriveCombat";
+	bool hasOnEnter = false;
+	bool hasOnExit = false;
+}
+
+vehicleCombatContext : abstractVehicleContext
+{
+	bool hasOnUpdate = true;
+	CName forceInputContext = "VehicleCombat";
+}
+

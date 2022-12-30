@@ -1,0 +1,413 @@
+package BaseStatusEffect
+using RTDB, Effectors, Prereqs, Perks
+
+Berserk : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Berserk";
+	bool replicated = true;
+	CName[] gameplayTags += 
+	[
+		"Berserk"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "weakspotWeak";
+		}, 
+		{
+			name = "energy_off";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		"GLP.MaxStamina"
+	];
+	fk< StatusEffectUIData > uiData = 
+	{
+		displayName = "LocKey#40952";
+		description = "LocKey#77878";
+		iconPath = "second_wind";
+		priority = -9.0f;
+	} : StatusEffectUIData;
+}
+
+BerserkPlayerBuff : Berserk
+{
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "berserk";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.BerserkDurationBase";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.BerserkCooldown";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		}, 
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BerserkPlayerSFXEffector"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.RangedWeaponHeldPrereq";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkSwayReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkSwayReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.RecoilDriftRandomRangeMin";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkRecoilReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.RecoilDriftRandomRangeMax";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkRecoilReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.RecoilMagForFullDrift";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkRecoilReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkRecoilReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.BerserkRecoilReduction";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.RecoilRecoverySpeed";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon, 
+				{
+					prereqRecord = "Prereqs.MeleeWeaponHeldPrereq";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.KnockdownImpulse";
+								modifierType = "AdditiveMultiplier";
+								value = 1.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					refStat = "BaseStats.BerserkArmorBonus";
+					refObject = "Instigator";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					refStat = "BaseStats.BerserkResistancesBonus";
+					refObject = "Instigator";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					refStat = "BaseStats.BerserkResistancesBonus";
+					refObject = "Instigator";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					refStat = "BaseStats.BerserkResistancesBonus";
+					refObject = "Instigator";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.HealthInCombatRegenRateMult";
+					modifierType = "Additive";
+					refStat = "BaseStats.BerserkHealthRegenBonus";
+					refObject = "Instigator";
+					opSymbol = "*";
+					value = 0.01f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.HealthOutOfCombatRegenRateMult";
+					modifierType = "Additive";
+					refStat = "BaseStats.BerserkHealthRegenBonus";
+					refObject = "Instigator";
+					opSymbol = "*";
+					value = 0.01f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.StaminaCostReduction";
+					modifierType = "AdditiveMultiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+BerserkPlayerSFXEffector : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "w_cyb_berserker_activate";
+	CName deactivationSFXName = "w_cyb_berserker_deactivate";
+	bool unique = true;
+}
+
+BerserkNPCBuff : Berserk
+{
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_berserk";
+		}
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				"BaseStatusEffect.DeactivateBerserkStatusEffects", {
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ImpactDamageThreshold";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.StaggerDamageThreshold";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.KnockdownDamageThreshold";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ImpactDamageThresholdInCover";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.StaggerDamageThresholdInCover";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.KnockdownDamageThresholdInCover";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ImpactDamageThresholdImpulse";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.StaggerDamageThresholdImpulse";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.KnockdownDamageThresholdImpulse";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanBlock";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanParry";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "";
+				} : ApplyStatGroupEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						CName prereqClassName = "gameMultiPrereq";
+						CName aggregationType = "AND";
+						fk< IPrereq >[] nestedPrereqs = 
+						[
+							{
+								duration = 20.f;
+							} : Prereqs.DurationPrereq, 
+							{
+								stateName = "Attack";
+								isInState = false;
+							} : UpperBodyNPCStatePrereq
+						];
+					} : MultiPrereq;
+					statusEffect = "BaseStatusEffect.BerserkNPCDownState";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector
+			];
+		}
+	];
+}
+
+DeactivateBerserkStatusEffects : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.IncapacitatedPrereq";
+	CName effectorClassName = "RemoveStatusEffectsEffector";
+	string[] statusEffects = 
+	[
+		"BaseStatusEffect.BerserkNPCBuff"
+	];
+}
+
+BerserkNPCDownState : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Berserk";
+	bool replicated = true;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CanSprint";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasChargeJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanBlock";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "";
+				} : ApplyStatGroupEffector
+			];
+		}
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "LocKey#40952";
+		string iconPath = "second_wind";
+		priority = 0.0f;
+	} : StatusEffectUIData;
+}
+

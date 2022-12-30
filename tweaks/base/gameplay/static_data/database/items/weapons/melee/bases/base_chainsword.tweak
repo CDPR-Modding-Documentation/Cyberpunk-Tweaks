@@ -1,0 +1,377 @@
+package Items
+using RTDB, BaseStats, Prereqs, Perks
+
+[ notQueryable ]
+Base_Chainsword : MeleeWeapon
+{
+	fk< ItemType > itemType = "ItemType.Wea_Chainsword";
+	triggerEffectName = "te_wea_melee_swing_mid";
+	string friendlyName = "w_melee_one_hand_blunt";
+	fk< ConstantStatModifier > price = 
+	{
+		statType = "BaseStats.Price";
+		modifierType = "Additive";
+		value = 2;
+	} : ConstantStatModifier;
+	evolution = "WeaponEvolution.Blade";
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ItemSlotSMG"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_chainsword_common_grip";
+		}
+	];
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.ChainswordFxPackage";
+	statPools = 
+	[
+		"BaseStatPools.ChainswordCharge"
+	];
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Items.Base_Chainsword_RPG_Stats", "Items.Base_Chainsword_RPG_Randomized_Stats", "Items.Base_Chainsword_Handling_Stats", "Items.Base_Chainsword_Misc_Stats", "Proficiencies.KenjutsuWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"ChainswordAttacks.ChainswordComboAttack1", "ChainswordAttacks.ChainswordComboAttack2", "ChainswordAttacks.ChainswordComboAttack3", "ChainswordAttacks.ChainswordComboAttack4", "ChainswordAttacks.ChainswordFinalAttack1", "ChainswordAttacks.ChainswordFinalAttack2", "ChainswordAttacks.ChainswordFinalAttack3", "ChainswordAttacks.ChainswordStrongAttack1", "ChainswordAttacks.ChainswordStrongAttack2", "ChainswordAttacks.ChainswordStrongAttack3", "ChainswordAttacks.ChainswordJumpAttack", "ChainswordAttacks.ChainswordCrouchAttack", "ChainswordAttacks.ChainswordSprintAttack", "ChainswordAttacks.ChainswordSafeAttack", "ChainswordAttacks.ChainswordBlockAttack", "ChainswordAttacks.ChainswordDeflectAttack"
+	];
+	audioWeaponConfiguration = "audio_melee_metadata_cutomatic";
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+		];
+	} : Base_Chainsword_NPC_Data;
+	OnAttach += 
+	[
+		{
+			effectors = 
+			[
+				"Items.ChainswordBuzzEffector", "Items.ChainswordFXEffector"
+			];
+		}
+	];
+}
+
+Base_Chainsword_NPC_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			value = 8.f;
+		} : PhysicalImpulseModifier, 
+		{
+			statType = "BaseStats.CanBlock";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			float value = 15.f;
+		} : KnockdownImpulseModifier, 
+		{
+			float value = 15.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			float value = 15.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			float value = 8.f;
+		} : PhysicalImpulseModifier, 
+		{
+			value = 0.4f;
+		} : EquipItemTime_GangModifier, 
+		{
+			value = 1.167f;
+		} : EquipAnimationDuration_GangModifier, 
+		{
+			value = 1.9f;
+		} : EquipActionDuration_GangModifier, 
+		{
+			value = 0.933f;
+		} : UnequipItemTime_GangModifier, 
+		{
+			value = 1.067f;
+		} : UnequipAnimationDuration_GangModifier, 
+		{
+			value = 1.4f;
+		} : UnequipDuration_GangModifier, 
+		{
+			value = 0.4f;
+		} : EquipItemTime_CorpoModifier, 
+		{
+			value = 1.167f;
+		} : EquipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.9f;
+		} : EquipActionDuration_CorpoModifier, 
+		{
+			value = 0.933f;
+		} : UnequipItemTime_CorpoModifier, 
+		{
+			value = 1.067f;
+		} : UnequipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.4f;
+		} : UnequipDuration_CorpoModifier
+	];
+}
+
+Base_Chainsword_NPC_Data : Base_NPC_RPG_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Chainsword_NPC_Stats"
+	];
+}
+
+Base_Chainsword_RPG_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_one_hand_blade_RPG_stats";
+			column = "item_level_to_DPS";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 5.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 6.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DurationBonusBleeding";
+			modifierType = "Additive";
+			value = 3.33f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChargeFullMultiplier";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChargeMultiplier";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			value = 0.25;
+		} : ChargeMultiplierModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			value = 1.2f;
+		} : ChargeTimeModifier, 
+		{
+			statType = "BaseStats.ChargeTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseChargeTime";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BlockFactor";
+			modifierType = "Additive";
+			value = 4f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Chainsword_RPG_Randomized_Stats : StatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "random_distributions";
+		column = "quality_to_amount_of_randomized_stats";
+		refStat = "BaseStats.Quality";
+		refObject = "Self";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.CritChance";
+			modifierType = "Additive";
+			id = "item_one_hand_blade_RPG_stats";
+			column = "power_level_to_crit_chance";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.CritChance";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritDamage";
+			modifierType = "Additive";
+			id = "item_one_hand_blade_RPG_stats";
+			column = "power_level_to_crit_damage";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.CritDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostReduction";
+			modifierType = "Additive";
+			id = "item_one_hand_blade_RPG_stats";
+			column = "power_level_to_bonus_stamina_cost_reduction";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostReduction";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Chainsword_Handling_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttacksNumber";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MeleeAttackDuration";
+			modifierType = "Additive";
+			value = 0.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MeleeAttackComboDuration";
+			modifierType = "Additive";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			float value = 20.f;
+		} : KnockdownImpulseModifier, 
+		{
+			float value = 30.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			float value = 30.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			float value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			float value = 8.f;
+		} : PhysicalImpulseModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Additive";
+			value = 20.0f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Chainsword_Misc_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			float value = 0.4f;
+		} : EquipDurationModifier, 
+		"BaseStats.UnequipDurationModifier", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EquipDuration_First";
+			modifierType = "Additive";
+			value = 5f;
+		} : ConstantStatModifier
+	];
+}
+
+ChainswordBuzzEffector : BroadcastStimEffector
+{
+	fk< StimType > type = "StimTypes.Alarm";
+	float radius = 13.f;
+}
+
+ChainswordIdleFX : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "fx_chainsword_idle";
+		}
+	];
+}
+
+ChainswordFXEffector : ApplyStatusEffectOnWeapon
+{
+	prereqRecord = 
+	{
+		bool isInState = false;
+		string stateName = "NotReady";
+	} : MeleeWeaponPSMPrereq;
+	statusEffect = "Items.ChainswordIdleFX";
+	bool removeWithEffector = true;
+}
+
+w_chainsword_common_grip : ItemWeaponRoot
+{
+	string friendlyName = "w_chainsword_common_grip";
+	CName appearanceResourceName = "w_chainsword_common_grip";
+}
+

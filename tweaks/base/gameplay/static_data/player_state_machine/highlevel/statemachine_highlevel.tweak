@@ -1,0 +1,264 @@
+package playerStateMachineHighLevel
+
+exploration : baseHighLevelState
+{
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"death", "sceneTierInitial", "inspection", "aiControlled", "swimming", "minigame"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", ""
+	];
+	float critHealthPercent = 25.f;
+	float lowHealthPercent = 40.f;
+	float highDamageThreshold = 60.f;
+	float medDamageThreshold = 40.f;
+	float weakDamageThreshold = 10.f;
+	int enableHitReactions = 1;
+}
+
+swimming : exploration
+{
+	bool hasOnUpdate = false;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	string[] transitionTo = 
+	[
+		"exploration", "death", "sceneTierInitial"
+	];
+	string[] transitionCondition = 
+	[
+		"ToExploration", "ToDeath", ""
+	];
+	float depthTreshold = -0.9f;
+	float tolerance = -0.1f;
+}
+
+aiControlled : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	string stateBodyClassName = "HighLevelAiControlled";
+	string[] transitionTo = 
+	[
+		"exploration"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+minigame : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	string[] transitionTo = 
+	[
+		"exploration"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+death : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = false;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"groundDeath", "airDeath", "swimmingDeath"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+}
+
+groundDeath : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	string stateBodyClassName = "LocomotionForceIdle";
+	string enterFromState = "Ground";
+	CName onEnterCameraParamsName = "DeathGround";
+	string animationStateName = "donotuse";
+	string[] transitionTo = 
+	[
+		"resurrect"
+	];
+	string[] transitionCondition = 
+	[
+		"="
+	];
+	gameplayLogicPackageID = "PSMHighLevelGLP.Death";
+	int DEBUG_forceSetDeathAnimation = -1;
+}
+
+airDeath : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	string enterFromState = "Air";
+	CName onEnterCameraParamsName = "";
+	string[] transitionTo = 
+	[
+		"groundDeath", "swimmingDeath", "resurrect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "="
+	];
+	float depthTreshold = -0.9f;
+	float tolerance = -0.1f;
+	gameplayLogicPackageID = "PSMHighLevelGLP.Death";
+	int DEBUG_forceSetDeathAnimation = -1;
+}
+
+swimmingDeath : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	CName onEnterCameraParamsName = "";
+	string[] transitionTo = 
+	[
+		"resurrect"
+	];
+	string[] transitionCondition = 
+	[
+		"="
+	];
+	gameplayLogicPackageID = "PSMHighLevelGLP.Death";
+	int DEBUG_forceSetDeathAnimation = -1;
+}
+
+resurrect : baseHighLevelState
+{
+	string[] transitionTo = 
+	[
+		"exploration"
+	];
+	string[] transitionCondition = 
+	[
+		"="
+	];
+}
+
+inspection : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	string[] transitionTo = 
+	[
+		"exploration"
+	];
+	string[] transitionCondition = 
+	[
+		"="
+	];
+	CName forceInputContext = "Inspection";
+}
+
+sceneTierInitial : baseHighLevelState
+{
+	bool hasOnEnter = false;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	CName[] alias = 
+	[
+		"sceneTier"
+	];
+	bool hasEnterCondition = true;
+	bool continueTransitioning_EXPERIMENTAL = true;
+	string[] transitionTo = 
+	[
+		"sceneTierII", "sceneTierIII", "sceneTierIV", "sceneTierV"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", ""
+	];
+}
+
+sceneTierAbstract : baseHighLevelState
+{
+	bool hasEnterCondition = true;
+	gameplayLogicPackageID = "PSMHighLevelGLP.Scene";
+}
+
+sceneTierII : sceneTierAbstract
+{
+	string scriptedDecisionsClassName = "SceneTierIIDecisions";
+	string scriptedEventsClassName = "SceneTierIIEvents";
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"death", "exploration", "sceneTierIII", "sceneTierIV", "sceneTierV", "swimming"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", "", "", ""
+	];
+	float slowWalkSpeed = -1.3f;
+	float slowJogSpeed = -2.2f;
+	float slowCrouchSpeed = 0.0f;
+	float normalWalkSpeed = 0.0f;
+	float normalJogSpeed = 0.0f;
+	float normalCrouchSpeed = 0.0f;
+	float fastWalkSpeed = 0.0f;
+	float fastJogSpeed = 0.0f;
+	float fastCrouchSpeed = 0.0f;
+}
+
+sceneTierIII : sceneTierAbstract
+{
+	string scriptedDecisionsClassName = "SceneTierIIIDecisions";
+	string scriptedEventsClassName = "SceneTierIIIEvents";
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"death", "exploration", "sceneTierII", "sceneTierIV", "sceneTierV"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", "", ""
+	];
+	gameplayLogicPackageID = "PSMHighLevelGLP.SceneInvulnerable";
+}
+
+sceneTierIV : sceneTierAbstract
+{
+	string scriptedDecisionsClassName = "SceneTierIVDecisions";
+	string scriptedEventsClassName = "SceneTierIVEvents";
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"death", "exploration", "sceneTierII", "sceneTierIII", "sceneTierV"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", "", ""
+	];
+	gameplayLogicPackageID = "PSMHighLevelGLP.SceneInvulnerable";
+}
+
+sceneTierV : sceneTierAbstract
+{
+	string scriptedDecisionsClassName = "SceneTierVDecisions";
+	string scriptedEventsClassName = "SceneTierVEvents";
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"death", "exploration", "sceneTierII", "sceneTierIII", "sceneTierIV"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", "", ""
+	];
+	gameplayLogicPackageID = "PSMHighLevelGLP.SceneInvulnerable";
+}
+

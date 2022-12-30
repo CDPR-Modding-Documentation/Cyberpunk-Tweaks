@@ -1,0 +1,186 @@
+package Attacks
+using RTDB, Materials
+
+SuperheroLanding : Attack_Landing
+{
+	attackType = "AttackType.Explosion";
+	effectName = "superheroLanding";
+	effectTag = "default";
+	range = 4.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 500;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Root";
+			refStat = "BaseStats.BerserkShockwaveDamage";
+			opSymbol = "*";
+			value = 1;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 0.4f;
+		} : ConstantStatModifier
+	];
+	fxPackage = 
+	{
+		materials = 
+		[
+			{
+				material = "Materials.Concrete";
+				effect = "base\fx\characters\common\charged_jump\charged_jump.effect";
+			}
+		];
+	};
+}
+
+PressureWave : Attack_Landing
+{
+	attackType = "AttackType.PressureWave";
+	effectName = "landing";
+	effectTag = "defaultLand";
+	range = 1.0f;
+}
+
+Dodge : PressureWave
+{
+	effectTag = "dodge";
+	range = 1.5f;
+	hitFlags += 
+	[
+		"DealNoDamage"
+	];
+}
+
+HardLanding : PressureWave
+{
+	hitFlags += 
+	[
+		"IgnoreDifficulty"
+	];
+}
+
+VeryHardLanding : PressureWave
+{
+	effectTag = "veryHardLand";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 80;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.FallDamageReduction";
+			refObject = "Target";
+			opSymbol = "*";
+			value = -1.f;
+		} : CombinedStatModifier
+	];
+	hitFlags += 
+	[
+		"IgnoreDifficulty"
+	];
+	fxPackage = 
+	{
+		ResRef effect = "";
+	};
+}
+
+DeathLanding : PressureWave
+{
+	effectTag = "deathLand";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 10000;
+		} : ConstantStatModifier
+	];
+	hitFlags += 
+	[
+		"IgnoreDifficulty"
+	];
+}
+
+LightWallImpact : PressureWave
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.15f;
+		} : CombinedStatModifier
+	];
+	hitFlags += 
+	[
+		"IgnoreDifficulty"
+	];
+}
+
+MediumWallImpact : PressureWave
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.3f;
+		} : CombinedStatModifier
+	];
+	hitFlags += 
+	[
+		"IgnoreDifficulty"
+	];
+}
+
+HardWallImpact : PressureWave
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.55f;
+		} : CombinedStatModifier
+	];
+	hitFlags += 
+	[
+		"IgnoreDifficulty"
+	];
+}
+
+ForwardPush : Attack_GameEffect
+{
+	attackType = "AttackType.PressureWave";
+	effectName = "melee";
+	effectTag = "forwardPush";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 400;
+		} : ConstantStatModifier
+	];
+}
+

@@ -1,0 +1,2090 @@
+package Character
+using RTDB, BaseStats
+
+main_boss_adam_smasher : Gameplay_NPC_Base
+{
+	affiliation = "Factions.Arasaka";
+	CName archetypeName = "adamsmasher";
+	uiNameplate = "UINameplate.QuestSettings";
+	reactionPreset = "ReactionPresets.Ganger_Aggressive";
+	bool enableSensesOnStart = true;
+	baseAttitudeGroup = "hostile";
+	CName voiceTag = "smasher";
+	string relaxedSensesPreset = "Relaxed";
+	string alertedSensesPreset = "Alerted";
+	string combatSensesPreset = "Combat";
+	dropsWeaponOnDeath = false;
+	threatTrackingPreset = "TargetTracking.BossPreset";
+	fk< NPCRarity > rarity = "NPCRarity.Boss";
+	lootDrop = "Loot.AdamSmasherLoot";
+	actionMap = "AdamSmasherBoss.Map";
+	entityTemplatePath = "base\characters\entities\boss\adam_smasher.ent";
+	fk< GameplayAbility >[] abilities = 
+	[
+		"Ability.HasWeakspot", "Ability.HasChargeJump", "Ability.HasMeleeImmunity", "Ability.HasExtendedHitReactionImmunity", "Ability.HasQuickhackResistance", "Ability.IsMechanical"
+	];
+	fk< InventoryItem >[] items = 
+	[
+		{
+			item = "Items.w_melee_smasher__fists_a";
+			quantity = 9999;
+		}, 
+		{
+			item = "Items.Smasher_HMG";
+			quantity = 9999;
+		}, 
+		{
+			item = "Items.Smasher_Auto_Shotgun";
+			quantity = 9999;
+		}, 
+		{
+			item = "Items.Smasher_Launcher_Rain_Right";
+			quantity = 99999;
+		}, 
+		{
+			item = "Items.Smasher_Launcher_Rain_Left";
+			quantity = 9999;
+		}, 
+		{
+			item = "Items.Smasher_Launcher_Rocket_Left";
+			quantity = 9999;
+		}, 
+		{
+			item = "Items.Smasher_Launcher_Rocket_Right";
+			quantity = 9999;
+		}
+	];
+	fk< Weakspot >[] weakspots = 
+	[
+		"Weakspots.Smasher_Generator_Weakspot"
+	];
+	fk< AttachmentSlot >[] attachmentSlots += 
+	[
+		"AttachmentSlots.RightShoulder", "AttachmentSlots.LeftShoulder", "AttachmentSlots.RightWrist"
+	];
+	fk< StatPool >[] statPools = 
+	[
+		"BaseStatPools.Puppet_Health_Base"
+	];
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Character.NPC_Smasher_Primary_Stat_ModGroup", "Character.Main_boss_adam_smasher_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+	];
+	fk< ObjectAction >[] objectActions = 
+	[
+		"QuickHack.BaseBlindHack", "QuickHack.BaseWeaponMalfunctionHack", "QuickHack.BaseLocomotionMalfunctionHack", "QuickHack.BaseOverheatHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsCallOutHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BaseCyberwareMalfunctionHack", "QuickHack.OverloadBaseHack", "QuickHack.BrainMeltBaseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseMemoryWipeHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown"
+	];
+	effectors += 
+	[
+		"AdamSmasher.OverloadWeakspotEffector"
+	];
+}
+
+Main_boss_adam_smasher_stats : NPC_Base_Curves
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 1.35f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BlindResistance";
+			modifierType = "Additive";
+			value = 0.9;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PersonalityAggressive";
+			modifierType = "Additive";
+			value = 100.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImmunity";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BonusDamageAgainstMechanicals";
+			modifierType = "Additive";
+			value = 7.f;
+		} : ConstantStatModifier
+	];
+}
+
+main_boss_oda : Gameplay_NPC_Base
+{
+	affiliation = "Factions.Arasaka";
+	archetypeName = "oda";
+	uiNameplate = "UINameplate.QuestSettings";
+	reactionPreset = "ReactionPresets.Ganger_Aggressive";
+	characterType = "NPCType.Human";
+	bool enableSensesOnStart = true;
+	baseAttitudeGroup = "hostile";
+	string relaxedSensesPreset = "Relaxed";
+	string alertedSensesPreset = "Alerted";
+	string combatSensesPreset = "Combat";
+	threatTrackingPreset = "TargetTracking.BossPreset";
+	dropsWeaponOnDeath = false;
+	entityTemplatePath = "base\characters\entities\main_npc\oda.ent";
+	actionMap = "OdaBoss.Map";
+	weakspots = 
+	[
+		"Weakspots.Oda_Mask_Weakspot"
+	];
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Oda_Mantis_Blades";
+				equipSlot = "AttachmentSlots.WeaponRight";
+			} : NPCEquipmentItem
+		];
+	};
+	abilities = 
+	[
+		"Ability.HasSandevistanTier1", "Ability.HasKerenzikov", "Ability.HasDodge", "Ability.CanUseCovers", "Ability.CanCrouch", "Ability.CanSprint", "Ability.CanShootWhileMoving", "Ability.CanPreciseShoot", "Ability.CanChargedShoot", "Ability.CanSmartShoot", "Ability.CanUseLeftHand", "Ability.CanUseRightHand", "Ability.CanUseLegs", "Ability.CanTaunt", "Ability.CanCloseCombat", "Ability.HasChargeJump", "Ability.CanUseOpticalCamoOda", "Ability.HasMeleeImmunity", "Ability.HasExtendedHitReactionImmunity", "Ability.HasWeakspot", "Ability.HasQuickhackResistance"
+	];
+	rarity = "NPCRarity.Boss";
+	lootDrop = "Loot.OdaLoot";
+	items = 
+	[
+		{
+			item = "Items.w_melee_004__fists_a";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.Oda_Mantis_Blades";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.Oda_Shingen";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.GrenadeSmokeOda";
+			quantity = 99;
+		}, 
+		{
+			item = "Items.Preset_Nue_Arasaka_2020";
+			quantity = 1;
+		}
+	];
+	attachmentSlots += 
+	[
+		"AttachmentSlots.RightShoulder", "AttachmentSlots.LeftShoulder", "AttachmentSlots.RightWrist"
+	];
+	contentAssignment = "DeviceContentAssignment.q112";
+	statPools = 
+	[
+		"BaseStatPools.Puppet_Health_Base", "BaseStatPools.E3_BossWeakSpotHealth"
+	];
+	statModifierGroups = 
+	[
+		"Character.NPC_Oda_Primary_Stat_ModGroup", "Character.Main_boss_oda_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+	];
+	objectActions = 
+	[
+		"QuickHack.BaseBlindHack", "QuickHack.BaseWeaponMalfunctionHack", "QuickHack.BaseLocomotionMalfunctionHack", "QuickHack.BaseOverheatHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsCallOutHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BaseCyberwareMalfunctionHack", "QuickHack.OverloadBaseHack", "QuickHack.BrainMeltBaseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseMemoryWipeHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown"
+	];
+	effectors += 
+	[
+		"Oda.OverloadWeakspotEffector", "Oda.OverheatWeakspotEffector"
+	];
+}
+
+[ Debug ]
+main_boss_oda_locomotion_test : main_boss_oda
+{
+	CName archetypeName = "oda_locomotion";
+}
+
+Main_boss_oda_stats : NPC_Base_Curves
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 2.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BlindResistance";
+			modifierType = "Additive";
+			value = 0.9;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PersonalityAggressive";
+			modifierType = "Additive";
+			value = 100.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImmunity";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+main_boss_royce : Exo_NPC_Base
+{
+	affiliation = "Factions.Maelstrom";
+	characterType = "NPCType.Human";
+	reactionPreset = "ReactionPresets.Ganger_Aggressive";
+	bool enableSensesOnStart = true;
+	baseAttitudeGroup = "hostile";
+	CName voiceTag = "royce";
+	string relaxedSensesPreset = "Relaxed";
+	string alertedSensesPreset = "Alerted";
+	string combatSensesPreset = "Combat";
+	threatTrackingPreset = "TargetTracking.BossPreset";
+	fk< NPCRarity > rarity = "NPCRarity.Boss";
+	displayName = "Royce";
+	entityTemplatePath = "base\mechanical\mech\mch_002__centaur.ent";
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Character.NPC_Royce_Primary_Stat_ModGroup", "Character.Main_boss_royce_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+	];
+	lootDrop = "Loot.RoyceLoot";
+}
+
+Main_boss_royce_stats : NPC_Base_Curves
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 2.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BlindResistance";
+			modifierType = "Additive";
+			value = 0.8;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PersonalityAggressive";
+			modifierType = "Additive";
+			value = 100.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = 15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = 15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImmunity";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BleedingImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+}
+
+main_boss_sasquatch : animals_base
+{
+	affiliation = "Factions.Animals";
+	entityTemplatePath = "base\characters\entities\boss\boss__q110_animals_mm.ent";
+	tags += 
+	[
+		"DeterministicDamage"
+	];
+	CName voiceTag = "sasquatch";
+	CName archetypeName = "sasquatch";
+	fk< NPCRarity > rarity = "NPCRarity.Boss";
+	fk< Weakspot >[] weakspots = 
+	[
+		"Weakspots.Juice_Dispenser_Back_Weakspot"
+	];
+	actionMap = "AnimalsBoss.Map";
+	threatTrackingPreset = "TargetTracking.BossPreset";
+	string relaxedSensesPreset = "Relaxed";
+	string alertedSensesPreset = "AlertedSasquatch";
+	string combatSensesPreset = "Combat";
+	baseAttitudeGroup = "enemyHostile";
+	abilities = 
+	[
+		"Ability.IsReckless", "Ability.HasWeakspot", "Ability.HasMeleeImmunity", "Ability.HasExtendedHitReactionImmunity", "Ability.HasJuiceInjector", "Ability.CanThrowWeapon", "Ability.HasBerserk", "Ability.CanPickUpWeapon", "Ability.HasSandevistan", "Ability.HasKerenzikov", "Ability.HasDodge", "Ability.HasSandevistanTier1", "Ability.HasQuickhackResistance"
+	];
+	statModifierGroups = 
+	[
+		"Character.NPC_Sasquatch_Primary_Stat_ModGroup", "Character.Main_boss_sasquatch_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+	];
+	lootDrop = "Loot.SasquatchLoot";
+	items = 
+	[
+		{
+			item = "Items.w_melee_004__fists_a";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.w_melee_boss_hammer";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.Preset_HMG_Sasquatch";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.GrenadeFragRegular";
+			quantity = 99;
+		}
+	];
+	attachmentSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft", "AttachmentSlots.Head", "AttachmentSlots.Chest", "AttachmentSlots.RightArm", "AttachmentSlots.LeftArm", "AttachmentSlots.RightHand", "AttachmentSlots.LeftHand", "AttachmentSlots.Legs", "AttachmentSlots.PersonalLink", "AttachmentSlots.Consumable", "AttachmentSlots.WeakspotSlot"
+	];
+	objectActions = 
+	[
+		"QuickHack.BaseBlindHack", "QuickHack.BaseWeaponMalfunctionHack", "QuickHack.BaseLocomotionMalfunctionHack", "QuickHack.BaseOverheatHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsCallOutHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BaseCyberwareMalfunctionHack", "QuickHack.OverloadBaseHack", "QuickHack.BrainMeltBaseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseMemoryWipeHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown"
+	];
+	effectors += 
+	[
+		"Sasquatch.OverloadWeakspotEffector"
+	];
+	bountyDrawTable = "BountyDrawTable.Sasquatch";
+}
+
+Main_boss_sasquatch_stats : NPC_Base_Curves
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 2.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.65f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BlindResistance";
+			modifierType = "Additive";
+			value = 0.8;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PersonalityAggressive";
+			modifierType = "Additive";
+			value = 100.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImmunity";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+animals_strong_melee_boss_hammer_only : main_boss_sasquatch
+{
+	abilities += 
+	[
+		"Ability.HasJuiceInjector", "Ability.HasSandevistanTier1", "Ability.HasKerenzikov", "Ability.HasDodge"
+	];
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Character.animals_strong_melee_boss_stats"
+	];
+	items += 
+	[
+		"Character.BigFuckingHammer_Melee_Hammer"
+	];
+}
+
+animals_strong_melee_boss_fist_only : main_boss_sasquatch
+{
+	abilities += 
+	[
+		"Ability.HasJuiceInjector", "Ability.HasSandevistanTier1", "Ability.HasKerenzikov", "Ability.HasDodge"
+	];
+	items += 
+	[
+		"Character.Fists_Melee_Fist_Base"
+	];
+}
+
+animals_strong_melee_boss_stats : NPC_Base_Curves
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BlindImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StunImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BurningImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BleedingImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PoisonImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricResistance";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 10;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PersonalityAggressive";
+			modifierType = "Additive";
+			value = 100.f;
+		} : ConstantStatModifier
+	];
+}
+
+ForceDefeatedModifierGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+}
+
+NoHitReactionsModifierGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier
+	];
+}
+
+OnlyStaggerReactionsModifierGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1;
+		} : ConstantStatModifier
+	];
+}
+
+AllImunityModifierGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.BlindImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StunImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BurningImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BleedingImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PoisonImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+}
+
+StunImunityModifierGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.StunImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+}
+
+BossNoDismemberment : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier
+	];
+}
+
+BossNoWound : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Multiplier";
+			value = -1.f;
+		} : ConstantStatModifier
+	];
+}
+
+BossNoImpact : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 100.f;
+		} : ConstantStatModifier
+	];
+}
+
+NPC_Smasher_Primary_Stat_ModGroup : NPC_Base_Curves
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.UnconsciousImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 60;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricResistance";
+			modifierType = "Additive";
+			value = -20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanDash";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterDefeated";
+			modifierType = "Additive";
+			value = 2;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterPain";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterKnockdown";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AudioStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VisualStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Visibility";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionDamageHealthFactor";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BleedingImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseCoefficient";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Hearing";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseSourceMultiplierCoefficient";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsVisibilityCooldown";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		"Character.BaseAccuracy"
+	];
+}
+
+NPC_Royce_Primary_Stat_ModGroup : NPC_Base_Curves
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.UnconsciousImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 200;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricResistance";
+			modifierType = "Additive";
+			value = -20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = 25;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanDash";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = 5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = 5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterDefeated";
+			modifierType = "Additive";
+			value = 2;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterPain";
+			modifierType = "Additive";
+			value = 5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterKnockdown";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AudioStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VisualStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Visibility";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionDamageHealthFactor";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseCoefficient";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Hearing";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseSourceMultiplierCoefficient";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsVisibilityCooldown";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		"Character.BaseAccuracy"
+	];
+}
+
+NPC_Sasquatch_Primary_Stat_ModGroup : NPC_Base_Curves
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.UnconsciousImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 135;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricResistance";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = -20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanDash";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterDefeated";
+			modifierType = "Additive";
+			value = 2;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterPain";
+			modifierType = "Additive";
+			value = 0.15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterKnockdown";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AudioStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VisualStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Visibility";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionDamageHealthFactor";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseCoefficient";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Hearing";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseSourceMultiplierCoefficient";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsVisibilityCooldown";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		"Character.BaseAccuracy"
+	];
+}
+
+NPC_Oda_Primary_Stat_ModGroup : NPC_Base_Curves
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.UnconsciousImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 60;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = -20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismHeadDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRArmDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismLLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DismRLegDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedHeadDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRArmDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedLLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DefeatedRLegDamageThreshold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanDash";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = 20.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = 20.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 20.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterDefeated";
+			modifierType = "Additive";
+			value = 2;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterPain";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterKnockdown";
+			modifierType = "Additive";
+			value = 20;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AudioStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VisualStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Visibility";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionDamageHealthFactor";
+			modifierType = "Additive";
+			value = 2.0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseCoefficient";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Hearing";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseSourceMultiplierCoefficient";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsVisibilityCooldown";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		"Character.BaseAccuracy"
+	];
+}
+

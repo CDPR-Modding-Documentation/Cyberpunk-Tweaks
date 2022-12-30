@@ -1,0 +1,177 @@
+package CorpoAssault
+using RTDB, ItemType, MovementActions, CombatDecorator
+
+DefaultNodeMap : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.RingSelector";
+			isOverriddenBy = "CorpoAssault.RingSelector";
+		}, 
+		{
+			node = "GenericArchetype.SimpleRingSelector";
+			isOverriddenBy = "CorpoAssault.SimpleRingSelector";
+		}, 
+		{
+			node = "GenericArchetype.CoverPresetDecoratorSelector";
+			isOverriddenBy = "CorpoAssault.CoverPresetDecoratorSelector";
+		}
+	];
+}
+
+Map : ActionMap
+{
+	map = 
+	[
+		{
+			itemType = "ItemType.Wea_Fists";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_StrongArms";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Hammer";
+			map = "Corpo_Hammer.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Handgun";
+			map = "CorpoAssault_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Revolver";
+			map = "CorpoAssault_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Katana";
+			map = "Corpo_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Knife";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShortBlade";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LongBlade";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Axe";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Chainsword";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Machete";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_MantisBlades";
+			map = "Corpo_MantisBlades.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_OneHandedClub";
+			map = "Corpo_OneHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_TwoHandedClub";
+			map = "Corpo_TwoHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SubmachineGun";
+			map = "CorpoAssault_SubmachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Rifle";
+			map = "CorpoAssault_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_AssaultRifle";
+			map = "CorpoAssault_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Shotgun";
+			map = "CorpoAssault_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShotgunDual";
+			map = "CorpoAssault_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_PrecisionRifle";
+			map = "CorpoAssault_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SniperRifle";
+			map = "CorpoAssault_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LightMachineGun";
+			map = "CorpoAssault_LightMachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_HeavyMachineGun";
+			map = "CorpoAssault_LightMachineGun.Map";
+		}
+	];
+	defaultMap = "CorpoAssault.DefaultNodeMap";
+}
+
+RingSelector : MovementActions.RingSelector
+{
+	actions = 
+	[
+		"MovementActions.MeleeRing2ndFilter", "MovementActions.CloseRing2ndFilterNoLimit", "MovementActions.MediumRing2ndFilterNoLimit", "MovementActions.FarRing2ndFilterNoLimit", "MovementActions.ExtremeRing2ndFilterNoLimit", "MovementActions.SquadRingDefault"
+	];
+}
+
+SimpleRingSelector : MovementActions.SimpleRingSelector
+{
+	actions = 
+	[
+		"MovementActions.SimpleCloseRing", "MovementActions.HoldPosition"
+	];
+}
+
+CoverPresetDecoratorSelector : CombatDecorator.CoverPresetDecoratorSelector
+{
+	actions = 
+	[
+		"CorpoAssault.AssaultCompoundCoverSelectionPreset"
+	];
+}
+
+AssaultCompoundCoverSelectionPreset : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "ShotgunnerCompound";
+			initialPreset = "ShotgunnerCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+

@@ -1,0 +1,290 @@
+package RTDB
+using Driving, Crowds
+
+CharacterEntry
+{
+	CName name = "";
+	int id = 0;
+}
+
+CharacterList
+{
+	fk< CharacterEntry >[] entries = [];
+}
+
+SpawnableObjectPriority
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+BaseObject
+{
+	bool savable = false;
+	fk< StatModifier >[] statModifiers = [];
+	fk< StatModifierGroup >[] statModifierGroups = [];
+	fk< StatPool >[] statPools = [];
+	fk< Effector >[] effectors = [];
+	fk< Weakspot >[] weakspots = [];
+	fk< ObjectAction >[] objectActions = [];
+}
+
+DestructibleObject : BaseObject
+{
+}
+
+SpawnableObject : BaseObject
+{
+	ResRef entityTemplatePath = "";
+	ResRef[] multiplayerTemplatePaths = [];
+	CName appearanceName = "";
+	CName persistentName = "";
+	CName[] tags = [];
+	CName[] visualTags = [];
+	fk< SpawnableObjectPriority > priority = "SpawnableObjectPriority.Regular";
+}
+
+Character : SpawnableObject
+{
+	string devNotes = "";
+	fk< ScannerModuleVisibilityPreset > scannerModulePreset = "ScanningNPCPresets.ScannerPreset_NPCFull";
+	fk< ContentAssignment > contentAssignment = "";
+	fk< AttachmentSlot >[] attachmentSlots = [];
+	fk< InventoryItem >[] items = [];
+	fk< InventoryItemGroup >[] itemGroups = [];
+	bool disableDefeatedState = false;
+	fk< LootTable > lootDrop = "";
+	bool dropsWeaponOnDeath = true;
+	bool dropsAmmoOnDeath = true;
+	bool dropsMoneyOnDeath = false;
+	CName lootBagEntity = "baseDropBag";
+	bool isCrowd = false;
+	bool isLightCrowd = false;
+	bool isBumpable = false;
+	CName[] crowdAppearanceNames = [];
+	bool staticCommunityAppearancesDistributionEnabled = false;
+	fk< CrowdSettingsPackageBase > crowdMemberSettings = "Crowds.DefaultCrowdPackage";
+	bool isChild = false;
+	bool despawnChildCommunityWhenPlayerInVehicle = true;
+	CName audioResourceName = "";
+	CName stateMachineName = "";
+	CName voiceTag = "";
+	CName audioMeleeMaterial = "Flesh";
+	fk< GenderEntity >[] genders = [];
+	fk< ReactionPreset > reactionPreset = "";
+	fk< Crosshair > defaultCrosshair = "Crosshairs.NoWeapon";
+	bool hasDirectionalStarts = true;
+	CName communitySquad = "";
+	CName globalSquad = "";
+	CName securitySquad = "";
+	fk< AISquadParams > squadParamsID = "";
+	bool enableSensesOnStart = false;
+	fk< SensePreset > sensePreset = "";
+	CName archetypeName = "";
+	CName baseAttitudeGroup = "";
+	fk< NPCType > characterType = "NPCType.Human";
+	fk< AIActionSmartComposite > idleActions = "";
+	bool canHaveGenericTalk = true;
+	bool forceCanHaveGenericTalk = false;
+	fk< ActionMap > actionMap = "";
+	fk< NPCEquipmentGroup > primaryEquipment = "";
+	fk< NPCEquipmentGroup > secondaryEquipment = "";
+	fk< NPCEquipmentItem > defaultEquipment = "";
+	LocKey displayName = "";
+	LocKey fullDisplayName = "";
+	LocKey displayDescription = "";
+	LocKey alternativeDisplayName = "";
+	LocKey alternativeFullDisplayName = "";
+	fk< EquipmentArea >[] EquipmentAreas = [];
+	fk< Vendor > vendorID = "";
+	fk< BaseDrivingParameters > driving = "";
+	string cpoCharacterBuild = "";
+	CName cpoClassName = "";
+	fk< UINameplate > uiNameplate = "UINameplate.DefaultSettings";
+	fk< GameplayLogicPackage >[] onSpawnGLPs = [];
+	fk< NPCRarity > rarity = "NPCRarity.Normal";
+	fk< NPCQuestAffiliation > quest = "";
+	fk< GameplayAbility >[] abilities = [];
+	fk< ArchetypeData > archetypeData = "";
+	fk< Affiliation > affiliation = "Factions.Unaffiliated";
+	fk< ThreatTrackingPresetBase > threatTrackingPreset = "TargetTracking.DefaultPreset";
+	fk< BountyDrawTable > bountyDrawTable = "";
+	fk< Minigame_Def > minigameInstance = "minigame_v2.DefaultMinigame";
+	bool useForcedTBHZOffset = true;
+	float forcedTBHZOffset = 0.f;
+	bool skipDisplayArchetype = false;
+	ResRef holocallInitializerPath = "";
+}
+
+SubCharacter : Character
+{
+	CName enumName = "";
+	string enumComment = "";
+	CName referenceName = "";
+	fk< Item >[] startingEquippedItems = [];
+	bool isPrevention = false;
+}
+
+Appearance
+{
+	CName[] tags = [];
+}
+
+InventoryItem
+{
+	fk< Item > item = "";
+	int quantity = 1;
+	fk< AttachmentSlot > equipSlot_DEPRECATED = "";
+	fk< AttachmentSlot > activeForSlot = "";
+	float chanceInCrowd = 0.0;
+}
+
+InventoryItemGroup
+{
+	fk< InventoryItem >[] items = [];
+}
+
+NPCEquipmentGroupEntry
+{
+}
+
+NPCEquipmentItemsPoolEntry
+{
+	fk< NPCEquipmentItem >[] items = [];
+	int minLevel = 0;
+	float weight = 1.0f;
+}
+
+NPCEquipmentItemPool : NPCEquipmentGroupEntry
+{
+	fk< NPCEquipmentItemsPoolEntry >[] pool = [];
+}
+
+NPCEquipmentItem : NPCEquipmentGroupEntry
+{
+	fk< Item > item = "";
+	fk< AttachmentSlot > equipSlot = "";
+	fk< AttachmentSlot > onBodySlot = "";
+	fk< AIActionCondition >[] equipCondition = [];
+	fk< AIActionCondition >[] unequipCondition = [];
+}
+
+NPCEquipmentGroup
+{
+	fk< NPCEquipmentGroupEntry >[] equipmentItems = [];
+}
+
+Gender
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+GenderEntity
+{
+	bool initial = false;
+	fk< Gender > gender = "";
+	ResRef entity = "";
+	ResRef[] multiplayerEntities = [];
+}
+
+NPCUpperBodyState
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+NPCHighLevelState
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+NPCStanceState
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+NPCBehaviorState
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+DefenseMode
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+LocomotionMode
+{
+	CName enumName = "";
+	string comment = "";
+}
+
+NPCRarity
+{
+	CName enumName = "";
+	string enumComment = "";
+	fk< StatModifier >[] statModifiers = [];
+}
+
+NPCType
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+NPCQuestAffiliation
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+LifePath
+{
+	CName enumName = "";
+	string enumComment = "";
+	LocKey displayName = "";
+	CName newGameSpawnTag = "";
+	fk< ChoiceCaptionIconPart > captionIcon = "";
+}
+
+PlayerBuild
+{
+	CName enumName = "";
+	string enumComment = "";
+	LocKey displayName = "";
+	fk< Proficiency >[] proficiencies = [];
+	fk< ChoiceCaptionIconPart > captionIcon = "";
+}
+
+PlayerPossesion
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
+DroneAnimationSetup
+{
+	float mass = 100f;
+	float sizeFront = 1.5f;
+	float sizeBack = -1.5f;
+	float sizeLeft = 1.2f;
+	float sizeRight = -1.2f;
+	float walkTiltCoefficient = 1.33f;
+	float massNormalizedCoefficient = 2.0f;
+	float tiltAngleOnSpeed = 40.0f;
+	float speedIdleThreshold = 0.2f;
+	float startingRecoveryBalance = 0.01f;
+	float pseudoAcceleration = 30f;
+	float turnInertiaDamping = 0.75f;
+}
+
+Rigs
+{
+	ResRef[] rigsResRefs = [];
+}
+

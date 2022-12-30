@@ -1,0 +1,1940 @@
+package CombatDecorator
+using RTDB, MovementActions, 0xF242B6C8F, AIActionTarget
+
+CoverPresetDecoratorComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"0xF242B6C8F.0x1CFBCE963E", "GenericArchetype.CoverPresetDecoratorSelector", "GenericArchetype.Success"
+	];
+}
+
+CoverPresetDecoratorSelector : AIActionSelector
+{
+	actions = 
+	[
+		"CombatDecorator.SandevistanCompoundCoverSelectionPreset", "CombatDecorator.DefaultCompoundCoverSelectionPreset"
+	];
+}
+
+CannotJoinCombatAgainstPlayer : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPlayerInRestrictedMovementArea", "Condition.NotPlayerMinAccuracyValue0", "Condition.NotAICommand", "Condition.NotTicketCatchUp", "Condition.NotTicketCharge", "Condition.NotAbilityIsNetrunnerArchetype", {
+					OR = 
+					[
+						"Condition.NotValidCovers", "Condition.InCover"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PlayerInRestrictedMovementArea", "Condition.PlayerMinAccuracyValue0", "Condition.AICommand", {
+							AND = 
+							[
+								"Condition.ValidCovers", "Condition.NotInCover"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+IsInWorkspotCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsInWorkspot";
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsInWorkspot"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+OwnerIsActiveCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.OwnerIsActive"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+CoverSelectionCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCovers"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+SetInitialCombatCooldowns : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 5.f;
+				} : MovementActions.StrafeCooldown, 
+				"MovementActions.InitialCatchUpCooldown", "ItemHandling.InitThrowGrenadeCooldown", "ShootActions.CrouchShootCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+NotInCombatStateCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+FastExitFromWorkspot : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 0.1f;
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotIsInWorkspot"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			destinationObj = "AIActionTarget.CombatTarget";
+			playSlowExitIfFailed = true;
+			stayInWorkspotIfFailed = false;
+		} : AISubActionFastExitWorkspot
+	];
+}
+
+CombatLookatDecorator : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"CombatDecorator.BlindLookAt", "CombatDecorator.MeleeCombatLookatAction", "CombatDecorator.RangedCombatLookatAction", "CombatDecorator.GenericCombatEyesHeadLookatAction", "GenericArchetype.WaitASecond"
+	];
+}
+
+RangedCombatLookatAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget", "Condition.HasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged", "Condition.NotHasRangedWeapon"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			activationCondition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.MinAccuracyValue0"
+					];
+				} : AIActionAND;
+			};
+			preset = "LookatPreset.RangedCombatLookAtPreset";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+BlindLookAt : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack"
+			];
+		} : AIActionAND;
+	};
+	lookats = 
+	[
+		{
+			activationCondition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"0xF242B6C8F.0x1CF16F6C86"
+					];
+				} : AIActionAND;
+			};
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.ObjectOfInterest;
+			preset = "LookatPreset.LookAtObjectOfInterest";
+		}, 
+		{
+			activationCondition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							invert = true;
+						} : 0xF242B6C8F.0x1CF16F6C86
+					];
+				} : AIActionAND;
+			};
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.PointOfInterest;
+			preset = "LookatPreset.LookAtPointOfInterest";
+		}
+	];
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotIsNPCBlindedFromQuickhack"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			randomPointDurationRange = ( 0.5f, 2.5f );
+			squadMateDurationRange = ( 0.5f, 2.5f );
+			closestThreatDurationRange = ( 2.0f, 4.0f );
+			choosingRandomPointChanceWeight = 2.0f;
+			choosingSquadMateChanceWeight = 1.0f;
+			choosingFriendlyTargetChanceWeight = 0.0f;
+			choosingClosestThreatChanceWeight = 2.0f;
+			randomPointZRotationAngleRange = ( -60.0f, 60.0f );
+			randomPointYRotationAngleRange = ( -6.0f, 10.0f );
+			squadMateWatchingMaxAngle = 120.0f;
+			friendlyTargetWatchingMaxAngle = 120.0f;
+			closestThreatWatchingMaxAngle = 120.0f;
+		} : AISubActionGeneratePointOfInterestTarget
+	];
+	subActionsCanCompleteAction = true;
+}
+
+GenericCombatEyesHeadLookatAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged", "Condition.HasAnyWeapon"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHeadOnlyLookAtPreset";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SimpleRangedCombatDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.HasRangedWeapon", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.51f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotHasRangedWeapon"
+					];
+				} : AIActionAND;
+			}
+		];
+		conditionSuccessDuration = 0.5f;
+	};
+	subActions += 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.HackingInterrupted"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+RangedCombatDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.HasRangedWeapon", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotHasRangedWeapon", "Condition.NotIsUsingOffMeshLink", "Condition.NotIsEnteringOrLeavingCover"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions += 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.HackingInterrupted"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+NotInCoverCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInRegularCover"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+CoverBehaviorDecorator : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.TakeCover"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCovers", "Condition.IsCoverSelected", "Condition.PauseByDynamicCollisionCooldown", "Condition.CoverBehaviorAfterCatchupCooldown", "Condition.NotTicketEquip", "Condition.NotTicketCatchUp", "Condition.NotTicketCharge", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption", "Condition.NotCompanionAway", {
+					OR = 
+					[
+						"Condition.NotCatchUpFromCoverCondition", "Condition.AIUseCoverCommand"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+GoToCoverDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsCoverSelected", "Condition.SelectedCoverChanged", "Condition.SelectedCoverIsProtectingHorizontallyAgainstTarget", {
+					OR = 
+					[
+						"Condition.SelectedCoverToTargetAbove7m", "Condition.NotCombatTarget"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsEnteringOrLeavingCover", {
+							OR = 
+							[
+								"Condition.NotAbilityCanUseCovers", "Condition.SelectedCoverToTargetBelow7m", "Condition.NotSelectedCoverIsProtectingHorizontallyAgainstTarget", "Condition.DesiredCoverChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruptionCompound", "Condition.TicketEquip"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MovementActions.PauseByDynamicCollisionCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "flank_order";
+			sendEventToSquadmates = true;
+			setSelfAsAnsweringEntity = true;
+			cooldown = 
+			{
+				name = "chatter_flank_order";
+				duration = 1.f;
+			};
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsSelectedCoverInCameraFrustrum0dot1mRadius", {
+							OR = 
+							[
+								"Condition.SpreadIncreaseAngle30deg", {
+									AND = 
+									[
+										"Condition.IsInCameraFrustrum", "Condition.TargetAbove2m"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			} : AIActionCondition;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SimpleInsideCoverDecorator : CombatDecorator.InsideCoverDecorator
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InRegularCover", "Condition.SimpleCoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+InsideCoverDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InRegularCover", "Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			stanceState = "Cover";
+			locomotionMode = "Static";
+		};
+	};
+	subActions = 
+	[
+		{
+			setInitialCoverData = true;
+		} : AISubActionCover
+	];
+	animData = 
+	{
+		animVariationSubAction = 
+		{
+			setInitialCoverData = true;
+		} : AISubActionCover;
+	};
+}
+
+SimpleInsideShootingSpotDecorator : CombatDecorator.InsideCoverDecorator
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InShootingSpot", "Condition.SimpleCoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+InsideShootingSpotDecorator : CombatDecorator.InsideCoverDecorator
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InShootingSpot", "Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCombatLookatAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget", "Condition.HasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged", "Condition.NotHasMeleeWeapon"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MeleeCombatLookAtPreset";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+MeleeHitReactionLookatAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MeleeCombatLookAtPreset";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SimpleMeleeCombatDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.HasMeleeWeapon", {
+							AND = 
+							[
+								"Condition.NotWounded", "Condition.HasPrimaryEquipmentMeleeInInventory", "Condition.NotHasRangedWeapon"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.51f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", "Condition.HasRangedWeapon"
+					];
+				} : AIActionAND;
+			}
+		];
+		conditionSuccessDuration = 0.5f;
+	};
+	subActions += 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.HackingInterrupted"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+MeleeCombatDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.HasMeleeWeapon", {
+							AND = 
+							[
+								"Condition.NotWounded", "Condition.HasPrimaryEquipmentMeleeInInventory", "Condition.NotHasRangedWeapon"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							AND = 
+							[
+								"Condition.HasRangedWeapon", "Condition.NotMeleeStatesConditions"
+							];
+						} : AIActionAND
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+MeleeCombatWoundedDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedFlesh"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotWoundedFlesh"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MeleeCombatContactDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon", "Condition.TargetAbove1dot5m", "Condition.TargetBelow4m", "Condition.TargetBelow45deg", "Condition.TargetPOVBelow60deg", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotAIMeleeAttackCommand", "Condition.AbilityCanCloseCombat", "Condition.NotMeleeStatesConditions", "Condition.NotTicketEquip", "Condition.NotTicketReload", "Condition.NotTicketTakeCover", "Condition.CalculatePathStraightFullCheckLeft1dot5m", "Condition.CalculatePathStraightFullCheckRight1dot5m", "Condition.AbilityCanUseLegs"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotInStatesTaunt", {
+							OR = 
+							[
+								"Condition.TargetBelow1dot5m", "Condition.TargetAbove5m", "Condition.TargetAbove90deg", "Condition.AIMoveCommand", "Condition.AIMeleeAttackCommand", "Condition.AIUseWorkspotCommand"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+NotMeleeCombatContactMonitor : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.HasMeleeWeapon", "Condition.TargetAbove1dot5m", "Condition.TargetBelow4m", "Condition.TargetBelow45deg", "Condition.TargetPOVBelow60deg", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotAIMeleeAttackCommand", "Condition.AbilityCanCloseCombat", "Condition.NotMeleeStatesConditions", "Condition.NotTicketEquip", "Condition.NotTicketReload", "Condition.NotTicketTakeCover", "Condition.CalculatePathStraightFullCheckLeft1dot5m", "Condition.CalculatePathStraightFullCheckRight1dot5m", "Condition.AbilityCanUseLegs"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+NotMeleeCombatCloseDistanceMeleeTicketConditions : MeleeCombatCloseDistanceMeleeTicketConditions
+{
+	invert = true;
+}
+
+MeleeCombatCloseDistanceMeleeTicketConditions : AIActionAND
+{
+	AND = 
+	[
+		"Condition.MeleeTicketConditions", {
+			OR = 
+			[
+				"Condition.TicketCheckMelee", {
+					AND = 
+					[
+						"Condition.TicketCheckMeleeSupport", "Condition.TargetHasRangedWeapon"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR
+	];
+}
+
+NotMeleeCombatCloseDistanceNotTicketMeleeApproachConditions : MeleeCombatCloseDistanceNotTicketMeleeApproachConditions
+{
+	invert = true;
+}
+
+MeleeCombatCloseDistanceNotTicketMeleeApproachConditions : AIActionAND
+{
+	AND = 
+	[
+		"Condition.NotTicketMeleeApproach", {
+			OR = 
+			[
+				"Condition.TargetAbove9m", "Condition.NotCalculatePathToTarget", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone"
+			];
+		} : AIActionOR
+	];
+}
+
+MeleeCombatCloseDistanceDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameBlockDodge", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotAIMeleeAttackCommand", "Condition.NotTicketEquip", "Condition.CalculatePathToTarget", "Condition.NotAttackAndTauntStatesConditions", "CombatDecorator.NotMeleeCombatCloseDistanceNotTicketMeleeApproachConditions", "CombatDecorator.NotMeleeCombatCloseDistanceMeleeTicketConditions"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PreviousAttackNameBlockDodge", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.AIMeleeAttackCommand", "Condition.TicketEquip", "CombatDecorator.MeleeCombatCloseDistanceMeleeTicketConditions", "CombatDecorator.MeleeCombatCloseDistanceNotTicketMeleeApproachConditions"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MeleeCombatSafeDistanceDecorator : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotAIMeleeAttackCommand", "Condition.NotTicketEquip", {
+					OR = 
+					[
+						"Condition.TargetAbove6m", "Condition.NotCalculatePathStraightToTarget", "Condition.NotCalculatePathToTarget", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.AIMeleeAttackCommand", "Condition.TicketEquip", "Condition.MeleeAvoidLOSCondition", {
+							AND = 
+							[
+								"Condition.MeleeTicketConditions", {
+									OR = 
+									[
+										"Condition.TicketCheckMelee", {
+											AND = 
+											[
+												"Condition.TicketCheckMeleeSupport", "Condition.TargetHasRangedWeapon"
+											];
+										} : AIActionAND
+									];
+								} : AIActionOR
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetBelow6m", "Condition.CalculatePathStraightToTarget", "Condition.CalculatePathToTarget", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+NotMeleeBlockStateMonitorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			invert = true;
+			AND = 
+			[
+				"Condition.BlockStateCooldown", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanBlock", "Condition.NotPreviousAttackNameBlockDodge", "Condition.TargetBelow5m", "Condition.TargetPOVBelow90deg", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.NotTicketEquip", "Condition.NotMeleeStatesConditions", "Condition.NotDefensiveMeleeAttackOpportunity"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.BlockStateCooldown", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanBlock", "Condition.NotPreviousAttackNameBlockDodge", "Condition.TargetBelow5m", "Condition.TargetPOVBelow90deg", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.NotTicketEquip", "Condition.NotMeleeStatesConditions", "Condition.NotDefensiveMeleeAttackOpportunity"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SetMeleeDefenseCooldownLoop : SetMeleeDefenseCooldown
+{
+	loop = 
+	{
+	};
+}
+
+SetMeleeDefenseCooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				"CombatDecorator.MeleeDefenseCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MeleeDefenseCooldown : AIActionCooldown
+{
+	name = "MeleeDefenseCooldown";
+	duration = 5.f;
+}
+
+MeleeBlockState : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "BlockStateCooldown";
+			duration = 2.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanBlock", "Condition.NotPreviousAttackNameBlockDodge", "Condition.TargetBelow5m", "Condition.TargetPOVBelow90deg", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.NotTicketEquip", "Condition.NotMeleeStatesConditions", "Condition.NotDefensiveMeleeAttackOpportunity"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Defend";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.DefensiveMeleeAttackOpportunity", "Condition.TargetHasRangedWeapon", "Condition.TargetAbove5m", "Condition.NotInStatesDefend", {
+							AND = 
+							[
+								"Condition.AbilityCanParry", "Condition.MinBlockCount1"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "BlockStateCooldown";
+					duration = 1.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "BlockIdle";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+MeleeStrafingBlockStateDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.HasKatana", "Condition.HasPrimaryEquipmentKatanaInInventory", {
+							AND = 
+							[
+								"Condition.TargetAbove3m", "Condition.NotAbilityIsReckless"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Defend";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.DefensiveMeleeAttackOpportunity", "Condition.TargetHasRangedWeapon", "Condition.TargetAbove7m", "Condition.NotCalculatePathStraightToTarget", {
+							AND = 
+							[
+								"Condition.AbilityCanParry", "Condition.MinBlockCount1"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "";
+		animSlot = 
+		{
+		};
+	};
+	animationWrapperOverrides = 
+	[
+		"blockStateLocomotion"
+	];
+}
+
+NotMeleeParryStateMonitorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			invert = true;
+			AND = 
+			[
+				"Condition.ParryStateCooldown", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanParry", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotAbilityCanBlock", "Condition.HitTimeout3MinSeverity0", "Condition.TargetBelow5m", "Condition.TargetBelow140deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.AbilityCanParry", "Condition.AbilityCanBlock", "Condition.TargetBelow4m", "Condition.TargetBelow120deg", "Condition.MinBlockCount1"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.ParryStateCooldown", "Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanParry", {
+							OR = 
+							[
+								{
+									AND = 
+									[
+										"Condition.NotAbilityCanBlock", "Condition.HitTimeout3MinSeverity0", "Condition.TargetBelow5m", "Condition.TargetBelow140deg"
+									];
+								} : AIActionAND, 
+								{
+									AND = 
+									[
+										"Condition.AbilityCanParry", "Condition.AbilityCanBlock", "Condition.TargetBelow4m", "Condition.TargetBelow120deg", "Condition.MinBlockCount1"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+MeleeParryState : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "ParryStateCooldown";
+			duration = 5.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon", "Condition.TargetHasMeleeWeapon", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanParry", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotAbilityCanBlock", "Condition.HitTimeout3MinSeverity0", "Condition.TargetBelow5m", "Condition.TargetBelow140deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.AbilityCanParry", "Condition.AbilityCanBlock", "Condition.TargetBelow4m", "Condition.TargetBelow120deg", "Condition.MinBlockCount1"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Parry";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove5m", "Condition.NotIsInCameraFrustrum", "Condition.TargetAbove90deg", "Condition.NotInStatesParry"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "ParryStateCooldown";
+					duration = 1.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "ParryIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeGuardBreakDecorator : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "BlockStateCooldown";
+					duration = 10.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MeleeEquipBehavior : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			tolerance = 0.5f;
+			distance = 10.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTicketEquip"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MeleeTicketDecoratorComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"CombatDecorator.MeleeTicketDecorator", "CombatDecorator.MeleeTicketSupportDecorator", "CombatDecorator.NoMeleeTicket"
+	];
+}
+
+MeleeTicketDecorator : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Melee"
+	];
+	revokingTicketCompletesAction = false;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeTicketConditions", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				"CombatDecorator.MeleeTicketExpiration"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MeleeTicketSupportDecorator : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.MeleeSupport"
+	];
+	revokingTicketCompletesAction = false;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeTicketConditions", "Condition.TargetHasRangedWeapon", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				"CombatDecorator.MeleeTicketExpiration"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+NoMeleeTicket : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+		} : AISubActionFail
+	];
+}
+
+MeleeTicketExpiration : AIActionCooldown
+{
+	name = "MeleeTicketExpiration";
+	duration = 1.f;
+}
+
+MeleeTicketNoRequestCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeTicketConditions", {
+					OR = 
+					[
+						"Condition.TicketCheckMelee", {
+							AND = 
+							[
+								"Condition.TicketCheckMeleeSupport", "Condition.TargetHasRangedWeapon"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeApproachTicketDecorator : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.MeleeApproach"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove4m", "Condition.TargetPOVBelow60deg", {
+					OR = 
+					[
+						"Condition.NotHitTimeout1dot5MinSeverity0", "Condition.StatusEffectBerserkNPCBuff", "Condition.TargetHasRangedWeapon"
+					];
+				} : AIActionOR, 
+				{
+					OR = 
+					[
+						"Condition.TicketCheckMeleeApproach", "Condition.TargetBelow6m"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeApproachTicketNoRequestCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TicketMeleeApproach", "Condition.TargetPOVBelow60deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+NotHasBlockTicket : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketBlock"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TicketBlock"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+HasBlockTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Block"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TicketBlock"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTicketBlock"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+DefendTicketDecorator : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Block"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToTarget", "Condition.NotTicketSync", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					invert = true;
+					AND = 
+					[
+						"Condition.CalculatePathToTarget", "Condition.NotTicketSync", "Condition.TargetInRestrictedMovementArea"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+AndroidCompoundCoverSelectionPreset : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Android"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "NoCoverNoShootingSpotsPreset";
+			initialPreset = "NoCoverNoShootingSpotsPreset";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+AssaultCompoundCoverSelectionPreset : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAssaultWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower", "Condition.NotHasAssaultWeapon"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "NoCoverNoShootingSpotsPreset";
+			initialPreset = "NoCoverNoShootingSpotsPreset";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+SniperCompoundCoverSelectionPreset : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasSniperWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower", "Condition.NotHasSniperWeapon"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "SniperCompound";
+			initialPreset = "SniperCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+SandevistanCompoundCoverSelectionPreset : DefaultCompoundCoverSelectionPreset
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAbilityHasSandevistan"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "NPCSandevistanCompound";
+			initialPreset = "NPCSandevistanCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+DefaultCompoundCoverSelectionPreset : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower", "Condition.HasSniperWeapon", "Condition.HasAssaultWeapon"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "NPCCompound";
+			initialPreset = "NPCCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+NotNPCInCombatCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCombatTarget", "Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+}
+
+NPCInCombatCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CombatTarget", "Condition.InStatesCombat"
+			];
+		} : AIActionOR;
+	};
+}
+

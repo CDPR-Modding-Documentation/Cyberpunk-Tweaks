@@ -1,0 +1,355 @@
+package BaseStatusEffect
+using RTDB, Effectors, Prereqs
+
+BaseEMP : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.EMP";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_emp";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusElectrified";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.EMPImmunity"
+	];
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HasGlowingTattoos";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				"BaseStatusEffect.DeactivateCloakedtatusEffects", "BaseStatusEffect.DeactivateCloakedOdatatusEffects", "BaseStatusEffect.EmpSFX", {
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HasDodgeAir";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasChargeJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDoubleJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasAirHover";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						allowedTypes = 
+						[
+							"NPCType.Drone"
+						];
+					} : NPCTypePrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HasDodge";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanSprint";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						allowedTypes = 
+						[
+							"NPCType.Drone"
+						];
+					} : NPCTypePrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CycleTime";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CycleTime_Burst";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunNPCShootProjectilesOnlyStraight";
+								modifierType = "Additive";
+								value = 1;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunNPCTrajectoryCurvatureMultiplier";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunHitProbability";
+								modifierType = "Multiplier";
+								value = 0.1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunNPCProjectileStartingOrientationAngleOffset";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunAddSpiralTrajectory";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunNPCSpreadMultiplier";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunNPCTrajectoryCurvatureMultiplier";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector
+			];
+		}
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		fk< Stim >[] stimulis = 
+		[
+			"stims.ScreamStimuli"
+		];
+		fk< StatModifier >[] behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+		shouldDelayStatusEffectApplication = true;
+	};
+	uiData = "BaseStatusEffect.BaseEMPUI";
+}
+
+BaseEMPUI : StatusEffectUIData
+{
+	string displayName = "LocKey#40946";
+	description = "LocKey#77831";
+	string iconPath = "EMP";
+	priority = 5f;
+}
+
+EMP : BaseEMP
+{
+	gameplayTags += 
+	[
+		"DoT"
+	];
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+EmpVeryLowDamage : BaseEMP
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.VeryLowElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+EmpVeryLowDamageQuickhack : BaseEMP
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.VeryLowQuickhackElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+EmpLowDamage : BaseEMP
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.LowElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+EmpHighDamage : EMP
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.HighElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+EmpJamWeaponChance : EMP
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.WeaponMalfunction";
+					float effectorChance = 0.8f;
+				} : ApplyStatusEffectByChanceEffector
+			];
+		}
+	];
+}
+
+EmpJamWeaponAccuracyDebuff : EMP
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.WeaponMalfunction";
+					float effectorChance = 0.8f;
+				} : ApplyStatusEffectByChanceEffector
+			];
+		}
+	];
+}
+
+EmpSFX : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "nme_fx_emp_start";
+	CName deactivationSFXName = "nme_fx_emp_stop";
+	bool unique = true;
+}
+

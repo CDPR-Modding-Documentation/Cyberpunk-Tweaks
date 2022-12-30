@@ -1,0 +1,904 @@
+package CorpoNetrunner
+using RTDB, ItemType, MovementActions, CombatDecorator, ItemHandling, NetrunnerActions, CoverActions
+
+DefaultNodeMap : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.RingSelector";
+			isOverriddenBy = "CorpoNetrunner.RingSelector";
+		}, 
+		{
+			node = "GenericArchetype.SimpleRingSelector";
+			isOverriddenBy = "CorpoNetrunner.SimpleRingSelector";
+		}, 
+		{
+			node = "MovementActions.SprintToCover";
+			isOverriddenBy = "CorpoNetrunner.SprintToCover";
+		}, 
+		{
+			node = "CoverActions.CoverBehaviorComposite";
+			isOverriddenBy = "CorpoNetrunner.CoverBehaviorComposite";
+		}, 
+		{
+			node = "GenericArchetype.CoverPresetDecoratorSelector";
+			isOverriddenBy = "CorpoNetrunner.CoverPresetDecoratorSelector";
+		}, 
+		{
+			node = "GenericArchetype.WeaponHandlingComposite";
+			isOverriddenBy = "CorpoNetrunner.WeaponHandlingComposite";
+		}, 
+		{
+			node = "ItemHandling.ShootingSpotBehaviorComposite";
+			isOverriddenBy = "CorpoNetrunner.ShootingSpotBehaviorComposite";
+		}, 
+		{
+			node = "ItemHandling.CoverReloadSelector";
+			isOverriddenBy = "CorpoNetrunner.CoverReloadSelector";
+		}, 
+		{
+			node = "CoverActions.StayInDesiredCover";
+			isOverriddenBy = "CorpoNetrunner.StayInDesiredCover";
+		}, 
+		{
+			node = "CoverActions.RegularCoverActivationCheckSuccess";
+			isOverriddenBy = "CorpoNetrunner.RegularCoverActivationCheckSuccess";
+		}, 
+		{
+			node = "CoverActions.CoverActivationCheckSuccess";
+			isOverriddenBy = "CorpoNetrunner.CoverActivationCheckSuccess";
+		}, 
+		{
+			node = "CoverActions.CoverGetBackSelector";
+			isOverriddenBy = "CorpoNetrunner.CoverGetBackSelector";
+		}, 
+		{
+			node = "CoverActions.CoverCommandForceShootSelector";
+			isOverriddenBy = "CorpoNetrunner.CoverCommandForceShootSelector";
+		}, 
+		{
+			node = "CoverActions.SimpleCoverShootSelector";
+			isOverriddenBy = "CorpoNetrunner.SimpleCoverShootSelector";
+		}, 
+		{
+			node = "CoverActions.CoverShootSelector";
+			isOverriddenBy = "CorpoNetrunner.CoverShootSelector";
+		}, 
+		{
+			node = "CoverActions.CoverGetOutSelector";
+			isOverriddenBy = "CorpoNetrunner.CoverGetOutSelector";
+		}, 
+		{
+			node = "CombatDecorator.InsideCoverDecorator";
+			isOverriddenBy = "CorpoNetrunner.InsideCoverDecorator";
+		}, 
+		{
+			node = "CoverActions.SetDesiredCoverSelector";
+			isOverriddenBy = "CorpoNetrunner.SetDesiredCoverSelector";
+		}, 
+		{
+			node = "MovementActions.ExtremeRing2ndFilterCoverAny";
+			isOverriddenBy = "CorpoNetrunner.ExtremeRing2ndFilterCoverAny";
+		}, 
+		{
+			node = "MovementActions.FarRing2ndFilterCoverAny";
+			isOverriddenBy = "CorpoNetrunner.FarRing2ndFilterCoverAny";
+		}, 
+		{
+			node = "MovementActions.MediumRing2ndFilterCoverAny";
+			isOverriddenBy = "CorpoNetrunner.MediumRing2ndFilterCoverAny";
+		}, 
+		{
+			node = "MovementActions.ExtremeRing2ndFilterNoLimit";
+			isOverriddenBy = "CorpoNetrunner.ExtremeRing2ndFilterNoLimit";
+		}, 
+		{
+			node = "MovementActions.FarRing2ndFilterNoLimit";
+			isOverriddenBy = "CorpoNetrunner.FarRing2ndFilterNoLimit";
+		}, 
+		{
+			node = "MovementActions.MediumRing2ndFilterNoLimit";
+			isOverriddenBy = "CorpoNetrunner.MediumRing2ndFilterNoLimit";
+		}, 
+		{
+			node = "CoverActions.ExitCoverSelector";
+			isOverriddenBy = "CorpoNetrunner.ExitCoverSelector";
+		}, 
+		{
+			node = "CoverActions.WaitInCover";
+			isOverriddenBy = "CorpoNetrunner.WaitInCover";
+		}, 
+		{
+			node = "CoverActions.ChillInCover";
+			isOverriddenBy = "CorpoNetrunner.ChillInCover";
+		}, 
+		{
+			node = "CoverActions.CoverPeek";
+			isOverriddenBy = "CorpoNetrunner.CoverPeek";
+		}, 
+		{
+			node = "CoverActions.CoverPeekNoTarget";
+			isOverriddenBy = "CorpoNetrunner.CoverPeekNoTarget";
+		}
+	];
+}
+
+Map : ActionMap
+{
+	map = 
+	[
+		{
+			itemType = "ItemType.Wea_Fists";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_StrongArms";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Hammer";
+			map = "Corpo_Hammer.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Handgun";
+			map = "CorpoNetrunner_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Revolver";
+			map = "CorpoNetrunner_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Katana";
+			map = "Corpo_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Knife";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShortBlade";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LongBlade";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Axe";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Chainsword";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Machete";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_MantisBlades";
+			map = "Corpo_MantisBlades.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_OneHandedClub";
+			map = "Corpo_OneHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_TwoHandedClub";
+			map = "Corpo_TwoHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SubmachineGun";
+			map = "CorpoNetrunner_SubmachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Rifle";
+			map = "CorpoNetrunner_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_AssaultRifle";
+			map = "CorpoNetrunner_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Shotgun";
+			map = "CorpoNetrunner_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShotgunDual";
+			map = "CorpoNetrunner_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_PrecisionRifle";
+			map = "CorpoNetrunner_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SniperRifle";
+			map = "CorpoNetrunner_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LightMachineGun";
+			map = "CorpoNetrunner_LightMachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_HeavyMachineGun";
+			map = "CorpoNetrunner_LightMachineGun.Map";
+		}
+	];
+	defaultMap = "CorpoNetrunner.DefaultNodeMap";
+}
+
+RingSelector : MovementActions.RingSelector
+{
+	actions = 
+	[
+		"CorpoNetrunner.ExtremeRing2ndFilterCoverAny", "CorpoNetrunner.FarRing2ndFilterCoverAny", "CorpoNetrunner.ExtremeRing2ndFilterNoLimit", "CorpoNetrunner.FarRing2ndFilterNoLimit", "CorpoNetrunner.MediumRing2ndFilterNoLimit", "MovementActions.CloseRing2ndFilterNoLimit", "CorpoNetrunner.SquadRingDefault"
+	];
+}
+
+SimpleRingSelector : MovementActions.SimpleRingSelector
+{
+	actions = 
+	[
+		"MovementActions.SimpleFarRing", "MovementActions.HoldPosition"
+	];
+}
+
+SprintToCover : MovementActions.SprintToCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSprint", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetAbove9m", "Condition.SelectedCoverToTargetAbove12m", "Condition.TargetToOptSelectedCoverBelow160deg"
+							];
+						} : AIActionAND, 
+						"Condition.NotCombatTarget", "Condition.NotMinAccuracySharedValue0dot95"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		completeActionWithFailureOnCondition = true;
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								"Condition.TargetBelow5m", {
+									AND = 
+									[
+										"Condition.TargetBelow9m", "Condition.TargetBelow120deg"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR, 
+						"Condition.TargetIsVisible"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+CoverBehaviorComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"SpecialActions.CoverUseCombatStimConsumable", "CoverActions.WaitInCoverSelector", "NetrunnerActions.CoverHackSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverThrowGrenadeSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+CoverPresetDecoratorSelector : CombatDecorator.CoverPresetDecoratorSelector
+{
+	actions = 
+	[
+		"CorpoNetrunner.NetrunnerCompoundCoverSelectionPreset"
+	];
+}
+
+NetrunnerCompoundCoverSelectionPreset : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "NetrunnerCompound";
+			initialPreset = "NetrunnerCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+WeaponHandlingComposite : ItemHandling.WeaponHandlingComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "CoverActions.RegularCoverActivationCheckSuccess", "NetrunnerActions.HackActionSelector", "ItemHandling.CommandThrowGrenadeSelector", "ItemHandling.ThrowGrenadeSelector", "MeleeActions.QuickMelee", "SpecialActions.UseCombatStimConsumable", "GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector", "GenericArchetype.Success"
+	];
+}
+
+ShootingSpotBehaviorComposite : ItemHandling.ShootingSpotBehaviorComposite
+{
+	nodes = 
+	[
+		"MovementActions.RotateInShootingSpot", "ItemHandling.ExitShootingSpot", "CoverActions.Success"
+	];
+}
+
+InsideCoverDecorator : CombatDecorator.InsideCoverDecorator
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InRegularCover", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+RegularCoverActivationCheckSuccess : CoverActions.RegularCoverActivationCheckSuccess
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInShootingSpot", "Condition.NotSelectedShootingSpot", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverActivationCheckSuccess : CoverActions.CoverActivationCheckSuccess
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetDesiredCoverSelector : AIActionSelector
+{
+	actions = 
+	[
+		"CoverActions.FastSetDesiredCoverNoLOS"
+	];
+}
+
+CoverGetOutSelector : CoverActions.CoverGetOutSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodAll", "Condition.TargetBelow120deg", "Condition.NotTicketEquip", "Condition.TicketCheckShoot", "Condition.HasRangedWeapon", "Condition.AmmoCountMin1", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+SimpleCoverShootSelector : CoverActions.SimpleCoverShootSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIForceShootCommand", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverShootSelector : CoverActions.CoverShootSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIForceShootCommand", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverCommandForceShootSelector : CoverActions.CoverCommandForceShootSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverGetBackSelector : CoverActions.CoverGetBackSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverActivationCondition : AIActionAND
+{
+	AND = 
+	[
+		{
+			OR = 
+			[
+				"Condition.CurrentCoverToTargetAbove9mPrediction", "Condition.NotMinAccuracySharedValue0dot85"
+			];
+		} : AIActionOR, 
+		"Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotDesiredCoverChanged", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption", "Condition.NotCompanionAway"
+	];
+}
+
+CoverDeactivationCondition : AIActionAND
+{
+	AND = 
+	[
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.CurrentCoverToTargetBelow9mPrediction", "Condition.MinAccuracySharedValue0dot85"
+					];
+				} : AIActionAND, 
+				"Condition.NotCoverIsProtectingHorizontallyAgainstTarget", "Condition.DesiredCoverChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruption", "Condition.CompanionAway"
+			];
+		} : AIActionOR, 
+		"Condition.NotTicketGrenadeThrow"
+	];
+}
+
+StayInDesiredCover : CoverActions.StayInDesiredCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverReloadSelector : ItemHandling.CoverReloadSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityHasAutoReloader", "Condition.HasAnyWeapon", "Condition.AmmoCountBelowHalf", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotTicketEquip", "Condition.NotIsUsingOffMeshLink", "Condition.InCover", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+ExtremeRing2ndFilterCoverAny : MovementActions.ExtremeRing2ndFilterCoverAny
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Extreme";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 25.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToFarRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+FarRing2ndFilterCoverAny : MovementActions.FarRing2ndFilterCoverAny
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Far";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 15.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+MediumRing2ndFilterCoverAny : MovementActions.MediumRing2ndFilterCoverAny
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToFarRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+ExtremeRing2ndFilterNoLimit : MovementActions.ExtremeRing2ndFilterNoLimit
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Extreme";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 25.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToFarRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+FarRing2ndFilterNoLimit : MovementActions.FarRing2ndFilterNoLimit
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Far";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 15.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+MediumRing2ndFilterNoLimit : MovementActions.MediumRing2ndFilterNoLimit
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToFarRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SquadRingDefault : MovementActions.SquadRingDefault
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 12.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"CorpoNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ValidCoversMediumFarExtreme", {
+							AND = 
+							[
+								"Condition.DestinationReached", "Condition.NotIsMoving"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RingDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotIsEnteringOrLeavingCover", {
+				OR = 
+				[
+					"Condition.TicketTakeCover", "Condition.TicketCharge", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", "Condition.ConstrainedByRestrictedArea", "Condition.PathFindingFailed", "Condition.CatchUpDistanceConditions", {
+						AND = 
+						[
+							"Condition.NotIsMoving", "Condition.FriendlyFire"
+						];
+					} : AIActionAND
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+ExitCoverSelector : CoverActions.ExitCoverSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"CorpoNetrunner.CoverDeactivationCondition"
+			];
+		} : AIActionOR;
+	};
+}
+
+WaitInCover : CoverActions.WaitInCover
+{
+	loop = 
+	{
+		duration = 2.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"CorpoNetrunner.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+ChillInCover : CoverActions.ChillInCover
+{
+	loop = 
+	{
+		duration = 5.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"CorpoNetrunner.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverPeek : CoverActions.CoverPeek
+{
+	loop = 
+	{
+		duration = 0.433f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"CorpoNetrunner.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverPeekNoTarget : CoverActions.CoverPeekNoTarget
+{
+	loop = 
+	{
+		duration = 1.433f;
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"CorpoNetrunner.CoverDeactivationCondition", "Condition.MinAccuracyValue1"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+

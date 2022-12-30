@@ -1,0 +1,162 @@
+package Minotaur
+using RTDB, BaseStatusEffect, BaseStats, Effectors, QuickHack, Prereqs
+
+Minotaur : StatusEffect
+{
+	gameplayTags += 
+	[
+		"Minotaur"
+	];
+}
+
+DefeatedMinotaur : StatusEffect
+{
+	gameplayTags += 
+	[
+		"Minotaur"
+	];
+}
+
+RightArmDestroyed : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 99999;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "right_arm_destroyed";
+		}
+	];
+}
+
+LeftArmDestroyed : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 99999;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "left_arm_destroyed";
+		}
+	];
+}
+
+LeftExplosion : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Stagger";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 9.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+RightExplosion : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Stagger";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 9.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+OverloadWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "Minotaur.OverloadWeakspot";
+			} : StatusEffectAbsentPrereq, 
+			"BaseStatusEffect.OverloadOrMalfunctionAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "Minotaur.OverloadWeakspot";
+	removeWithEffector = false;
+}
+
+RemoveOverloadWeakspotEffectEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = "BaseStatusEffect.OverloadAndMalfunctionAbsentPereq";
+	statusEffect = "Minotaur.OverloadWeakspot";
+	inverted = true;
+	removeWithEffector = true;
+}
+
+OverloadWeakspot : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Jam";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"Debuff"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "DestroyWeakspotEffector";
+					int weakSpotIndex = -1;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+

@@ -1,0 +1,473 @@
+package WeaponConditions
+using RTDB
+
+EquipMeleeWeaponTicketComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"WeaponConditions.EquipMeleeWeaponTicket", "GenericArchetype.Success"
+	];
+}
+
+EquipMeleeWeaponTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.EquipMelee"
+	];
+	loop = 
+	{
+	};
+}
+
+WoundedStateSecondaryWeaponEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.StatusEffectCrippledLegLeft", "Condition.StatusEffectCrippledLegRight", "Condition.StatusEffectCrippledArmLeft", "Condition.StatusEffectCrippledArmRight"
+		];
+	} : AIActionOR;
+}
+
+BaseRangedPrimaryWeaponEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4", {
+				OR = 
+				[
+					"Condition.NotCombatTarget", "Condition.NotIsUsingOffMeshLink"
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+BaseRangedPrimaryWeaponUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.LadderOffMeshLink", "Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
+		];
+	} : AIActionOR;
+}
+
+BaseMeleePrimaryWeaponEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotCombatTarget", {
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToTarget", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotTargetInVehicle"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+BaseMeleePrimaryWeaponUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.LadderOffMeshLink", {
+				AND = 
+				[
+					"Condition.CombatTarget", "Condition.HasSecondaryEquipmentRangedInInventory", {
+						OR = 
+						[
+							"Condition.NotCalculatePathToTarget", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone", "Condition.TargetInVehicle"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+CrowdMeleePrimaryWeaponEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotCombatTarget", {
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", "Condition.NotTargetHasRangedWeapon", "Condition.NotTargetInVehicle", "Condition.NotHighClass"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+CrowdMeleePrimaryWeaponUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.LadderOffMeshLink", "Condition.TargetInVehicle", {
+				AND = 
+				[
+					"Condition.CombatTarget", "Condition.HasSecondaryEquipmentRangedInInventory", "Condition.TargetHasRangedWeapon"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+MeleeHybridPrimaryWeaponMeleeEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.CalculatePathToTarget", {
+				OR = 
+				[
+					"Condition.TicketMelee", "Condition.TicketMeleeApproach", "Condition.HasMeleeWeapon", {
+						AND = 
+						[
+							"Condition.TargetBelow5m", "Condition.NotIsUsingOffMeshLink"
+						];
+					} : AIActionAND
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+MeleeHybridPrimaryWeaponMeleeUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				AND = 
+				[
+					"Condition.TargetAbove6m", "Condition.NotTargetHasMeleeWeapon", "Condition.NotTicketMelee", "Condition.NotTicketMeleeApproach"
+				];
+			} : AIActionAND, 
+			"Condition.NotCalculatePathToTarget", "Condition.LadderOffMeshLink", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone"
+		];
+	} : AIActionOR;
+}
+
+MeleeHybridPrimaryWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone", "Condition.NotCombatTarget", "Condition.NotCalculatePathToTarget", {
+				AND = 
+				[
+					"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4", "Condition.NotIsUsingOffMeshLink", "Condition.NotTicketMelee", "Condition.NotTicketMeleeApproach", "Condition.NotTargetHasMeleeWeapon", "Condition.TargetAbove5m"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+MeleeHybridPrimaryWeaponRangedUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4", "Condition.LadderOffMeshLink", {
+				AND = 
+				[
+					{
+						OR = 
+						[
+							"Condition.TicketMelee", "Condition.TicketMeleeApproach", "Condition.TargetHasMeleeWeapon"
+						];
+					} : AIActionOR, 
+					"Condition.NotCalculatePathToTarget", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.HasPrimaryEquipmentMeleeInInventory"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+RangedHybridPrimaryWeaponMeleeEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.TargetBelow4m", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.TargetHasMeleeWeapon"
+		];
+	} : AIActionAND;
+}
+
+RangedHybridPrimaryWeaponMeleeUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.TargetAbove5m", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone", "Condition.NotTargetHasMeleeWeapon"
+		];
+	} : AIActionOR;
+}
+
+RangedHybridPrimaryWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4", {
+				OR = 
+				[
+					"Condition.NotCombatTarget", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone", "Condition.NotTargetHasMeleeWeapon", {
+						AND = 
+						[
+							"Condition.TargetAbove3m", "Condition.TargetHasMeleeWeapon"
+						];
+					} : AIActionAND
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+RangedHybridPrimaryWeaponRangedUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4", {
+				AND = 
+				[
+					"Condition.TargetBelow4m", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.TargetHasMeleeWeapon", "Condition.PreviousAttackNameQuickMelee2secTimeWindow"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+MaxHybridPrimaryWeaponMeleeEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.TicketMelee"
+		];
+	} : AIActionOR;
+}
+
+MaxHybridPrimaryWeaponMeleeUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotTicketMelee"
+		];
+	} : AIActionOR;
+}
+
+MaxHybridPrimaryWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4", "Condition.NotTicketMelee"
+		];
+	} : AIActionAND;
+}
+
+MaxHybridPrimaryWeaponRangedUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4", "Condition.TicketMelee"
+		];
+	} : AIActionOR;
+}
+
+SniperPrimaryWeaponMeleeEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.TargetBelow4m"
+		];
+	} : AIActionOR;
+}
+
+SniperPrimaryWeaponMeleeUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.TargetAbove4m"
+		];
+	} : AIActionOR;
+}
+
+SniperPrimaryWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotValidCovers"
+		];
+	} : AIActionAND;
+}
+
+SniperPrimaryWeaponRangedUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.ValidCovers", {
+				checkRings = 
+				[
+					"AIRingType.Extreme"
+				];
+				toleranceOffset = -5.f;
+			} : AIOptimalDistanceCond
+		];
+	} : AIActionOR;
+}
+
+SniperPrimaryWeaponSniperEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotCombatTarget", "Condition.ValidCovers", {
+				AND = 
+				[
+					"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4", "Condition.TargetAbove7m"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+SniperPrimaryWeaponSniperUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4", {
+				AND = 
+				[
+					"Condition.NotValidCovers", "Condition.TargetBelow8m"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+AutoReloaderPrimaryWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4"
+		];
+	} : AIActionAND;
+}
+
+AutoReloaderPrimaryLeftHandWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotStatusEffectWeaponMalfunctionLvl3", "Condition.NotStatusEffectWeaponMalfunctionLvl4", {
+				OR = 
+				[
+					{
+						slot = "AttachmentSlots.WeaponRight";
+						itemType = "ItemType.Wea_Handgun";
+					} : AISlotCond, 
+					{
+						slot = "AttachmentSlots.WeaponRight";
+						itemType = "ItemType.Wea_Revolver";
+					} : AISlotCond
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+AutoReloaderPrimaryWeaponRangedUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4", "Condition.AmmoCount0"
+		];
+	} : AIActionOR;
+}
+
+HybriHMGMeleePrimaryWeaponRangedEquipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.NotCombatTarget", {
+				AND = 
+				[
+					"Condition.TargetBelow12m", "Condition.NotAIMoveCommand", "Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToTarget", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotTargetInVehicle"
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+
+HybridHMGMeleePrimaryWeaponRangedUnequipCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"Condition.LadderOffMeshLink", "Condition.TargetAbove12m", "Condition.AIMoveCommand", {
+				AND = 
+				[
+					"Condition.CombatTarget", {
+						OR = 
+						[
+							"Condition.NotCalculatePathToTarget", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone", "Condition.TargetInVehicle"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND
+		];
+	} : AIActionOR;
+}
+

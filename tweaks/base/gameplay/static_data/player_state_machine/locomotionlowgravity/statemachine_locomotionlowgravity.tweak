@@ -1,0 +1,275 @@
+package playerStateMachineLocomotionLowGravity
+using playerStateMachineBaseLocomotionLowGravity, playerStateMachineBaseLocomotion
+
+standLowGravity : locomotionGroundLowGravity
+{
+	string[] transitionTo = 
+	[
+		"preCrouchLowGravity", "jumpLowGravity", "fallLowGravity", "sprintWindupLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", ""
+	];
+	string[] enterConstraintsStates = 
+	[
+		"HighLevel.sceneTierIV", "HighLevel.sceneTierV"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false, false
+	];
+	bool hasOnEnter = true;
+}
+
+crouchLowGravity : locomotionGroundLowGravity
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string animationStateName = "donotuse";
+	string[] transitionTo = 
+	[
+		"dodgeLowGravity", "preCrouchLowGravity", "fallLowGravity", "jumpLowGravity", "sprintWindupLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", "", ""
+	];
+	float capsuleHeight = 0.9f;
+}
+
+preCrouchLowGravity : locomotionGroundLowGravity
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"crouchLowGravity", "standLowGravity", "dodgeLowGravity", "dodgeCrouchLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", "=", "="
+	];
+	float timeToEnterCrouch = 0.2f;
+}
+
+dodgeLowGravity : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"fallLowGravity", "standLowGravity", "jumpLowGravity", "sprintLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", ""
+	];
+	float maxDuration = 0.7f;
+	float timeFrameToExtendKerenzikov = 0.11f;
+	bool speedBoostInputRequired = true;
+	bool speedBoostMultiplyByDot = false;
+	float downwardsGravity = -1.6f;
+}
+
+dodgeCrouchLowGravity : dodgeLowGravity
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"fallLowGravity", "crouchLowGravity", "jumpLowGravity", "sprintLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "", ""
+	];
+	float maxDuration = 0.7f;
+	float timeFrameToExtendKerenzikov = 0.11f;
+	bool speedBoostInputRequired = true;
+	bool speedBoostMultiplyByDot = false;
+	float capsuleHeight = 0.9f;
+	float downwardsGravity = -1.6f;
+}
+
+sprintLowGravity : locomotionGroundLowGravity
+{
+	string[] transitionTo = 
+	[
+		"standLowGravity", "fallLowGravity", "jumpLowGravity", "slideLowGravity", "sprintJumpLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "", "", "="
+	];
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string animationStateName = "sprintLowGravity";
+	string[] enterConstraintsStates = 
+	[
+		"UpperBody.aimingState"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false
+	];
+	bool pushAnimEventOnEnter = false;
+	float enterAngleThreshold = 120.f;
+	float timeBetweenJumps = 0.2f;
+}
+
+sprintWindupLowGravity : sprintLowGravity
+{
+	string[] transitionTo = 
+	[
+		"standLowGravity", "fallLowGravity", "jumpLowGravity", "sprintLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "", "="
+	];
+	float speedToEnterSprint = 0.4f;
+}
+
+sprintJumpLowGravity : locomotionAirLowGravity
+{
+	string[] transitionTo = 
+	[
+		"sprintLowGravity", "jumpLowGravity", "fallLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", ""
+	];
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string animationStateName = "sprintJumpLowGravity";
+	string[] enterConstraintsStates = 
+	[
+		"UpperBody.aimingState"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false
+	];
+	bool pushAnimEventOnEnter = true;
+	float enterAngleThreshold = 120.f;
+}
+
+regularLandLowGravity : standLowGravity
+{
+	string animationStateName = "softland";
+	string[] transitionTo = 
+	[
+		"standLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	bool hasOnEnter = true;
+}
+
+slideLowGravity : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"crouchLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"="
+	];
+	float capsuleHeight = 0.9f;
+	float minSpeedToExit = 2.5f;
+	float minSpeedToEnter = 4.0f;
+	bool pushAnimEventOnEnter = true;
+}
+
+jumpLowGravity : locomotionAirLowGravity
+{
+	string[] transitionTo = 
+	[
+		"regularLandLowGravity", "fallLowGravity", "dodgeAirLowGravity", "climbLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", "", ""
+	];
+	hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+}
+
+fallLowGravity : locomotionAirLowGravity
+{
+	hasEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"regularLandLowGravity", "dodgeAirLowGravity", "climbLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", ""
+	];
+	float upwardsGravity = -8.0;
+}
+
+dodgeAirLowGravity : locomotionAirLowGravity
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	string[] transitionTo = 
+	[
+		"regularLandLowGravity", "fallLowGravity", "climbLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", ""
+	];
+	bool disable = false;
+	float maxDuration = 0.4f;
+	float timeFrameToExtendKerenzikov = 0.11f;
+	bool speedBoostInputRequired = true;
+	bool speedBoostMultiplyByDot = false;
+	float downwardsGravity = -1.6f;
+	int numberOfAirDodges = 1;
+}
+
+climbLowGravity : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	string stateBodyClassName = "Climb";
+	string[] transitionTo = 
+	[
+		"standLowGravity", "crouchLowGravity"
+	];
+	string[] transitionCondition = 
+	[
+		"", ""
+	];
+	float grabDuration = 0.1;
+	float verticalDuration = 0.5;
+	float horizontalDuration = 0.3;
+	float minHeight = 0.4;
+	float maxHeight = 2;
+	float detectionRange = 1;
+	float forwardStep = 0.5;
+	float minExtent = 0.1;
+	float enterAngleThreshold = 45.f;
+	float capsuleHeight = 0.9f;
+	bool allowClimbOnlyWhenMovingDown = false;
+}
+

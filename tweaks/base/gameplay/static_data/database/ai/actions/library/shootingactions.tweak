@@ -1,0 +1,2195 @@
+package ShootActions
+using RTDB, AIActionTarget
+
+ShootCompositeDecorator : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector"
+	];
+	repeat = 0;
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CommandShootCompositeDecorator : ShootCompositeDecorator
+{
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand"
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+ShootComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CommandShootComposite : ShootComposite
+{
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand"
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+CommandForceShootComposite : ShootComposite
+{
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand"
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+SandevistanDashShootComposite : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"MeleeActions.QuickMelee", "ShootActions.SandevistanShootSelector", "GenericArchetype.SandevistanDashReloadSelector", "GenericArchetype.ImmediateSuccess"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.4f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.GracefulCombatInterruptionCompound"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+ShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow180deg", "Condition.ShootSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ShootActions.WoundedShoot", "GenericArchetype.WoundedShootLeg", "GenericArchetype.ChargedShoot", "GenericArchetype.CrouchPreciseShoot", "GenericArchetype.Shoot"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SandevistanShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanPreciseShoot", "Condition.TargetBelow120deg", "Condition.NotTicketTakeCover", "Condition.ShootSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"GenericArchetype.CommandForceSandevistanDashShotgunShoot", "GenericArchetype.CommandForceSandevistanDashSemiAutoShoot", "GenericArchetype.CommandForceSandevistanDashShootDefault", "GenericArchetype.SandevistanDashShotgunShoot", "GenericArchetype.SandevistanDashSemiAutoShoot", "GenericArchetype.SandevistanDashShootDefault"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+CommandForceShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.ShootSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ShootActions.CommandForceWoundedShoot", "GenericArchetype.CommandForceWoundedShootLeg", "GenericArchetype.CommandForceChargedShoot", "GenericArchetype.CommandForceCrouchPreciseShoot", "GenericArchetype.CommandForceShoot"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+HasSandevistanCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan"
+			];
+		} : AIActionAND;
+	};
+}
+
+SandevistanDashShootCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.SprintHarassCooldown", "Condition.OptimalDistance4mTolerance"
+					];
+				} : AIActionOR, 
+				"Condition.AbilityCanPreciseShoot", "Condition.AbilityHasSandevistan", "Condition.StatusEffectSandevistanBuff", "Condition.AbilitySandevistanDashShoot", "Condition.MinAccuracyValue0dot66", "Condition.NotMoveCommands", "Condition.NotIsInWorkspot", "Condition.HasRangedWeapon", "Condition.CombatTarget", "Condition.NotInCover", "Condition.NotIsEnteringCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotSprint", "Condition.HasRangedWeapon", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+}
+
+NoSandevistanHarassCondition : AIAction
+{
+	activationCondition = "MovementActions.SuccessWhileNoSandevistanHarassCondition";
+}
+
+CrouchCooldown : AIActionCooldown
+{
+	name = "Crouch";
+	duration = 10.f;
+}
+
+PreciseShootCooldown : AIActionCooldown
+{
+	name = "PreciseShoot";
+	duration = 0.2f;
+}
+
+CrouchShootCooldown : AIActionCooldown
+{
+	name = "CrouchShoot";
+	duration = 5.f;
+}
+
+SimpleSubActionShootWithWeapon : ShootActions.DefaultSubActionShootWithWeapon
+{
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+SubActionShootWithWeaponFromHead : ShootActions.DefaultSubActionShootWithWeapon
+{
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistance"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+SubActionShootWithWeaponFromHip : ShootActions.DefaultSubActionShootWithWeapon
+{
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistanceFromHip"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+DefaultSubActionShootWithWeapon : AISubActionShootWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	target = "AIActionTarget.CombatTarget";
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistanceFromChest"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CrowdSubActionShootWithWeapon : AISubActionShootWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	target = "AIActionTarget.CombatTarget";
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.CrowdShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistanceFromChest"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+SniperShootSubActionShootWithWeapon : AISubActionShootWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	target = "AIActionTarget.CombatTarget";
+	aimingDelay = 0.05f;
+	targetOffset = ( 0.0f, 0.0f, 1.0f );
+	delay = 1.f;
+	numberOfShots = 1;
+	tbhCoefficient = 0.f;
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+ChargedShootSubActionShootWithWeapon : ShootActions.SniperShootSubActionShootWithWeapon
+{
+	delay = 0.f;
+	triggerMode = "TriggerMode.Charge";
+}
+
+InaccurateSniperShootSubActionShootWithWeapon : ShootActions.SniperShootSubActionShootWithWeapon
+{
+	aimingDelay = 0.15f;
+}
+
+InaccurateChargedShootSubActionShootWithWeapon : ShootActions.InaccurateSniperShootSubActionShootWithWeapon
+{
+	delay = 0.f;
+	triggerMode = "TriggerMode.Charge";
+}
+
+ChargedShootSubActionAttackWithWeapon : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight"
+	];
+	attackDuration = 4.f;
+	attack = "Attacks.TechLaserSight";
+	attackRange = 10.f;
+	attackName = "Swiped";
+}
+
+ShootDefault : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetOrAimCommandCondition", "Condition.ShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		"ShootActions.DefaultSubActionShootWithWeapon"
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+CommandForceShootDefault : ShootDefault
+{
+	commands = 
+	[
+		"AIForceShootCommand"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+}
+
+PlayShotgunnerChargeVO : AISubActionPlayVoiceOver
+{
+	name = "shotgunner_charge";
+	cooldown = 
+	{
+		duration = 1.f;
+		name = "shotgunner_charge";
+	};
+	condition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityIsShotgunnerArchetype"
+			];
+		} : AIActionAND;
+	};
+	repeat = true;
+}
+
+PlayHMGChargeVO : AISubActionPlayVoiceOver
+{
+	name = "hmg_charge";
+	cooldown = 
+	{
+		duration = 1.f;
+		name = "hmg_charge";
+	};
+	condition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityIsHeavyRangedArchetype"
+			];
+		} : AIActionAND;
+	};
+	repeat = true;
+}
+
+CrowdSimpleShoot : ShootActions.SimpleShoot
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		"ShootActions.CrowdSubActionShootWithWeapon"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Handgun_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Gang_Handgun.HandgunBothArmsLookatCondition";
+		}, 
+		{
+			preset = "LookatPreset.Gang_Handgun_Right_Arm_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Gang_Handgun.HandgunRightArmLookatCondition";
+		}, 
+		{
+			preset = "LookatPreset.Gang_Handgun_Left_Arm_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Gang_Handgun.HandgunLeftArmLookatCondition";
+		}
+	];
+}
+
+SimpleShoot : ShootActions.Shoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetInvalidExpectation", "Condition.MinAccuracyValue0", "Condition.TargetBelow270deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetInvalidExpectation", "Condition.AmmoCount0", "Condition.RightArmLookAtOff", "Condition.CombatTargetChanged", "Condition.TargetAbove270deg", "Condition.IsUsingOffMeshLink"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	subActions += 
+	[
+		"ShootActions.PlayShotgunnerChargeVO", "ShootActions.PlayHMGChargeVO"
+	];
+}
+
+CommandForceSimpleShoot : ShootActions.SimpleShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.ShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0", "Condition.RightArmLookAtOff", "Condition.CombatTargetChanged", "Condition.TargetAbove270deg", "Condition.IsUsingOffMeshLink", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+}
+
+Shoot : ShootActions.ShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetOrAimCommandCondition", "Condition.ShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.AmmoCount0", "Condition.ShootDeactivationCondition", "Condition.ShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	subActions += 
+	[
+		"ShootActions.PlayShotgunnerChargeVO", "ShootActions.PlayHMGChargeVO"
+	];
+}
+
+CommandForceShoot : ShootActions.Shoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0", "Condition.ShootDeactivationCondition", "Condition.ShootInterruptionCondition", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+}
+
+ChargedShoot : ShootActions.Shoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.ShootActivationCondition", "Condition.ChargedShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		repeat = 0;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.MinAccuracyValue0dot95", "Condition.AmmoCount0", "Condition.ShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			tbhCoefficient = 0.2f;
+		} : ShootActions.ChargedShootSubActionShootWithWeapon
+	];
+	subActions += 
+	[
+		"ShootActions.PlayShotgunnerChargeVO"
+	];
+}
+
+CommandForceChargedShoot : ShootActions.ChargedShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ShootActivationCondition", "Condition.ChargedShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		repeat = 0;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.MinAccuracyValue0dot95", "Condition.AmmoCount0", "Condition.ShootInterruptionCondition", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SimpleWoundedShoot : ShootActions.WoundedShoot
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.AmmoCount0", "Condition.RightArmLookAtOff", "Condition.CombatTargetChanged", "Condition.TargetAbove270deg", "Condition.IsUsingOffMeshLink"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceSimpleWoundedShoot : ShootActions.SimpleWoundedShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.ShootActivationCondition", "Condition.WoundedShootCooldown", "Condition.WoundedArms"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0", "Condition.RightArmLookAtOff", "Condition.CombatTargetChanged", "Condition.TargetAbove270deg", "Condition.IsUsingOffMeshLink", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+}
+
+WoundedShoot : ShootActions.ShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetOrAimCommandCondition", "Condition.ShootActivationCondition", "Condition.WoundedShootCooldown", "Condition.WoundedArms"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.AmmoCount0", "Condition.ShootDeactivationCondition", "Condition.ShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Corpo_Handgun.HandgunBothArmsLookatCondition";
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Right_Arm_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Corpo_Handgun.HandgunRightArmLookatCondition";
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Left_Arm_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Corpo_Handgun.HandgunLeftArmLookatCondition";
+		}
+	];
+}
+
+CommandForceWoundedShoot : ShootActions.WoundedShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ShootActivationCondition", "Condition.WoundedShootCooldown", "Condition.WoundedArms"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0", "Condition.ShootDeactivationCondition", "Condition.ShootInterruptionCondition", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Corpo_Handgun.HandgunBothArmsLookatCondition";
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Right_Arm_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Corpo_Handgun.HandgunRightArmLookatCondition";
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Left_Arm_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			activationCondition = "Corpo_Handgun.HandgunLeftArmLookatCondition";
+		}
+	];
+}
+
+SimpleWoundedShootLeg : ShootActions.WoundedShootLeg
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.AmmoCount0", "Condition.RightArmLookAtOff", "Condition.CombatTargetChanged", "Condition.TargetAbove270deg", "Condition.IsUsingOffMeshLink"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceSimpleWoundedShootLeg : ShootActions.CommandForceWoundedShootLeg
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0", "Condition.RightArmLookAtOff", "Condition.CombatTargetChanged", "Condition.TargetAbove270deg", "Condition.IsUsingOffMeshLink", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+WoundedShootLeg : ShootActions.Shoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.WoundedLegs", "Condition.IsNPCUnderLocomotionMalfunctionQuickhack"
+					];
+				} : AIActionOR, 
+				"Condition.AbilityCanShootWhileMoving", "Condition.ValidTargetOrAimCommandCondition", "Condition.TargetBelow270deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.AmmoCount0", "Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceWoundedShootLeg : ShootActions.WoundedShootLeg
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.WoundedLegs", "Condition.IsNPCUnderLocomotionMalfunctionQuickhack"
+					];
+				} : AIActionOR, 
+				"Condition.AbilityCanShootWhileMoving", "Condition.AIForceShootCommand", "Condition.TargetBelow270deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0", "Condition.ShootDeactivationCondition", "Condition.NotAIForceShootCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+}
+
+AimlessSubActionShootWithWeapon : ShootActions.DefaultSubActionShootWithWeapon
+{
+	pauseCondition = [];
+	target = "";
+	delay = 0.2f;
+}
+
+AimlessSubActionShootWithWeaponNoDelay : AimlessSubActionShootWithWeapon
+{
+	delay = 0.0f;
+}
+
+AimlessSubActionShootWithWeaponTwice : AimlessSubActionShootWithWeapon
+{
+	numberOfShots = 0;
+	maxNumberOfShots = 2;
+}
+
+AimlessSubActionShootWithWeaponOnce : AimlessSubActionShootWithWeapon
+{
+	numberOfShots = 0;
+	maxNumberOfShots = 1;
+}
+
+AimlessShootLoop : AIActionPhase
+{
+	useDurationFromAnimSlot = false;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AmmoCount0"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+AimlessShoot : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	loop = 
+	{
+	} : AimlessShootLoop;
+	subActionsCanCompleteAction = true;
+}
+
+AimlessFullAutoShootBase : AimlessShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasFullAutoWeapon"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.AimlessSubActionShootWithWeaponNoDelay"
+	];
+}
+
+AimlessLongFullAutoShoot : AimlessFullAutoShootBase
+{
+	loop = 
+	{
+		duration = -0.5f;
+		maxDuration = 1.0f;
+	} : AimlessShootLoop;
+}
+
+AimlessNormalFullAutoShoot : AimlessFullAutoShootBase
+{
+	loop = 
+	{
+		duration = -0.15f;
+		maxDuration = 0.5f;
+	} : AimlessShootLoop;
+}
+
+AimlessShortFullAutoShoot : AimlessFullAutoShootBase
+{
+	loop = 
+	{
+		duration = 0.f;
+		maxDuration = 0.4f;
+	} : AimlessShootLoop;
+}
+
+AimlessSemiAutoShootBase : AimlessShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasSemiAutoWeapon", "Condition.NotBurstWeapon", "Condition.NotHasShotgun"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimlessLongSemiAutoShoot : AimlessSemiAutoShootBase
+{
+	loopSubActions = 
+	[
+		"ShootActions.AimlessSubActionShootWithWeaponTwice"
+	];
+}
+
+AimlessShortSemiAutoShoot : AimlessSemiAutoShootBase
+{
+	loopSubActions = 
+	[
+		"ShootActions.AimlessSubActionShootWithWeaponOnce"
+	];
+}
+
+AimlessBurstOrShotgunShoot : AimlessShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.HasBurstWeapon", "Condition.HasShotgun"
+			];
+		} : AIActionOR;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.AimlessSubActionShootWithWeaponOnce"
+	];
+}
+
+AimlessShootSelectorBase : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsInWorkspot", "Condition.HasRangedWeapon", "Condition.AmmoCountMin1", "Condition.AbilityCanShootWhileMoving", "Condition.ShootingSignal"
+			];
+		} : AIActionAND;
+	};
+	defaultAction = "GenericArchetype.Success";
+}
+
+AimlessLongShootSelector : AimlessShootSelectorBase
+{
+	actions = 
+	[
+		"ShootActions.AimlessLongFullAutoShoot", "ShootActions.AimlessLongSemiAutoShoot", "ShootActions.AimlessBurstOrShotgunShoot"
+	];
+}
+
+AimlessNormalShootSelector : AimlessShootSelectorBase
+{
+	actions = 
+	[
+		"ShootActions.AimlessNormalFullAutoShoot", "ShootActions.AimlessShortSemiAutoShoot", "ShootActions.AimlessBurstOrShotgunShoot"
+	];
+}
+
+AimlessShortShootSelector : AimlessShootSelectorBase
+{
+	actions = 
+	[
+		"ShootActions.AimlessShortFullAutoShoot", "ShootActions.AimlessShortSemiAutoShoot"
+	];
+}
+
+AimlessLongShootComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ShootActions.AimlessLongShootSelector"
+	];
+}
+
+AimlessNormalShootComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ShootActions.AimlessNormalShootSelector"
+	];
+}
+
+AimlessShortShootComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ShootActions.AimlessShortShootSelector"
+	];
+}
+
+CrouchPreciseShoot : ShootDefault
+{
+	tickets = 
+	[
+		"AITicketType.Crouch", "AITicketType.Shoot"
+	];
+	cooldowns = 
+	[
+		"ShootActions.PreciseShootCooldown", "ShootActions.CrouchCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionOrAimCommandCondition", "Condition.NotHasMachineGun", "Condition.NotHasShotgun", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotAbilityHasSandevistan", "Condition.TargetAbove12m", "Condition.InitialCrouchShootCooldown", "Condition.PreciseShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			stanceState = "Crouch";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition", "Condition.PreciseShootDeactivationCondition", "Condition.ShootingInterruptedByCoverConditions", "Condition.IsMoving", {
+							AND = 
+							[
+								"Condition.NotOptimalDistance5mTolerance", "Condition.NotAIHoldPositionCommand", "Condition.DestinationCalculated", "Condition.DestinationChanged"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SimpleSubActionShootWithWeapon"
+	];
+	animData = 
+	{
+		animFeature = "CrouchShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CommandForceCrouchPreciseShoot : CrouchPreciseShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMachineGun", "Condition.NotHasShotgun", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotAbilityHasSandevistan", "Condition.TargetAbove12m", "Condition.InitialCrouchShootCooldown", "Condition.PreciseShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			stanceState = "Crouch";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PreciseShootDeactivationCondition", "Condition.NotAIForceShootCommand", "Condition.ShootingInterruptedByCoverConditions", "Condition.IsMoving", {
+							AND = 
+							[
+								"Condition.NotOptimalDistance5mTolerance", "Condition.NotAIHoldPositionCommand", "Condition.DestinationCalculated", "Condition.DestinationChanged"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SniperShootWhileMoving : ShootActions.SniperShoot
+{
+	cooldowns = [];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.TargetBelow120deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", {
+							AND = 
+							[
+								"Condition.SniperShootActivationCondition", {
+									OR = 
+									[
+										"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+									];
+								} : AIActionOR
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.InaccurateSniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+SniperShoot : AIAction
+{
+	cooldowns = 
+	[
+		"ShootActions.PreciseShootCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.NotStrafeConditions", "Condition.SniperShootActivationCondition", {
+					OR = 
+					[
+						"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+	subActions += 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+CommandForceSniperShoot : SniperShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStrafeConditions", "Condition.SniperShootActivationCondition", {
+					OR = 
+					[
+						"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAIForceShootCommand", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SniperShootTechWhileMoving : ShootActions.SniperShootWhileMoving
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.HasChargeWeapon", "Condition.TargetBelow120deg"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.InaccurateChargedShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+SniperShootTech : ShootActions.SniperShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.HasChargeWeapon", "Condition.NotStrafeConditions", "Condition.SniperShootActivationCondition", {
+					OR = 
+					[
+						"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+CommandForceSniperShootTech : ShootActions.SniperShootTech
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChargeWeapon", "Condition.NotStrafeConditions", "Condition.SniperShootActivationCondition", {
+					OR = 
+					[
+						"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAIForceShootCommand", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CrouchSniperShoot : ShootActions.SniperShoot
+{
+	tickets = 
+	[
+		"AITicketType.Crouch", "AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionOrAimCommandCondition", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetAbove12m", "Condition.NotHitTimeout7", "Condition.SniperShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "CrouchShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+}
+
+CommandForceCrouchSniperShoot : ShootActions.CrouchSniperShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetAbove12m", "Condition.NotHitTimeout7", "Condition.SniperShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAIForceShootCommand", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CrouchSniperShootTech : ShootActions.CrouchSniperShoot
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionOrAimCommandCondition", "Condition.HasChargeWeapon", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetAbove12m", "Condition.NotHitTimeout7", "Condition.SniperShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+CommandForceCrouchSniperShootTech : ShootActions.CrouchSniperShootTech
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChargeWeapon", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetAbove12m", "Condition.NotHitTimeout7", "Condition.SniperShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotAIForceShootCommand", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SandevistanDashShootDefault : ShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.PreciseShootDeactivationCondition", "Condition.IsMoving"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			numberOfShots = 15;
+		} : ShootActions.SimpleSubActionShootWithWeapon
+	];
+	subActionsCanCompleteAction = true;
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CommandForceSandevistanDashShootDefault : SandevistanDashShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PreciseShootDeactivationCondition", "Condition.IsMoving"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SandevistanDashSemiAutoShoot : ShootActions.SandevistanDashShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasSemiAutoWeapon", "Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			numberOfShots = 4;
+		} : ShootActions.DefaultSubActionShootWithWeapon
+	];
+}
+
+CommandForceSandevistanDashSemiAutoShoot : ShootActions.CommandForceSandevistanDashShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.HasSemiAutoWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+SandevistanDashShotgunShoot : ShootActions.SandevistanDashShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasShotgun", "Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			numberOfShots = 2;
+		} : ShootActions.DefaultSubActionShootWithWeapon
+	];
+}
+
+CommandForceSandevistanDashShotgunShoot : ShootActions.CommandForceSandevistanDashShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.HasShotgun"
+			];
+		} : AIActionAND;
+	};
+}
+

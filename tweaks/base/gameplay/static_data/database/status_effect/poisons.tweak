@@ -1,0 +1,955 @@
+package BaseStatusEffect
+using RTDB, Perks, Effectors, Prereqs
+
+Poisoned : DoTStatusEffect
+{
+	gameplayTags += 
+	[
+		"Quickhack"
+	];
+	statusEffectType = "BaseStatusEffectTypes.Poisoned";
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_drugged_low";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusPoisoned";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.PoisonImmunity"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.PoisonedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.Armor";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.CanPoisonLowerArmor";
+								refObject = "Instigator";
+								opSymbol = "*";
+								value = -0.25f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.HasDoubleJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDodge";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDodgeAir";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanPoisonSlow";
+								modifierType = "Additive";
+								refObject = "Player";
+								refStat = "BaseStats.CanPoisonSlow";
+								opSymbol = "*";
+								value = 1f;
+							} : CombinedStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "CanPoisonSlow";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : MultiPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CanSprint";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : MultiPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 2;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				statType = "HasPoisonHeal";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human"
+				];
+			} : NPCTypePrereq, 
+			{
+				statType = "IsMechanical";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		fk< StatModifier >[] behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+		shouldDelayStatusEffectApplication = true;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40945";
+		description = "LocKey#77830";
+		string iconPath = "poisoned";
+		priority = -7.0f;
+	};
+}
+
+PlayerPoisoned : Poisoned
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refStat = "BaseStats.DurationReductionDot";
+				refObject = "Player";
+				opSymbol = "*";
+				value = -0.01f;
+			} : CombinedStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.PoisonedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.Armor";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.CanPoisonLowerArmor";
+								refObject = "Instigator";
+								opSymbol = "*";
+								value = -0.25f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.HasDoubleJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDodge";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDodgeAir";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanPoisonSlow";
+								modifierType = "Additive";
+								refObject = "Instigator";
+								refStat = "BaseStats.CanPoisonSlow";
+								opSymbol = "*";
+								value = 1f;
+							} : CombinedStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.NPCChemicalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "CanPoisonSlow";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : MultiPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MaxSpeed";
+								modifierType = "Multiplier";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : MultiPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 2;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LightPoision : Poisoned
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusPoisoned";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.PoisonedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPoisonSlow";
+					modifierType = "Additive";
+					refObject = "Player";
+					refStat = "BaseStats.CanPoisonSlow";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.LowChemicalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 1;
+						statType = "CanPoisonSlow";
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CanSprint";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HeavyPoision : Poisoned
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusPoisoned";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.PoisonedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPoisonSlow";
+					modifierType = "Additive";
+					refObject = "Player";
+					refStat = "BaseStats.CanPoisonSlow";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.HighChemicalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 1;
+						statType = "CanPoisonSlow";
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CanSprint";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+KnifePoison : Poisoned
+{
+}
+
+KnifeNeurotoxin : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 20;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = -5;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ConsumablePoison : Poisoned
+{
+	gameplayTags += 
+	[
+		"Debuff"
+	];
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	immunityStats = [];
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.DruggedSFX"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Drunk : ConsumablePoison
+{
+	duration = "Items.AlcoholConsumableDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 4;
+			} : ConstantStatModifier
+		];
+	};
+	VFX = [];
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwayTraversalTime";
+								modifierType = "Multiplier";
+								value = 0.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwayStartDelay";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwayStartBlendTime";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAllowSway";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Multiplier";
+								value = 0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Multiplier";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector, 
+				"BaseStatusEffect.DrunkSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Additive";
+								value = 1.0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Additive";
+								value = 1.0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ReloadTime";
+								modifierType = "Multiplier";
+								value = 1.1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.AimInTime";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.AimOutTime";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAngle";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilDriftRandomRangeMin";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilDriftRandomRangeMax";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilRecoveryTime";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxX";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxY";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxX";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxY";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadChangePerShot";
+								modifierType = "Multiplier";
+								value = 1.3f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsChangePerShot";
+								modifierType = "Multiplier";
+								value = 1.3f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#76943";
+		description = "LocKey#77752";
+		string iconPath = "drunk";
+		priority = -8.0f;
+		intValues = 
+		[
+			10, 50
+		];
+	};
+	isAffectedByTimeDilationPlayer = true;
+}
+
+Drugged : ConsumablePoison
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 180;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	VFX = [];
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.DruggedSFX"
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#76944";
+		string iconPath = "drugged_icon";
+	};
+}
+
+DruggedSevere : ConsumablePoison
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	VFX = 
+	[
+		{
+			name = "status_drugged_heavy";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.DruggedSevereSFX"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+PoisonedSFX : Effector
+{
+	prereqRecord = 
+	{
+		prereqClassName = "IsPlayerPrereq";
+	} : IPrereq;
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_poisoned_start";
+	CName deactivationSFXName = "vfx_fullscreen_poisoned_stop";
+	bool unique = true;
+}
+
+DruggedSFX : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_drugged_start";
+	CName deactivationSFXName = "vfx_fullscreen_drugged_stop";
+	bool unique = true;
+}
+
+DruggedSevereSFX : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_drugged_start";
+	CName deactivationSFXName = "vfx_fullscreen_drugged_stop";
+	bool unique = true;
+}
+
+DrunkSFX : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_drunk_start";
+	CName deactivationSFXName = "vfx_fullscreen_drunk_stop";
+	bool unique = true;
+}
+

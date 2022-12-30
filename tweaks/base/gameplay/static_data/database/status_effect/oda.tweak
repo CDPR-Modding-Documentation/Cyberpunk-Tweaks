@@ -1,0 +1,518 @@
+package Oda
+using RTDB, BaseStatusEffect, BaseStats, Effectors, NetrunnerActions, QuickHack, Prereqs
+
+OdaStatus : StatusEffect
+{
+	gameplayTags += 
+	[
+		"Oda"
+	];
+}
+
+StealthMode : StatusEffect
+{
+	gameplayTags += 
+	[
+		"OdaStealthWrappers"
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+NoSandevistanMode : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+OdaLeapBlocker : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+OdaMantisPhase : StatusEffect
+{
+	gameplayTags += 
+	[
+		"OdaPhase", "OdaPhaseMantis"
+	];
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+OdaSMGPhase : StatusEffect
+{
+	bool canReapply = false;
+	gameplayTags += 
+	[
+		"OdaPhase", "OdaPhaseSMG"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+OdaRoamingPhase : StatusEffect
+{
+	bool canReapply = false;
+	gameplayTags += 
+	[
+		"OdaPhase", "OdaPhaseRoaming"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Invulnerable : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Revealed : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"OdaStatusEffect"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+Emergency : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+OdaNoDodge : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+Hurt : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ForceStaggerOda : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"OdaStatusEffect"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"HitReactionThresholdModifiers.ForceStaggerEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BlockStaggerOda : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"OdaStatusEffect"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"HitReactionThresholdModifiers.ForceUnstoppableEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Masked : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"OdaStatusEffect"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.SmartTargetingDisruptionProbability";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+DeactivateMaskedStatusEffects : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "RemoveStatusEffectsEffector";
+	string[] statusEffects = 
+	[
+		"Oda.Masked", "Oda.Phase1"
+	];
+}
+
+Stunned : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = [];
+		} : GameplayLogicPackage
+	];
+}
+
+Cemented : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"OdaStatusEffect"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "enter_concrete";
+		}
+	];
+}
+
+Healing : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"Heal"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 20;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"Oda.HealEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+MaskExplosionEffector : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ChangeAppearanceEffector";
+	bool resetAppearance = false;
+	CName appearanceName = "oda_oda_mask_damage";
+}
+
+HealEffector : ModifyStatPoolModifierEffector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ModifyStatPoolModifierEffector";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 100;
+		float startDelay = 0;
+		float valuePerSec = 1;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+	string statPoolType = "Health";
+	string modificationType = "Regeneration";
+}
+
+SmokeBombExplosionEffector : ApplyStatusEffectEffector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	fk< StatusEffect > statusEffect = "BaseStatusEffect.SmokeBomb";
+}
+
+OdaHackCyberware : HackAction
+{
+	cooldowns = 
+	[
+		"Oda.OdaHackingCooldown"
+	];
+}
+
+OdaHackLocomotion : HackLocomotion
+{
+	cooldowns = 
+	[
+		"Oda.OdaHackingCooldown"
+	];
+}
+
+OdaHackOverheat : HackOverheat
+{
+	cooldowns = 
+	[
+		"Oda.OdaHackingCooldown"
+	];
+}
+
+OdaOverload : BaseQuickHackStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"Debuff"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.BaseEMPDamage";
+				} : Effectors.TriggerAttackOnOwnerEffect
+			];
+		} : GameplayLogicPackage
+	];
+	fk< Effector >[] effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.AlwaysTruePrereq";
+			effectorClassName = "RemoveStatusEffectsEffector";
+			string[] statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda", "BaseStatusEffect.Cloaked"
+			];
+		} : Effector
+	];
+	uiData = 
+	{
+		string displayName = "Suicide With Grenade";
+		string iconPath = "jamweapon_icon";
+		float priority = 1.0f;
+	};
+}
+
+OdaHackDeath : HackDeath
+{
+	cooldowns = 
+	[
+		"Oda.OdaHackingCooldown"
+	];
+}
+
+OdaHackWeapon : HackWeaponMalfunction
+{
+	cooldowns = 
+	[
+		"Oda.OdaHackingCooldown"
+	];
+}
+
+OdaHackingCooldown : HackAppliedCooldown
+{
+	name = "HackApplied";
+	duration = 15.f;
+}
+
+OverheatWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "Oda.OverHeatVFX";
+			} : StatusEffectAbsentPrereq, 
+			"BaseStatusEffect.OverheatAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "Oda.OverHeatVFX";
+	removeWithEffector = false;
+}
+
+OverHeatVFX : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"OdaStatusEffect"
+	];
+	VFX = 
+	[
+		{
+			name = "mask_explode";
+		}
+	];
+}
+
+OverloadWeakspot : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Jam";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"Debuff", "JamWeapon"
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "DestroyWeakspotEffector";
+					int weakSpotIndex = -1;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OverloadWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "Oda.Masked";
+			} : StatusEffectPrereq, 
+			"BaseStatusEffect.OverloadAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "Oda.OverloadWeakspot";
+	removeWithEffector = false;
+}
+
+Phase1 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Phase2 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+

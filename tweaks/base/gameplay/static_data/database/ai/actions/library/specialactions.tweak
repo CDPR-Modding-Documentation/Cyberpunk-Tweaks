@@ -1,0 +1,1257 @@
+package SpecialActions
+using RTDB
+
+HealStatusEffectsSequence : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"SpecialActions.HealStatusEffects"
+	];
+}
+
+ForceUnequip : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	loop = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip
+	];
+}
+
+HealStatusEffects : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.WoundedFlesh"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.66f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 1.66f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.93f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CrippledLegLeft", "BaseStatusEffect.CrippledLegRight", "BaseStatusEffect.CrippledArmLeft", "BaseStatusEffect.CrippledHandLeft", "BaseStatusEffect.CrippledArmRight", "BaseStatusEffect.CrippledHandRight"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statPool = "BaseStatPools.Health";
+			amount = 100.f;
+			perc = true;
+		} : AISubActionModifyStatPool
+	];
+	animData = 
+	{
+		animFeature = "Heal_StatusEffect";
+	};
+	allowBlendDuration = 0.567f;
+}
+
+HealWoundedState : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedFlesh"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 2.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.7f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CrippledLegLeft", "BaseStatusEffect.CrippledLegRight", "BaseStatusEffect.CrippledArmLeft", "BaseStatusEffect.CrippledHandLeft", "BaseStatusEffect.CrippledArmRight", "BaseStatusEffect.CrippledHandRight"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "Heal_StatusEffect";
+		animVariation = 1;
+	};
+	allowBlendDuration = 0.8f;
+}
+
+CombatStimCooldown : AIActionCooldown
+{
+	name = "CombatStim";
+	duration = 150.f;
+}
+
+UseCombatStimConsumable : AIAction
+{
+	cooldowns = 
+	[
+		"SpecialActions.CombatStimCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCombatStims", "Condition.HealthBelow30perc", "Condition.NotIsInWorkspot", "Condition.NotInCover", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.HasMeleeWeapon", "Condition.NotTicketEquip", "Condition.NotTicketTakeCover", "Condition.NotTicketCatchUp", "Condition.NotTicketSync", "Condition.NotWounded"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		duration = 1.4f;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 1.3f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.CombatStim"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "buff";
+			delay = 0.f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "Heal_StatusEffect";
+	};
+	allowBlendDuration = 0.567f;
+}
+
+CoverUseCombatStimConsumable : AIAction
+{
+	cooldowns = 
+	[
+		"SpecialActions.CombatStimCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CoverActivationCondition", "Condition.AbilityCanUseCombatStims", "Condition.HealthBelow30perc", "Condition.InCover", "Condition.NotIsEnteringOrLeavingCover"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 1.4f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 1.3f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.CombatStim"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "buff";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "Heal_StatusEffect";
+	};
+}
+
+CallReinforcementsComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"SpecialActions.CannotUseCallReinforcements", "SpecialActions.CallReinforcements", "GenericArchetype.Success"
+	];
+}
+
+CannotUseCallReinforcements : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityCanCallReinforcements"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+	};
+}
+
+CallReinforcements : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanCallReinforcements", "Condition.NotCommNoise", "Condition.NotInCover", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotTicketEquip", "Condition.NotTicketTakeCover", "Condition.NotTicketCatchUp", "Condition.NotTicketSync", "Condition.TargetAbove5m", "Condition.NotMeleeStatesConditions", "Condition.NotCallReinforcementProgress100perc", "Condition.NotCallReinforcementProgressIncreasing"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.53f;
+	};
+	loop = 
+	{
+		duration = 0.867f;
+		repeat = 3;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CallReinforcementProgress100perc"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.56f;
+	};
+	subActions = 
+	[
+		{
+			delay = 1.2f;
+			duration = 10.f;
+		} : AISubActionCallReinforcements, 
+		{
+			name = "InterruptMeleeAction";
+			duration = 0.1f;
+			delay = -1.f;
+		} : AISubActionSendSignal
+	];
+	animData = 
+	{
+		animFeature = "CallSquad";
+	};
+}
+
+CoverCallReinforcements : CallReinforcements
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanCallReinforcements", "Condition.NotCommNoise", "Condition.InCover", "Condition.NotIsEnteringOrLeavingCover", "Condition.TargetAbove5m", "Condition.NotCallReinforcementProgress100perc", "Condition.NotCallReinforcementProgressIncreasing"
+			];
+		} : AIActionAND;
+	};
+}
+
+ThrowWeapon : AIAction
+{
+	initCooldowns = 
+	[
+		{
+			name = "ThrowWeapon";
+			duration = 10.f;
+		}
+	];
+	cooldowns = 
+	[
+		{
+			name = "ThrowWeapon";
+			duration = 10.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanThrowWeapon", "Condition.TargetAbove5m", "Condition.TargetBelow140deg", "Condition.NotHasFistsWeaponEquipped", "Condition.CanThrowAtTarget"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.5f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.25f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem
+	];
+	recoverySubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Fists";
+		} : AISubActionForceEquip
+	];
+	animData = 
+	{
+		animFeature = "ThrowWeapon";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+EnableBerserker : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasBerserk", "Condition.NotStatusEffectBerserker", "Condition.NotHasJuiceDispenserBackWeakspot"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	loop = 
+	{
+		duration = 1.667f;
+	};
+	recovery = 
+	{
+		duration = 1.9f;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Fists";
+		} : AISubActionForceEquip
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Berserker"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "EnableBerserker";
+		animVariation = 0;
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+MeleeGrabSequenceDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"MeleeActions.SingleMeleeAttackCharge02TauntDefinition", "SpecialActions.SpecialGrabDefinition"
+	];
+}
+
+MeleeGrabSequenceConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "SpecialGrab";
+			duration = 30.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanGrab", "Condition.HasFistsWeaponEquipped"
+			];
+		} : AIActionAND;
+	};
+}
+
+SpecialGrabDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "SpecialGrab";
+			duration = 30.f;
+		}
+	];
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			dontUseStop = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			dontUseStop = true;
+		};
+	};
+	subActions = 
+	[
+		{
+			upperBodyState = "Attack";
+		} : AIActionChangeNPCState
+	];
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackTime = 0.f;
+			attackDuration = 0.3f;
+			attack = "NPCAttacks.GrabAttack";
+			attackRange = 4.f;
+		} : AISubActionAttackWithWeapon
+	];
+}
+
+PickWeaponSequenceDefinition : AIActionSequence
+{
+	actions = 
+	[
+		"SpecialActions.GoToWeaponDefinition", "SpecialActions.PickWeaponDefinition"
+	];
+}
+
+GoToWeaponDefinition : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "ThrowWeapon";
+			duration = 25.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanPickUpWeapon", "Condition.ItemBelow30m", "Condition.HasFistsWeaponEquipped", "Condition.NotStatusEffectBerserker"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.TargetItem";
+			movementType = "Sprint";
+			tolerance = 3.0;
+			ignoreNavigation = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ItemBelow1m", "Condition.ItemAbove30m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+PickWeaponDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanPickUpWeapon", "Condition.ItemBelow2m", "Condition.HasFistsWeaponEquipped", "Condition.NotStatusEffectBerserker"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.3f;
+	};
+	loop = 
+	{
+		duration = 1.3f;
+	};
+	recovery = 
+	{
+		duration = 0.767f;
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 0.5f;
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Hammer";
+		} : AISubActionForceEquip
+	];
+	animData = 
+	{
+		animFeature = "PickUpWeapon";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+EnableTiredDefinition : AIAction
+{
+	initCooldowns = 
+	[
+		{
+			name = "Tired";
+			duration = 30.f;
+		}
+	];
+	cooldowns = 
+	[
+		{
+			name = "Tired";
+			duration = 30.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasHammer"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 5.967;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Tired";
+		animVariation = 0;
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+	};
+}
+
+SpecialTaunt01Definition : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.567f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Taunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SpecialTaunt02Definition : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.567f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Taunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SpecialTaunt03Definition : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.567f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Taunt";
+		animSlot = 
+		{
+		};
+	};
+}
+
+TauntHiddenPlayer : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "TauntHiddenPlayer";
+			duration = 5.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMinAccuracyValue0dot85", "Condition.NotIsFollower"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			name = "taunt_hidden_player";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+ActivateKerenzikovComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"SpecialActions.CannotUseKereznikov", "SpecialActions.ActivateKerenzikovDefinition", "GenericArchetype.Success"
+	];
+}
+
+CannotUseKereznikov : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotAbilityHasKerenzikov", "Condition.StatusEffectSandevistanBuff"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 10.f;
+	};
+}
+
+ActivateKerenzikovDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSandevistanBuff", "Condition.TargetPOVBelow90deg", "Condition.NotTicketEquip", "Condition.NotMeleeStatesConditions", "Condition.NotInCover", "Condition.NotIsEnteringCover", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			name = "InterruptMeleeAction";
+			duration = 0.1f;
+			delay = 0.f;
+		} : AISubActionSendSignal
+	];
+}
+
+ActivateSandevistanDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.NotStatusEffectSandevistanBuff"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+RecoverFromRagdoll : AIActionSelector
+{
+	actions = 
+	[
+		"SpecialActions.RecoverToDefeated", "SpecialActions.RecoverToUnconscious", "SpecialActions.RecoverToStandBack", "SpecialActions.RecoverToStandLeft", "SpecialActions.RecoverToStandRight", "SpecialActions.RecoverToStandFront"
+	];
+	disableActionsLimit = true;
+}
+
+SlideRecoverFromRagdoll : AIActionSelector
+{
+	actions = 
+	[
+		"SpecialActions.RecoverToDefeated", "SpecialActions.RecoverToUnconscious", "SpecialActions.SlideRecoverToStandBack", "SpecialActions.SlideRecoverToStandLeft", "SpecialActions.SlideRecoverToStandRight", "SpecialActions.SlideRecoverToStandFront"
+	];
+	disableActionsLimit = true;
+}
+
+RecoverToDefeated : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectDefeated", "Condition.StatusEffectDefeatedWithRecover"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 2.133f;
+	};
+	loop = 
+	{
+		duration = 8.167f;
+	};
+	animData = 
+	{
+		animFeature = "SE_RagdollDefeatedRecovery";
+		animSlot = 
+		{
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+		ragdollOnDeath = true;
+		animVariation = 1;
+	};
+}
+
+RecoverToUnconscious : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectUnconscious", "Condition.InStatesUnconscious"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 3.333f;
+	};
+	animData = 
+	{
+		animFeature = "RecoverFromRagdollToUnconscious";
+		animSlot = 
+		{
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+		ragdollOnDeath = true;
+	};
+}
+
+RecoverToStandFront : AIAction
+{
+	loop = 
+	{
+		duration = 1.8f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StatusEffectDefeated", "Condition.Health0perc"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollFront";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+SlideRecoverToStandFront : RecoverToStandFront
+{
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollFront";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			useRootMotion = false;
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+RecoverToStandLeft : RecoverToStandFront
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget", "Condition.StimTargetBelow40m", "Condition.StimTargetAbove90degLeft", "Condition.StimTargetBelow270degLeft"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollLeft";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+SlideRecoverToStandLeft : RecoverToStandLeft
+{
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollLeft";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			useRootMotion = false;
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+RecoverToStandRight : RecoverToStandFront
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget", "Condition.StimTargetBelow40m", "Condition.StimTargetAbove90degRight", "Condition.StimTargetBelow270degRight"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollRight";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+SlideRecoverToStandRight : RecoverToStandRight
+{
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollRight";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			useRootMotion = false;
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+RecoverToStandBack : RecoverToStandFront
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget", "Condition.StimTargetBelow40m", "Condition.StimTargetAbove270deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollBack";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+SlideRecoverToStandBack : RecoverToStandBack
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget", "Condition.StimTargetBelow40m", "Condition.StimTargetAbove270deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "StandUpFromRagdollBack";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			useRootMotion = false;
+			usePoseMatching = true;
+			resetRagdollOnStart = true;
+		};
+	};
+}
+
+RecoverFromKnockdownHitReaction : AIAction
+{
+	loop = 
+	{
+		duration = 1.8f;
+	};
+	animData = 
+	{
+		animFeature = "RecoverFromKnockdown";
+		animVariationSubAction = 
+		{
+			overrideHitDirection = true;
+		} : AISubActionHitData;
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+		};
+	};
+}
+
+InterruptMeleeActionOnSignal : AIAction
+{
+	loop = 
+	{
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptMeleeAction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+

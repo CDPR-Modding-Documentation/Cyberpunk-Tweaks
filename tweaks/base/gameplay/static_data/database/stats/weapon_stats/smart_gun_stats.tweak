@@ -1,0 +1,788 @@
+package BaseStats
+using RTDB
+
+SmartGunStat : Stat
+{
+	flags = 
+	[
+		"EquipOnPlayer", "EquipOnNPC"
+	];
+}
+
+SmartLinkDependentStatModifier : CombinedStatModifier
+{
+	refObject = "Player";
+	refStat = "BaseStats.HasSmartLink";
+	opSymbol = "*";
+	statType = "";
+	modifierType = "Additive";
+	value = 0.f;
+}
+
+SmartGunTrackAllBodyparts : SmartGunStat
+{
+	enumName = "SmartGunTrackAllBodyparts";
+	enumComment = "Should track both primary and secondary bodyparts in hipfire; if set to false, only primary bodyparts will be tracked in hipfire";
+	min = 0;
+	max = 1;
+}
+
+SmartGunTrackAllBodypartsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackAllBodyparts";
+	modifierType = "Additive";
+}
+
+SmartGunTrackHeadComponents : SmartGunStat
+{
+	enumName = "SmartGunTrackHeadComponents";
+	enumComment = "Add tracking for head components on puppets (in hipfire and ADS). Note: this overrides SmartGunTrackAllBodyparts if set";
+	min = 0;
+	max = 1;
+}
+
+SmartGunTrackHeadComponentsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackHeadComponents";
+	modifierType = "Additive";
+}
+
+SmartGunTrackLegComponents : SmartGunStat
+{
+	enumName = "SmartGunTrackLegComponents";
+	enumComment = "Add tracking for leg components on puppets (in hipfire and ADS). Note: this overrides SmartGunTrackAllBodyparts if set";
+	min = 0;
+	max = 1;
+}
+
+SmartGunTrackLegComponentsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackLegComponents";
+	modifierType = "Additive";
+}
+
+SmartGunTrackMechanicalComponents : SmartGunStat
+{
+	enumName = "SmartGunTrackMechanicalComponents";
+	enumComment = "Add tracking for components like turrets, drones, grenades, and weakspots (in hipfire and ADS). Note: this overrides SmartGunTrackAllBodyparts if set";
+	min = 0;
+	max = 1;
+}
+
+SmartGunTrackMechanicalComponentsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackMechanicalComponents";
+	modifierType = "Additive";
+}
+
+SmartGunUseEvenDistributionTargeting : SmartGunStat
+{
+	enumName = "SmartGunUseEvenDistributionTargeting";
+	enumComment = "Distribute targeting and attacks evenly among the locked entities. Note that in ADS, it will only track targets on the best/closest entity. Set SmartGunTrackMultipleEntitiesInADS to allow multiple.";
+	min = 0;
+	max = 1;
+}
+
+SmartGunUseEvenDistributionTargetingModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunUseEvenDistributionTargeting";
+	modifierType = "Additive";
+}
+
+SmartGunEvenDistributionPeriod : SmartGunStat
+{
+	enumName = "SmartGunEvenDistributionPeriod";
+	enumComment = "Applies only when SmartGunUseEvenDistributionTargeting is active. Num seconds before even distribution data gets reset after a shot. Useful for burst-fire weapons. Add an extra ~0.05 seconds to your number to be safe.";
+	min = 0;
+}
+
+SmartGunEvenDistributionPeriodModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunEvenDistributionPeriod";
+	modifierType = "Additive";
+}
+
+SmartGunTrackMultipleEntitiesInADS : SmartGunStat
+{
+	enumName = "SmartGunTrackMultipleEntitiesInADS";
+	enumComment = "Applies only when SmartGunUseEvenDistributionTargeting is active. In ADS, allow multiple entities to be targeted. If false, you can only lock onto targeting components on the best/closest entity.";
+	min = 0;
+	max = 1;
+}
+
+SmartGunTrackMultipleEntitiesInADSModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackMultipleEntitiesInADS";
+	modifierType = "Additive";
+}
+
+SmartGunUseTagLockTargeting : SmartGunStat
+{
+	enumName = "SmartGunUseTagLockTargeting";
+	enumComment = "Firing at a target will lock that target and will keep it locked until another target is hit (or some other break conditions are met).";
+	min = 0;
+	max = 1;
+}
+
+SmartGunUseTagLockTargetingModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunUseTagLockTargeting";
+	modifierType = "Additive";
+}
+
+SmartGunHipMaxLockedTargets : SmartGunStat
+{
+	enumName = "SmartGunHipMaxLockedTargets";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunHipMaxLockedTargets";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunHipMaxLockedTargetsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipMaxLockedTargets";
+	modifierType = "Additive";
+}
+
+SmartGunAdsMaxLockedTargets : SmartGunStat
+{
+	enumName = "SmartGunAdsMaxLockedTargets";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunAdsMaxLockedTargets";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunAdsMaxLockedTargetsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsMaxLockedTargets";
+	modifierType = "Additive";
+}
+
+SmartGunTargetAcquisitionRange : SmartGunStat
+{
+	enumName = "SmartGunTargetAcquisitionRange";
+	min = 0;
+	max = 1000;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTargetAcquisitionRangeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTargetAcquisitionRange";
+	modifierType = "Additive";
+	value = 1000;
+}
+
+SmartGunHipTimeToLock : SmartGunStat
+{
+	enumName = "SmartGunHipTimeToLock";
+	enumComment = "Number of seconds that a target must be in Locking state (in crosshair) before it becomes Locked - for hipfire";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+SmartGunHipTimeToLockModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipTimeToLock";
+	modifierType = "Additive";
+}
+
+SmartGunAdsTimeToLock : SmartGunStat
+{
+	enumName = "SmartGunAdsTimeToLock";
+	enumComment = "Number of seconds that a target must be in Locking state (in crosshair) before it becomes Locked - for ADS";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+SmartGunAdsTimeToLockModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsTimeToLock";
+	modifierType = "Additive";
+}
+
+SmartGunHipTimeToUnlock : SmartGunStat
+{
+	enumName = "SmartGunHipTimeToUnlock";
+	enumComment = "Number of seconds that a locked target must be in Unlocking state (i.e., it's outside the targetable region) before it becomes Unlocked - for hipfire";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunHipTimeToUnlockModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipTimeToUnlock";
+	modifierType = "Additive";
+}
+
+SmartGunAdsTimeToUnlock : SmartGunStat
+{
+	enumName = "SmartGunAdsTimeToUnlock";
+	enumComment = "Number of seconds that a locked target must be in Unlocking state (i.e., it's outside the targetable region) before it becomes Unlocked - for ADS";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunAdsTimeToUnlockModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsTimeToUnlock";
+	modifierType = "Additive";
+}
+
+SmartGunUseTimeBasedAccuracy : SmartGunStat
+{
+	enumName = "SmartGunUseTimeBasedAccuracy";
+	enumComment = "Accuracy for each target improves as the target is locking - until SmartGunTimeToMaxAccuracy is reached";
+	min = 0;
+	max = 1;
+}
+
+SmartGunUseTimeBasedAccuracyModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunUseTimeBasedAccuracy";
+	modifierType = "Additive";
+}
+
+SmartGunTimeToMaxAccuracy : SmartGunStat
+{
+	enumName = "SmartGunTimeToMaxAccuracy";
+	enumComment = "Number of seconds required for locking targets to reach max accuracy";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+SmartGunTimeToMaxAccuracyModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTimeToMaxAccuracy";
+	modifierType = "Additive";
+}
+
+SmartGunTimeToRemoveOccludedTarget : SmartGunStat
+{
+	enumName = "SmartGunTimeToRemoveOccludedTarget";
+	enumComment = "Number of seconds required for locked targets to be lost, once the line-of-sight has been occluded";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToRemoveOccludedTargetModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+	modifierType = "Additive";
+}
+
+SmartGunStartingAccuracy : SmartGunStat
+{
+	enumName = "SmartGunStartingAccuracy";
+	enumComment = "Starting accuracy [0..1] for locking targets. Target will reach 1.0 accuracy after SmartGunTimeToMaxAccuracy.";
+	min = 0;
+	max = 1;
+}
+
+SmartGunStartingAccuracyModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunStartingAccuracy";
+	modifierType = "Additive";
+}
+
+SmartGunHipTargetableAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunHipTargetableAnglePitch";
+	enumComment = "For hipfire, in degrees. Targets are in the targetable region if their m_angleDistance is within the targetable angle. This is the pitch portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunHipTargetableAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipTargetableAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunHipTargetableAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunHipTargetableAngleYaw";
+	enumComment = "For hipfire, in degrees. Targets are in the targetable region if their m_angleDistance is within the targetable angle. This is the yaw portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunHipTargetableAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipTargetableAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunAdsTargetableAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunAdsTargetableAnglePitch";
+	enumComment = "For ADS, in degrees. Targets are in the targetable region if their m_angleDistance is within the targetable angle. This is the pitch portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunAdsTargetableAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunAdsTargetableAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunAdsTargetableAngleYaw";
+	enumComment = "For ADS, in degrees. Targets are in the targetable region if their m_angleDistance is within the targetable angle. This is the yaw portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunAdsTargetableAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunHipLockingAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunHipLockingAnglePitch";
+	enumComment = "For hipfire, in degrees. Targets are in the locking region if their m_angleDistance is within the locking angle. This is the pitch portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunHipLockingAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipLockingAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunHipLockingAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunHipLockingAngleYaw";
+	enumComment = "For hipfire, in degrees. Targets are in the locking region if their m_angleDistance is within the locking angle. This is the yaw portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunHipLockingAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipLockingAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunAdsLockingAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunAdsLockingAnglePitch";
+	enumComment = "For ADS, in degrees. Targets are in the locking region if their m_angleDistance is within the locking angle. This is the pitch portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunAdsLockingAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsLockingAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunAdsLockingAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunAdsLockingAngleYaw";
+	enumComment = "For ADS, in degrees. Targets are in the locking region if their m_angleDistance is within the locking angle. This is the yaw portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunAdsLockingAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsLockingAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunHipTagLockAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunHipTagLockAnglePitch";
+	enumComment = "For hipfire, in degrees. If shooting at a target which is within the tag locking angles, it becomes the new tag-locked target. This is the pitch portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunHipTagLockAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipTagLockAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunHipTagLockAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunHipTagLockAngleYaw";
+	enumComment = "For hipfire, in degrees. If shooting at a target which is within the tag locking angles, it becomes the new tag-locked target. This is the yaw portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunHipTagLockAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHipTagLockAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunAdsTagLockAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunAdsTagLockAnglePitch";
+	enumComment = "For ADS, in degrees. If shooting at a target which is within the tag locking angles, it becomes the new tag-locked target. This is the pitch portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunAdsTagLockAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsTagLockAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunAdsTagLockAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunAdsTagLockAngleYaw";
+	enumComment = "For ADS, in degrees. If shooting at a target which is within the tag locking angles, it becomes the new tag-locked target. This is the yaw portion of the angle.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunAdsTagLockAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAdsTagLockAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunSpreadMultiplier : SmartGunStat
+{
+	enumName = "SmartGunSpreadMultiplier";
+	enumComment = "Multiplier for hit-plane spread. Spread is calculated as the X and Z offset between aim position and camera position.";
+	min = 0.f;
+}
+
+SmartGunSpreadMultiplierModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpreadMultiplier";
+	modifierType = "Additive";
+}
+
+SmartGunNPCLockOnTime : SmartGunStat
+{
+	enumName = "SmartGunNPCLockOnTime";
+	enumComment = "time required for target in sights to become active [ s ]";
+	min = 0.1f;
+}
+
+SmartGunNPCLockOnTimeModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCLockOnTime";
+	modifierType = "Additive";
+}
+
+SmartGunNPCLockTimeout : SmartGunStat
+{
+	enumName = "SmartGunNPCLockTimeout";
+	enumComment = "time required to loose locked target when lost from smartgun's sight [ s ]";
+	min = 0.1f;
+}
+
+SmartGunNPCLockTimeoutModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCLockTimeout";
+	modifierType = "Additive";
+}
+
+SmartGunNPCLockingAnglePitch : SmartGunStat
+{
+	enumName = "SmartGunNPCLockingAnglePitch";
+	enumComment = "In degrees. Targets are in the locking region if their angleDistance is within the locking angle. This is the pitch portion of the angle. Also controls starting orientation of projectiles.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunNPCLockingAnglePitchModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCLockingAnglePitch";
+	modifierType = "Additive";
+}
+
+SmartGunNPCLockingAngleYaw : SmartGunStat
+{
+	enumName = "SmartGunNPCLockingAngleYaw";
+	enumComment = "In degrees. Targets are in the locking region if their angleDistance is within the locking angle. This is the yaw portion of the angle. Also controls starting orientation of projectiles.";
+	min = 0;
+	max = 360;
+}
+
+SmartGunNPCLockingAngleYawModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCLockingAngleYaw";
+	modifierType = "Additive";
+}
+
+SmartGunNPCShootProjectilesOnlyStraight : SmartGunStat
+{
+	enumName = "SmartGunNPCShootProjectilesOnlyStraight";
+	enumComment = "with this value set to true (1), NPCs won't shoot (randomly) on the edges of smart gun's sight - the shot will always be set on focal point [ bool ]";
+	min = 0;
+	max = 1;
+	flags = 
+	[
+		"Bool"
+	];
+}
+
+SmartGunNPCShootProjectilesOnlyStraightModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCShootProjectilesOnlyStraight";
+	modifierType = "Additive";
+}
+
+SmartGunNPCTrajectoryCurvatureMultiplier : SmartGunStat
+{
+	enumName = "SmartGunNPCTrajectoryCurvatureMultiplier";
+	enumComment = "multiplier for yaw and pitch of starting orientation of projectiles in SmartGunNPCSightHipLockOnArea to better control curvature of projectile's trajectory";
+	min = 0;
+}
+
+SmartGunNPCTrajectoryCurvatureMultiplierModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCTrajectoryCurvatureMultiplier";
+	modifierType = "Additive";
+}
+
+SmartGunNPCProjectileStartingOrientationAngleOffset : SmartGunStat
+{
+	enumName = "SmartGunNPCProjectileStartingOrientationAngleOffset";
+	enumComment = "angle offset (equal on both sides) in SmartGunNPCSightHipLockOnArea at which the projectile's starting orientation are randomized; value 0 means that the projectiles are being shot at upper part of the circular area [ deg ]";
+	min = -90;
+	max = 90;
+}
+
+SmartGunNPCProjectileStartingOrientationAngleOffsetModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCProjectileStartingOrientationAngleOffset";
+	modifierType = "Additive";
+}
+
+SmartGunNPCApplySpreadAtHitplane : SmartGunStat
+{
+	enumName = "SmartGunNPCApplySpreadAtHitplane";
+	enumComment = "recalculate and apply translation of projectile on target 2D hit-plane [ bool ]";
+	min = 0;
+	max = 1;
+	flags = 
+	[
+		"Bool"
+	];
+}
+
+SmartGunNPCApplySpreadAtHitplaneModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCApplySpreadAtHitplane";
+	modifierType = "Additive";
+}
+
+SmartGunNPCSpreadMultiplier : SmartGunStat
+{
+	enumName = "SmartGunNPCSpreadMultiplier";
+	enumComment = "Multiplier for hit-plane spread. Spread is calculated as the X and Z offset between aim position and camera position.";
+	min = 0.f;
+}
+
+SmartGunNPCSpreadMultiplierModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCSpreadMultiplier";
+	modifierType = "Additive";
+}
+
+SmartGunAddSpiralTrajectory : SmartGunStat
+{
+	enumName = "SmartGunAddSpiralTrajectory";
+	enumComment = "Used to add an additive spiral to bullet trajectories";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunAddSpiralTrajectory";
+}
+
+SmartGunAddSpiralTrajectoryModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunAddSpiralTrajectory";
+	modifierType = "Additive";
+}
+
+SmartGunSpiralRadius : SmartGunStat
+{
+	enumName = "SmartGunSpiralRadius";
+	enumComment = "Radius of spiral";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralRadius";
+}
+
+SmartGunSpiralRadiusModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpiralRadius";
+	modifierType = "Additive";
+}
+
+SmartGunSpiralCycleTimeMin : SmartGunStat
+{
+	enumName = "SmartGunSpiralCycleTimeMin";
+	enumComment = "Time for a full spiral cycle";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralCycleTime";
+}
+
+SmartGunSpiralCycleTimeMinModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpiralCycleTimeMin";
+	modifierType = "Additive";
+}
+
+SmartGunSpiralCycleTimeMax : SmartGunStat
+{
+	enumName = "SmartGunSpiralCycleTimeMax";
+	enumComment = "Time for a full spiral cycle";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralCycleTime";
+}
+
+SmartGunSpiralCycleTimeMaxModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpiralCycleTimeMax";
+	modifierType = "Additive";
+}
+
+SmartGunSpiralRampDistanceStart : SmartGunStat
+{
+	enumName = "SmartGunSpiralRampDistanceStart";
+	enumComment = "Ramps up spiral effect up over distance once spiral is activated";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralRampDistanceStart";
+}
+
+SmartGunSpiralRampDistanceStartModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpiralRampDistanceStart";
+	modifierType = "Additive";
+}
+
+SmartGunSpiralRampDistanceEnd : SmartGunStat
+{
+	enumName = "SmartGunSpiralRampDistanceEnd";
+	enumComment = "Finishes Ramping up spiral up over distance once spiral is activated";
+	min = 0.1;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralRampDistanceEnd";
+}
+
+SmartGunSpiralRampDistanceEndModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpiralRampDistanceEnd";
+	modifierType = "Additive";
+}
+
+SmartGunSpiralRandomizeDirection : SmartGunStat
+{
+	enumName = "SmartGunSpiralRandomizeDirection";
+	enumComment = "Randomizes the direction of the spiral";
+	min = 0;
+	max = 1;
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralRandomizeDirection";
+}
+
+SmartGunSpiralRandomizeDirectionModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunSpiralRandomizeDirection";
+	modifierType = "Additive";
+}
+
+SmartGunProjectileVelocityVariance : SmartGunStat
+{
+	enumName = "SmartGunProjectileVelocityVariance";
+	enumComment = "Multiplies the velocity of projectile by +/- this percentage";
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunSpiralCycleTime";
+}
+
+SmartGunProjectileVelocityVarianceModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunProjectileVelocityVariance";
+	modifierType = "Additive";
+}
+
+SmartGunNPCProjectileVelocity : SmartGunStat
+{
+	enumName = "SmartGunNPCProjectileVelocity";
+	enumComment = "The starting velocity of Smart Gun projectiles when an NPC is firing them";
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunProjectileVelocity";
+	min = 1;
+	max = 9999;
+}
+
+SmartGunNPCProjectileVelocityModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunNPCProjectileVelocity";
+	modifierType = "Additive";
+}
+
+SmartGunPlayerProjectileVelocity : SmartGunStat
+{
+	enumName = "SmartGunPlayerProjectileVelocity";
+	enumComment = "The starting velocity of Smart Gun projectiles when a player is firing them";
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunProjectileVelocity";
+	min = 1;
+	max = 9999;
+}
+
+SmartGunPlayerProjectileVelocityModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+	modifierType = "Additive";
+}
+
+SmartGunHitProbability : SmartGunStat
+{
+	enumName = "SmartGunHitProbability";
+	enumComment = "Probability that smart bullets will be able to track/hit their target. Can be decreased with status effect (e.g., BaseStatusEffect.DecreaseSmartWeaponHitProbability) during gameplay";
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunHitProbability";
+	min = 0.f;
+	max = 1.f;
+}
+
+SmartGunHitProbabilityModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunHitProbability";
+	modifierType = "Additive";
+	value = 1.f;
+}
+
+SmartGunMissDelay : SmartGunStat
+{
+	enumName = "SmartGunMissDelay";
+	enumComment = "When the bullet should miss (see SmartGunHitProbability), the number of seconds before it stops following the target and flies off in a different direction";
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunMissDelay";
+	min = 0.f;
+	max = 3.f;
+}
+
+SmartGunMissDelayModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunMissDelay";
+	modifierType = "Additive";
+	value = 0.2f;
+}
+
+SmartGunMissRadius : SmartGunStat
+{
+	enumName = "SmartGunMissRadius";
+	enumComment = "If the target is evading smart gun targeting (e.g., Tyger Claw tattoos and Oda mask), the bullet will miss when it comes within this distance to the target";
+	localizedName = "Gameplay-RPG-Stats-WeaponStats-SmartGunMissRadius";
+	min = 0.f;
+	max = 10.f;
+}
+
+SmartGunMissRadiusModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunMissRadius";
+	modifierType = "Additive";
+	value = 5.f;
+}
+

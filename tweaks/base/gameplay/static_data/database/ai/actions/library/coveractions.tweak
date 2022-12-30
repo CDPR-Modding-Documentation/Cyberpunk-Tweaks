@@ -1,0 +1,3071 @@
+package CoverActions
+using RTDB, 0xF242B6C8F, AIActionTarget
+
+Success : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+ImmediateSuccess : AIAction
+{
+	loop = 
+	{
+		duration = 0.f;
+	};
+}
+
+InCover : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InCover"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+SimpleCoverBehaviorComposite : AIActionSmartComposite
+{
+	disableActionsLimit = true;
+	nodes = 
+	[
+		"GenericArchetype.Wait0dot2Second", "GenericArchetype.SimpleCoverReloadSelector", "GenericArchetype.WaitAMoment", "CoverActions.CoverDecisionSelector", "CoverActions.SimpleCoverPeekSelector", "CoverActions.SimpleCoverGetOutSelector", "CoverActions.SimpleCoverShootSelector", "CoverActions.SimpleCoverGetBackSelector", "GenericArchetype.SimpleCoverReloadSelector", "CoverActions.SimpleExitCoverSelector"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+CoverBehaviorComposite : AIActionSmartComposite
+{
+	disableActionsLimit = true;
+	nodes = 
+	[
+		"GenericArchetype.Wait0dot2Second", "SpecialActions.CoverUseCombatStimConsumable", "GenericArchetype.CoverReloadSelector", "CoverActions.WaitInCoverSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "CoverActions.CommandCoverThrowGrenadeSelector", "CoverActions.CoverThrowGrenadeSelector", "CoverActions.CoverGetOutSelector", "CoverActions.CoverCommandForceShootSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverShootSelector", "CoverActions.CoverGetBackSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+InitCoverComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CoverActions.InitDesiredCover", "GenericArchetype.CoverReloadSelector", "CoverActions.ImmediateSuccess"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+CoverDecisionSelector : AIActionSelector
+{
+	actions = 
+	[
+		"GenericArchetype.CoverDecisionNoBlind", "GenericArchetype.CoverDecisionDefault"
+	];
+}
+
+SimpleCoverPeekSelector : CoverActions.CoverPeekSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.SimpleCoverActivationCondition", {
+					OR = 
+					[
+						"Condition.CheckChosenExposureMethodAll", "Condition.CheckAnyLastAvailableExposureMethods"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.SimpleCoverPeekNoTarget", "CoverActions.SimpleCoverPeek"
+	];
+}
+
+CoverPeekSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CoverActivationCondition", {
+					OR = 
+					[
+						"Condition.CheckChosenExposureMethodAll", "Condition.CheckAnyLastAvailableExposureMethods"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.CoverPeekNoTarget", "CoverActions.CoverPeek"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+CoverThrowGrenadeSelectorCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CoverThrowGrenadeSelectorCondition", "Condition.NotAIThrowGrenadeCommand", "Condition.TargetBetween10and30m", "Condition.NotCalculatePathStraightToTarget10mForwardOffset", "Condition.CalculatePathStraightToTarget1mBack"
+	];
+}
+
+CoverThrowGrenadeSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"CoverActions.CoverThrowGrenadeSelectorCondition", "Condition.NotAIAimAtTargetCommand"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.ThrowGrenadeCoverFrag", "CoverActions.ThrowGrenadeCoverFlash", "CoverActions.ThrowGrenadeCoverEMP", "CoverActions.ThrowGrenadeCoverBiohazard", "CoverActions.ThrowGrenadeCoverIncendiary", "CoverActions.ThrowGrenadeCoverRecon", "CoverActions.ThrowGrenadeCoverCutting", "CoverActions.ThrowGrenadeCover"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+CommandCoverThrowGrenadeSelectorCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CoverThrowGrenadeSelectorCondition", "Condition.AIThrowGrenadeCommand", "Condition.TargetBetween10and30m", "Condition.CalculatePathStraightToTarget1mBack"
+	];
+}
+
+CommandCoverThrowGrenadeSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"CoverActions.CommandCoverThrowGrenadeSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.CommandThrowGrenadeCoverFrag", "CoverActions.CommandThrowGrenadeCoverFlash", "CoverActions.CommandThrowGrenadeCoverEMP", "CoverActions.CommandThrowGrenadeCoverBiohazard", "CoverActions.CommandThrowGrenadeCoverIncendiary", "CoverActions.CommandThrowGrenadeCoverRecor", "CoverActions.CommandThrowGrenadeCoverCutting", "CoverActions.CommandThrowGrenadeCover"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+WaitInCoverSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.WaitInCover", "CoverActions.ChillInCover"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+SimpleCoverGetOutSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow120deg", "Condition.MinAccuracyValue0", "Condition.SimpleCoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	failOnNodeActivationConditionFailure = true;
+	actions = 
+	[
+		"CoverActions.CoverGetOutBlind", "CoverActions.CoverGetOutNoShooting", "GenericArchetype.CoverGetOutDefault"
+	];
+}
+
+CoverGetOutSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow120deg", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotTargetInvalidExpectation", "Condition.MinAccuracyValue0"
+							];
+						} : AIActionAND, 
+						"Condition.AIAimAtTargetCommand"
+					];
+				} : AIActionOR, 
+				"Condition.NotTicketEquip", "Condition.NotTicketSync", "Condition.HasRangedWeapon", "Condition.AmmoCountMin1", "Condition.CoverActivationCondition", "Condition.NotTargetInSafeZone"
+			];
+		} : AIActionAND;
+	};
+	failOnNodeActivationConditionFailure = true;
+	actions = 
+	[
+		"CoverActions.CoverGetOutBlind", "CoverActions.CoverGetOutNoShooting", "GenericArchetype.CoverGetOutDefault", "CoverActions.CoverGetOutFakeShooting"
+	];
+}
+
+SimpleCoverShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow120deg", "Condition.SimpleCoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	disableActionsLimit = true;
+	actions = 
+	[
+		"GenericArchetype.HighCoverChargedShoot", "GenericArchetype.SimpleCoverChargedShootDefault", "CoverActions.SimpleCoverBlindShootDefault", "GenericArchetype.SimpleHighCoverShoot", "GenericArchetype.SimpleCoverShootDefault"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+CoverShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIForceShootCommand", "Condition.NotTicketEquip", "Condition.NotTicketSync", "Condition.TargetBelow120deg", "Condition.NotTargetInvalidExpectation", "Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	disableActionsLimit = true;
+	actions = 
+	[
+		"GenericArchetype.HighCoverChargedShoot", "GenericArchetype.CoverChargedShootDefault", "CoverActions.CoverBlindShootDefault", "GenericArchetype.HighCoverShoot", "GenericArchetype.CoverShootDefault", "CoverActions.FakeCoverShoot"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+CoverCommandForceShootSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.NotTicketEquip", "Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	disableActionsLimit = true;
+	actions = 
+	[
+		"GenericArchetype.CommandForceHighCoverChargedShoot", "GenericArchetype.CommandForceCoverChargedShootDefault", "CoverActions.CommandForceCoverBlindShootDefault", "GenericArchetype.CommandForceHighCoverShoot", "GenericArchetype.CommandForceCoverShootDefault"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+SimpleCoverGetBackSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.SimpleCoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"GenericArchetype.CoverGetBackDefault"
+	];
+}
+
+CoverGetBackSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"GenericArchetype.CoverGetBackDefault"
+	];
+}
+
+SimpleExitCoverSelector : CoverActions.ExitCoverSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.SimpleCoverDeactivationCondition"
+			];
+		} : AIActionOR;
+	};
+}
+
+ExitCoverSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CoverDeactivationCondition"
+			];
+		} : AIActionOR;
+	};
+	actions = 
+	[
+		"CoverActions.ExitCoverStand", "CoverActions.ExitCoverLow", "CoverActions.ExitCoverDefault"
+	];
+}
+
+SetDesiredCoverSelector : AIActionSelector
+{
+	actions = 
+	[
+		"CoverActions.SuccessOnInterruptCoverSelection", "CoverActions.SetDesiredCoverLOSOnly", "CoverActions.FastSetDesiredCoverLOSWhenLOS", "CoverActions.SetDesiredCoverLOSWhenLOS", "CoverActions.FastSetDesiredCoverAll", "CoverActions.SetDesiredCoverAll"
+	];
+}
+
+FollowerSetDesiredCoverSelector : AIActionSelector
+{
+	actions = 
+	[
+		"CoverActions.SuccessOnInterruptCoverSelection", "CoverActions.FollowerFastSetDesiredCoverLOSWhenLOS", "CoverActions.FollowerSetDesiredCoverLOSWhenLOS"
+	];
+}
+
+StayInDesiredCoverSelector : AIActionSelector
+{
+	actions = 
+	[
+		"CoverActions.StayInDesiredCover", "CoverActions.ResetCoverCooldowns"
+	];
+}
+
+RegularCoverActivationCheckSuccess : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInShootingSpot", "Condition.NotSelectedShootingSpot", "Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverActivationCheckSuccess : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+InitDesiredCover : AIAction
+{
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			name = "InterruptRingAction";
+			duration = 0.5f;
+			delay = -1.f;
+		} : AISubActionSendSignal, 
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				"CoverActions.WaitInCoverCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+StayInDesiredCover : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MovementActions.MovePolicyCooldown", {
+					duration = 3.f;
+				} : CoverActions.ChillInCoverCooldown
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "InterruptRingAction";
+			duration = 0.5f;
+			delay = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+PreloadStayInDesiredCoverDecorator : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.AnimationsLoaded";
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MovementActions.MovePolicyCooldownCoverActivation"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "InterruptRingAction";
+			duration = 0.5f;
+			delay = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+ResetCoverCooldowns : AIAction
+{
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "SetDesiredCover";
+					duration = 0.f;
+				}, 
+				{
+					name = "MovePolicy";
+					duration = 0.f;
+				}, 
+				{
+					name = "PreciseShoot";
+					duration = 0.2f;
+				}, 
+				"ItemHandling.ReloadCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "InterruptRingAction";
+			duration = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+SetCurrentCover : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			setCurrentCover = true;
+		} : AISubActionCover
+	];
+}
+
+SetDesiredCoverCooldown : AIActionCooldown
+{
+	name = "SetDesiredCover";
+	duration = 5.f;
+}
+
+CommandCoverCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				AND = 
+				[
+					"Condition.CommandCoverToTargetAbove4mPrediction", "Condition.CommandCoverIsProtectingHorizontallyAgainstTarget"
+				];
+			} : AIActionAND, 
+			"Condition.NotCombatTarget"
+		];
+	} : AIActionOR;
+}
+
+FastSetDesiredCoverCooldown : AIActionCooldown
+{
+	name = "SetDesiredCover";
+	duration = 2.f;
+}
+
+SuccessOnInterruptCoverSelection : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InterruptCoverSelection"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+SetDesiredCoverAll : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptCoverSelection"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 1;
+			insideCoverReselectionCooldown = "CoverActions.SetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+FastSetDesiredCoverAll : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.AbilityHasSandevistan"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptCoverSelection"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 1;
+			insideCoverReselectionCooldown = "CoverActions.FastSetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+FollowerSetDesiredCoverLOSWhenLOS : CoverActions.SetDesiredCoverLOSWhenLOS
+{
+	activationCondition = 
+	{
+	};
+}
+
+SetDesiredCoverLOSWhenLOS : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityIsBalanced"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptCoverSelection"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 3;
+			insideCoverReselectionCooldown = "CoverActions.SetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+FollowerFastSetDesiredCoverLOSWhenLOS : CoverActions.FastSetDesiredCoverLOSWhenLOS
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan"
+			];
+		} : AIActionAND;
+	};
+}
+
+FastSetDesiredCoverLOSWhenLOS : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.AbilityIsBalanced"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptCoverSelection"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 3;
+			insideCoverReselectionCooldown = "CoverActions.FastSetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+FastSetDesiredCoverNoLOS : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptCoverSelection"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 0;
+			insideCoverReselectionCooldown = "CoverActions.FastSetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+SetDesiredCoverLOSOnly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.AbilityIsAggressive", "Condition.AbilityIsReckless"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.InterruptCoverSelection"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 5;
+			insideCoverReselectionCooldown = "CoverActions.FastSetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+TakeCoverTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.TakeCover"
+	];
+	loop = 
+	{
+	};
+}
+
+UseCoverCommandCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIUseCoverCommandValid"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverSelectionPresetDefault : AIAction
+{
+	subActions = 
+	[
+		{
+			preset = "DefaultPreset";
+			initialPreset = "DefaultInitialPreset";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+WaitInCoverCooldown : AIActionCooldown
+{
+	name = "WaitInCover";
+	duration = 10.f;
+}
+
+WaitInCover : AIAction
+{
+	cooldowns = 
+	[
+		"CoverActions.WaitInCoverCooldown"
+	];
+	loop = 
+	{
+		duration = 2.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+ChillInCoverCooldown : AIActionCooldown
+{
+	name = "ChillInCover";
+	duration = 20.f;
+}
+
+ChillInCover : AIAction
+{
+	cooldowns = 
+	[
+		"CoverActions.ChillInCoverCooldown", "CoverActions.WaitInCoverCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove15m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 5.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SetCoverExposureAnim_NoBlind : AISubActionCover
+{
+	target = "AIActionTarget.CombatTarget";
+	setCoverExposureAnim = true;
+	exposureMethodPriority = 
+	[
+		"AIExposureMethodType.Lean", "AIExposureMethodType.StepOut"
+	];
+	coverExposureMethods = 
+	[
+		"Standing_Step_Left", "Standing_Step_Right", "Standing_Lean_Left", "Standing_Lean_Right", "Crouching_Step_Left", "Crouching_Step_Right", "Crouching_Lean_Left", "Crouching_Lean_Right", "Lean_Over", "Stand_Up"
+	];
+}
+
+SetCoverExposureAnim_All : SetCoverExposureAnim_NoBlind
+{
+	exposureMethodPriority = 
+	[
+		"AIExposureMethodType.Lean", "AIExposureMethodType.StepOut", "AIExposureMethodType.BlindFire"
+	];
+	prioritizeBlindFireAfterHit = 15.f;
+	coverExposureMethods += 
+	[
+		"Standing_Blind_Left", "Standing_Blind_Right", "Crouching_Blind_Left", "Crouching_Blind_Right", "Crouching_Blind_Top"
+	];
+}
+
+CoverDecisionDefault : AIAction
+{
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		"CoverActions.SetCoverExposureAnim_All"
+	];
+	animData = 
+	{
+		animVariationSubAction = "CoverActions.SetCoverExposureAnim_All";
+	};
+}
+
+CoverDecisionNoBlind : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.HasSemiAutoWeapon", "Condition.HasChargeWeapon", "Condition.HasSmartWeapon", "Condition.AIAimAtTargetCommand"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		"CoverActions.SetCoverExposureAnim_NoBlind"
+	];
+	animData = 
+	{
+		animVariationSubAction = "CoverActions.SetCoverExposureAnim_NoBlind";
+	};
+}
+
+SimpleCoverPeek : CoverActions.CoverPeek
+{
+	tickets = [];
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotMinAccuracyValue0dot33", "Condition.CheckChosenExposureMethodNone"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.467f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 0.433f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.533f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverPeek : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Peek"
+	];
+	cooldowns = 
+	[
+		{
+			name = "CoverPeek";
+			duration = 5.52f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotMinAccuracyValue0dot33", "Condition.NotIsFollower", "Condition.CheckChosenExposureMethodNone"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.467f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 0.433f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.533f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "CoverPeek";
+		animSlot = 
+		{
+			useRootMotion = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+			useLastAvailableExposureMethodsIfNoneAvailable = true;
+		} : AISubActionCover;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+	allowBlendDuration = 0.f;
+}
+
+SimpleCoverPeekNoTarget : CoverPeek
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMinAccuracyValue0dot33"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.433f;
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverDeactivationCondition", "Condition.MinAccuracyValue1"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverPeekNoTarget : CoverPeek
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMinAccuracyValue0dot33"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.433f;
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverDeactivationCondition", "Condition.MinAccuracyValue1"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+ThrowGrenadeCover : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.GrenadeThrow"
+	];
+	startup = 
+	{
+		duration = 0.500f;
+	};
+	loop = 
+	{
+		duration = 0.633f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.867f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem, 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "CoverGrenadeThrow";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+			useLastAvailableExposureMethodsIfNoneAvailable = true;
+		} : AISubActionCover;
+	};
+	allowBlendDuration = 0.f;
+}
+
+ThrowGrenadeCoverFrag : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFragGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverFlash : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFlashbangGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverEMP : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseEMPGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverBiohazard : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseBiohazardGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverIncendiary : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseIncendiaryGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverRecon : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseReconGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeReconRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverCutting : CoverActions.ThrowGrenadeCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCuttingGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeCuttingRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeCover : CoverActions.ThrowGrenadeCover
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverFrag : CoverActions.ThrowGrenadeCoverFrag
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverFlash : CoverActions.ThrowGrenadeCoverFlash
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverEMP : CoverActions.ThrowGrenadeCoverEMP
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverBiohazard : CoverActions.ThrowGrenadeCoverBiohazard
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverIncendiary : CoverActions.ThrowGrenadeCoverIncendiary
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverRecor : CoverActions.ThrowGrenadeCoverRecon
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CommandThrowGrenadeCoverCutting : CoverActions.ThrowGrenadeCoverCutting
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+}
+
+CoverGetOutDefault : AIAction
+{
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.333f;
+	};
+	recovery = 
+	{
+		duration = 0.334f;
+	};
+	recoverySubActions = 
+	[
+		{
+			exposedInCover = 1;
+		} : AISubActionCover
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodAll", "Condition.NotHasAnyWeaponLeft"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover, 
+		{
+			delay = 0.f;
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.ShootingPauseCondition", "Condition.AmmoCount0", "Condition.NotMaxVisibilityToTargetDistance3m"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "CoverGetOut";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+	allowBlendDuration = 0.f;
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+CoverGetOutNoShooting : CoverActions.CoverGetOutDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodAll", {
+					OR = 
+					[
+						"Condition.HasChargeWeapon", "Condition.HasSniperWeapon", "Condition.HasAnyWeaponLeft"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+}
+
+CoverGetOutBlind : CoverActions.CoverGetOutDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodBlind"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.RightHand_LootAt_Mode1";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+CoverGetOutFakeShooting : CoverActions.CoverGetOutDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodNone", "Condition.CheckAnyLastAvailableExposureMethods", "Condition.IsFollower"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	animData = 
+	{
+		animFeature = "CoverGetOut";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+			useLastAvailableExposureMethodsIfNoneAvailable = true;
+		} : AISubActionCover;
+	};
+}
+
+SimpleCoverShootDefault : CoverActions.CoverShootDefault
+{
+	tickets = [];
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition", "Condition.SimpleCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverShootDefault : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = "Condition.CheckChosenExposureMethodAll";
+	};
+	startup = 
+	{
+		duration = 0.034f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition", "Condition.CoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 0.f;
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.ShootingPauseCondition"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	recoverySubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "MovePolicy";
+					duration = 0.f;
+				}, 
+				{
+					name = "PreciseShoot";
+					duration = 0.2f;
+				}, 
+				"ItemHandling.ReloadCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover, 
+		{
+			exposedInCover = 1;
+		} : AISubActionCover
+	];
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+	allowBlendDuration = 0.f;
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SimpleHighCoverShoot : SimpleCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+HighCoverShoot : CoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+FakeCoverShoot : CoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodNone", "Condition.CheckAnyLastAvailableExposureMethods", "Condition.IsFollower"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+			useLastAvailableExposureMethodsIfNoneAvailable = true;
+		} : AISubActionCover;
+	};
+}
+
+SimpleCoverBlindShootDefault : SimpleCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodBlind"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 2;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 0.f;
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.RightHand_LootAt_Mode1";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+CoverBlindShootDefault : CoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodBlind"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 2;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 0.f;
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.RightHand_LootAt_Mode1";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SimpleCoverChargedShootDefault : SimpleCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ChargedShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.MinAccuracyValue0dot95", "Condition.NotValidTargetPositionOrAimCommandCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionShootWithWeapon"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Charged_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Charged_Arms_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+CoverChargedShootDefault : CoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ChargedShootActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.MinAccuracyValue0dot95", "Condition.NotValidTargetPositionOrAimCommandCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionShootWithWeapon"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Charged_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Charged_Arms_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+HighCoverChargedShoot : CoverChargedShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ChargedShootActivationCondition", "Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+SimpleSniperCoverShootDefault : SimpleCoverChargedShootDefault
+{
+	activationCondition = 
+	{
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SimpleCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions += 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	loopSubActions = 
+	[
+		"ShootActions.SniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+SniperCoverShootDefault : CoverChargedShootDefault
+{
+	activationCondition = 
+	{
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions += 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	loopSubActions = 
+	[
+		"ShootActions.SniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+SimpleSniperHighCoverShoot : SimpleSniperCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+SniperHighCoverShoot : SniperCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "CoverShoot";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover;
+	};
+}
+
+SimpleSniperCoverShootTech : SimpleSniperCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChargeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+SniperCoverShootTech : SniperCoverShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChargeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+}
+
+SimpleSniperHighCoverShootTech : SimpleSniperCoverShootTech
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChargeWeapon", "Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+}
+
+SniperHighCoverShootTech : SniperCoverShootTech
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChargeWeapon", "Condition.CheckChosenExposureMethodHigh"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverGetBackDefault : AIAction
+{
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	recovery = 
+	{
+		duration = 0.333f;
+	};
+	startupSubActions = 
+	[
+		{
+			exposedInCover = 1;
+		} : AISubActionCover
+	];
+	loopSubActions = 
+	[
+		{
+			exposedInCover = 0;
+		} : AISubActionCover
+	];
+	recoverySubActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MovementActions.MovePolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	subActions = 
+	[
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "CoverGetBack";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+		};
+		animVariationSubAction = 
+		{
+			coverExposureMethods = [];
+			useLastAvailableExposureMethodsIfNoneAvailable = true;
+		} : AISubActionCover;
+	};
+}
+
+CommandForceCoverShootDefault : CoverShootDefault
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceHighCoverShoot : HighCoverShoot
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceCoverBlindShootDefault : CoverBlindShootDefault
+{
+	loop = 
+	{
+		repeat = 2;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceCoverChargedShootDefault : CoverChargedShootDefault
+{
+	loop = 
+	{
+		repeat = 0;
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.MinAccuracyValue0dot95"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceHighCoverChargedShoot : HighCoverChargedShoot
+{
+	loop = 
+	{
+		repeat = 0;
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.MinAccuracyValue0dot95"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceSniperCoverShootDefault : SniperCoverShootDefault
+{
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceSniperHighCoverShoot : SniperHighCoverShoot
+{
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceSniperCoverShootTech : SniperCoverShootTech
+{
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandForceSniperHighCoverShootTech : SniperHighCoverShootTech
+{
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CommandCoverShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CallReinforcementsCover : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			preset = "CallReinforcementPreset";
+			initialPreset = "CallReinforcementInitialPreset";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+ExitCoverDefault : AIAction
+{
+	completeWithFailure = true;
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "MovePolicy";
+					duration = 0.f;
+				}, 
+				{
+					name = "PreciseShoot";
+					duration = 0.2f;
+				}, 
+				"ItemHandling.ReloadCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "InterruptRingAction";
+			duration = 0.f;
+			delay = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+ExitCoverLow : AIAction
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CurrentCoverAbove0m", "Condition.CheckChosenExposureMethodLowStepOut"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.633f;
+	};
+	loopSubActions = 
+	[
+		{
+			delay = -1.f;
+		} : AISubActionLeaveCover, 
+		{
+			name = "InterruptRingAction";
+			duration = -1.f;
+		} : AISubActionSendSignal
+	];
+	animData = 
+	{
+		animFeature = "StandUp";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ExitCoverStand : AIAction
+{
+	completeWithFailure = true;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodLowStandUp", "Condition.CoverIsOwnerExposed"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+		} : AISubActionLeaveCover, 
+		{
+			name = "InterruptRingAction";
+			duration = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+LeaveCoverCompositeDecorator : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CoverActions.LeaveCoverSelector", "GenericArchetype.Idle"
+	];
+}
+
+LeaveCoverComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CoverActions.LeaveCoverSelector", "GenericArchetype.Success"
+	];
+}
+
+LeaveCoverSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InCover"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.SimpleLeaveCover", "CoverActions.LeaveCoverLow"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SimpleLeaveCover : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.InHighCover", "Condition.InStatesStealth"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "MovePolicy";
+					duration = 0.2f;
+				}, 
+				{
+					name = "PreciseShoot";
+					duration = 0.2f;
+				}, 
+				"ItemHandling.ReloadCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			delay = -1.f;
+		} : AISubActionLeaveCover
+	];
+}
+
+LeaveCoverLow : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InLowCover"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.633f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "MovePolicy";
+					duration = 0.2f;
+				}, 
+				{
+					name = "PreciseShoot";
+					duration = 0.2f;
+				}, 
+				"ItemHandling.ReloadCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			delay = -1.f;
+		} : AISubActionLeaveCover
+	];
+	animData = 
+	{
+		animFeature = "StandUp";
+		animSlot = 
+		{
+		};
+	};
+}
+

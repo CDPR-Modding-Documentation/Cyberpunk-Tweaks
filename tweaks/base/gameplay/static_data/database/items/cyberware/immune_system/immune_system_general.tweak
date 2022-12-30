@@ -1,0 +1,592 @@
+package Items
+using RTDB, BaseStats, Perks, Prereqs
+
+ToxinCleanser : ImmuneSystemModule
+{
+	string friendlyName = "ToxinCleanser";
+	displayName = "LocKey#3690";
+	localizedDescription = "LocKey#3694";
+	iconPath = "cw_immunesystem_toxincleanser";
+	quality = "Quality.Rare";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 10;
+		} : BodyPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.PoisonImmunity";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				iconPath = "ability_silenced";
+				localizedDescription = "LocKey#40793";
+			};
+		} : GameplayLogicPackage
+	];
+	CName cyberwareType = "ToxinCleanser";
+	buyPrice += 
+	[
+		"Price.ToxinCleanser"
+	];
+	sellPrice += 
+	[
+		"Price.ToxinCleanser"
+	];
+}
+
+ReverseMetabolicEnhancer : ImmuneSystemModule
+{
+	string friendlyName = "ReverseMetabolicEnhancer";
+	displayName = "LocKey#3691";
+	localizedDescription = "LocKey#3695";
+	iconPath = "cw_immunesystem_reversemetabolicenhancer";
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 14;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "StatusEffectPrereq";
+						statusEffect = "BaseStatusEffect.Poisoned";
+						checkType = "CheckType.Type";
+					} : StatusEffectPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 12;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								dotType = "Poisoned";
+							} : DamageOverTimeTypeHitPrereqCondition
+						];
+					} : ProcessHitReceived;
+					effectorClassName = "ModifyDamageEffector";
+					string operationType = "Multiply";
+					float value = 0f;
+				}
+			];
+			UIData = 
+			{
+				iconPath = "ability_silenced";
+				localizedDescription = "LocKey#40794";
+			};
+		} : GameplayLogicPackage
+	];
+	CName cyberwareType = "ReverseMetabolicEnhancer";
+	buyPrice += 
+	[
+		"Price.ReverseMetabolicEnhancer"
+	];
+	sellPrice += 
+	[
+		"Price.ReverseMetabolicEnhancer"
+	];
+}
+
+ReversePowerInductor : ImmuneSystemModule
+{
+	displayName = "LocKey#40796";
+	localizedDescription = "LocKey#40797";
+	quality = "Quality.Epic";
+	iconPath = "cw_immunesystem_reversepowerinductor";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 12;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "StatusEffectPrereq";
+						statusEffect = "BaseStatusEffect.Electrocuted";
+						checkType = "CheckType.Type";
+					} : StatusEffectPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.Armor";
+								modifierType = "AdditiveMultiplier";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "StatusEffectPrereq";
+						statusEffect = "BaseStatusEffect.EMP";
+						checkType = "CheckType.Type";
+					} : StatusEffectPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.Armor";
+								modifierType = "AdditiveMultiplier";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								dotType = "Electrocuted";
+							} : DamageOverTimeTypeHitPrereqCondition
+						];
+					} : ProcessHitReceived;
+					effectorClassName = "ModifyDamageEffector";
+					string operationType = "Multiply";
+					float value = 0f;
+				}, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								statusEffect = "EMP";
+								checkType = "CheckType.Type";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : ProcessHitReceived;
+					effectorClassName = "ModifyDamageEffector";
+					string operationType = "Multiply";
+					float value = 0f;
+				}
+			];
+			UIData = 
+			{
+				iconPath = "ability_silenced";
+				localizedDescription = "LocKey#40795";
+				intValues = 
+				[
+					50
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	CName cyberwareType = "ReversePowerInductor";
+	buyPrice += 
+	[
+		"Price.ReversePowerInductor"
+	];
+	sellPrice += 
+	[
+		"Price.ReversePowerInductor"
+	];
+}
+
+ResistancesBoosterCommon : ImmuneSystemModule
+{
+	displayName = "LocKey#40799";
+	localizedDescription = "LocKey#40800";
+	iconPath = "cw_immunesystem_resistancesbooster";
+	quality = "Quality.Common";
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 8f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 8f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 8f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					8
+				];
+			} : ResistancesBoosterUIData;
+		}
+	];
+	CName cyberwareType = "ResistancesBooster";
+	buyPrice += 
+	[
+		"Price.ResistancesBooster"
+	];
+	sellPrice += 
+	[
+		"Price.ResistancesBooster"
+	];
+}
+
+ResistancesBoosterUncommon : ResistancesBoosterCommon
+{
+	quality = "Quality.Uncommon";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 8;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 13f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 13f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 13f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					13
+				];
+			} : ResistancesBoosterUIData;
+		}
+	];
+}
+
+ResistancesBoosterEpic : ResistancesBoosterCommon
+{
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 12;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 23f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 23f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 23f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					23
+				];
+			} : ResistancesBoosterUIData;
+		}
+	];
+}
+
+ResistancesBoosterLegendary : ResistancesBoosterCommon
+{
+	quality = "Quality.Legendary";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 15;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 35f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 35f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 35f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					35
+				];
+			} : ResistancesBoosterUIData;
+		}
+	];
+}
+
+ElectroshockMechanismCommon : ImmuneSystemModule
+{
+	displayName = "LocKey#40802";
+	localizedDescription = "LocKey#40803";
+	quality = "Quality.Common";
+	iconPath = "cw_immunesystem_electroshockmechanism";
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float chance = 0.02f;
+				} : ElectroshockMechanismEffector
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					2
+				];
+			} : ElectroshockMechanismUIData;
+		}
+	];
+	CName cyberwareType = "ElectroshockMechanism";
+	buyPrice += 
+	[
+		"Price.ElectroshockMechanism"
+	];
+	sellPrice += 
+	[
+		"Price.ElectroshockMechanism"
+	];
+}
+
+ElectroshockMechanismUncommon : ElectroshockMechanismCommon
+{
+	quality = "Quality.Uncommon";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 8;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float chance = 0.04f;
+				} : ElectroshockMechanismEffector
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					4
+				];
+			} : ElectroshockMechanismUIData;
+		}
+	];
+}
+
+ElectroshockMechanismEpic : ElectroshockMechanismCommon
+{
+	quality = "Quality.Epic";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 12;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float chance = 0.08f;
+				} : ElectroshockMechanismEffector
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					8
+				];
+			} : ElectroshockMechanismUIData;
+		}
+	];
+}
+
+ElectroshockMechanismLegendary : ElectroshockMechanismCommon
+{
+	quality = "Quality.Legendary";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 15;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float chance = 0.1f;
+				} : ElectroshockMechanismEffector
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					10
+				];
+			} : ElectroshockMechanismUIData;
+		}
+	];
+}
+
+PainReductor : ImmuneSystemModule
+{
+	displayName = "LocKey#40806";
+	localizedDescription = "LocKey#40807";
+	quality = "Quality.Legendary";
+	iconPath = "cw_immunesystem_painreductor";
+	equipPrereqs = 
+	[
+		{
+			valueToCheck = 16;
+		} : CoolPrereq
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.ProcessHitReceived";
+					value = 0.9f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				iconPath = "";
+				localizedDescription = "LocKey#40805";
+				intValues = 
+				[
+					10
+				];
+			};
+		}
+	];
+	CName cyberwareType = "PainReductor";
+	buyPrice += 
+	[
+		"Price.PainReductor"
+	];
+	sellPrice += 
+	[
+		"Price.PainReductor"
+	];
+}
+
+ResistancesBoosterUIData : GameplayLogicPackageUIData
+{
+	iconPath = "ability_silenced";
+	localizedDescription = "LocKey#40798";
+}
+
+ElectroshockMechanismUIData : GameplayLogicPackageUIData
+{
+	iconPath = "ability_silenced";
+	localizedDescription = "LocKey#40801";
+}
+
+ElectroshockMechanismEffector : TriggerAttackEffector
+{
+	prereqRecord = 
+	{
+		conditions = 
+		[
+			{
+				type = "Prereqs.HitFlag";
+				string hitFlag = "DealNoDamage";
+				bool invert = true;
+			}, 
+			{
+				instigatorType = "Puppet";
+			} : InstigatorTypeHitPrereqCondition
+		];
+	} : Prereqs.ProcessHitReceived;
+	effectorClassName = "TriggerAttackByChanceEffector";
+	float chance = 0.02f;
+	attackRecord = "Attacks.MicroGeneratorExplosionCommon";
+}
+

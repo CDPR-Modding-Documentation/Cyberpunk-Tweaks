@@ -1,0 +1,1007 @@
+package Effectors
+using RTDB, Prereqs, Perks
+
+EvaluateEncumbranceEffector : Effector
+{
+	prereqRecord = 
+	{
+		statType = "CarryCapacity";
+		valueToCheck = 0;
+		bool fireAndForget = true;
+	} : StatPrereq;
+	effectorClassName = "EncumbranceEvaluationEffector";
+}
+
+VehicleCombatRangeBoost : ApplyStatGroupOnWeapon
+{
+	prereqRecord = 
+	{
+		CName prereqClassName = "gameMultiPrereq";
+		CName aggregationType = "AND";
+		fk< IPrereq >[] nestedPrereqs = 
+		[
+			"Prereqs.IsInVehiclePrereq", "Prereqs.RangedWeaponHeldPrereq"
+		];
+	} : MultiPrereq;
+	fk< StatModifierGroup > statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.EffectiveRange";
+				modifierType = "Additive";
+				value = 100.f;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+}
+
+TogglePlayerFlashlight : Effector
+{
+	prereqRecord = 
+	{
+		stateName = "Default";
+		isInState = false;
+	} : HighLevelPSMPrereq;
+	effectorClassName = "TogglePlayerFlashlight";
+}
+
+AthleticsExperience : Effector
+{
+	prereqRecord = 
+	{
+		prereqClassName = "StatPoolSpentPrereq";
+		float valueToCheck = 500;
+		CName statPoolType = "Stamina";
+	} : StatPoolPrereq;
+	effectorClassName = "GiveRewardEffector";
+	string reward = "RPGActionRewards.AthleticsStaminaUsage";
+	bool comparePercentage = false;
+}
+
+ColdBloodExperience : Effector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						statusEffect = "ColdBlood";
+						checkType = "CheckType.Record";
+						objectToCheck = "Instigator";
+					} : Prereqs.StatusEffectPresentHitPrereqCondition
+				];
+			} : Perks.IsTargetKilled, 
+			{
+				conditions += 
+				[
+					{
+						hitFlag = "FinisherTriggered";
+					} : HitFlagHitPrereqCondition, 
+					{
+						statusEffect = "ColdBlood";
+						checkType = "CheckType.Record";
+						objectToCheck = "Instigator";
+					} : Prereqs.StatusEffectPresentHitPrereqCondition
+				];
+			} : PostProcessHitTriggered, 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "ColdBloodBuffBonus";
+						valueToCheck = 1;
+						comparisonType = "Greater";
+					} : StatPrereq, 
+					"Prereqs.AnyTakedown"
+				];
+			} : ANDPrereq
+		];
+	} : ORPrereq;
+	effectorClassName = "GiveRewardEffector";
+	string reward = "RPGActionRewards.ColdBlood";
+	bool comparePercentage = false;
+}
+
+ColdBlood_Area_01_Perk_1_Effector : ApplyStatusEffectEffector
+{
+	prereqRecord = "Prereqs.AnyTakedownOrKill";
+	statusEffect = "BaseStatusEffect.ColdBlood";
+	removeWithEffector = false;
+}
+
+RemoveReduceNextUltimateHackCostReductionSE : RemoveStatusEffectsEffector
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "RemoveStatusEffectsEffector";
+	statusEffects = 
+	[
+		"BaseStatusEffect.ReduceUltimateHackCostBy2"
+	];
+}
+
+RemoveReduceNextHackCostReductionSE : RemoveStatusEffectsEffector
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "RemoveStatusEffectsEffector";
+	statusEffects = 
+	[
+		"BaseStatusEffect.ReduceNextHackCostBy1"
+	];
+}
+
+JugglerPerkRemoveKnifeCooldowns : ApplyStatusEffectEffector
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ApplyStatusEffectEffector";
+	statusEffect = "BaseStatusEffect.JugglerPerkRemoveKnifeCooldownsSE";
+	applicationTarget = "Player";
+}
+
+Android_ExplodeOnElectricDeathEffector : TriggerAttackOnOwnerEffect
+{
+	prereqRecord = 
+	{
+		stateName = "Dead";
+	} : Prereqs.HighLevelNPCStatePrereq;
+	attackRecord = "Attacks.AndroidDeathExplosion";
+}
+
+Android_ExplodeOnElectricDeathEffectorVFX : Effector
+{
+	prereqRecord = 
+	{
+		stateName = "Dead";
+	} : Prereqs.HighLevelNPCStatePrereq;
+	CName effectorClassName = "PlayVFXEffector";
+	CName vfxName = "empExplosionDestruction";
+}
+
+NPCMeleeWeaponHitEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		conditions = 
+		[
+			{
+				instigatorType = "Player";
+				invert = true;
+			} : Prereqs.InstigatorTypeHitPrereqCondition
+		];
+	} : Prereqs.PreProcessHitTriggered;
+	statusEffect = "BaseStatusEffect.NPCBaseMeleeDebuff";
+	applicationTarget = "Target";
+}
+
+BladeWeaponHitEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = "Prereqs.ProcessHitTriggered";
+	statusEffect = "BaseStatusEffect.MinorBleeding";
+	applicationTarget = "Target";
+}
+
+LootHighlightEffector : Effector
+{
+	effectorClassName = "ToggleMaterialOverlayEffector";
+	string effectPath = "loot_highlight";
+	CName effectTag = "dead_body_highlight";
+}
+
+ChaosWeaponCustomEffectorBase : ApplyStatGroupEffector
+{
+	effectorClassName = "ChaosWeaponCustomEffector";
+	prereqRecord = "Perks.PlayerNotReloading";
+	applicationTarget = "Weapon";
+}
+
+ChaosWeaponCritChanceCustomEffector : ChaosWeaponCustomEffectorBase
+{
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.SpecialDamage";
+				modifierType = "Additive";
+				min = 0;
+				max = 1;
+			} : RandomStatModifier, 
+			{
+				statType = "BaseStats.CritChance";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.CritChance";
+				modifierType = "Additive";
+				refStat = "BaseStats.SpecialDamage";
+				refObject = "Self";
+				opSymbol = "*";
+				value = 49.f;
+			} : CombinedStatModifier
+		];
+	};
+}
+
+ChaosWeaponElementalDamageCustomEffector : ChaosWeaponCustomEffectorBase
+{
+	effectorClassName = "ChaosWeaponDamageTypeEffector";
+}
+
+ChaosWeaponDebuffApplicationCustomEffector : ChaosWeaponCustomEffectorBase
+{
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.BleedingApplicationRate";
+				modifierType = "Additive";
+				refStat = "BaseStats.PhysicalDamage";
+				refObject = "Self";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.BleedingApplicationRate";
+				modifierType = "Multiplier";
+				refStat = "BaseStats.DealsPhysicalDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.BleedingApplicationRate";
+				modifierType = "Multiplier";
+				min = 0.1f;
+				max = 2.0f;
+			} : RandomStatModifier, 
+			{
+				statType = "BaseStats.BurningApplicationRate";
+				modifierType = "Additive";
+				refStat = "BaseStats.ThermalDamage";
+				refObject = "Self";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.BurningApplicationRate";
+				modifierType = "Multiplier";
+				min = 0.1f;
+				max = 2.0f;
+			} : RandomStatModifier, 
+			{
+				statType = "BaseStats.BurningApplicationRate";
+				modifierType = "Multiplier";
+				refStat = "BaseStats.DealsThermalDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.PoisonedApplicationRate";
+				modifierType = "Additive";
+				refStat = "BaseStats.ChemicalDamage";
+				refObject = "Self";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.PoisonedApplicationRate";
+				modifierType = "Multiplier";
+				min = 0.1f;
+				max = 2.0f;
+			} : RandomStatModifier, 
+			{
+				statType = "BaseStats.PoisonedApplicationRate";
+				modifierType = "Multiplier";
+				refStat = "BaseStats.DealsChemicalDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.ElectrocutedApplicationRate";
+				modifierType = "Additive";
+				refStat = "BaseStats.ElectricDamage";
+				refObject = "Self";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.ElectrocutedApplicationRate";
+				modifierType = "Multiplier";
+				min = 0.1f;
+				max = 2.0f;
+			} : RandomStatModifier, 
+			{
+				statType = "BaseStats.ElectrocutedApplicationRate";
+				modifierType = "Multiplier";
+				refStat = "BaseStats.DealsElectricDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.DealsPhysicalDamage";
+				modifierType = "Additive";
+				refStat = "BaseStats.PhysicalDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.DealsThermalDamage";
+				modifierType = "Additive";
+				refStat = "BaseStats.ThermalDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.DealsChemicalDamage";
+				modifierType = "Additive";
+				refStat = "BaseStats.ChemicalDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.DealsElectricDamage";
+				modifierType = "Additive";
+				refStat = "BaseStats.ElectricDamage";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier
+		];
+	};
+}
+
+Phase1 : Effector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		prereqClassName = "GameTimePrereq";
+		float delay = 120.0f;
+	} : IPrereq;
+	CName effectorClassName = "StopAndPlayVFXEffector";
+	CName vfxToStop = "hacking_glitch_low";
+	CName vfxToStart = "hacking_glitch_medium";
+}
+
+Phase2 : Effector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		prereqClassName = "GameTimePrereq";
+		float delay = 240.0f;
+	} : IPrereq;
+	CName effectorClassName = "StopAndPlayVFXEffector";
+	CName vfxToStop = "hacking_glitch_medium";
+	CName vfxToStart = "hacking_glitch_heavy";
+}
+
+Phase3_VFX : Effector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		prereqClassName = "GameTimePrereq";
+		float delay = 360.0f;
+	} : IPrereq;
+	CName effectorClassName = "StopVFXEffector";
+	CName vfxToStop = "hacking_glitch_heavy";
+}
+
+Phase3_Death : Effector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		prereqClassName = "GameTimePrereq";
+		float delay = 360.0f;
+	} : IPrereq;
+	CName effectorClassName = "TriggerAttackOnOwnerEffect";
+	fk< Attack > attackRecord = "Attacks.SelfKill";
+}
+
+GrabAttackEffector01 : ContinuousAttackEffector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		duration = 2.3f;
+	} : Prereqs.DurationPrereq;
+	CName effectorClassName = "TriggerContinuousAttackEffector";
+	attackRecord = "Effectors.GrabAttack01";
+	delayTime = 99999999999.f;
+	timeDilationDriver = "Effectors.TDD_Source";
+}
+
+GrabAttackEffector02 : ContinuousAttackEffector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		duration = 2.9f;
+	} : Prereqs.DurationPrereq;
+	CName effectorClassName = "TriggerContinuousAttackEffector";
+	attackRecord = "Effectors.GrabAttack02";
+	delayTime = 99999999999.f;
+	timeDilationDriver = "Effectors.TDD_Source";
+}
+
+GrabAttackEffector03 : ContinuousAttackEffector
+{
+	fk< IPrereq > prereqRecord = 
+	{
+		duration = 8.7f;
+	} : Prereqs.DurationPrereq;
+	CName effectorClassName = "TriggerContinuousAttackEffector";
+	attackRecord = "Effectors.GrabAttack03";
+	delayTime = 99999999999.f;
+	timeDilationDriver = "Effectors.TDD_Source";
+}
+
+GrabAttack : Attack_GameEffect
+{
+	attackType = "AttackType.Explosion";
+	effectName = "sasquatch_explosions";
+	effectTag = "invisible_explosion";
+	range = 4.0f;
+}
+
+GrabAttack01 : GrabAttack
+{
+	range = 0.25f;
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Effectors.SasquatchGrabDamage01"
+	];
+}
+
+SasquatchGrabDamage01 : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.DPS";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.05f;
+}
+
+GrabAttack02 : GrabAttack
+{
+	range = 0.25f;
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Effectors.SasquatchGrabDamage02"
+	];
+}
+
+SasquatchGrabDamage02 : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.DPS";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.05f;
+}
+
+GrabAttack03 : GrabAttack
+{
+	range = 0.25f;
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Effectors.SasquatchGrabDamage03"
+	];
+}
+
+SasquatchGrabDamage03 : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.DPS";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.05f;
+}
+
+TEST : ApplyStatGroupEffector
+{
+	prereqRecord = "Prereqs.UsingCoverPSMPrereq";
+	CName effectorClassName = "ApplyStatGroupEffector";
+	fk< StatModifierGroup > statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.Health";
+				modifierType = "Additive";
+				value = 1000f;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+	applicationTarget = "";
+}
+
+TEST2 : Effector
+{
+	prereqRecord = "Prereqs.HitAttackTypePrereq";
+	CName effectorClassName = "ModifyDamageEffector";
+	string operationType = "Multiply";
+	float value = 5f;
+}
+
+TEST3 : ApplyEffectorEffector
+{
+	prereqRecord = "Prereqs.KatanaHeldPrereq";
+	effectorClassName = "ApplyEffectorEffector";
+	fk< Effector > effectorToApply = 
+	{
+		prereqRecord = 
+		{
+			prereqClassName = "HitFlagPrereq";
+			string hitFlag = "WasDeflected";
+			bool isSynchronous = true;
+			string callbackType = "HitTriggered";
+			string pipelineStage = "PostProcess";
+		} : IPrereq;
+		CName effectorClassName = "ApplyStatusEffectEffector";
+		fk< StatusEffect > statusEffect = "BaseStatusEffect.Kenjutsu_Area_05_Perk_1_Buff_Level_1";
+		applicationTarget = "";
+	} : ApplyStatusEffectEffector;
+	applicationTarget = "";
+}
+
+TEST4 : ApplyStatGroupEffector
+{
+	prereqRecord = 
+	{
+		bool isInState = true;
+		string stateName = "Block";
+	} : MeleeWeaponPSMPrereq;
+	CName effectorClassName = "ApplyStatGroupEffector";
+	fk< StatModifierGroup > statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.Health";
+				modifierType = "Additive";
+				value = 1000f;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+	applicationTarget = "";
+}
+
+TEST5 : Effector
+{
+	prereqRecord = "Prereqs.ProcessHitReceived";
+	effectorClassName = "SetTimeDilationEffector";
+	CName reason = "TEST5 Effector";
+	float dilation = 0.3f;
+	float duration = 3f;
+}
+
+TEST6 : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ApplyShaderOnEquipmentEffector";
+	CName overrideMaterialName = "cloaking_effect";
+	CName overrideMaterialTag = "cloak";
+}
+
+TESTW : ApplyStatusEffectByChanceEffector
+{
+	prereqRecord = 
+	{
+		stateName = "Jump";
+	} : LocomotionPSMPrereq;
+	fk< StatusEffect > statusEffect = "BaseStatusEffect.Burning";
+	effectorChance = 0.6f;
+}
+
+WeaponMalfunctionBlowUpWeapon : TriggerAttackOnOwnerEffect
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	attackRecord = "Attacks.WeaponMalfunctionBlowWeaponHackAttack";
+	bool playerAsInstigator = true;
+	bool triggerHitReaction = true;
+}
+
+WeaponMalfunctionBlowUpWeaponManMassive : TriggerAttackOnOwnerEffect
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	attackRecord = "Attacks.WeaponMalfunctionBlowWeaponHackAttackManMassive";
+	bool playerAsInstigator = true;
+	bool triggerHitReaction = true;
+}
+
+ForceSuicideMeleeWeapon : TriggerAttackOnOwnerEffect
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	attackRecord = "Attacks.ForceSuicideMeleeAttack";
+	bool playerAsInstigator = true;
+	CName attackPositionSlotName = "Head";
+}
+
+ForceSuicideGunWeapon : TriggerAttackOnOwnerEffect
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	attackRecord = "Attacks.ForceSuicideGunAttack";
+	bool playerAsInstigator = true;
+	CName attackPositionSlotName = "Head";
+}
+
+OverheatEffector : Effectors.TriggerAttackOnOwnerEffect
+{
+	attackRecord = "Attacks.OverheatQuickHackAttackInitial";
+	bool playerAsInstigator = true;
+	CName attackPositionSlotName = "Chest";
+}
+
+ContagionEffector : Effectors.TriggerAttackOnOwnerEffect
+{
+	attackRecord = "Attacks.ContagionAttackLevel1";
+	bool playerAsInstigator = true;
+	bool triggerHitReaction = true;
+}
+
+ContagionEffectorBounce2 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce2";
+}
+
+ContagionEffectorBounce3 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce3";
+}
+
+ContagionEffectorBounce4 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce4";
+}
+
+ContagionEffectorBounce5 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce5";
+}
+
+ContagionEffectorBounce6 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce6";
+}
+
+ContagionEffectorBounce7 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce7";
+}
+
+ContagionEffectorBounce8 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce8";
+}
+
+ContagionEffectorBounce9 : ContagionEffector
+{
+	attackRecord = "Attacks.ContagionAttackBounce9";
+}
+
+CyberwareMalfunctionAttackEffector : TriggerAttackOnOwnerEffect
+{
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	attackRecord = "Attacks.CyberwareMalfunctionAttack";
+	bool playerAsInstigator = true;
+	bool triggerHitReaction = true;
+}
+
+DismemberEffector : TriggerAttackOnOwnerEffect
+{
+	CName effectorClassName = "DismemberEffector";
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName bodyPart = "HEAD";
+	CName woundType = "CLEAN";
+	Vector3 hitPosition = ( 0.0f, 0.0f, 0.0f );
+	bool isCritical = true;
+}
+
+DismemberHeadEffector : DismemberEffector
+{
+	CName bodyPart = "HEAD";
+	CName woundType = "CLEAN";
+	Vector3 hitPosition = ( 0.2f, 0.3f, 1.f );
+	bool isCritical = true;
+}
+
+HealthtregenEffector : ApplyStatGroupOnPlayer
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "HousingStatusEffect.Refreshed";
+			} : RTDB.StatusEffectPrereq, 
+			{
+				statType = "HealthInCombatRegenEnabled";
+				valueToCheck = 2;
+				comparisonType = "Equal";
+			} : StatPrereq
+		];
+	} : MultiPrereq;
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.HealthInCombatRegenRateMult";
+				modifierType = "Additive";
+				value = 0.20f;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.HealthInCombatRegenEndThreshold";
+				modifierType = "Additive";
+				value = 20f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+IntrinsicModsEffector : ApplyStatGroupOnWeapon
+{
+	prereqRecord = "Prereqs.RangedWeaponHeldPrereq";
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.ZoomLevel";
+				modifierType = "Additive";
+				refStat = "BaseStats.IntrinsicZoomLevelBonus";
+				refObject = "Player";
+				opSymbol = "*";
+				value = 1f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.ReloadTimeBonus";
+				modifierType = "Additive";
+				refStat = "BaseStats.IntrinsicReloadTimeBonus";
+				refObject = "Player";
+				opSymbol = "*";
+				value = 0.01f;
+			} : CombinedStatModifier, 
+			{
+				statType = "BaseStats.EmptyReloadTime";
+				modifierType = "AdditiveMultiplier";
+				refStat = "BaseStats.IntrinsicReloadTimeBonus";
+				refObject = "Player";
+				opSymbol = "*";
+				value = 0.01f;
+			} : CombinedStatModifier
+		];
+	};
+}
+
+PoisonImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "PoisonImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Poisoned"
+	];
+}
+
+BleedingImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "BleedingImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Bleeding"
+	];
+}
+
+BurningImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "BurningImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Burning"
+	];
+}
+
+StunImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "StunImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"stunned"
+	];
+}
+
+BlindImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "BlindImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Blind"
+	];
+}
+
+KnockdownImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "KnockdownImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Knockdown"
+	];
+}
+
+QuickHackImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "QuickHackImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Quickhack"
+	];
+}
+
+ElectrocuteImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "ElectrocuteImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Electrocuted"
+	];
+}
+
+EMPImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "EMPImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"EMP"
+	];
+}
+
+UnconsciousImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "UnconsciousImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"Unconscious"
+	];
+}
+
+SystemCollapseImmunityEffector : RemoveStatusEffectsEffector
+{
+	prereqRecord = 
+	{
+		statType = "SystemCollapseImmunity";
+		valueToCheck = 0;
+		comparisonType = "Greater";
+	} : StatPrereq;
+	string[] effectTypes = 
+	[
+		"SystemCollapse"
+	];
+}
+
+UnderwaterExtinguish : ApplyStatGroupOnPlayer
+{
+	prereqRecord = 
+	{
+		stateName = "Diving";
+		isInState = true;
+	} : SwimmingPSMPrereq;
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.BurningImmunity";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+TutorialCyberwarePriceSwitch : ApplyStatGroupOnPlayer
+{
+	prereqRecord = "Prereqs.AfterFirstVisitAtVictor";
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.PostTutorialCyberwarePrice";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+PostLexWilsonBuyPriceSwitch : ApplyStatGroupOnPlayer
+{
+	prereqRecord = 
+	{
+		fact = "lexington_wilson_acquired";
+		value = 1;
+		comparisonType = "GreaterOrEqual";
+	} : FactValuePrereq;
+	statGroup = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.PostLexWilsonBuyPrice";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier
+		];
+	};
+}
+

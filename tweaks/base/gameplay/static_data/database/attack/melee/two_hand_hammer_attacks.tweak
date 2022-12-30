@@ -1,0 +1,518 @@
+package TwoHandHammerAttacks
+using RTDB, Attacks, AttackDirections
+
+TwoHandHammerComboAttackAbstract : Impact
+{
+	attackSubtype = "AttackType.ComboAttack";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 0.8f;
+	float idleTransitionTime = 1.5f;
+	float attackEffectDelay = 0.5f;
+	float attackEffectDuration = 0.06f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.52f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	audioTag = "light";
+	bool useAttackSlot = true;
+	float startupDuration = 0.3f;
+	float activeDuration = 0.3f;
+	float recoverDuration = 1.5f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 1.5f;
+	bool incrementsCombo = true;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 3;
+}
+
+TwoHandHammerComboAttack1 : TwoHandHammerComboAttackAbstract
+{
+	attackName = "MeleeComboAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+}
+
+TwoHandHammerComboAttack2 : TwoHandHammerComboAttackAbstract
+{
+	attackName = "MeleeComboAttack1";
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+}
+
+TwoHandHammerComboAttack3 : TwoHandHammerComboAttackAbstract
+{
+	attackName = "MeleeComboAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+}
+
+TwoHandHammerComboAttack4 : TwoHandHammerComboAttackAbstract
+{
+	attackName = "MeleeComboAttack3";
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftDownToRightUp";
+	audioTag = "normal";
+}
+
+TwoHandHammerFinalAttackAbstract : Impact
+{
+	attackSubtype = "AttackType.FinalAttack";
+	float attackWindowOpen = 10.f;
+	float attackWindowClosed = 10.f;
+	float idleTransitionTime = 1.5f;
+	float attackEffectDelay = 0.55f;
+	float attackEffectDuration = 0.06f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 0.35f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 30f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	audioTag = "heavy";
+	bool useAttackSlot = true;
+	float startupDuration = 0.35f;
+	float activeDuration = 0.35f;
+	float recoverDuration = 1.5f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 1.5f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	bool incrementsCombo = true;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 3;
+}
+
+TwoHandHammerFinalAttack1 : TwoHandHammerFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightDownToLeftUp";
+}
+
+TwoHandHammerFinalAttack2 : TwoHandHammerFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack1";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightDownToLeftUp";
+}
+
+TwoHandHammerFinalAttack3 : TwoHandHammerFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+}
+
+TwoHandHammerFinalAttack4 : TwoHandHammerFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack3";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightDownToLeftUp";
+}
+
+TwoHandHammerFinalAttack5 : TwoHandHammerFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack4";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightDownToLeftUp";
+	audioTag = "finisher";
+}
+
+TwoHandHammerFinalAttack6 : TwoHandHammerFinalAttackAbstract
+{
+	attackName = "MeleeFinalAttack5";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightUpToLeftDown";
+}
+
+TwoHandHammerStrongAttackAbstract : StrongImpact
+{
+	float attackWindowOpen = 0.7f;
+	float attackWindowClosed = 1.0f;
+	float idleTransitionTime = 1.5f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 2.0f;
+	float attackEffectDelay = 0.5f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	bool hasDeflectAnim = false;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 30f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	bool useAttackSlot = true;
+	float startupDuration = 0.3f;
+	float activeDuration = 0.3f;
+	float recoverDuration = 1.5f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 1.5f;
+	audioTag = "normal";
+	bool incrementsCombo = true;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.HitReactionDamageHealthFactor";
+			modifierType = "AdditiveMultiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
+	];
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 3;
+	bool enableMoveAssistOnLightAimAssist = true;
+}
+
+TwoHandHammerStrongAttack1 : TwoHandHammerStrongAttackAbstract
+{
+	attackName = "MeleeStrongAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+}
+
+TwoHandHammerStrongAttack2 : TwoHandHammerStrongAttackAbstract
+{
+	attackName = "MeleeStrongAttack1";
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+}
+
+TwoHandHammerStrongAttack3 : TwoHandHammerStrongAttackAbstract
+{
+	attackName = "MeleeStrongAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
+	audioTag = "heavy";
+}
+
+TwoHandHammerBlockAttack : Impact
+{
+	attackSubtype = "AttackType.BlockAttack";
+	attackName = "MeleeBlockAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.Center";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 0.8f;
+	float idleTransitionTime = 1.5f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.52f;
+	float attackEffectDelay = 0.52f;
+	float attackEffectDuration = 0.06f;
+	bool useAttackSlot = true;
+	float startupDuration = 0.37f;
+	float activeDuration = 0.3f;
+	float recoverDuration = 1.5f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 1.5f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 20.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+	audioTag = "light";
+	bool hasDeflectAnim = false;
+	bool hasHitAnim = false;
+}
+
+TwoHandHammerSafeAttack : Impact
+{
+	attackSubtype = "AttackType.SafeAttack";
+	attackName = "MeleeSafeAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
+	float attackWindowOpen = 0.3f;
+	float attackWindowClosed = 1.f;
+	float idleTransitionTime = 1.5f;
+	float attackEffectDelay = 0.4f;
+	float attackEffectDuration = 0.06f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.52f;
+	bool useAttackSlot = true;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 25.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	float startupDuration = 0.3f;
+	float activeDuration = 0.3f;
+	float recoverDuration = 1.5f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 1.5f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	bool hasDeflectAnim = false;
+	bool hasHitAnim = false;
+	bool incrementsCombo = true;
+}
+
+TwoHandHammerDeflectAttack : Impact
+{
+	attackSubtype = "AttackType.DeflectAttack";
+	attackName = "MeleeDeflectAttack0";
+	float attackWindowOpen = 0.37f;
+	float attackWindowClosed = 0.8f;
+	float idleTransitionTime = 1.f;
+	float blockTransitionTime = 1.f;
+	float addedImpulse = 5.f;
+	float addedImpulseDelay = 0.33f;
+	float minimumDistanceToTargetToAddImpulse = 4.f;
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftUpToRightDown";
+	float attackEffectDelay = 0.4f;
+	float attackEffectDuration = 0.1f;
+	float trailStartDelay = 0.2f;
+	float trailStopDelay = 0.6f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	bool disableAdjustingPlayerPositionToTarget = true;
+	bool hasHitAnim = false;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+TwoHandHammerSprintAttack : Impact
+{
+	attackSubtype = "AttackType.SprintAttack";
+	attackName = "MeleeSprintAttack0";
+	float attackWindowOpen = 0.759f;
+	float attackWindowClosed = 1.452f;
+	float idleTransitionTime = 1.5f;
+	float cameraSpaceImpulse = 4.f;
+	float impulseDelay = 0.f;
+	fk< AttackDirection > attackDirection = "AttackDirections.RightUpToLeftDown";
+	float attackEffectDelay = 0.48f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	bool useAttackSlot = true;
+	float startupDuration = 0.3f;
+	float activeDuration = 0.3f;
+	float recoverDuration = 0.6f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 0.6f;
+	audioTag = "heavy";
+	bool incrementsCombo = true;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+TwoHandHammerJumpAttack : Impact
+{
+	attackSubtype = "AttackType.JumpAttack";
+	attackName = "MeleeJumpAttack0";
+	float attackWindowOpen = 0.7f;
+	float attackWindowClosed = 1.2f;
+	float idleTransitionTime = 1.5f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.f;
+	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
+	float attackEffectDelay = 0.4f;
+	float attackEffectDuration = 0.06f;
+	bool useAttackSlot = true;
+	float startupDuration = 0.3f;
+	float activeDuration = 0.2f;
+	float recoverDuration = 1.5f;
+	float activeHitDuration = 0.3f;
+	float recoverHitDuration = 1.5f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	audioTag = "finisher";
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+TwoHandHammerCrouchAttack : Impact
+{
+	attackSubtype = "AttackType.CrouchAttack";
+	attackName = "MeleeCrouchAttack0";
+	float attackWindowOpen = 0.759f;
+	float attackWindowClosed = 1.452f;
+	float idleTransitionTime = 1.5f;
+	float cameraSpaceImpulse = -1.f;
+	float impulseDelay = 0.f;
+	fk< AttackDirection > attackDirection = "AttackDirections.DownToUp";
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.StaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	hitFlags = 
+	[
+		"Nonlethal"
+	];
+	bool hasDeflectAnim = false;
+	bool hasHitAnim = false;
+	float attackEffectDelay = 0.4f;
+	float attackEffectDuration = 0.06f;
+	float trailStartDelay = 0.3f;
+	float trailStopDelay = 0.7f;
+	bool useAttackSlot = true;
+	float startupDuration = 0.3f;
+	float activeDuration = 0.3f;
+	float recoverDuration = 0.6f;
+	bool incrementsCombo = true;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+

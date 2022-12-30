@@ -1,0 +1,378 @@
+package BaseStatusEffect
+using RTDB, Perks
+
+Electrocuted : DoTStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Electrocuted";
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_electrocuted";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusElectrified";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.ElectrocutedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.9f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanElectrocuteNullifyStats";
+					modifierType = "Additive";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanElectrocuteNullifyStats";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.CanElectrocuteRoot";
+					modifierType = "Additive";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanElectrocuteRoot";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.HasCybereye";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 1;
+						statType = "CanElectrocuteRoot";
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MaxSpeed";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 1;
+						statType = "CanElectrocuteNullifyStats";
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.Armor";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ThermalResistance";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ChemicalResistance";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ElectricResistance";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.ElectrocuteImmunity"
+	];
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Electrocuted";
+		string iconPath = "electricuted";
+	};
+}
+
+PlayerElectrocuted : Electrocuted
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refStat = "BaseStats.DurationReductionDot";
+				refObject = "Player";
+				opSymbol = "*";
+				value = -0.01f;
+			} : CombinedStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.ElectrocutedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.9f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanElectrocuteNullifyStats";
+					modifierType = "Additive";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanElectrocuteNullifyStats";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.CanElectrocuteRoot";
+					modifierType = "Additive";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanElectrocuteRoot";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.HasCybereye";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.NPCElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 1;
+						statType = "CanElectrocuteRoot";
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MaxSpeed";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 1;
+						statType = "CanElectrocuteNullifyStats";
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.Armor";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ThermalResistance";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ChemicalResistance";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ElectricResistance";
+								modifierType = "Additive";
+								value = -50f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ElectrocutedParticleStatus : Electrocuted
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = "";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.ElectrocutedParticleStatusSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 1f;
+					attackRecord = "Attacks.EnvironmentalElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+FatalElectrocutedParticleStatus : Electrocuted
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = "";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.ElectrocutedParticleStatusSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 1f;
+					attackRecord = "Attacks.FatalEnvironmentalElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ElectrocutedSFX : Effector
+{
+	prereqRecord = 
+	{
+		prereqClassName = "IsPlayerPrereq";
+	} : IPrereq;
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_electrocuted_start";
+	CName deactivationSFXName = "vfx_fullscreen_electrocuted_stop";
+	bool unique = true;
+}
+
+ElectrocutedParticleStatusSFX : Effector
+{
+	prereqRecord = 
+	{
+		prereqClassName = "IsPlayerPrereq";
+	} : IPrereq;
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_electrocuted_start";
+	CName deactivationSFXName = "vfx_fullscreen_electrocuted_stop";
+	bool unique = true;
+}
+

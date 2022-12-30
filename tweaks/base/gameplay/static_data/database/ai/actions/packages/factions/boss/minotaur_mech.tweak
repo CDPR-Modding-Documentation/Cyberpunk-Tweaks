@@ -1,0 +1,2026 @@
+package MinotaurMech
+using RTDB, GenericArchetype, StatusEffectActions, ReactionsActions, RoyceExo, AIActionTarget
+
+Map : ActionMap
+{
+	defaultMap = 
+	{
+		map = 
+		[
+			{
+				node = "GenericArchetype.EnterIdle";
+				isOverriddenBy = "MinotaurMech.EnterIdle";
+			}, 
+			{
+				node = "GenericArchetype.EnterAlerted";
+				isOverriddenBy = "DroneArchetype.EnterAlerted";
+			}, 
+			{
+				node = "GenericArchetype.EnterCombat";
+				isOverriddenBy = "DroneArchetype.EnterCombat";
+			}, 
+			{
+				node = "GenericArchetype.SE_WeaponJammed";
+				isOverriddenBy = "MinotaurMech.SE_WeaponJammed";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackStaggerLocomotion";
+				isOverriddenBy = "MinotaurMech.SE_QuickHackStaggerLocomotion";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackFreezeLocomotion";
+				isOverriddenBy = "MinotaurMech.SE_QuickHackFreezeLocomotion";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlindQuickhackCombat";
+				isOverriddenBy = "MinotaurMech.SE_BlindQuickhackCombat";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlindQuickhackStealth";
+				isOverriddenBy = "MinotaurMech.SE_BlindQuickhackStealth";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlindDefault";
+				isOverriddenBy = "MinotaurMech.SE_BlindDefault";
+			}, 
+			{
+				node = "StatusEffectActions.SE_CommsNoise";
+				isOverriddenBy = "MinotaurMech.SE_CommsNoise";
+			}, 
+			{
+				node = "StatusEffectActions.SE_CommsCallIn";
+				isOverriddenBy = "MinotaurMech.SE_CommsCallIn";
+			}, 
+			{
+				node = "StatusEffectActions.SE_CommsCallInCombat";
+				isOverriddenBy = "MinotaurMech.SE_CommsCallInCombat";
+			}, 
+			{
+				node = "GenericArchetype.SE_SetFriendly";
+				isOverriddenBy = "MinotaurMech.SE_SetFriendly";
+			}, 
+			{
+				node = "ReactionsActions.CallOffSquad";
+				isOverriddenBy = "MinotaurMech.GoBackToIdle";
+			}, 
+			{
+				node = "ReactionsActions.CallSquadTalk";
+				isOverriddenBy = "MinotaurMech.CallSquadTalk";
+			}, 
+			{
+				node = "ReactionsActions.LookAroundForIntruder";
+				isOverriddenBy = "MinotaurMech.LookAroundForIntruder";
+			}, 
+			{
+				node = "ReactionsActions.LookAroundForIntruderUnarmed";
+				isOverriddenBy = "MinotaurMech.LookAroundForIntruder";
+			}, 
+			{
+				node = "ReactionsActions.LookAtExplosionSource";
+				isOverriddenBy = "MechReactionsActions.RotateToStimSource";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BrainMelt";
+				isOverriddenBy = "MinotaurMech.SE_BrainMelt";
+			}
+		];
+	};
+}
+
+EnterIdle : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"MinotaurMech.EquipSmartHMG", "MinotaurMech.TryActivateIdleLights", "GenericArchetype.Success"
+	];
+}
+
+EnterAlerted : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"MinotaurMech.TryActivatAlertedLights", "GenericArchetype.Success"
+	];
+}
+
+EnterCombat : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"MinotaurMech.TryActivateCombatLights", "GenericArchetype.Success"
+	];
+}
+
+TryActivateIdleLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Idle";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+TryActivatAlertedLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.LookingForIntruder";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+TryActivateCombatLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+CombatTreeCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectMinotaurRightExplosion", "Condition.NotStatusEffectMinotaurLeftExplosion"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipSmartHMGSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.EquipSmartHMG", "GenericArchetype.Success"
+	];
+}
+
+EquipSmartHMGCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasHeavyMachineGun"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipSmartHMG : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+			locomotionMode = "Moving";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Minotaur_HMG_Right";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.Minotaur_HMG_Left";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipLauncherSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.EquipLauncher", "GenericArchetype.Success"
+	];
+}
+
+EquipLauncherCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasShotgun"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipLauncher : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Minotaur_Launcher_Right";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.Minotaur_Launcher_Left";
+		} : AISubActionForceEquip
+	];
+}
+
+RotateToTargetNoLimitCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove90deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+RotateToTargetNoLimit : RotateToTarget
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+			minDistance = 3.f;
+			tolerance = 50.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow15deg", {
+							AND = 
+							[
+								"Condition.CalculatePathStraightToTarget", "Condition.TargetBelow3m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+RotateToTargetCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove10deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+WalkToTargetSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.WalkToTarget", "GenericArchetype.Success"
+	];
+}
+
+WalkToTargetConditionDistance : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove10m", "Condition.NotInStatesAttack", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+}
+
+WalkToTargetConditionNoStraightPath : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCalculatePathStraightToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+WalktToTargetCatchUp : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove3m", "Condition.NotMinAccuracyValue0dot66", "Condition.NotTargetIsVisible", "Condition.NotTargetInvalidExpectation"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+			locomotionMode = "Moving";
+		};
+		toNextPhaseConditionCheckInterval = 0.3f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			tolerance = 2.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached", {
+							AND = 
+							[
+								"Condition.MinAccuracyValue0dot95", "Condition.TargetIsVisible", "Condition.TargetBelow12m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+WalkToTarget : RoyceExo.WalkToTarget
+{
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+WalkToTargetAway : RoyceExo.WalkToTargetAway
+{
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+StrafeSelector : RoyceExo.StrafeSelector
+{
+	actions = 
+	[
+		"MinotaurMech.StrafeRight", "MinotaurMech.StrafeLeft"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+StrafeLeft : RoyceExo.StrafeLeft
+{
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+StrafeRight : RoyceExo.StrafeRight
+{
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+WalkTotargetMeleeCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMechWeaponRightWeakspot", "Condition.NotHasMechWeaponLeftWeakspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+WalkToTargetMelee : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Keep";
+			tolerance = 1.5f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged", "Condition.NotCalculatePathStraightToTarget", "Condition.InStatesStatic", "Condition.PathFindingFailed", {
+							AND = 
+							[
+								"Condition.TargetBelow120deg", "Condition.TargetBelow3mPrediction"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+			locomotionMode = "Moving";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SingleMeleeAttackStrongCondition : AIAction
+{
+	cooldowns = 
+	[
+		"MinotaurMech.MeleeAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow4mPrediction", "Condition.NotStatusEffectTargetKnockdown"
+			];
+		} : AIActionAND;
+	};
+}
+
+SingleMeleeAttackStrong01 : AIAction
+{
+	cooldowns = 
+	[
+		"MinotaurMech.MeleeAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.2f;
+			attack = "NPCAttacks.StrongAttackStompKnockdown";
+			attackRange = 12.5f;
+			attackTime = 0.f;
+			attackName = "StompAttackStagger";
+		} : AISubActionAttackWithWeapon, 
+		{
+			name = "stomp_crush";
+			delay = 0.f;
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "MeleeAttack";
+		animSlot = 
+		{
+			startupSlide = "MinotaurMech.RotateSlideData";
+		};
+	};
+}
+
+SingleMeleeAttackStrong180Condition : AIAction
+{
+	cooldowns = 
+	[
+		"MinotaurMech.MeleeAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3mPrediction", "Condition.NotStatusEffectTargetKnockdown"
+			];
+		} : AIActionAND;
+	};
+}
+
+SingleMeleeAttackStrong180 : AIAction
+{
+	cooldowns = 
+	[
+		"MinotaurMech.MeleeAttackCooldown"
+	];
+	startup = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.2f;
+			attack = "NPCAttacks.StrongAttackStompKnockdown";
+			attackRange = 7.5f;
+			attackTime = 0.f;
+			attackName = "StompAttackStagger";
+		} : AISubActionAttackWithWeapon, 
+		{
+			name = "stomp_crush";
+			delay = 0.f;
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "MeleeAttack";
+		animVariation = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+ForceShootCommandCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.AIForceShootCommand", "Condition.AIShootCommand"
+			];
+		} : AIActionOR;
+	};
+}
+
+AimAttackHMGSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackHMG", "MinotaurMech.SetAimAttackHMGooldown", "GenericArchetype.Success"
+	];
+}
+
+AimAttackHMGRightSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackHMGRight", "MinotaurMech.SetAimAttackHMGooldown", "GenericArchetype.Success"
+	];
+}
+
+AimAttackHMGLeftSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackHMGLeft", "MinotaurMech.SetAimAttackHMGooldown", "GenericArchetype.Success"
+	];
+}
+
+AimAttackHMGOnPlaceSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackHMGOnPlace", "MinotaurMech.SetAimAttackHMGooldown", "GenericArchetype.Success"
+	];
+}
+
+AimAttackHMGOnPlaceRightSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackHMGOnPlaceRight", "MinotaurMech.SetAimAttackHMGooldown", "GenericArchetype.Success"
+	];
+}
+
+AimAttackHMGOnPlaceLeftSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackHMGOnPlaceLeft", "MinotaurMech.SetAimAttackHMGooldown", "GenericArchetype.Success"
+	];
+}
+
+AimAttackLauncherSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MinotaurMech.AimAttackLauncher", "MinotaurMech.SetAimAttackLauncherooldown", "GenericArchetype.Success"
+	];
+}
+
+SetAimAttackHMGooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MinotaurMech.AimAttackCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetAimAttackLauncherooldown : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MinotaurMech.AimAttackLauncherCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+WeaponNotJammedCondition : AimAttackHMGCondition
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotIsNPCUnderWeaponMalfunctionQuickhack";
+	};
+}
+
+AimAttackLauncherCondition : AIAction
+{
+	cooldowns = 
+	[
+		"MinotaurMech.AimAttackLauncherCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackHMGConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MinotaurMech.AimAttackCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackHMGCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible", "Condition.HasMechWeaponRightWeakspot", "Condition.HasMechWeaponLeftWeakspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackHMGRightCondition : AimAttackHMGCondition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible", "Condition.HasMechWeaponRightWeakspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackHMGLeftCondition : AimAttackHMGCondition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsVisible", "Condition.HasMechWeaponLeftWeakspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+EnableLookAt : AIAction
+{
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+MechShootingPauseCondition : AIActionOR
+{
+	OR = 
+	[
+		"Condition.TargetAbove90deg", "Condition.FriendlyFire", "Condition.DontShootCombatTarget", "Condition.AIAimAtTargetCommand"
+	];
+}
+
+AimAttackHMG_PauseCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			"MinotaurMech.MechShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistance"
+		];
+	} : AIActionOR;
+}
+
+AimAttackHMG : AIAction
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			name = "flare";
+		} : AISubActionSpawnFX, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 40;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+			pauseCondition = 
+			[
+				"MinotaurMech.AimAttackHMG_PauseCondition"
+			];
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MinotaurChassis";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.MinotaurLeftWeapon";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.MinotaurRightWeapon";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+AimAttackHMGRight : AimAttackHMG
+{
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			numberOfShots = 40;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"MinotaurMech.MechShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistance"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+}
+
+AimAttackHMGLeft : AimAttackHMG
+{
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			numberOfShots = 40;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"MinotaurMech.MechShootingPauseCondition", "Condition.NotValidVisibilityToTargetDistance"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+}
+
+AimAttackHMGOnPlace : AimAttackHMG
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction", "Condition.TargetBelow45deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			name = "flare";
+		} : AISubActionSpawnFX, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			numberOfShots = 20;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			numberOfShots = 20;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootPrecise";
+		animSlot = 
+		{
+		};
+	};
+}
+
+AimAttackHMGOnPlaceRight : AimAttackHMGOnPlace
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			numberOfShots = 20;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+}
+
+AimAttackHMGOnPlaceLeft : AimAttackHMGOnPlace
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			name = "flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			numberOfShots = 20;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.FullAutoShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+}
+
+AimAttackLauncher : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualRightShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.CombatTarget;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+		} : AISubActionShootToPoint
+	];
+	recoverySubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionForceUnequip
+	];
+}
+
+GoBackToIdle : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ScanResultsIgnored";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+LookAroundForIntruder : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotIsUsingOffMeshLink";
+	};
+	startup = 
+	{
+		duration = 2.1f;
+	};
+	loop = 
+	{
+		duration = 2.1f;
+	};
+	recovery = 
+	{
+		duration = 2.167f;
+	};
+	subActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SpecialStaggerLeftCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectMinotaurLeftExplosion"
+			];
+		} : AIActionAND;
+	};
+}
+
+SpecialStaggerRightCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectMinotaurRightExplosion"
+			];
+		} : AIActionAND;
+	};
+}
+
+SpecialStaggerLeft : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "StaggerLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SpecialStaggerRight : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "StaggerRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_WeaponJammed : AIAction
+{
+	loop = 
+	{
+		duration = 0.000000001f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_QuickHackStaggerLocomotion : StatusEffectActions.SE_QuickHackStaggerLocomotion
+{
+	startup = 
+	{
+		duration = 0.3f;
+	};
+	loop = 
+	{
+		duration = 1.367f;
+	};
+	recovery = 
+	{
+		duration = 0.533f;
+	};
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "SE_Shock";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackFreezeLocomotion : StatusEffectActions.SE_QuickHackFreezeLocomotion
+{
+	startup = 
+	{
+		duration = 1.f;
+	};
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "SE_MechMalfunction";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BrainMelt : AIActionSelector
+{
+	actions = 
+	[
+		"MinotaurMech.SE_BrainMeltArmed", "MinotaurMech.SE_BrainMeltUnarmed"
+	];
+}
+
+SE_BrainMeltArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeBrainMelt"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.3f;
+	};
+	loop = 
+	{
+		duration = 1.367f;
+	};
+	recovery = 
+	{
+		duration = 0.533f;
+	};
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "SE_Shock";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BrainMeltUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeBrainMelt"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.3f;
+	};
+	loop = 
+	{
+		duration = 1.367f;
+	};
+	recovery = 
+	{
+		duration = 0.533f;
+	};
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "SE_Shock";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BlindBase : StatusEffectActions.SE_BlindBase
+{
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BlindDefault : MinotaurMech.SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedRegular"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			name = "stlh_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_BlindQuickhackCombat : MinotaurMech.SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack", "Condition.InStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			name = "combat_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_BlindQuickhackStealth : MinotaurMech.SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			name = "stlh_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_CommsNoise : StatusEffectActions.SE_CommsNoise
+{
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CommsCallIn : StatusEffectActions.SE_CommsCallIn
+{
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+			delay = 0.f;
+		} : AISubActionTriggerStim, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_CommsCallInCombat : StatusEffectActions.SE_CommsCallInCombat
+{
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.CombatCall";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+			delay = 0.f;
+		} : AISubActionTriggerStim, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_SetFriendly : StatusEffectActions.SE_SetFriendly
+{
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Friendly";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+CallSquadTalk : ReactionsActions.CallSquadTalk
+{
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+AimAttackCooldown : AIActionCooldown
+{
+	name = "AimAttackCooldown";
+	duration = 0.f;
+}
+
+AimAttackLauncherCooldown : AIActionCooldown
+{
+	name = "AimAttackCooldown";
+	duration = 2.f;
+}
+
+MeleeAttackCooldown : AIActionCooldown
+{
+	name = "MeleeAttackCooldown";
+	duration = 3.f;
+}
+
+RotateSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 30.f;
+	distance = 0.1f;
+	offsetToTarget = 1.5f;
+	finalRotationAngle = 10.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+}
+
+AIScanTargetCommand : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIScanTargetCommand"
+			];
+		} : AIActionAND;
+	};
+}
+
+Scan : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+	subActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+

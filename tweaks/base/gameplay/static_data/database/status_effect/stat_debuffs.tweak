@@ -1,0 +1,393 @@
+package BaseStatusEffect
+using RTDB, Perks
+
+Stat_Debuff : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_decreased_stats";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Stats Decreased";
+		string iconPath = "decreased_stats_icon";
+		priority = -8.0f;
+	};
+}
+
+LowAccuracy : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Accuracy";
+					modifierType = "Multiplier";
+					value = 0.02f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+Exhausted : Stat_Debuff
+{
+	statusEffectType = "BaseStatusEffectTypes.Exhausted";
+	CName[] gameplayTags = 
+	[
+		"Exhausted"
+	];
+	packages = 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"se_exhausted"
+			];
+		}
+	];
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Exhausted";
+		string iconPath = "decreased_stats_icon";
+		priority = -8.0f;
+	};
+}
+
+Grappled : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Grapple";
+	gameplayTags = 
+	[
+		"Debuff", "DropHeldItems", "Blind", "Deaf"
+	];
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Evasion";
+					modifierType = "Multiplier";
+					value = 0.5;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+DisableCyberware : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		"GLP.DeactivateCyberware"
+	];
+}
+
+Vulnerable : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	additionalParam = "Vulnerable";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+MajorVulnerable : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	additionalParam = "Vulnerable";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 90;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = -30;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					refStat = "BaseStats.ElementalResistanceMultiplier";
+					refObject = "Player";
+					opSymbol = "*";
+					value = -30f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					refStat = "BaseStats.ElementalResistanceMultiplier";
+					refObject = "Player";
+					opSymbol = "*";
+					value = -30f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					refStat = "BaseStats.ElementalResistanceMultiplier";
+					refObject = "Player";
+					opSymbol = "*";
+					value = -30f;
+				} : CombinedStatModifier
+			];
+		}
+	];
+	fk< StatusEffectUIData > uiData = 
+	{
+		displayName = "Stats Decreased";
+		iconPath = "decreased_stats_icon";
+	};
+}
+
+Weak : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	additionalParam = "Vulnerable";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = -20;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+NoCyberware : StatusEffect
+{
+	packages = 
+	[
+		"GLP.DeactivateCyberware"
+	];
+}
+
+NPCBaseMeleeDebuff : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.8;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+Brawling_Area_04_Perk_2_Vulnerable_Level_1 : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	additionalParam = "Vulnerable";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.ProcessHitReceived";
+					value = 1.2f;
+				} : MultiplyDamage
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Brawling_Area_04_Perk_2_Vulnerable_Level_2 : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	additionalParam = "Vulnerable";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.ProcessHitReceived";
+					value = 1.4f;
+				} : MultiplyDamage
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Brawling_Area_04_Perk_2_Vulnerable_Level_3 : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	additionalParam = "Vulnerable";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.ProcessHitReceived";
+					value = 1.3f;
+				} : MultiplyDamage
+			];
+		} : GameplayLogicPackage
+	];
+}
+

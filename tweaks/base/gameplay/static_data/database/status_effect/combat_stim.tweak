@@ -1,0 +1,72 @@
+package BaseStatusEffect
+using RTDB
+
+CombatStim : BuffStatusEffect
+{
+	bool replicated = true;
+	CName[] gameplayTags += 
+	[
+		"Regeneration"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	VFX = 
+	[
+		{
+			name = "splinter_buff";
+		}, 
+		{
+			name = "status_drugged";
+		}, 
+		{
+			name = "stand_inhale_drug_exhale";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 16.67;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector
+			];
+			stats = 
+			[
+				{
+					statType = "BaseStats.HitReactionFactor";
+					modifierType = "Multiplier";
+					value = 0.8f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40965";
+		iconPath = "regeneration_icon";
+		priority = -7.0f;
+	};
+}
+

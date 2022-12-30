@@ -1,0 +1,951 @@
+package MinigameAction
+using RTDB, QuickHack, DeviceAction, AIQuickHackStatusEffect, BaseStatusEffect
+
+BasicAccess : MinigameAction
+{
+	complexity = 10f;
+	type = "MinigameAction.Both";
+}
+
+Device : MinigameActionType
+{
+	enumName = "Device";
+}
+
+NPC : MinigameActionType
+{
+	enumName = "NPC";
+}
+
+Both : MinigameActionType
+{
+	enumName = "Both";
+}
+
+AccessPoint : MinigameActionType
+{
+	enumName = "AccessPoint";
+}
+
+CameraAccess : MinigameCategory
+{
+	enumName = "Camera Access";
+}
+
+TurretAccess : MinigameCategory
+{
+	enumName = "Turret Access";
+}
+
+SecurityAccess : MinigameCategory
+{
+	enumName = "Security Access";
+}
+
+DataAccess : MinigameCategory
+{
+	enumName = "Data Access";
+}
+
+Trojan : MinigameCategory
+{
+	enumName = "Trojan";
+	enumComment = "Uploads programs that serve as bridges to facilitate more complex operations";
+}
+
+WeaponAccess : MinigameCategory
+{
+	enumName = "Weapon Access";
+}
+
+CyberwareAccess : MinigameCategory
+{
+	enumName = "Cyberware Access";
+}
+
+NeuralAccess : MinigameCategory
+{
+	enumName = "Neural Access";
+}
+
+DefenseSystemAccess : MinigameCategory
+{
+	enumName = "Defense System Access";
+}
+
+DeviceMinigameAction : MinigameAction
+{
+	objectActionType = "ObjectActionType.DeviceQuickHack";
+	activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2f;
+		} : ConstantStatModifier
+	];
+}
+
+NetworkTurretShutdown : DeviceMinigameAction
+{
+	CName actionName = "ProgramSetDeviceOff";
+	CName targetClass = "SecurityTurretControllerPS";
+	complexity = 15f;
+	memoryCost = 5f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.TurretAccess";
+	duration = 180f;
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkTurretShutdown";
+}
+
+NetworkCameraShutdown : DeviceMinigameAction
+{
+	CName actionName = "ProgramSetDeviceOff";
+	CName targetClass = "SurveillanceCameraControllerPS";
+	complexity = 5f;
+	memoryCost = 4f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.CameraAccess";
+	duration = 180f;
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkCameraShutdown";
+}
+
+NetworkCameraMalfunction : DeviceMinigameAction
+{
+	CName targetClass = "SurveillanceCameraControllerPS";
+	complexity = 5f;
+	memoryCost = 2f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.CameraAccess";
+	completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ReducedDetection";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkCameraMalfunction";
+}
+
+NetworkTurretMalfunction : DeviceMinigameAction
+{
+	CName targetClass = "SecurityTurretControllerPS";
+	complexity = 5f;
+	memoryCost = 3f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.TurretAccess";
+	completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ReducedDetection";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkTurretMalfunction";
+}
+
+NetworkCameraTagSeenEnemies : DeviceMinigameAction
+{
+	CName actionName = "CameraTagSeenEnemies";
+	CName targetClass = "SurveillanceCameraControllerPS";
+	complexity = 30f;
+	memoryCost = 7f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.CameraAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkCameraTagEnemies";
+}
+
+NetworkCameraFriendly : DeviceMinigameAction
+{
+	CName actionName = "ProgramSetDeviceAttitude";
+	CName targetClass = "SurveillanceCameraControllerPS";
+	complexity = 20f;
+	memoryCost = 7f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.CameraAccess";
+	duration = 180f;
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkCameraFriendly";
+}
+
+NetworkTurretFriendly : DeviceMinigameAction
+{
+	CName actionName = "ProgramSetDeviceAttitude";
+	CName targetClass = "SecurityTurretControllerPS";
+	complexity = 35f;
+	memoryCost = 8f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.TurretAccess";
+	duration = 180f;
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkTurretFriendly";
+}
+
+NetworkDoorAuthorization : DeviceMinigameAction
+{
+	CName actionName = "SetAuthorizationModuleOFF";
+	CName targetClass = "DoorControllerPS";
+	complexity = 5f;
+	memoryCost = 3f;
+	type = "MinigameAction.Device";
+	category = "MinigameAction.SecurityAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDoorAuthorization";
+}
+
+NetworkLootShard : MinigameAction
+{
+	complexity = 25f;
+	memoryCost = 6f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkLootShard";
+}
+
+NetworkLootMaterials : MinigameAction
+{
+	complexity = 10f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkLootMaterials";
+}
+
+NetworkLootMoney : MinigameAction
+{
+	complexity = 10f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkLootMoney";
+}
+
+NetworkDataMineLootAll : MinigameAction
+{
+	complexity = 5f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootAll";
+}
+
+NetworkDataMineLootAllAdvanced : MinigameAction
+{
+	complexity = 20f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootAllAdvanced";
+}
+
+NetworkDataMineLootAllAdvanced2 : MinigameAction
+{
+	complexity = 20f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootAllAdvanced";
+}
+
+NetworkDataMineLootAllMaster : MinigameAction
+{
+	complexity = 45f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootAllMaster";
+}
+
+NetworkLootQ003 : MinigameAction
+{
+	complexity = 40f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	factName = "q003_militech_virus_not_removed";
+	showPopup = true;
+	factValue = 1;
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootQ003";
+}
+
+NetworkLootMQ024 : MinigameAction
+{
+	complexity = 40f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootQ003";
+}
+
+NetworkLootMQ015 : MinigameAction
+{
+	complexity = 40f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootQ003";
+}
+
+NetworkLootMQ015Recipe : MinigameAction
+{
+	complexity = 25f;
+	memoryCost = 3f;
+	type = "MinigameAction.AccessPoint";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkDataMineLootQ015Recipe";
+}
+
+NetworkAntivirus : MinigameAction
+{
+	complexity = 15f;
+	memoryCost = 4f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DataAccess";
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkAntivirus";
+}
+
+PuppetMinigameAction : MinigameAction
+{
+	objectActionType = "ObjectActionType.PuppetQuickHack";
+	type = "MinigameAction.NPC";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 2f;
+		} : ConstantStatModifier
+	];
+}
+
+NetworkSuicideHack : PuppetMinigameAction
+{
+	CName actionName = "Mass Suicide";
+	complexity = 60f;
+	memoryCost = 7f;
+	category = "MinigameAction.NeuralAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuicideWithWeapon";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkMassSuicide";
+}
+
+NetworkPingHack : PuppetMinigameAction
+{
+	CName actionName = "Ping";
+	complexity = 1f;
+	memoryCost = 1f;
+	category = "MinigameAction.CyberwareAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Ping";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.PingHack";
+}
+
+NetworkAutoJamHack : PuppetMinigameAction
+{
+	CName actionName = "AutoJam";
+	complexity = 30f;
+	memoryCost = 5f;
+	category = "MinigameAction.CyberwareAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.AutoJam";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.AutoJamHack";
+}
+
+NetworkAutoBlindHack : PuppetMinigameAction
+{
+	CName actionName = "AutoBlind";
+	complexity = 20f;
+	memoryCost = 3f;
+	category = "MinigameAction.CyberwareAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.AutoBlind";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.AutoBlindHack";
+}
+
+NetworkAutoLocomotionHack : PuppetMinigameAction
+{
+	CName actionName = "AutoLocomotion";
+	complexity = 5f;
+	memoryCost = 3f;
+	category = "MinigameAction.CyberwareAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.AutoLocomotion";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.AutoLocomotionHack";
+}
+
+NetworkMadnessHack : PuppetMinigameAction
+{
+	CName actionName = "Mass Madness";
+	complexity = 55f;
+	memoryCost = 9f;
+	category = "MinigameAction.NeuralAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Madness";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkMassMadness";
+}
+
+NetworkWeaponMalfunctionHack : PuppetMinigameAction
+{
+	complexity = 5f;
+	memoryCost = 2f;
+	category = "MinigameAction.WeaponAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.WeaponMalfunctionMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkWeaponMalfunction";
+}
+
+NetworkJamWeaponHack : PuppetMinigameAction
+{
+	complexity = 15f;
+	memoryCost = 5f;
+	category = "MinigameAction.WeaponAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.JamWeaponMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkJamWeapon";
+}
+
+NetworkCyberwareMalfunctionHack : PuppetMinigameAction
+{
+	complexity = 15f;
+	memoryCost = 3f;
+	category = "MinigameAction.CyberwareAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.CyberwareMalfunctionMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkCyberwareMalfunction";
+}
+
+NetworkVulnerableNPCs : PuppetMinigameAction
+{
+	CName targetClass = "NPCPuppet";
+	complexity = 25f;
+	memoryCost = 4f;
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.VulnerabilityMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkVulnerableNPCs";
+}
+
+NetworkWeakNPCs : PuppetMinigameAction
+{
+	CName targetClass = "NPCPuppet";
+	complexity = 5f;
+	memoryCost = 3f;
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.WeaknessMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkWeakNPCs";
+}
+
+NetworkLowerICEMinorFirst : PuppetMinigameAction
+{
+	complexity = 5f;
+	memoryCost = 3f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigameMinor";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuccessfullICEBreakerTutorial";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkICEBrokenNPCs";
+}
+
+NetworkLowerICEMinorSecond : PuppetMinigameAction
+{
+	complexity = 1f;
+	memoryCost = 3f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigameMinor";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuccessfullICEBreakerTutorial";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkICEBrokenNPCs";
+}
+
+NetworkLowerICEMinorThird : PuppetMinigameAction
+{
+	complexity = 1f;
+	memoryCost = 3f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigameMinor";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuccessfullICEBreakerTutorial";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkICEBrokenNPCs";
+}
+
+NetworkLowerICEMedium : PuppetMinigameAction
+{
+	complexity = 20f;
+	memoryCost = 3f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigameMedium";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuccessfullICEBreakerTutorial";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkMediumICEBrokenNPCs";
+}
+
+NetworkLowerICETutorial : PuppetMinigameAction
+{
+	complexity = 20f;
+	memoryCost = 3f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigameMajor";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuccessfullICEBreakerTutorial";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkICEBrokenNPCsTutorial";
+}
+
+NetworkLowerICEMajor : PuppetMinigameAction
+{
+	complexity = 40f;
+	memoryCost = 3f;
+	type = "MinigameAction.Both";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigameMajor";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SuccessfullICEBreakerTutorial";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkMajorICEBrokenNPCs";
+}
+
+NetworkLowerICEPlacide : PuppetMinigameAction
+{
+	complexity = 40f;
+	memoryCost = 3f;
+	type = "MinigameAction.NPC";
+	category = "MinigameAction.DefenseSystemAccess";
+	fk< StatModifier >[] activationTime = 
+	[
+		{
+			statType = "BaseStats.QuickHackUpload";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.ICEBrokenMinigamePlacide";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkICEBrokenNPCs";
+}
+
+NetworkSuicideMotion : PuppetMinigameAction
+{
+	complexity = 10f;
+	memoryCost = 3f;
+	category = "MinigameAction.NeuralAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.SuicideMotion";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkSuicideHackMotion";
+}
+
+NetworkSuicideForceShoot : PuppetMinigameAction
+{
+	complexity = 10f;
+	memoryCost = 3f;
+	category = "MinigameAction.NeuralAccess";
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ForceShoot";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkSuicideHackForceTrigger";
+}
+
+UnlockSecurityProgram : MinigameAction
+{
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkUnlockSecurityProgram";
+}
+
+GainAccessProgram : MinigameAction
+{
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkGainAccessProgram";
+}
+
+UnlockSecurityProgramQ003 : MinigameAction
+{
+	fk< InteractionBase > objectActionUI = "Interactions.NetworkUnlockSecurityProgram";
+	factName = "q003_militech_virus_removed";
+	showPopup = true;
+	factValue = 1;
+}
+
+DamageReductionTrap : MinigameAction
+{
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.BuffDamageReductionMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+SturdinessTrap : MinigameAction
+{
+	fk< ObjectActionEffect >[] completionEffects = 
+	[
+		{
+			statusEffect = "MinigameAction.BuffSturdinessMinigame";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+}
+
+BuffDamageReductionMinigame : AIQuickHackStatusEffect.BuffDamageReduction
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+BuffSturdinessMinigame : AIQuickHackStatusEffect.BuffSturdiness
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+WeaponMalfunctionMinigame : BaseStatusEffect.WeaponMalfunction
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+JamWeaponMinigame : BaseStatusEffect.WeaponMalfunction
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+CyberwareMalfunctionMinigame : BaseStatusEffect.CyberwareMalfunction
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+VulnerabilityMinigame : BaseStatusEffect.MajorVulnerable
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refStat = "BaseStats.VulnerabilityExtension";
+				refObject = "Player";
+				opSymbol = "*";
+				value = 180f;
+			} : CombinedStatModifier
+		];
+	};
+}
+
+WeaknessMinigame : BaseStatusEffect.Weak
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 90;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ICEBrokenMinigameMedium : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.HackingResistance";
+					modifierType = "Additive";
+					value = -2f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+ICEBrokenMinigameMinor : ICEBrokenMinigameMedium
+{
+	removeAllStacksWhenDurationEnds = true;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.HackingResistance";
+					modifierType = "Additive";
+					value = -1f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+ICEBrokenMinigameMajor : ICEBrokenMinigameMedium
+{
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HackingResistance";
+					modifierType = "Additive";
+					value = -3f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+ICEBrokenMinigamePlacide : ICEBrokenMinigameMedium
+{
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HackingResistance";
+					modifierType = "Additive";
+					value = -10f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+SuicideMotion : BaseQuickHackStatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Kill";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 5f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	CName[] gameplayTags += 
+	[
+		"Debuff", "SuicideMotion"
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Stoppable";
+	};
+	uiData = 
+	{
+		string displayName = "Suicide With Weapon";
+		string iconPath = "GunSuicide1";
+	};
+}
+

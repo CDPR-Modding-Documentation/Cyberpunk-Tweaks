@@ -1,0 +1,124 @@
+package BaseStatusEffect
+using RTDB, Prereqs
+
+HealthMonitorCooldown : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+HealthMonitor : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 3;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "ApplyStatusEffectEffector";
+					fk< StatusEffect > statusEffect = "BaseStatusEffect.HealthMonitorCooldown";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+GlowingTattoos : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "glow_tattoo_constant";
+		}
+	];
+	CName[] gameplayTags += 
+	[
+		"AbilityStatusEffect"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.SmartTargetingDisruptionProbability";
+					modifierType = "Additive";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HackingResistance";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						string stateName = "Dead";
+					} : HighLevelNPCStatePrereq;
+					CName effectorClassName = "RemoveStatusEffectsEffector";
+					string[] statusEffects = 
+					[
+						"BaseStatusEffect.GlowingTattoos"
+					];
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SeeThroughWalls : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "eye_flare";
+		}
+	];
+	CName[] gameplayTags += 
+	[
+		"AbilityStatusEffect"
+	];
+}
+

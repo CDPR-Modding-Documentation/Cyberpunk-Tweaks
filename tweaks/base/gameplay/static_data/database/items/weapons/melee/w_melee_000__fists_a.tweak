@@ -1,0 +1,195 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage
+
+[ notQueryable ]
+Player_Fists : Base_Fists
+{
+	displayName = "LocKey#50273";
+	fk< Crosshair > crosshair = "Crosshairs.Melee";
+	audioWeaponConfiguration = "audio_melee_metadata_fists_normal";
+	fk< Item > holsteredItem = "Items.HolsteredFists";
+	tags += 
+	[
+		"base_fists", "Weapon", "SkipActivityLog", "IgnoreInventory"
+	];
+	statModifierGroups += 
+	[
+		"Items.FleshFistsRPGStats"
+	];
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Melee_base";
+}
+
+[ notQueryable ]
+w_melee_004__fists_a : Player_Fists
+{
+	attacks += 
+	[
+		"NPCAttacks.SasquatchStrongAttackFists", "NPCAttacks.SasquatchStrongAttackKnockdownFists", "NPCAttacks.SasquatchStompAttackStaggerFists", "NPCAttacks.SasquatchStrongAttackStompKnockdownFists", "NPCAttacks.SasquatchStrongAttackStaggerFists", "NPCAttacks.SmasherStrongAttackStompKnockdown"
+	];
+}
+
+[ notQueryable ]
+replacer_w_melee_004__fists_a : Player_Fists
+{
+	holsteredItem = "";
+}
+
+[ notQueryable ]
+Npc_fists_ma : Base_Fists
+{
+}
+
+[ notQueryable ]
+Npc_fists_mm : Base_Fists
+{
+	npcRPGData = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.Range";
+				modifierType = "Additive";
+				value = 0.5f;
+			} : ConstantStatModifier
+		];
+	} : Base_Fists_NPC_Data;
+}
+
+[ notQueryable ]
+Npc_fists_wounded : Base_Fists
+{
+}
+
+[ notQueryable ]
+BaseHolsteredArms : Item
+{
+	isCustomizable = true;
+	CName dropObject = "";
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightArm"
+	];
+	fk< EquipmentArea > equipArea = "EquipmentArea.RightArm";
+	fk< ParentAttachmentType > parentAttachmentType = "ParentAttachmentType.Skinned";
+	CName entityName = "holstered_arms";
+	tags += 
+	[
+		"base_fists", "SkipActivityLog", "IgnoreInventory", "Quest"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes = [];
+}
+
+[ notQueryable ]
+CharacterCustomizationArms : BaseHolsteredArms
+{
+	appearanceName = "character_customization";
+}
+
+[ notQueryable ]
+HolsteredFists : BaseHolsteredArms
+{
+	appearanceName = "holstered_default";
+}
+
+[ notQueryable ]
+MantisBladeHolsteredFists : BaseHolsteredArms
+{
+	appearanceName = "holstered_mantis";
+	tags += 
+	[
+		"Cyberware"
+	];
+}
+
+[ notQueryable ]
+NanoWireHolsteredFists : BaseHolsteredArms
+{
+	appearanceName = "holstered_nanowire";
+	tags += 
+	[
+		"Cyberware"
+	];
+}
+
+[ notQueryable ]
+StrongHolsteredFists : BaseHolsteredArms
+{
+	quality = "Quality.Rare";
+	appearanceName = "holstered_strong";
+	tags += 
+	[
+		"Cyberware"
+	];
+	statModifierGroups = 
+	[
+		"Items.StrongArmsInstallBonus"
+	];
+}
+
+[ notQueryable ]
+StrongHolsteredFistsEpic : StrongHolsteredFists
+{
+	quality = "Quality.Epic";
+}
+
+[ notQueryable ]
+StrongHolsteredFistsLegendary : StrongHolsteredFists
+{
+	quality = "Quality.Legendary";
+}
+
+[ notQueryable ]
+ProjectileLauncherHolsteredFists : BaseHolsteredArms
+{
+	appearanceName = "holstered_launcher";
+	tags += 
+	[
+		"Cyberware"
+	];
+}
+
+[ notQueryable ]
+PlayerSilverhandArm : Item
+{
+	CName dropObject = "";
+	fk< EquipmentArea > equipArea = "EquipmentArea.SilverhandArm";
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.SilverhandArm"
+	];
+	fk< ParentAttachmentType > parentAttachmentType = "ParentAttachmentType.Skinned";
+	entityName = "silverhand_arm";
+	tags += 
+	[
+		"HideInBackpackUI", "HideAtVendor"
+	];
+}
+
+[ notQueryable ]
+FleshFistsRPGStats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_fists_RPG_stats";
+			column = "power_level_to_DPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 3.f;
+		} : CombinedStatModifier, 
+		"Character.ScaleToPlayerLevel", {
+			statType = "BaseStats.Level";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier
+	];
+}
+

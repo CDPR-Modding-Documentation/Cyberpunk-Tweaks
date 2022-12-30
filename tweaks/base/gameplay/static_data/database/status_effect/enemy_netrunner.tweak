@@ -1,0 +1,1036 @@
+package AIQuickHackStatusEffect
+using RTDB, BaseStatusEffect, Prereqs, Effectors
+
+QuickHack_GLP : GameplayLogicPackage
+{
+	effectors = 
+	[
+		"AIQuickHackStatusEffect.QuickHackEffect"
+	];
+}
+
+QuickHackEffect : Effector
+{
+	effectorClassName = "StopAndPlayVFXEffector";
+	CName vfxToStart = "hacking_glitch_low";
+	prereqRecord = "Prereqs.AlwaysTruePrereq";
+}
+
+NetrunnerStaticNoise : Effector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "BaseStatusEffect.Cloaked";
+			} : StatusEffectAbsentPrereq, 
+			{
+				nestedPrereqs = 
+				[
+					{
+						stateName = "Combat";
+					} : HighLevelNPCStatePrereq, 
+					{
+						stateName = "Alerted";
+					} : HighLevelNPCStatePrereq
+				];
+			} : ORPrereq
+		];
+	} : ANDPrereq;
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "nme_netrunner_static_lp";
+	CName deactivationSFXName = "nme_netrunner_static_lp_stop";
+}
+
+BeingHacked : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+Hacking : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+HackingInterrupted : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+RevealPosition : StatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 60.f;
+			} : BaseDurationMod
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "PingSquadEffector";
+					float level = 1.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#53938";
+		iconPath = "stun_icon";
+		priority = -5.0f;
+	};
+}
+
+HackJamWeapon : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Jam";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		"AIQuickHackStatusEffect.QuickHack_GLP"
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack", "JamWeapon"
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40954";
+		string iconPath = "jamweapon_icon";
+		priority = -5.0f;
+	};
+}
+
+HackWeaponMalfunctionBase : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		"AIQuickHackStatusEffect.QuickHack_GLP"
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40955";
+		iconPath = "jamweapon_icon";
+		priority = -5.0f;
+	};
+}
+
+HackWeaponMalfunction : HackWeaponMalfunctionBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwayTraversalTime";
+								modifierType = "Multiplier";
+								value = 0.225f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Multiplier";
+								value = 1.3f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Multiplier";
+								value = 1.3f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Additive";
+								value = 1.3f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Additive";
+								value = 1.3f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwayStartDelay";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAllowSway";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "WeaponMalfunctionHudEffector";
+				} : Effector
+			];
+		}
+	];
+}
+
+HackWeaponMalfunctionTier2 : HackWeaponMalfunctionBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwayTraversalTime";
+								modifierType = "Multiplier";
+								value = 0.9f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Additive";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Additive";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwayStartDelay";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAllowSway";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "WeaponMalfunctionHudEffector";
+				} : Effector
+			];
+		}
+	];
+}
+
+HackWeaponMalfunctionTier3 : HackWeaponMalfunctionBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwayTraversalTime";
+								modifierType = "Multiplier";
+								value = 0.85f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Multiplier";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Additive";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Additive";
+								value = 1.2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwayStartDelay";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAllowSway";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "WeaponMalfunctionHudEffector";
+				} : Effector
+			];
+		}
+	];
+}
+
+HackBurning : BaseStatusEffect.Burning
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = true;
+			effectors = 
+			[
+				"BaseStatusEffect.BurningBuffEffector", {
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasBurningBuffs";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.NPCThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.PostProcessHitTriggered", {
+								statType = "HasBurningBuffs";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : MultiPrereq;
+					CName effectorClassName = "AddStatusEffectToAttackEffector";
+					statusEffect = "BaseStatusEffect.Burning";
+					bool isRandom = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"AIQuickHackStatusEffect.QuickHack_GLP"
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+}
+
+HackOverheatBase : DebuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Burning";
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_burning";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.BurningImmunity"
+	];
+	uiData = "BaseStatusEffect.BaseBurningUI";
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MaxSpeed";
+								modifierType = "Multiplier";
+								value = 0.9f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.JumpHeight";
+								modifierType = "Multiplier";
+								value = 0.9f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackOverheat : HackOverheatBase
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 2.f;
+					attackRecord = "Attacks.EnemyNetrunnerThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackOverheatTier2 : HackOverheatBase
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 1.f;
+					attackRecord = "Attacks.NPCThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackOverheatTier3 : HackOverheatBase
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.NPCThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackOverload : BaseOverload
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.NPCElectricDamageOverTime";
+					bool playerAsInstigator = true;
+					CName attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackCyberware : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		"AIQuickHackStatusEffect.QuickHack_GLP", "GLP.DeactivateCyberware"
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40956";
+		iconPath = "stun_icon";
+		priority = -3.0f;
+	};
+}
+
+HackLocomotionBase : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Crippled";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		"AIQuickHackStatusEffect.QuickHack_GLP"
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40957";
+		iconPath = "stun_icon";
+		priority = -10.0f;
+	};
+}
+
+HackLocomotion : HackLocomotionBase
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.75f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.8f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackLocomotionTier2 : HackLocomotionBase
+{
+	packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.625f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackLocomotionTier3 : HackLocomotionBase
+{
+	packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.4f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.45f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackWeaponHud : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		"AIQuickHackStatusEffect.QuickHack_GLP", {
+			fk< StatModifier >[] stats = [];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40958";
+		iconPath = "stun_icon";
+		priority = -10.0f;
+	};
+}
+
+BaseBuffQuickhack : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		"AIQuickHackStatusEffect.QuickHack_GLP"
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+}
+
+BuffCamo : BaseBuffQuickhack
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 1.2f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				"BaseStatusEffect.CamoEffector"
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40959";
+		iconPath = "stun_icon";
+		priority = -5.0f;
+	};
+}
+
+BuffLocomotion : BaseBuffQuickhack
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 1.8f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 1.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 1f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Evasion";
+					modifierType = "Multiplier";
+					value = 1.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40960";
+		iconPath = "stun_icon";
+		priority = -10.0f;
+	};
+}
+
+BuffCapabilities : BaseBuffQuickhack
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 1.3f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 1.3f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40961";
+		iconPath = "stun_icon";
+		priority = -10.0f;
+	};
+}
+
+BuffDamageReduction : BaseBuffQuickhack
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 10f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40962";
+		iconPath = "stun_icon";
+		priority = -8.0f;
+	};
+}
+
+BuffSturdiness : BaseBuffQuickhack
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 50f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HitReactionFactor";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HitWoundsFactor";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HitDismembermentFactor";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40963";
+		iconPath = "stun_icon";
+		priority = -8.0f;
+	};
+}
+
+TrackedVirus : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 30;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"NPCQuickhack"
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40964";
+		iconPath = "stun_icon";
+		priority = -5.0f;
+	};
+}
+

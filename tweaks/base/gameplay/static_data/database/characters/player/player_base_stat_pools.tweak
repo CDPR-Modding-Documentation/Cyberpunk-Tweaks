@@ -1,0 +1,433 @@
+package BaseStatPools
+using RTDB, BaseStats
+
+Player_Health_Base : BaseStatPools.Health
+{
+	regen = "BaseStatPools.PlayerBaseOutOfCombatHealthRegen";
+	decay = "";
+}
+
+Johnny_Health_Base : BaseStatPools.Health
+{
+	regen = "BaseStatPools.JohnnyHealthRegen";
+}
+
+Player_Oxygen_Base : BaseStatPools.Oxygen
+{
+	regen = "BaseStatPools.OxygenRegeneration";
+	decay = "BaseStatPools.OxygenDecay";
+}
+
+Player_Stamina_Base : BaseStatPools.Stamina
+{
+	regen = "BaseStatPools.PlayerBaseStaminaRegen";
+	decay = "";
+}
+
+Player_Memory_Base : BaseStatPools.Memory
+{
+	regen = "BaseStatPools.PlayerBaseOutOfCombatMemoryRegen";
+}
+
+Player_Adrenaline_Base : BaseStatPools.Adrenaline
+{
+	regen = "";
+	decay = "";
+}
+
+StaticPlayerBaseOutOfCombatRegen : PoolValueModifier
+{
+	enabled = true;
+	rangeBegin = 0;
+	rangeEnd = 40;
+	startDelay = 10;
+	valuePerSec = 1;
+	delayOnChange = true;
+}
+
+PlayerBaseOutOfCombatHealthRegen : MutablePoolValueModifier
+{
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.HealthOutOfCombatRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.HealthOutOfCombatRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.HealthOutOfCombatRegenStartThreshold";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HealthOutOfCombatRegenStartThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthOutOfCombatRegenStartThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.HealthOutOfCombatRegenEndThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthOutOfCombatRegenEndThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.HealthOutOfCombatRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthOutOfCombatRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.HealthOutOfCombatRegenDelayOnChange";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthOutOfCombatRegenDelayOnChange";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.HealthOutOfCombatRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.HealthOutOfCombatRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerBaseInCombatHealthRegen : MutablePoolValueModifier
+{
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.HealthInCombatRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.HealthInCombatRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.HealthInCombatRegenStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HealthInCombatRegenStartThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthInCombatRegenStartThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.HealthInCombatRegenEndThreshold";
+			modifierType = "Additive";
+			value = 60f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HealthInCombatRegenEndThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthInCombatRegenEndThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.HealthInCombatStartDelay";
+			modifierType = "Additive";
+			value = 5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HealthInCombatStartDelay";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Self";
+			refStat = "BaseStats.HealthInCombatStartDelay";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.HealthInCombatRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealthInCombatRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.HealthInCombatRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.HealthInCombatRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerBaseStaminaRegen : MutablePoolValueModifier
+{
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.StaminaRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.StaminaRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.StaminaRegenStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.StaminaRegenEndThrehold";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.StaminaRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.StaminaRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.StaminaRegenStartDelay";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaminaRegenStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.StaminaRegenStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.StaminaRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.StaminaRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+JohnnyHealthRegen : PoolValueModifier
+{
+	enabled = true;
+	rangeBegin = 0;
+	rangeEnd = 100;
+	startDelay = 5;
+	valuePerSec = 2;
+	delayOnChange = true;
+}
+
+PlayerBaseInCombatMemoryRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.MemoryInCombatRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.MemoryInCombatRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.MemoryInCombatRegenStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MemoryInCombatRegenStartThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryInCombatRegenStartThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.MemoryInCombatRegenEndThreshold";
+			modifierType = "Additive";
+			value = 60f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MemoryInCombatRegenEndThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryInCombatRegenEndThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.MemoryInCombatStartDelay";
+			modifierType = "Additive";
+			value = 5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MemoryInCombatStartDelay";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryInCombatStartDelay";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.MemoryInCombatRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryInCombatRegenRate";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.MemoryInCombatRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.MemoryInCombatRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerBaseOutOfCombatMemoryRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.MemoryOutOfCombatRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.MemoryOutOfCombatRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.MemoryOutOfCombatRegenStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MemoryOutOfCombatRegenStartThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryOutOfCombatRegenStartThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.MemoryOutOfCombatRegenEndThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryOutOfCombatRegenEndThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.MemoryOutOfCombatStartDelay";
+			modifierType = "Additive";
+			value = 5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MemoryOutOfCombatStartDelay";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryOutOfCombatStartDelay";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.MemoryOutOfCombatRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.MemoryOutOfCombatRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.MemoryOutOfCombatRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.MemoryOutOfCombatRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+

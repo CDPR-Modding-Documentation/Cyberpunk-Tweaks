@@ -1,0 +1,275 @@
+package BaseStatusEffect
+using RTDB, Prereqs
+
+Bleeding : DoTStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Bleeding";
+	replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_bleeding";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "status_bleeding";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.DurationBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.PhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.BleedingImmunity"
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		fk< StatModifier >[] behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+		shouldDelayStatusEffectApplication = true;
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "LocKey#40943";
+		description = "LocKey#77832";
+		string iconPath = "wounded_disabled_icon";
+		priority = -8.0f;
+	};
+}
+
+PlayerBleeding : Bleeding
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refStat = "BaseStats.DurationReductionDot";
+				refObject = "Player";
+				opSymbol = "*";
+				value = -0.01f;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.NPCPhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+KenjutsuBleeding : Bleeding
+{
+	removeAllStacksWhenDurationEnds = true;
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.MaxStacksBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.DurationBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.PhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier
+			];
+		}
+	];
+}
+
+BleedingInfinite : Bleeding
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+MinorBleeding : Bleeding
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+NpcMeleeAttackBleeding : Bleeding
+{
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+

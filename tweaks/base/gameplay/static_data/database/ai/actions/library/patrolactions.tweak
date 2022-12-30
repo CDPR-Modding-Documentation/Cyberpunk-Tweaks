@@ -1,0 +1,151 @@
+package PatrolActions
+using RTDB
+
+AIPatrolActionComposite : AIActionSmartComposite
+{
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.PatrolEnded"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+DefaultPatrolAction : AIPatrolActionComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.Success"
+	];
+}
+
+DroneScan : AIPatrolActionComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"PatrolActions.Scan"
+	];
+}
+
+Scan : AIAction
+{
+	startup = 
+	{
+		duration = 0.8f;
+	};
+	loop = 
+	{
+		duration = 4.5f;
+	};
+	recovery = 
+	{
+		duration = 1.6f;
+	};
+	loopSubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ScanInProgress";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent, 
+		{
+			altitudeOffset = 0.4f;
+			delay = 0.2f;
+		} : AISubActionDroneModifyAltitude
+	];
+	recoverySubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Idle";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+DroneScanShort : AIPatrolActionComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"PatrolActions.ScanShort", "GenericArchetype.Success"
+	];
+}
+
+ScanShort : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.IsInWorkspot"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "ScanShort";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+AIPatrolSpotActionComposite : AIActionSmartComposite
+{
+}
+
+DroneScanSpot : AIPatrolSpotActionComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"PatrolActions.ScanSpot"
+	];
+}
+
+ScanSpot : AIAction
+{
+	loop = 
+	{
+		duration = 4.f;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "scan";
+		} : AISubActionSpawnFX
+	];
+}
+

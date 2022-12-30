@@ -1,0 +1,639 @@
+package CorpoAndroid
+using RTDB, ItemType, MovementActions, CombatDecorator, ShootActions, ReactionsActions, StatusEffectActions
+
+DefaultNodeMap : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.EnterIdle";
+			isOverriddenBy = "CorpoAndroid.EnterIdle";
+		}, 
+		{
+			node = "GenericArchetype.EnterAlerted";
+			isOverriddenBy = "CorpoAndroid.EnterAlerted";
+		}, 
+		{
+			node = "GenericArchetype.EnterCombat";
+			isOverriddenBy = "CorpoAndroid.EnterCombat";
+		}, 
+		{
+			node = "GenericArchetype.RingSelector";
+			isOverriddenBy = "CorpoAndroid.RingSelector";
+		}, 
+		{
+			node = "GenericArchetype.SimpleRingSelector";
+			isOverriddenBy = "CorpoAndroid.SimpleRingSelector";
+		}, 
+		{
+			node = "GenericArchetype.CoverPresetDecoratorSelector";
+			isOverriddenBy = "CorpoAndroid.CoverPresetDecoratorSelector";
+		}, 
+		{
+			node = "GenericArchetype.ShootSelector";
+			isOverriddenBy = "CorpoAndroid.ShootSelector";
+		}, 
+		{
+			node = "GenericArchetype.CommandForceShootSelector";
+			isOverriddenBy = "CorpoAndroid.CommandForceShootSelector";
+		}, 
+		{
+			node = "MovementActions.StrafeSelector";
+			isOverriddenBy = "CorpoAndroid.StrafeSelector";
+		}, 
+		{
+			node = "GenericArchetype.SandevistanDashShotgunShoot";
+			isOverriddenBy = "CorpoAndroid.SandevistanDashShotgunShoot";
+		}, 
+		{
+			node = "GenericArchetype.SandevistanDashShootDefault";
+			isOverriddenBy = "CorpoAndroid.SandevistanDashShootDefault";
+		}, 
+		{
+			node = "GenericArchetype.SandevistanDashSemiAutoShoot";
+			isOverriddenBy = "CorpoAndroid.SandevistanDashSemiAutoShoot";
+		}, 
+		{
+			node = "ReactionsActions.LookAroundForIntruder";
+			isOverriddenBy = "CorpoAndroid.LookAroundForIntruder";
+		}, 
+		{
+			node = "ReactionsActions.LookAroundForIntruderUnarmed";
+			isOverriddenBy = "CorpoAndroid.LookAroundForIntruderUnarmed";
+		}, 
+		{
+			node = "ReactionsActions.DeviceInvestigation";
+			isOverriddenBy = "CorpoAndroid.DeviceInvestigation";
+		}, 
+		{
+			node = "ReactionsActions.DeviceInvestigationUnarmed";
+			isOverriddenBy = "CorpoAndroid.DeviceInvestigationUnarmed";
+		}, 
+		{
+			node = "ReactionsActions.DeviceInvestigationHigh";
+			isOverriddenBy = "CorpoAndroid.DeviceInvestigationHigh";
+		}, 
+		{
+			node = "ReactionsActions.DeviceInvestigationHighUnarmed";
+			isOverriddenBy = "CorpoAndroid.DeviceInvestigationHighUnarmed";
+		}, 
+		{
+			node = "ReactionsActions.DeviceInvestigationLow";
+			isOverriddenBy = "CorpoAndroid.DeviceInvestigationLow";
+		}, 
+		{
+			node = "ReactionsActions.DeviceInvestigationLowUnarmed";
+			isOverriddenBy = "CorpoAndroid.DeviceInvestigationLowUnarmed";
+		}, 
+		{
+			node = "ReactionsActions.BodyInvestigationSearch";
+			isOverriddenBy = "CorpoAndroid.BodyInvestigationSearch";
+		}, 
+		{
+			node = "ReactionsActions.BodyInvestigationSearchUnarmed";
+			isOverriddenBy = "CorpoAndroid.BodyInvestigationSearchUnarmed";
+		}, 
+		{
+			node = "ReactionsActions.BodyInvestigationPatrol";
+			isOverriddenBy = "CorpoAndroid.BodyInvestigationPatrol";
+		}, 
+		{
+			node = "ReactionsActions.BodyInvestigationPatrolUnarmed";
+			isOverriddenBy = "CorpoAndroid.BodyInvestigationPatrolUnarmed";
+		}, 
+		{
+			node = "ReactionsActions.CallSquadTalk";
+			isOverriddenBy = "CorpoAndroid.CallSquadTalk";
+		}, 
+		{
+			node = "ReactionsActions.LookAtExplosionSource";
+			isOverriddenBy = "ReactionsActions.RotateToStimSource";
+		}, 
+		{
+			node = "GenericArchetype.SE_SetFriendly";
+			isOverriddenBy = "CorpoAndroid.SE_SetFriendly";
+		}
+	];
+}
+
+Map : ActionMap
+{
+	map = 
+	[
+		{
+			itemType = "ItemType.Wea_Fists";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_StrongArms";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Hammer";
+			map = "Corpo_Hammer.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Handgun";
+			map = "CorpoAndroid_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Revolver";
+			map = "CorpoAndroid_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Katana";
+			map = "Corpo_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Knife";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShortBlade";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LongBlade";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Axe";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Chainsword";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Machete";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_MantisBlades";
+			map = "Corpo_MantisBlades.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_OneHandedClub";
+			map = "Corpo_OneHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_TwoHandedClub";
+			map = "Corpo_TwoHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SubmachineGun";
+			map = "CorpoAndroid_SubmachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Rifle";
+			map = "CorpoAndroid_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_AssaultRifle";
+			map = "CorpoAndroid_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Shotgun";
+			map = "CorpoAndroid_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShotgunDual";
+			map = "CorpoAndroid_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_PrecisionRifle";
+			map = "CorpoAndroid_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SniperRifle";
+			map = "CorpoAndroid_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LightMachineGun";
+			map = "CorpoAndroid_LightMachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_HeavyMachineGun";
+			map = "CorpoAndroid_LightMachineGun.Map";
+		}
+	];
+	defaultMap = "CorpoAndroid.DefaultNodeMap";
+}
+
+EnterIdle : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CorpoAndroid.TryActivateIdleLights", "GenericArchetype.ImmediateSuccess"
+	];
+}
+
+EnterAlerted : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CorpoAndroid.TryActivatAlertedLights", "GenericArchetype.ImmediateSuccess"
+	];
+}
+
+EnterCombat : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"CorpoAndroid.TryActivateCombatLights", "GenericArchetype.ImmediateSuccess"
+	];
+}
+
+TryActivateIdleLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Idle";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+TryActivatAlertedLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.LookingForIntruder";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+TryActivateCombatLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Combat";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+RingSelector : MovementActions.RingSelector
+{
+	actions = 
+	[
+		"MovementActions.CloseRing2ndFilterNoLimit", "MovementActions.MediumRing2ndFilterNoLimit", "MovementActions.FarRing2ndFilterNoLimit", "MovementActions.ExtremeRing2ndFilterNoLimit", "MovementActions.SquadRingDefault"
+	];
+}
+
+SimpleRingSelector : MovementActions.SimpleRingSelector
+{
+	actions = 
+	[
+		"MovementActions.SimpleMediumRing", "MovementActions.HoldPosition"
+	];
+}
+
+CoverPresetDecoratorSelector : CombatDecorator.CoverPresetDecoratorSelector
+{
+	actions = 
+	[
+		"CombatDecorator.AndroidCompoundCoverSelectionPreset", "CombatDecorator.SandevistanCompoundCoverSelectionPreset", "CombatDecorator.DefaultCompoundCoverSelectionPreset"
+	];
+}
+
+ShootSelector : ShootActions.ShootSelector
+{
+	actions = 
+	[
+		"ShootActions.WoundedShoot", "GenericArchetype.WoundedShootLeg", "GenericArchetype.ChargedShoot", "GenericArchetype.Shoot"
+	];
+}
+
+CommandForceShootSelector : ShootActions.CommandForceShootSelector
+{
+	actions = 
+	[
+		"ShootActions.CommandForceWoundedShoot", "GenericArchetype.CommandForceWoundedShootLeg", "GenericArchetype.CommandForceChargedShoot", "GenericArchetype.CommandForceShoot"
+	];
+}
+
+StrafeSelector : MovementActions.StrafeSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAndroid"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"GenericArchetype.Success"
+	];
+}
+
+SandevistanDashShootDefault : ShootActions.SandevistanDashShootDefault
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+	allowBlendDuration = 0.f;
+}
+
+SandevistanDashSemiAutoShoot : CorpoAndroid.SandevistanDashShootDefault
+{
+}
+
+SandevistanDashShotgunShoot : CorpoAndroid.SandevistanDashShootDefault
+{
+}
+
+LookAroundForIntruder : ReactionsActions.LookAroundForIntruder
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	loopSubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+LookAroundForIntruderUnarmed : ReactionsActions.LookAroundForIntruderUnarmed
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	loopSubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DeviceInvestigation : ReactionsActions.DeviceInvestigation
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DeviceInvestigationUnarmed : ReactionsActions.DeviceInvestigationUnarmed
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DeviceInvestigationHigh : ReactionsActions.DeviceInvestigationHigh
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DeviceInvestigationHighUnarmed : ReactionsActions.DeviceInvestigationHighUnarmed
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DeviceInvestigationLow : ReactionsActions.DeviceInvestigationLow
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DeviceInvestigationLowUnarmed : ReactionsActions.DeviceInvestigationLowUnarmed
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+CallSquadTalk : ReactionsActions.CallSquadTalk
+{
+	loopSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+BodyInvestigationSearch : ReactionsActions.BodyInvestigationSearch
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+BodyInvestigationSearchUnarmed : ReactionsActions.BodyInvestigationSearchUnarmed
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+BodyInvestigationPatrol : ReactionsActions.BodyInvestigationPatrol
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+BodyInvestigationPatrolUnarmed : ReactionsActions.BodyInvestigationPatrolUnarmed
+{
+	startupSubActions += 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+	recoverySubActions += 
+	[
+		{
+			name = "StopScanning";
+			delay = 1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+SE_SetFriendly : StatusEffectActions.SE_SetFriendly
+{
+	subActions += 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Friendly";
+		} : AISubActionActivateLightPreset
+	];
+}
+

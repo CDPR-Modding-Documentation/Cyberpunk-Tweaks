@@ -1,0 +1,842 @@
+package BaseStatusEffect
+using RTDB
+
+Stat_Buff : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	bool replicated = true;
+	string displayName = "Stats Increased";
+	string iconPath = "increased_stats_icon";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_increased_stats";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	bool canReapply = true;
+}
+
+TimedImmunity : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	bool replicated = true;
+	CName[] gameplayTags = 
+	[
+		"Buff", "Immunity"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_increased_stats";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		"GLP.MaxResistances"
+	];
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Limited time immunity";
+		string iconPath = "increased_stats_icon";
+		priority = -1.0f;
+	} : StatusEffectUIData;
+}
+
+KerenzikovBuff : Stat_Buff
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HasKerenzikov";
+					modifierType = "Additive";
+					value = 1.0f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+PainInhibitors : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"Regenerate"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage, 
+		"GLP.NoHitReactions", {
+			effectors = 
+			[
+				"Sasquatch.RegenerateEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HumanShield : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.TBHsBaseCoefficient";
+					modifierType = "AdditiveMultiplier";
+					value = 1.5f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+SuppressVisibility : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	CName[] gameplayTags = 
+	[
+		"Buff", "Visibility"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Visibility";
+					modifierType = "Additive";
+					value = -0.8f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.VisualStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+SuppressNoise : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	CName[] gameplayTags = 
+	[
+		"Buff", "Audio"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.AudioStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+GreaterSuppressNoise : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	CName[] gameplayTags = 
+	[
+		"Buff", "Audio"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.AudioStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.3f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+SupressPresence : SuppressVisibility
+{
+	CName[] gameplayTags = 
+	[
+		"Buff", "Visibility", "Audio"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.VisualStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.AudioStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.2f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+PersonalSoundSilencerPlayerBuff : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	CName[] gameplayTags = 
+	[
+		"Buff", "Audio", "Visibility"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.VisualStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.AudioStimRangeMultiplier";
+					modifierType = "Multiplier";
+					value = 0.0f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+ConsumableBuff : BuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "Items.ConsumableDuration";
+	isAffectedByTimeDilationPlayer = true;
+}
+
+InhalerBuff : ConsumableBuff
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "splinter_buff";
+		}
+	];
+}
+
+InjectorBuff : ConsumableBuff
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "reflex_buster";
+		}
+	];
+}
+
+FirstAidWhiffV0 : InhalerBuff
+{
+	fk< StatModifierGroup > duration = "Items.FirstAidWhiffDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = 40;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#2679";
+		string iconPath = "first_aid_whiff";
+		priority = -9.0f;
+	};
+}
+
+FirstAidWhiffV1 : FirstAidWhiffV0
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = 60;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+FirstAidWhiffV2 : FirstAidWhiffV0
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = 80;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BlackLaceV0 : InhalerBuff
+{
+	fk< StatModifierGroup > duration = "Items.BlackLaceDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 10;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#49554";
+		description = "LocKey#77751";
+		intValues = 
+		[
+			10
+		];
+		string iconPath = "armor_boost";
+	};
+}
+
+BonesMcCoy70V0 : InjectorBuff
+{
+	fk< StatModifierGroup > duration = "Items.BonesMcCoy70Duration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 3;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector, 
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = 15;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#34157";
+		description = "LocKey#77749";
+		intValues = 
+		[
+			3
+		];
+		string iconPath = "regeneration_icon";
+	};
+}
+
+BonesMcCoy70V1 : BonesMcCoy70V0
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 4;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector, 
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = 20;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#34157";
+		description = "LocKey#77749";
+		intValues = 
+		[
+			4
+		];
+		string iconPath = "regeneration_icon";
+	};
+}
+
+BonesMcCoy70V2 : BonesMcCoy70V0
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 6;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector, 
+				{
+					prereqRecord = 
+					{
+						statType = "Health";
+						valueToCheck = 0;
+						comparisonType = "Greater";
+					} : StatPrereq;
+					effectorClassName = "ModifyStatPoolValueEffector";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = 25;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#34157";
+		description = "LocKey#77749";
+		intValues = 
+		[
+			6
+		];
+		string iconPath = "regeneration_icon";
+	};
+}
+
+WellFed : ConsumableBuff
+{
+	fk< StatModifierGroup > duration = "Items.WellFedDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "AdditiveMultiplier";
+					value = 0.05f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HealthOutOfCombatRegenRate";
+					modifierType = "Additive";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HealthOutOfCombatRegenEndThreshold";
+					modifierType = "Additive";
+					value = 40f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40991";
+		description = "LocKey#77748";
+		intValues = 
+		[
+			5
+		];
+		floatValues = 
+		[
+			0.5f
+		];
+		string iconPath = "health_booster_regen";
+	};
+}
+
+Sated : ConsumableBuff
+{
+	fk< StatModifierGroup > duration = "Items.SatedDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Stamina";
+					modifierType = "AdditiveMultiplier";
+					value = 0.1f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.StaminaRegenRateMult";
+					modifierType = "Additive";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40990";
+		description = "LocKey#77747";
+		intValues = 
+		[
+			10, 50
+		];
+		string iconPath = "hydrated_icon";
+	};
+}
+
+AlcoholDebuff : ConsumableBuff
+{
+	duration = "Items.AlcoholConsumableDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 4;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags = 
+	[
+		"Debuff"
+	];
+	packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.9f;
+				} : ConstantStatModifier
+			];
+		}, 
+		{
+			stackable = true;
+			fk< Effector >[] effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.RangedWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SpreadChangePerShot";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsChangePerShot";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HealthBooster : ConsumableBuff
+{
+	duration = "Items.LongLastingConsumableDuration";
+	packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "Multiplier";
+					value = 1.2f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#43539";
+		string description = "LocKey#77746";
+		intValues = 
+		[
+			20
+		];
+		string iconPath = "health_booster_icon";
+	};
+}
+
+StaminaBooster : ConsumableBuff
+{
+	duration = "Items.LongLastingConsumableDuration";
+	packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Stamina";
+					modifierType = "Multiplier";
+					value = 1.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#43542";
+		description = "LocKey#77743";
+		intValues = 
+		[
+			50
+		];
+		string iconPath = "stamina_booster_icon";
+	};
+}
+
+MemoryBooster : ConsumableBuff
+{
+	duration = "Items.LongLastingConsumableDuration";
+	packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 2.0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#43545";
+		description = "LocKey#77745";
+		intValues = 
+		[
+			2
+		];
+		string iconPath = "memory_booster_icon";
+	};
+}
+
+CarryCapacityBooster : ConsumableBuff
+{
+	duration = "Items.LongLastingConsumableDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "Multiplier";
+					value = 1.50f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#43548";
+		description = "LocKey#77744";
+		intValues = 
+		[
+			50
+		];
+		string iconPath = "carrycapacity_booster_icon";
+	};
+}
+
+OxyBooster : ConsumableBuff
+{
+	fk< StatModifierGroup > duration = "Items.LongLastingConsumableDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.CanBreatheUnderwater";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#43551";
+		description = "LocKey#77742";
+		string iconPath = "oxygen_booster_icon";
+	};
+}
+

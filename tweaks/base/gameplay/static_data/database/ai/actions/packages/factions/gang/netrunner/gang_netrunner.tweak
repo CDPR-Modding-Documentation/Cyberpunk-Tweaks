@@ -1,0 +1,898 @@
+package GangNetrunner
+using RTDB, ItemType, MovementActions, CombatDecorator, ItemHandling, NetrunnerActions, CoverActions
+
+DefaultNodeMap : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.RingSelector";
+			isOverriddenBy = "GangNetrunner.RingSelector";
+		}, 
+		{
+			node = "GenericArchetype.SimpleRingSelector";
+			isOverriddenBy = "GangNetrunner.SimpleRingSelector";
+		}, 
+		{
+			node = "MovementActions.SprintToCover";
+			isOverriddenBy = "GangNetrunner.SprintToCover";
+		}, 
+		{
+			node = "CoverActions.CoverBehaviorComposite";
+			isOverriddenBy = "GangNetrunner.CoverBehaviorComposite";
+		}, 
+		{
+			node = "GenericArchetype.CoverPresetDecoratorSelector";
+			isOverriddenBy = "GangNetrunner.CoverPresetDecoratorSelector";
+		}, 
+		{
+			node = "GenericArchetype.WeaponHandlingComposite";
+			isOverriddenBy = "GangNetrunner.WeaponHandlingComposite";
+		}, 
+		{
+			node = "ItemHandling.ShootingSpotBehaviorComposite";
+			isOverriddenBy = "GangNetrunner.ShootingSpotBehaviorComposite";
+		}, 
+		{
+			node = "ItemHandling.CoverReloadSelector";
+			isOverriddenBy = "GangNetrunner.CoverReloadSelector";
+		}, 
+		{
+			node = "CoverActions.StayInDesiredCover";
+			isOverriddenBy = "GangNetrunner.StayInDesiredCover";
+		}, 
+		{
+			node = "CoverActions.RegularCoverActivationCheckSuccess";
+			isOverriddenBy = "GangNetrunner.RegularCoverActivationCheckSuccess";
+		}, 
+		{
+			node = "CoverActions.CoverActivationCheckSuccess";
+			isOverriddenBy = "GangNetrunner.CoverActivationCheckSuccess";
+		}, 
+		{
+			node = "CoverActions.CoverGetBackSelector";
+			isOverriddenBy = "GangNetrunner.CoverGetBackSelector";
+		}, 
+		{
+			node = "CoverActions.CoverCommandForceShootSelector";
+			isOverriddenBy = "GangNetrunner.CoverCommandForceShootSelector";
+		}, 
+		{
+			node = "CoverActions.SimpleCoverShootSelector";
+			isOverriddenBy = "GangNetrunner.SimpleCoverShootSelector";
+		}, 
+		{
+			node = "CoverActions.CoverShootSelector";
+			isOverriddenBy = "GangNetrunner.CoverShootSelector";
+		}, 
+		{
+			node = "CoverActions.CoverGetOutSelector";
+			isOverriddenBy = "GangNetrunner.CoverGetOutSelector";
+		}, 
+		{
+			node = "CombatDecorator.InsideCoverDecorator";
+			isOverriddenBy = "GangNetrunner.InsideCoverDecorator";
+		}, 
+		{
+			node = "CoverActions.SetDesiredCoverSelector";
+			isOverriddenBy = "GangNetrunner.SetDesiredCoverSelector";
+		}, 
+		{
+			node = "MovementActions.ExtremeRing2ndFilterCoverAny";
+			isOverriddenBy = "GangNetrunner.ExtremeRing2ndFilterCoverAny";
+		}, 
+		{
+			node = "MovementActions.FarRing2ndFilterCoverAny";
+			isOverriddenBy = "GangNetrunner.FarRing2ndFilterCoverAny";
+		}, 
+		{
+			node = "MovementActions.MediumRing2ndFilterCoverAny";
+			isOverriddenBy = "GangNetrunner.MediumRing2ndFilterCoverAny";
+		}, 
+		{
+			node = "MovementActions.ExtremeRing2ndFilterNoLimit";
+			isOverriddenBy = "GangNetrunner.ExtremeRing2ndFilterNoLimit";
+		}, 
+		{
+			node = "MovementActions.FarRing2ndFilterNoLimit";
+			isOverriddenBy = "GangNetrunner.FarRing2ndFilterNoLimit";
+		}, 
+		{
+			node = "MovementActions.MediumRing2ndFilterNoLimit";
+			isOverriddenBy = "GangNetrunner.MediumRing2ndFilterNoLimit";
+		}, 
+		{
+			node = "CoverActions.ExitCoverSelector";
+			isOverriddenBy = "GangNetrunner.ExitCoverSelector";
+		}, 
+		{
+			node = "CoverActions.WaitInCover";
+			isOverriddenBy = "GangNetrunner.WaitInCover";
+		}, 
+		{
+			node = "CoverActions.ChillInCover";
+			isOverriddenBy = "GangNetrunner.ChillInCover";
+		}, 
+		{
+			node = "CoverActions.CoverPeek";
+			isOverriddenBy = "GangNetrunner.CoverPeek";
+		}, 
+		{
+			node = "CoverActions.CoverPeekNoTarget";
+			isOverriddenBy = "GangNetrunner.CoverPeekNoTarget";
+		}
+	];
+}
+
+Map : ActionMap
+{
+	map = 
+	[
+		{
+			itemType = "ItemType.Wea_Fists";
+			map = "Gang_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_StrongArms";
+			map = "Gang_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Hammer";
+			map = "Gang_Hammer.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Handgun";
+			map = "GangNetrunner_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Revolver";
+			map = "GangNetrunner_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Katana";
+			map = "Gang_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Knife";
+			map = "Gang_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShortBlade";
+			map = "Gang_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LongBlade";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Axe";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Chainsword";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Machete";
+			map = "Gang_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_MantisBlades";
+			map = "Gang_MantisBlades.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_OneHandedClub";
+			map = "Gang_OneHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_TwoHandedClub";
+			map = "Gang_TwoHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SubmachineGun";
+			map = "GangNetrunner_SubmachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Rifle";
+			map = "GangNetrunner_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_AssaultRifle";
+			map = "GangNetrunner_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Shotgun";
+			map = "GangNetrunner_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShotgunDual";
+			map = "GangNetrunner_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_PrecisionRifle";
+			map = "GangNetrunner_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SniperRifle";
+			map = "GangNetrunner_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LightMachineGun";
+			map = "GangNetrunner_LightMachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_HeavyMachineGun";
+			map = "GangNetrunner_LightMachineGun.Map";
+		}
+	];
+	defaultMap = "GangNetrunner.DefaultNodeMap";
+}
+
+RingSelector : MovementActions.RingSelector
+{
+	actions = 
+	[
+		"GangNetrunner.ExtremeRing2ndFilterCoverAny", "GangNetrunner.FarRing2ndFilterCoverAny", "GangNetrunner.ExtremeRing2ndFilterNoLimit", "GangNetrunner.FarRing2ndFilterNoLimit", "GangNetrunner.MediumRing2ndFilterNoLimit", "MovementActions.CloseRing2ndFilterNoLimit", "GangNetrunner.SquadRingDefault"
+	];
+}
+
+SimpleRingSelector : MovementActions.SimpleRingSelector
+{
+	actions = 
+	[
+		"MovementActions.SimpleFarRing", "MovementActions.HoldPosition"
+	];
+}
+
+SprintToCover : MovementActions.SprintToCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSprint", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetAbove9m", "Condition.SelectedCoverToTargetAbove12m", "Condition.TargetToOptSelectedCoverBelow160deg"
+							];
+						} : AIActionAND, 
+						"Condition.NotCombatTarget", "Condition.NotMinAccuracySharedValue0dot95"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		completeActionWithFailureOnCondition = true;
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								"Condition.TargetBelow5m", {
+									AND = 
+									[
+										"Condition.TargetBelow9m", "Condition.TargetBelow120deg"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR, 
+						"Condition.TargetIsVisible"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+CoverBehaviorComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"SpecialActions.CoverUseCombatStimConsumable", "CoverActions.WaitInCoverSelector", "NetrunnerActions.CoverHackSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverThrowGrenadeSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+CoverPresetDecoratorSelector : CombatDecorator.CoverPresetDecoratorSelector
+{
+	actions = 
+	[
+		"GangNetrunner.NetrunnerCompoundCoverSelectionPreset"
+	];
+}
+
+NetrunnerCompoundCoverSelectionPreset : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsFollower"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			preset = "NetrunnerCompound";
+			initialPreset = "NetrunnerCompoundInitial";
+		} : AISubActionChangeCoverSelectionPreset
+	];
+}
+
+WeaponHandlingComposite : ItemHandling.WeaponHandlingComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "CoverActions.RegularCoverActivationCheckSuccess", "NetrunnerActions.HackActionSelector", "ItemHandling.CommandThrowGrenadeSelector", "ItemHandling.ThrowGrenadeSelector", "MeleeActions.QuickMelee", "SpecialActions.UseCombatStimConsumable", "GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector", "GenericArchetype.Success"
+	];
+}
+
+ShootingSpotBehaviorComposite : ItemHandling.ShootingSpotBehaviorComposite
+{
+	nodes = 
+	[
+		"MovementActions.RotateInShootingSpot", "ItemHandling.ExitShootingSpot", "CoverActions.Success"
+	];
+}
+
+InsideCoverDecorator : CombatDecorator.InsideCoverDecorator
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InRegularCover", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+RegularCoverActivationCheckSuccess : CoverActions.RegularCoverActivationCheckSuccess
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInShootingSpot", "Condition.NotSelectedShootingSpot", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverActivationCheckSuccess : CoverActions.CoverActivationCheckSuccess
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetDesiredCoverSelector : AIActionSelector
+{
+	actions = 
+	[
+		"CoverActions.FastSetDesiredCoverNoLOS"
+	];
+}
+
+CoverGetOutSelector : CoverActions.CoverGetOutSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CheckChosenExposureMethodAll", "Condition.TargetBelow120deg", "Condition.NotTicketEquip", "Condition.TicketCheckShoot", "Condition.HasRangedWeapon", "Condition.AmmoCountMin1", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+SimpleCoverShootSelector : CoverActions.SimpleCoverShootSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIForceShootCommand", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "CorpoNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverShootSelector : CoverActions.CoverShootSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIForceShootCommand", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverCommandForceShootSelector : CoverActions.CoverCommandForceShootSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIForceShootCommand", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverGetBackSelector : CoverActions.CoverGetBackSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverActivationCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CurrentCoverToTargetAbove9mPrediction", "Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotDesiredCoverChanged", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption", "Condition.NotCompanionAway"
+	];
+}
+
+CoverDeactivationCondition : AIActionAND
+{
+	AND = 
+	[
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.CurrentCoverToTargetBelow9mPrediction", "Condition.MinAccuracySharedValue0dot85"
+					];
+				} : AIActionAND, 
+				"Condition.NotCoverIsProtectingHorizontallyAgainstTarget", "Condition.DesiredCoverChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruption", "Condition.CompanionAway"
+			];
+		} : AIActionOR, 
+		"Condition.NotTicketGrenadeThrow"
+	];
+}
+
+StayInDesiredCover : CoverActions.StayInDesiredCover
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverReloadSelector : ItemHandling.CoverReloadSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityHasAutoReloader", "Condition.HasAnyWeapon", "Condition.AmmoCountBelowHalf", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotTicketEquip", "Condition.NotIsUsingOffMeshLink", "Condition.InCover", "GangNetrunner.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+ExtremeRing2ndFilterCoverAny : MovementActions.ExtremeRing2ndFilterCoverAny
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Extreme";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 25.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToFarRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+FarRing2ndFilterCoverAny : MovementActions.FarRing2ndFilterCoverAny
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Far";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 15.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+MediumRing2ndFilterCoverAny : MovementActions.MediumRing2ndFilterCoverAny
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToFarRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+ExtremeRing2ndFilterNoLimit : MovementActions.ExtremeRing2ndFilterNoLimit
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Extreme";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 25.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToFarRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+FarRing2ndFilterNoLimit : MovementActions.FarRing2ndFilterNoLimit
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Far";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 15.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToMediumRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+MediumRing2ndFilterNoLimit : MovementActions.MediumRing2ndFilterNoLimit
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToFarRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SquadRingDefault : MovementActions.SquadRingDefault
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Avoid";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 12.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"GangNetrunner.RingDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ValidCoversMediumFarExtreme", {
+							AND = 
+							[
+								"Condition.DestinationReached", "Condition.NotIsMoving"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RingDeactivationCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.NotIsEnteringOrLeavingCover", {
+				OR = 
+				[
+					"Condition.TicketTakeCover", "Condition.TicketCharge", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", "Condition.ConstrainedByRestrictedArea", "Condition.PathFindingFailed", "Condition.CatchUpDistanceConditions", {
+						AND = 
+						[
+							"Condition.NotIsMoving", "Condition.FriendlyFire"
+						];
+					} : AIActionAND
+				];
+			} : AIActionOR
+		];
+	} : AIActionAND;
+}
+
+ExitCoverSelector : CoverActions.ExitCoverSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"GangNetrunner.CoverDeactivationCondition"
+			];
+		} : AIActionOR;
+	};
+}
+
+WaitInCover : CoverActions.WaitInCover
+{
+	loop = 
+	{
+		duration = 2.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"GangNetrunner.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+ChillInCover : CoverActions.ChillInCover
+{
+	loop = 
+	{
+		duration = 5.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"GangNetrunner.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverPeek : CoverActions.CoverPeek
+{
+	loop = 
+	{
+		duration = 0.433f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"GangNetrunner.CoverDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CoverPeekNoTarget : CoverActions.CoverPeekNoTarget
+{
+	loop = 
+	{
+		duration = 1.433f;
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"GangNetrunner.CoverDeactivationCondition", "Condition.MinAccuracyValue1"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+

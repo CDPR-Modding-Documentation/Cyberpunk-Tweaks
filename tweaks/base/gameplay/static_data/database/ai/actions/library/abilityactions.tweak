@@ -1,0 +1,158 @@
+package AbilityActions
+using RTDB
+
+GlowingTattoosActivation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasGlowingTattoos"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.00001f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.GlowingTattoos"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+BerserkActivationComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"AbilityActions.CannotUseBerserk", "AbilityActions.BerserkActivation", "GenericArchetype.Success"
+	];
+}
+
+CannotUseBerserk : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityHasBerserk"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 10.f;
+	};
+}
+
+BerserkActivation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectBerserkNPCBuff", "Condition.NotStatusEffectBerserkNPCDownState", "Condition.HealthBelow100perc", "Condition.NotMeleeStatesConditions", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.233f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BerserkNPCBuff"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			name = "InterruptMeleeAction";
+			duration = 0.1f;
+			delay = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+SeeThroughWallsComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"AbilityActions.SeeThroughWallsActivation", "GenericArchetype.WaitAMoment"
+	];
+}
+
+SeeThroughWallsActivation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSeeThroughWalls"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			sensePreset = "Senses.Combat_SeeThroughWalls";
+		} : AISubActionUseSensePreset, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SeeThroughWalls"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+BerserkDownState : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BerserkNPCBuff"
+			];
+			remove = true;
+			delay = 0.1f;
+		} : AISubActionStatusEffect
+	];
+}
+

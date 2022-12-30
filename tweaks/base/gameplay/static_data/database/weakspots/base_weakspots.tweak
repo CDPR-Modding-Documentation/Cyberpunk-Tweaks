@@ -1,0 +1,615 @@
+package Weakspots
+using RTDB, Effectors
+
+Base_Weakspot : Weakspot
+{
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Weakspots.Weakspot_Base_Stat_ModGroup"
+	];
+	fk< StatPool >[] statPools = 
+	[
+		"BaseStatPools.WeakspotHealth"
+	];
+	bool saveStatPools = true;
+	fk< Effector >[] onDestroyedEffectors = 
+	[
+		"Effectors.WeakspotOnDestroy"
+	];
+}
+
+Test_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "user\filip_koperski\weakspot_test.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Chest";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 3000;
+		} : ConstantStatModifier
+	];
+}
+
+Explosive_Tank_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\chest\weakspot_chest_explosive_tank.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Chest";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+}
+
+Juice_Dispenser_Back_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\chest\weakspot_chest_juice_dispenser.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.WeakspotSlot";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Weakspots.JuiceDispenserStats"
+	];
+	fk< Effector >[] onDestroyedEffectors = 
+	[
+		{
+			fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+			CName effectorClassName = "RemoveAllStatusEffectsEffector";
+		} : Effector, 
+		{
+			fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+			CName effectorClassName = "ApplyStatusEffectEffector";
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.Pain";
+			applicationTarget = "";
+			bool removeWithEffector = false;
+		} : ApplyStatusEffectEffector, 
+		{
+			fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+			CName effectorClassName = "ApplyStatusEffectEffector";
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.BossTakedownCooldown";
+			applicationTarget = "";
+			bool removeWithEffector = false;
+		} : ApplyStatusEffectEffector
+	];
+}
+
+JuiceDispenserStats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.25f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier
+	];
+}
+
+Smasher_Generator_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\chest\weakspot_chest_smasher_generator.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.WeakspotSlot";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Weakspots.Smasher_Generator_Stats"
+	];
+}
+
+Smasher_Generator_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 99.f;
+		} : ConstantStatModifier
+	];
+}
+
+Head_Cyberware_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\head\weakspot_head_cyberware.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.RightHand";
+}
+
+Oda_Mask_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\head\weakspot_head_oda.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Head";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Weakspots.OdaMaskStats"
+	];
+	fk< Effector >[] onDestroyedEffectors = 
+	[
+		{
+			fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+			CName effectorClassName = "RemoveAllStatusEffectsEffector";
+		}
+	];
+}
+
+OdaMaskStats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.20f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+}
+
+Ozob_Nose_Weakspot : Base_Weakspot
+{
+	gameplayTags += 
+	[
+		"MeleeReduction"
+	];
+	entityTemplatePath = "base\gameplay\weakspots\puppet\head\weakspot_nose_grenade.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Ozob";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Weakspots.Ozob_Nose_Stats"
+	];
+}
+
+Ozob_Nose_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.09f;
+		} : CombinedStatModifier
+	];
+}
+
+Leg_Bandage_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\legs\weakspot_leg_bandage.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Legs";
+}
+
+Arm_Nachtigall_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\arms\weakspot_arm_nachtigall.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.RightElbow";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 350;
+		} : ConstantStatModifier, 
+		"Character.q104_base_power_level"
+	];
+}
+
+Arm_Simple_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\arms\weakspot_arm_simple.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.RightElbow";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier
+	];
+}
+
+Head_Nachtigall_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\head\weakspot_head_nachtigall.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Head";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 400;
+		} : ConstantStatModifier
+	];
+	gameplayTags = 
+	[
+		"Invulnerable"
+	];
+}
+
+Engine_Zetatech_Av_Weakspot_Base : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\vehicle\engine\weakspot_engine_zetatech_av.ent";
+	fk< AttachmentSlot > slotToAttach = "";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 6000;
+		} : ConstantStatModifier
+	];
+}
+
+Engine_Zetatech_Av_Weakspot_01 : Engine_Zetatech_Av_Weakspot_Base
+{
+	entityTemplatePath = "base\gameplay\weakspots\vehicle\engine\weakspot_engine_zetatech_av.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Engine1";
+}
+
+Engine_Zetatech_Av_Weakspot_02 : Engine_Zetatech_Av_Weakspot_Base
+{
+	entityTemplatePath = "base\gameplay\weakspots\vehicle\engine\weakspot_engine_zetatech_av.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Engine2";
+}
+
+Engine_Zetatech_Av_Weakspot_03 : Engine_Zetatech_Av_Weakspot_Base
+{
+	entityTemplatePath = "base\gameplay\weakspots\vehicle\engine\weakspot_engine_zetatech_av.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Engine3";
+}
+
+Engine_Zetatech_Av_Weakspot_04 : Engine_Zetatech_Av_Weakspot_Base
+{
+	entityTemplatePath = "base\gameplay\weakspots\vehicle\engine\weakspot_engine_zetatech_av.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Engine4";
+}
+
+Head_Helmet_Armor : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\head\armor_head_helmet.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Head";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 40;
+		} : ConstantStatModifier
+	];
+	gameplayTags = 
+	[
+		"Invulnerable"
+	];
+}
+
+Mech_Weapon_Weakspot : Base_Weakspot
+{
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Weakspots.Mech_Weapon_Weakspot_Stats"
+	];
+}
+
+Mech_Weapon_Right_Weakspot : Mech_Weapon_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_weapon_mech_right.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.WeakspotRight";
+}
+
+Mech_Weapon_Left_Weakspot : Mech_Weapon_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_weapon_mech_left.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.WeakspotLeft";
+}
+
+Mech_Weapon_Weakspot_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.55f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 40;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier
+	];
+}
+
+Exo_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_exo_battery.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.ExoWeakspot";
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Weakspots.Exo_Weakspot_Stats"
+	];
+	fk< Effector >[] onDestroyedEffectors = 
+	[
+		{
+			fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+			CName effectorClassName = "ApplyStatusEffectEffector";
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.Pain";
+			applicationTarget = "";
+			bool removeWithEffector = false;
+		} : ApplyStatusEffectEffector
+	];
+}
+
+Exo_Weakspot_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.25f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			refObject = "Owner";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.15f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+}
+
+Exo_CPO_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_cpo_exo.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.ExoWeakspot";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 250;
+		} : ConstantStatModifier
+	];
+}
+
+Test_CPO_Weakspot1 : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_cpo_exo_test.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Head";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.0075f;
+		} : ConstantStatModifier
+	];
+}
+
+Test_CPO_Weakspot2 : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_cpo_exo_test.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.LeftHand";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.0075f;
+		} : ConstantStatModifier
+	];
+}
+
+Test_CPO_Weakspot3 : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\exo\weakspot_cpo_exo_test.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.RightElbow";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.0075f;
+		} : ConstantStatModifier
+	];
+}
+
+Smasher_Plate_Weakspot : Base_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\weakspot_plate_01.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Head";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Weakspots.Smasher_Plate_Weakspot_Stats"
+	];
+}
+
+Smasher_Plate_Weakspot_collar : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_collar.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_collar";
+}
+
+Smasher_Plate_Weakspot_chest_l : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_chest_l.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_chest_l";
+}
+
+Smasher_Plate_Weakspot_chest_r : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_chest_r.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_chest_r";
+}
+
+Smasher_Plate_Weakspot_stomach_up_l : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_stomach_up_l.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_stomach_up_l";
+}
+
+Smasher_Plate_Weakspot_stomach_up_r : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_stomach_up_r.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_stomach_up_r";
+}
+
+Smasher_Plate_Weakspot_stomach_mid_r : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_stomach_mid_r.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_stomach_mid_r";
+}
+
+Smasher_Plate_Weakspot_stomach_mid_l : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_stomach_mid_l.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_stomach_mid_l";
+}
+
+Smasher_Plate_Weakspot_back_r : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_back_r.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_back_r";
+}
+
+Smasher_Plate_Weakspot_back_l : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_back_l.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_back_l";
+}
+
+Smasher_Plate_Weakspot_stomach_low : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_stomach_low.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_stomach_low";
+}
+
+Smasher_Plate_Weakspot_pipe_r : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_pipe_r.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_pipe_r";
+}
+
+Smasher_Plate_Weakspot_pipe_l : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_pipe_l.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_pipe_l";
+}
+
+Smasher_Plate_Weakspot_shoulder_l : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_shoulder_l.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_shoulder_l";
+}
+
+Smasher_Plate_Weakspot_shoulder_r : Smasher_Plate_Weakspot
+{
+	entityTemplatePath = "base\gameplay\weakspots\puppet\smasher\Smasher_Plate_Weakspot_shoulder_r.ent";
+	fk< AttachmentSlot > slotToAttach = "AttachmentSlots.Smasher_Plate_Weakspot_shoulder_r";
+}
+
+Smasher_Plate_Weakspot_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 2.f;
+		} : ConstantStatModifier
+	];
+}
+

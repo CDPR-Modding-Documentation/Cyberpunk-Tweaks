@@ -1,0 +1,215 @@
+package Driving
+using RTDB
+
+SteeringParamsForwardBase : VehicleSteeringSettings
+{
+	minTargetDistance = 4.5f;
+	maxTargetDistance = 6.f;
+	speedForMinDistance = 6.f;
+	speedForMaxDistance = 30.f;
+	mildSteeringSpeed = 4.5f;
+	errorMagnitudeForMildSteering = 1.f;
+	fullSteeringSpeed = 10.f;
+	errorMagnitudeForFullSteering = 2.f;
+}
+
+SteeringParamsForwardRace : VehicleSteeringSettings
+{
+	minTargetDistance = 13.5f;
+	maxTargetDistance = 18.f;
+	speedForMinDistance = 6.f;
+	speedForMaxDistance = 30.f;
+	mildSteeringSpeed = 4.5f;
+	errorMagnitudeForMildSteering = 1.f;
+	fullSteeringSpeed = 10.f;
+	errorMagnitudeForFullSteering = 2.f;
+}
+
+SteeringParamsForwardPanic : SteeringParamsForwardBase
+{
+	minTargetDistance = 6.f;
+	maxTargetDistance = 15.f;
+	fullSteeringSpeed = 7.f;
+	increaseSteeringDistForAvoidance = true;
+	vehicleMinTurnSpeed = 100.f;
+	vehicleMaxTurnSpeed = 500.f;
+}
+
+SteeringParamsReverseBase : VehicleSteeringSettings
+{
+	minTargetDistance = 6.f;
+	maxTargetDistance = 8.f;
+	speedForMinDistance = 6.f;
+	speedForMaxDistance = 30.f;
+	mildSteeringSpeed = 2.5f;
+	errorMagnitudeForMildSteering = 0.5f;
+	fullSteeringSpeed = 10.f;
+	errorMagnitudeForFullSteering = 1.5f;
+}
+
+AccelPIDBase : VehiclePIDSettings
+{
+}
+
+BrakePIDBase : VehiclePIDSettings
+{
+}
+
+StoppingParamsBase : VehicleStoppingSettings
+{
+	mildBrakingChangeSpeed = 2.0f;
+	errorMagnitudeForMildBrakingChange = 1.f;
+	fullBrakingChangeSpeed = 4.f;
+	errorMagnitudeForFullBrakingChange = 4.f;
+	decreaseMul = 3.f;
+}
+
+VisionParamsBase : VehicleAIVisionSettings
+{
+	minDistance = 3.f;
+	maxDistance = 13.f;
+	numSweeps = 30;
+}
+
+VisionParamsRace : VisionParamsBase
+{
+	maxDistance = 13.f;
+	numSweeps = 16;
+}
+
+VisionParamsPanic : VisionParamsBase
+{
+	minDistance = 4.f;
+	maxDistance = 14.f;
+	sideOverlapLateralScale = 1.0;
+	sideOverlapLongitudinalScale = 1.2;
+	sideOverlapForwardOffset = 0.0f;
+}
+
+VehicleAITractionEstimationRace : VehicleAITractionEstimation
+{
+	turningAccelFactor = 2.f;
+	forwardAccelFactor = 2.f;
+	brakingAccelFactor = 2.f;
+}
+
+Default_Driving : BaseDrivingParameters
+{
+	steering = 
+	{
+	} : SteeringParamsForwardPanic;
+	steeringReverse = 
+	{
+	} : SteeringParamsReverseBase;
+	stopping = 
+	{
+	} : StoppingParamsBase;
+	accel = 
+	{
+		P = 0.5;
+		I = 0.5;
+		D = 0.2;
+	} : AccelPIDBase;
+	brake = 
+	{
+		P = 0.5;
+		I = 0.5;
+		D = 0.2;
+	} : BrakePIDBase;
+	boostStats = 
+	{
+		maxTorqueBoost = 1.0;
+		maxLongTractionBoost = 0.5;
+		maxLatTractionBoost = 0.5;
+	} : VehicleAIBoostSettings;
+	vision = 
+	{
+	} : VisionParamsBase;
+	traction = 
+	{
+	} : VehicleAITractionEstimation;
+}
+
+Panic_Driving : Default_Driving
+{
+	steering = 
+	{
+	} : SteeringParamsForwardPanic;
+	vision = 
+	{
+	} : VisionParamsPanic;
+	boostStats = 
+	{
+		maxTorqueBoost = 1.0;
+		maxLongTractionBoost = 0.0;
+		maxLatTractionBoost = 0.0;
+	} : VehicleAIBoostSettings;
+}
+
+Race_Driving : Default_Driving
+{
+	steering = 
+	{
+	} : SteeringParamsForwardRace;
+	vision = 
+	{
+	} : VisionParamsRace;
+	traction = 
+	{
+	} : VehicleAITractionEstimationRace;
+}
+
+Default_4w : Default_Driving
+{
+}
+
+Default_2w : Default_Driving
+{
+}
+
+Default_Galena_Nomad : Default_4w
+{
+}
+
+Default_Delamain : Default_4w
+{
+}
+
+Default_Thorton_Colby : Default_4w
+{
+}
+
+Police_Cortes : Default_4w
+{
+	boostStats = 
+	{
+		maxTorqueBoost = 3.0;
+		maxLongTractionBoost = 1.0;
+		maxLatTractionBoost = 1.0;
+	} : VehicleAIBoostSettings;
+}
+
+VehicleImpactTraffic_DefaultParams : VehicleImpactTraffic
+{
+}
+
+Panic_Sport : Panic_Driving
+{
+	steering = 
+	{
+	} : SteeringParamsForwardPanic;
+	boostStats = 
+	{
+		maxTorqueBoost = 0.5;
+		maxLongTractionBoost = 0.0;
+		maxLatTractionBoost = 0.0;
+	} : VehicleAIBoostSettings;
+}
+
+Panic_Regular : Panic_Driving
+{
+	steering = 
+	{
+	} : SteeringParamsForwardPanic;
+}
+

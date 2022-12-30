@@ -1,0 +1,382 @@
+package Prereqs
+using RTDB
+
+QuickHackUploadingPrereq : ObjectActionPrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			valueToCheck = 0;
+			statPoolType = "QuickHackUpload";
+			comparisonType = "LessOrEqual";
+		} : StatPoolPrereq
+	];
+	failureExplanation = "LocKey#43809";
+}
+
+QuickHackActivePrereq : ObjectActionPrereq
+{
+	failureConditionPrereq = [];
+	failureExplanation = "LocKey#43808";
+}
+
+QuickHackTargetMortalPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+		} : PuppetMortalPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+IsNotCyberpsycho : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			allowedTags = 
+			[
+				"Cyberpsycho"
+			];
+			invert = true;
+		} : GameplayTagsPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+IsNotImmuneToSystemCollapse : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			statType = "SystemCollapseImmunity";
+			valueToCheck = 0;
+			comparisonType = "LessOrEqual";
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+IsNotImmuneToMemoryWipe : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			statType = "MemoryWipeImmunity";
+			valueToCheck = 0;
+			comparisonType = "LessOrEqual";
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+IsPlayerReachable : IPrereq
+{
+	prereqClassName = "IsPlayerReachablePrereq";
+	bool invert = false;
+	bool checkForRMA = false;
+}
+
+IsPlayerNotReachableWhistleAction : IPrereq
+{
+	prereqClassName = "IsPlayerReachablePrereq";
+	bool invert = false;
+	bool checkForRMA = true;
+}
+
+PlayerReachableActionPrereq : ObjectActionPrereq
+{
+	failureConditionPrereq = 
+	[
+		"Prereqs.IsPlayerNotReachableWhistleAction"
+	];
+	failureExplanation = "LocKey#77351";
+}
+
+WeaponMalfunctionPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "JamWeapon";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+GrenadeExplodePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "SuicideWithGrenade";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+CanNpcUseGrenadesPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			prereqClassName = "gameMultiPrereq";
+			aggregationType = "OR";
+			nestedPrereqs = 
+			[
+				{
+					CName statType = "CanUseFragGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq, 
+				{
+					CName statType = "CanUseFlashbangGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq, 
+				{
+					CName statType = "CanUseBiohazardGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq, 
+				{
+					CName statType = "CanUseEMPGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq, 
+				{
+					CName statType = "CanUseIncendiaryGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq, 
+				{
+					CName statType = "CanUseReconGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq, 
+				{
+					CName statType = "CanUseCuttingGrenades";
+					comparisonType = "Greater";
+				} : StatPrereq
+			];
+		} : MultiPrereq
+	];
+	failureExplanation = "LocKey#51710";
+}
+
+GunSuicidePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "SuicideWithWeapon";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+QuickHackBlindPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "QuickHackBlind";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+QuickHackBlindImmunePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			CName statType = "BlindImmunity";
+			comparisonType = "Less";
+			valueToCheck = 1;
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+QuickHackBurningImmunePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			CName statType = "BurningImmunity";
+			comparisonType = "Less";
+			valueToCheck = 1;
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+OverloadPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "Overload";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+BrainMeltPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "BrainMelt";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+MadnessPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "Madness";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+CommsCallInPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "CommsCallIn";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+WhistlePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "Whistle";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+CommsNoisePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "CommsNoise";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+CommsCallOutPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "CommsCallOut";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+CyberwareMalfunctionPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "CyberwareMalfunction";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+OverheatPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "Overheat";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+SystemCollapsePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "SystemCollapse";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+MemoryWipePrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "MemoryWipe";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+MemoryWipeImmunityStatusEffect : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "MemoryWipeImmunity";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+LocomotionMalfunctionPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "LocomotionMalfunction";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+
+PingPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			CName tagToCheck = "Ping";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq
+	];
+}
+

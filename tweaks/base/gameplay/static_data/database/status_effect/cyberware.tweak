@@ -1,0 +1,207 @@
+package BaseStatusEffect
+using RTDB, Effectors, Perks, Prereqs
+
+PlayerHealthMonitorCooldown : PlayerCyberwareCooldown
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refStat = "BaseStats.HealthMonitorCooldownDuration";
+				refObject = "Self";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	} : CyberwareCooldownDuration;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.PlayerHealthMonitorCooldownNotification";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#3681";
+		string iconPath = "health_monitor";
+	};
+}
+
+PlayerBloodPumpCooldown : PlayerCyberwareCooldown
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 180;
+			} : ConstantStatModifier
+		];
+	} : CyberwareCooldownDuration;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.PlayerBloodPumpCooldownNotification";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#3678";
+		string iconPath = "blood_pump";
+	};
+}
+
+PlayerBloodPumpRareCooldown : PlayerBloodPumpCooldown
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 90;
+			} : ConstantStatModifier
+		];
+	} : CyberwareCooldownDuration;
+}
+
+PlayerBloodPumpLegendaryCooldown : PlayerBloodPumpCooldown
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 30;
+			} : ConstantStatModifier
+		];
+	} : CyberwareCooldownDuration;
+}
+
+PlayerMemoryReplenishmentCooldown : PlayerCyberwareCooldown
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 240;
+			} : ConstantStatModifier
+		];
+	} : CyberwareCooldownDuration;
+	uiData = 
+	{
+		string displayName = "LocKey#40788";
+		string iconPath = "memory_replenishment";
+	};
+}
+
+HeatUsingBoosterDummyEffect : StatusEffect
+{
+	gameplayTags += 
+	[
+		"Buff"
+	];
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	uiData = 
+	{
+		string displayName = "holocamo";
+		string iconPath = "increased_stats_icon";
+	};
+}
+
+HoverJumpPlayerBuff : BuffStatusEffect
+{
+	bool isAffectedByTimeDilationNPC = false;
+	bool isAffectedByTimeDilationPlayer = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.HoverJumpCooldown";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		}
+	];
+	uiData = "BaseStatusEffect.BaseHoverJumpUI";
+}
+
+BaseHoverJumpUI : StatusEffectUIData
+{
+	displayName = "LocKey#40882";
+	description = "LocKey#77880";
+	iconPath = "ability_utility";
+}
+
+PlayerHealthMonitorCooldownNotification : CyberwareCooldownNotification
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					effectorClassName = "ShowUIWarningEffector";
+					float duration = 1f;
+					string primaryText = "LocKey#52430";
+					string secondaryText = "LocKey#3681";
+				}
+			];
+		}
+	];
+}
+
+PlayerBloodPumpCooldownNotification : CyberwareCooldownNotification
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					effectorClassName = "ShowUIWarningEffector";
+					float duration = 1f;
+					string primaryText = "LocKey#52430";
+					string secondaryText = "LocKey#3678";
+				}
+			];
+		}
+	];
+}
+

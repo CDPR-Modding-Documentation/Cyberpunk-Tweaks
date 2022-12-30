@@ -1,0 +1,323 @@
+package playerStateMachineLocomotionTakedown
+using playerStateMachineBaseLocomotionTakedown
+
+takedownBegin : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"takedownLeapToPrey", "takedownSlideToPrey", "takedownGrappleFailed", "takedownExecuteTakedown", "grapplePreyDead"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", ""
+	];
+}
+
+takedownLeapToPrey : baseState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"takedownExecuteTakedown", "takedownEnd"
+	];
+	string[] transitionCondition = 
+	[
+		"ToTakedownExecuteTakedown", "="
+	];
+	float minDistToTarget = 2.0;
+	float slideDuration = 0.2;
+	float distanceRadius = 0.;
+	float rotationDuration = 0.3;
+	float horizontalDisplacement = 0.2;
+	float horizontalDisplacementTargetAbovePlayer = 0.5;
+	float maxDuration = 3.0;
+}
+
+takedownSlideToPrey : baseState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"takedownGrappleFailed", "takedownGrapplePrey", "grapplePreyDead"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+}
+
+takedownGrapplePrey : baseState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"grappleMount", "grapplePreyDead"
+	];
+	string[] transitionCondition = 
+	[
+		"", ""
+	];
+	float delayToPlayNPCReactionVO = 0.47;
+}
+
+takedownGrappleFailed : baseState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"grappleBreakFree"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+grappleFall : grappleAir
+{
+	CName[] alias = 
+	[
+		"toAir"
+	];
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"grappleStand", "grappleForceShovePrey"
+	];
+	string[] transitionCondition = 
+	[
+		"ToGrappleStand", ""
+	];
+}
+
+grappleMount : takedownGrapplePrey
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"grappleStand", "grapplePreyDead"
+	];
+	string[] transitionCondition = 
+	[
+		"", ""
+	];
+	float transitionTime = 0.9;
+}
+
+grappleStand : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"grappleFall", "takedownExecuteTakedown", "grappleStruggle", "takedownExecuteTakedownAndDispose", "takedownReleasePrey", "grapplePreyDead", "grappleBreakFree", "grappleForceShovePrey", "takedownUnmountPrey"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToTakedownExecuteTakedown", "ToGrappleStruggle", "ToTakedownExecuteTakedownAndDispose", "", "", "ToGrappleBreakFree", "", "ToTakedownUnmountPrey"
+	];
+	CName onEnterCameraParamsName = "GrappleWalk";
+	string stateBodyClassName = "LocomotionSimple";
+	float stateDuration = 3.0;
+}
+
+grappleStruggle : grappleStand
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"grappleFall", "takedownExecuteTakedown", "takedownExecuteTakedownAndDispose", "grappleBreakFree", "takedownReleasePrey", "grapplePreyDead", "grappleForceShovePrey"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToTakedownExecuteTakedown", "ToTakedownExecuteTakedownAndDispose", "", "", "", ""
+	];
+	CName onEnterCameraParamsName = "GrappleStruggle";
+	string stateBodyClassName = "LocomotionSimple";
+}
+
+grappleBreakFree : grappleStand
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"takedownReleasePrey"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	string stateBodyClassName = "LocomotionBase";
+	float stateDuration = 4.5;
+	float playerPositionAdjustmentTime = 0.6;
+	float adjustmentDistance = 0.8;
+}
+
+grapplePreyDead : grappleStand
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"takedownReleasePrey"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+grappleForceShovePrey : grappleStand
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"takedownReleasePrey"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	float shoveGameEffectRange = 3.0;
+	float shoveGameEffectDuration = 0.5;
+}
+
+takedownExecuteTakedown : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"takedownReleasePrey"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	string stateBodyClassName = "LocomotionBase";
+	float minRequiredSpace = 1;
+	float delayToEnableRagdoll = 2.0;
+	CName onEnterCameraParamsName = "WorkspotLocked";
+	int DEBUG_forceSelectTakedownAnimation = -1;
+}
+
+takedownExecuteTakedownAndDispose : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"takedownEnd"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	bool exitToStandState = false;
+}
+
+takedownReleasePrey : baseState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"takedownUnmountPrey"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+takedownUnmountPrey : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"pickUpBodyAfterTakedown", "takedownEnd"
+	];
+	string[] transitionCondition = 
+	[
+		"", ""
+	];
+}
+
+pickUpBodyAfterTakedown : baseState
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = [];
+	string[] transitionCondition = [];
+}
+
+takedownEnd : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = [];
+	string[] transitionCondition = [];
+}
+

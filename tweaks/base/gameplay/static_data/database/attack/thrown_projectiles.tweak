@@ -1,0 +1,121 @@
+package Attacks
+using RTDB
+
+Throw_Grenade : BaseProjectile
+{
+	userDataPath = "attack.bullet";
+	attackType = "AttackType.Ranged";
+	range = 200.0f;
+	projectileTemplateName = "frag";
+}
+
+SpiderbotProjectile : BaseProjectile
+{
+	projectileTemplateName = "spiderbot_projectile";
+	range = 20.f;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 200;
+		} : ConstantStatModifier
+	];
+}
+
+SpiderbotProjectileAttack : RangedAttack
+{
+	playerAttack = "Attacks.SpiderbotProjectile";
+	playerTimeDilated = "Attacks.SpiderbotProjectile";
+	NPCAttack = "Attacks.SpiderbotProjectile";
+	NPCTimeDilated = "Attacks.SpiderbotProjectile";
+}
+
+Monodisc : BaseProjectile
+{
+	userDataPath = "Attacks.Monodisc";
+	projectileTemplateName = "mono_disc";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 500;
+		} : ConstantStatModifier
+	];
+}
+
+LethalInject : BaseProjectile
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 100000;
+		} : ConstantStatModifier
+	];
+	projectileTemplateName = "dart";
+}
+
+Stun : BaseProjectile
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Stun";
+			resistPool = "BaseStatPools.StunTrigger";
+			applyImmediately = true;
+		}
+	];
+	projectileTemplateName = "stun";
+}
+
+BaseNanoWireProjectileAttack : Attack_GameEffect
+{
+	attackType = "AttackType.Ranged";
+	effectName = "nanoWire";
+	range = 0.5f;
+}
+
+NanoWireNonLethalGrapple : BaseNanoWireProjectileAttack
+{
+	effectTag = "nanoWireNonLethalGrapple";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+			applyImmediately = true;
+		}
+	];
+}
+
+NanoWireLethalGrapple : BaseNanoWireProjectileAttack
+{
+	effectTag = "nanoWireLethalGrapple";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 2.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "AdditiveMultiplier";
+			value = 5.f;
+		} : ConstantStatModifier
+	];
+}
+

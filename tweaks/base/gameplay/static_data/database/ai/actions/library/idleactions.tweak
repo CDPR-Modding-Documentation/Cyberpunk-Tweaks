@@ -1,0 +1,146 @@
+package IdleActions
+using RTDB, AIActionTarget
+
+MoveOnSplineWithCompanionParams
+{
+	float catchUpRunSpeedDistance = 6.f;
+	float catchUpSprintSpeedDistance = 9.f;
+	float catchUpTeleportDistance = 20.f;
+	float moveToFrontRunSpeedDistance = 0.f;
+	float moveToFrontSprintSpeedDistance = 9.f;
+}
+
+WaitForCompanionCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WaitForCompanionSignal"
+			];
+		} : AIActionAND;
+	};
+}
+
+WaitForTeleportCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.DistanceToDestinationAbove10m", "Condition.DistanceToDestinationFriendlyTargetAbove20m", "Condition.FollowerAbove20mNoHints", "Condition.FollowerPOVAbove270deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+WaitForCompanion : AIActionSmartComposite
+{
+	repeat = 0;
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"IdleActions.Wait", "IdleActions.TurnAround", "GenericArchetype.ImmediateSuccess"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.NotWaitForCompanionSignal"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+Wait : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FollowerBelow10mNoHints"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 12.f;
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.FollowerAbove16mNoHints"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.FriendlyTarget;
+			preset = "LookatPreset.LookAtCompanion";
+		}
+	];
+}
+
+TurnAround : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FollowerAbove180deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.FriendlyTarget";
+			strafingRotationOffset = 60.f;
+		};
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+	};
+	lookats = 
+	[
+		{
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.FriendlyTarget;
+			preset = "LookatPreset.EyesHead";
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "hurry_up";
+		} : AISubActionPlayVoiceOver
+	];
+}
+

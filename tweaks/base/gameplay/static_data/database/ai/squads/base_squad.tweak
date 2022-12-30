@@ -1,0 +1,949 @@
+package Tickets
+using RTDB
+
+BaseSquad : AISquadParams
+{
+	allTickets = 
+	[
+		"Tickets.Shoot", "Tickets.Charge", "Tickets.TakeCover", "Tickets.Search", "Tickets.GroupReaction", "Tickets.Reprimand", "Tickets.Investigate", "Tickets.QuickMelee", "Tickets.Melee", "Tickets.MeleeSupport", "Tickets.MeleeApproach", "Tickets.Taunt", "Tickets.TauntBackground", "Tickets.Block", "Tickets.Dodge", "Tickets.Takedown", "Tickets.Peek", "Tickets.GrenadeThrow", "Tickets.Sync", "Tickets.CallOff", "Tickets.BackUp", "Tickets.BattleCry", "Tickets.Quickhack", "Tickets.Crouch", "Tickets.CatchUp", "Tickets.SimpleCombat", "Tickets.GoToCover", "Tickets.Strafe", "Tickets.StrafeEvade", "Tickets.Equip", "Tickets.EquipMelee", "Tickets.Reload", "Tickets.MeleeRing", "Tickets.CloseRing", "Tickets.MediumRing", "Tickets.FarRing", "Tickets.ExtremeRing", "Tickets.DefaultRing", "Tickets.MeleeRing1stFilter", "Tickets.CloseRing1stFilter", "Tickets.MediumRing1stFilter", "Tickets.FarRing1stFilter", "Tickets.ExtremeRing1stFilter", "Tickets.MeleeRing2ndFilter", "Tickets.CloseRing2ndFilter", "Tickets.MediumRing2ndFilter", "Tickets.FarRing2ndFilter", "Tickets.ExtremeRing2ndFilter"
+	];
+}
+
+SimpleCombat : AIActionTicket
+{
+	ticketType = "AITicketType.SimpleCombat";
+}
+
+Shoot : AIActionTicket
+{
+	ticketType = "AITicketType.Shoot";
+}
+
+Charge : AIActionTicket
+{
+	ticketType = "AITicketType.Charge";
+}
+
+GoToCover : AIActionTicket
+{
+	ticketType = "AITicketType.GoToCover";
+}
+
+TakeCover : AIActionTicket
+{
+	ticketType = "AITicketType.TakeCover";
+}
+
+Search : AIActionTicket
+{
+	ticketType = "AITicketType.Search";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		"Condition.SquadClosestToStimSource"
+	];
+}
+
+GroupReaction : AIActionTicket
+{
+	ticketType = "AITicketType.GroupReaction";
+	releaseAll = true;
+}
+
+Reprimand : AIActionTicket
+{
+	ticketType = "AITicketType.Reprimand";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		"Condition.SquadClosestToStimTarget"
+	];
+}
+
+Investigate : AIActionTicket
+{
+	ticketType = "AITicketType.Investigate";
+	maxNumberOfTickets = 1;
+	scaleNumberOfTicketsFromWorkspots = true;
+	activationCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.InvestigateReaction"
+				];
+			} : AIActionAND;
+		} : AISquadFilterByAICondition, 
+		"Condition.SquadClosestToStimTarget"
+	];
+}
+
+QuickMelee : AIActionTicket
+{
+	ticketType = "AITicketType.QuickMelee";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		"Condition.SquadClosestToCombatTarget"
+	];
+}
+
+Melee : AIActionTicket
+{
+	ticketType = "AITicketType.Melee";
+	maxNumberOfTickets = 1;
+	startCooldownOnFailure = false;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.Melee";
+			duration = 0.1f;
+			activationCondition = 
+			[
+				{
+					condition = 
+					{
+						AND = 
+						[
+							"Condition.AbilityIsTier2Archetype", "Condition.NearestSquadmateBelow10m", "Condition.TargetHasMeleeWeapon"
+						];
+					} : AIActionAND;
+				}
+			];
+		}, 
+		{
+			name = "AITicketType.Melee";
+			duration = 0.3f;
+			activationCondition = 
+			[
+				{
+					condition = 
+					{
+						AND = 
+						[
+							"Condition.AbilityIsTier1Archetype", "Condition.NearestSquadmateBelow10m", "Condition.TargetHasMeleeWeapon"
+						];
+					} : AIActionAND;
+				}
+			];
+		}
+	];
+	activationCondition = 
+	[
+		"Condition.SquadOwnerCanRequestAttack", "Condition.SquadClosestToCombatTarget"
+	];
+}
+
+MeleeSupport : AIActionTicket
+{
+	ticketType = "AITicketType.MeleeSupport";
+	maxNumberOfTickets = 1;
+	startCooldownOnFailure = false;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.Melee";
+			duration = 0.1f;
+		}
+	];
+	activationCondition = 
+	[
+		"Condition.SquadOwnerCanRequestAttack", "Condition.SquadClosestToCombatTarget"
+	];
+}
+
+MeleeApproach : AIActionTicket
+{
+	ticketType = "AITicketType.MeleeApproach";
+	maxNumberOfTickets = 2;
+	startCooldownOnFailure = false;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.MeleeApproach";
+			duration = 0.f;
+		}
+	];
+	activationCondition = 
+	[
+		"Condition.SquadClosestToCombatTarget"
+	];
+}
+
+Taunt : AIActionTicket
+{
+	ticketType = "AITicketType.Taunt";
+	maxNumberOfTickets = 4;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.Taunt";
+			duration = 2.f;
+		}
+	];
+	activationCondition = 
+	[
+		{
+		} : AISquadAvoidLastFilter, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+TauntBackground : AIActionTicket
+{
+	ticketType = "AITicketType.TauntBackground";
+	maxNumberOfTickets = 5;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.TauntBackground";
+			duration = 0.2f;
+		}
+	];
+	activationCondition = 
+	[
+		{
+		} : AISquadAvoidLastFilter, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+Block : AIActionTicket
+{
+	ticketType = "AITicketType.Block";
+	minNumberOfTickets = 2;
+	maxNumberOfTickets = 3;
+	percentageNumberOfTickets = 0.5f;
+	minTicketDesyncTime = 0.2f;
+	maxTicketDesyncTime = 0.61f;
+	activationCondition = 
+	[
+		"Condition.SquadClosestToCombatTarget"
+	];
+}
+
+Dodge : AIActionTicket
+{
+	ticketType = "AITicketType.Dodge";
+}
+
+Takedown : AIActionTicket
+{
+	ticketType = "AITicketType.Takedown";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		"Condition.SquadClosestToCombatTarget"
+	];
+}
+
+Peek : AIActionTicket
+{
+	ticketType = "AITicketType.Peek";
+	maxNumberOfTickets = 2;
+	minTicketDesyncTime = 0.49f;
+	maxTicketDesyncTime = 1.f;
+}
+
+GrenadeThrow : AIActionTicket
+{
+	ticketType = "AITicketType.GrenadeThrow";
+	maxNumberOfTickets = 1;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.GrenadeThrow";
+			duration = 15.f;
+			activationCondition = 
+			[
+				{
+					condition = 
+					{
+						AND = 
+						[
+							"Condition.NotAbilityIsTechieArchetype"
+						];
+					} : AIActionAND;
+				}
+			];
+		}
+	];
+}
+
+Sync : AIActionTicket
+{
+	ticketType = "AITicketType.Sync";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		{
+			invert = true;
+			resetMembersIncludingUnwillings = true;
+		} : AISquadJustSelfFilter, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotInStatesCombat"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			invert = true;
+		} : AISquadFilterOwnTargetSpotted, 
+		{
+			minAmount = 1;
+		} : AISquadMembersAmountCheck
+	];
+}
+
+CallOff : AIActionTicket
+{
+	ticketType = "AITicketType.CallOff";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		"Condition.SquadClosestToStimTarget"
+	];
+}
+
+BackUp : AIActionTicket
+{
+	ticketType = "AITicketType.BackUp";
+	maxNumberOfTickets = 1;
+	activationCondition = 
+	[
+		{
+		} : AISquadJustSelfFilter, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OwnerIsActive"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck, 
+		{
+			invert = true;
+			resetMembersIncludingUnwillings = true;
+		} : AISquadJustSelfFilter, 
+		{
+			minAmount = 1;
+		} : AISquadMembersAmountCheck, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.InStatesRelaxed"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			minAmount = 1;
+		} : AISquadMembersAmountCheck
+	];
+}
+
+BattleCry : AIActionTicket
+{
+	ticketType = "AITicketType.BattleCry";
+	maxNumberOfTickets = 1;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.BattleCry";
+			duration = 1.5f;
+		}
+	];
+	activationCondition = 
+	[
+		{
+		} : AISquadJustSelfFilter, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OwnerIsActive"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck, 
+		{
+			invert = true;
+			resetMembers = true;
+		} : AISquadJustSelfFilter, 
+		{
+			minAmount = 2;
+		} : AISquadMembersAmountCheck, 
+		{
+			spatial = 
+			{
+				target = "AIActionTarget.Owner";
+				distance = ( -1.f, 30.f );
+			};
+		} : AISquadSpatialForOwnTarget, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+Quickhack : AIActionTicket
+{
+	ticketType = "AITicketType.Quickhack";
+	maxNumberOfTickets = 1;
+}
+
+Crouch : AIActionTicket
+{
+	ticketType = "AITicketType.Crouch";
+	minNumberOfTickets = 1;
+	maxNumberOfTickets = 3;
+	percentageNumberOfTickets = 0.4f;
+	minTicketDesyncTime = 0.33f;
+	maxTicketDesyncTime = 1.f;
+}
+
+CatchUp : AIActionTicket
+{
+	ticketType = "AITicketType.CatchUp";
+	maxNumberOfTickets = 2;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.CatchUp";
+			duration = 30.f;
+			activationCondition = 
+			[
+				{
+					condition = 
+					{
+						AND = 
+						[
+							"Condition.RecentIncapacitationInSquad"
+						];
+					} : AIActionAND;
+				}
+			];
+		}
+	];
+	activationCondition = 
+	[
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotAbilityIsNetrunnerArchetype", {
+							OR = 
+							[
+								"Condition.NotFurthestSquadmate", "Condition.NotAbilityIsSniperArchetype", "Condition.NotValidCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		"Condition.SquadClosestToCombatTarget"
+	];
+}
+
+Strafe : AIActionTicket
+{
+	ticketType = "AITicketType.Strafe";
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.Strafe";
+			duration = 1.5f;
+		}
+	];
+}
+
+StrafeEvade : AIActionTicket
+{
+	ticketType = "AITicketType.StrafeEvade";
+	maxNumberOfTickets = 1;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.StrafeEvade";
+			duration = 7.f;
+		}
+	];
+}
+
+Equip : AIActionTicket
+{
+	ticketType = "AITicketType.Equip";
+}
+
+EquipMelee : AIActionTicket
+{
+	maxNumberOfTickets = 4;
+	ticketType = "AITicketType.EquipMelee";
+}
+
+Reload : AIActionTicket
+{
+	ticketType = "AITicketType.Reload";
+}
+
+MeleeRing : AIRingTicket
+{
+	ticketType = "AITicketType.MeleeRing";
+	ringType = "AIRingType.Melee";
+	maxNumberOfTickets = 1;
+}
+
+MeleeRing2ndFilter : AIRingTicket
+{
+	ticketType = "AITicketType.MeleeRing2ndFilter";
+	ringType = "AIRingType.Melee";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseMeleeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+MeleeRing1stFilter : AIRingTicket
+{
+	ticketType = "AITicketType.MeleeRing1stFilter";
+	ringType = "AIRingType.Melee";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistanceMeleeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseMeleeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+	deactivationCondition = 
+	[
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistance2mToleranceMeleeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			invert = true;
+		} : AISquadContainsSelfCheck
+	];
+}
+
+CloseRing : AIRingTicket
+{
+	ticketType = "AITicketType.CloseRing";
+	ringType = "AIRingType.Close";
+	maxNumberOfTickets = 2;
+	percentageNumberOfTickets = 0.2f;
+}
+
+CloseRing2ndFilter : AIRingTicket
+{
+	ticketType = "AITicketType.CloseRing2ndFilter";
+	ringType = "AIRingType.Close";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCloseRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+CloseRing1stFilter : AIRingTicket
+{
+	ticketType = "AITicketType.CloseRing1stFilter";
+	ringType = "AIRingType.Close";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistanceCloseRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCloseRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+	deactivationCondition = 
+	[
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistance2mToleranceCloseRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			invert = true;
+		} : AISquadContainsSelfCheck
+	];
+}
+
+MediumRing : AIRingTicket
+{
+	ticketType = "AITicketType.MediumRing";
+	ringType = "AIRingType.Medium";
+	minNumberOfTickets = 2;
+	percentageNumberOfTickets = 0.3f;
+}
+
+MediumRing2ndFilter : AIRingTicket
+{
+	ticketType = "AITicketType.MediumRing2ndFilter";
+	ringType = "AIRingType.Medium";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseMediumRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+MediumRing1stFilter : AIRingTicket
+{
+	ticketType = "AITicketType.MediumRing1stFilter";
+	ringType = "AIRingType.Medium";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistanceMediumRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseMediumRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+	deactivationCondition = 
+	[
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistance2mToleranceMediumRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			invert = true;
+		} : AISquadContainsSelfCheck
+	];
+}
+
+FarRing : AIRingTicket
+{
+	ticketType = "AITicketType.FarRing";
+	ringType = "AIRingType.Far";
+	minNumberOfTickets = 1;
+	percentageNumberOfTickets = 0.3f;
+}
+
+FarRing2ndFilter : AIRingTicket
+{
+	ticketType = "AITicketType.FarRing2ndFilter";
+	ringType = "AIRingType.Far";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseFarRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+FarRing1stFilter : AIRingTicket
+{
+	ticketType = "AITicketType.FarRing1stFilter";
+	ringType = "AIRingType.Far";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistanceFarRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseFarRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+	deactivationCondition = 
+	[
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistance2mToleranceFarRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			invert = true;
+		} : AISquadContainsSelfCheck
+	];
+}
+
+ExtremeRing : AIRingTicket
+{
+	ticketType = "AITicketType.ExtremeRing";
+	ringType = "AIRingType.Extreme";
+	percentageNumberOfTickets = 0.2f;
+}
+
+ExtremeRing2ndFilter : AIRingTicket
+{
+	ticketType = "AITicketType.ExtremeRing2ndFilter";
+	ringType = "AIRingType.Extreme";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseExtremeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+}
+
+ExtremeRing1stFilter : AIRingTicket
+{
+	ticketType = "AITicketType.ExtremeRing1stFilter";
+	ringType = "AIRingType.Extreme";
+	activationCondition = 
+	[
+		{
+			resetMembersIncludingUnwillings = true;
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistanceExtremeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseExtremeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+		} : AISquadContainsSelfCheck
+	];
+	deactivationCondition = 
+	[
+		{
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.OptimalDistance2mToleranceExtremeRing"
+					];
+				} : AIActionAND;
+			};
+		} : AISquadFilterByAICondition, 
+		{
+			invert = true;
+		} : AISquadContainsSelfCheck
+	];
+}
+
+DefaultRing : AIRingTicket
+{
+	ticketType = "AITicketType.DefaultRing";
+	ringType = "AIRingType.Default";
+}
+

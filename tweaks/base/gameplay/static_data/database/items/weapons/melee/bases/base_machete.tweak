@@ -1,0 +1,374 @@
+package Items
+using RTDB, BaseStats, Prereqs, Perks
+
+[ notQueryable ]
+Base_Machete : MeleeWeapon
+{
+	fk< ItemType > itemType = "ItemType.Wea_Machete";
+	triggerEffectName = "te_wea_melee_swing_mid";
+	string friendlyName = "w_melee_one_hand_blunt";
+	CName audioName = "w_melee_001_katana";
+	fk< ConstantStatModifier > price = 
+	{
+		statType = "BaseStats.Price";
+		modifierType = "Additive";
+		value = 2;
+	} : ConstantStatModifier;
+	evolution = "WeaponEvolution.Blade";
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ItemSlotSMG"
+	];
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< ItemPartListElement >[] itemPartList = 
+			[
+				{
+					item = "Items.w_kukri_common_grip";
+				}, 
+				{
+					item = "Items.w_machete_common_grip";
+				}, 
+				{
+					item = "Items.w_machete_borg_grip";
+				}
+			];
+		}
+	];
+	tags += 
+	[
+		"One Hand Blade"
+	];
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.KatanaFxPackage";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Items.Base_Machete_RPG_Stats", "Items.Base_Machete_RPG_Randomized_Stats", "Items.Base_Machete_Handling_Stats", "Items.Base_Machete_Misc_Stats", "Proficiencies.KenjutsuWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"MacheteAttacks.MacheteComboAttack1", "MacheteAttacks.MacheteComboAttack2", "MacheteAttacks.MacheteComboAttack3", "MacheteAttacks.MacheteComboAttack4", "MacheteAttacks.MacheteFinalAttack1", "MacheteAttacks.MacheteFinalAttack2", "MacheteAttacks.MacheteFinalAttack3", "MacheteAttacks.MacheteStrongAttack1", "MacheteAttacks.MacheteStrongAttack2", "MacheteAttacks.MacheteStrongAttack3", "MacheteAttacks.MacheteJumpAttack", "MacheteAttacks.MacheteCrouchAttack", "MacheteAttacks.MacheteSprintAttack", "MacheteAttacks.MacheteSafeAttack", "MacheteAttacks.MacheteBlockAttack", "MacheteAttacks.MacheteDeflectAttack"
+	];
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+		];
+	} : Base_Machete_NPC_Data;
+}
+
+Base_Machete_RPG_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_machete_rpg_stats";
+			column = "item_level_to_DPS";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BlockFactor";
+			modifierType = "Additive";
+			value = 3.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Machete_RPG_Randomized_Stats : StatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "random_distributions";
+		column = "quality_to_amount_of_randomized_stats";
+		refStat = "BaseStats.Quality";
+		refObject = "Self";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.CritChance";
+			modifierType = "Additive";
+			id = "item_machete_rpg_stats";
+			column = "power_level_to_crit_chance";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.CritChance";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritDamage";
+			modifierType = "Additive";
+			id = "item_machete_rpg_stats";
+			column = "power_level_to_crit_damage";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.CritDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostReduction";
+			modifierType = "Additive";
+			id = "item_machete_rpg_stats";
+			column = "power_level_to_bonus_stamina_cost_reduction";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostReduction";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Machete_Handling_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttacksNumber";
+			modifierType = "Additive";
+			value = 3;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MeleeAttackDuration";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MeleeAttackComboDuration";
+			modifierType = "Additive";
+			value = 0.586f;
+		} : ConstantStatModifier, 
+		{
+			float value = 15.f;
+		} : KnockdownImpulseModifier, 
+		{
+			float value = 15.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			float value = 15.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			float value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			float value = 8.f;
+		} : PhysicalImpulseModifier
+	];
+}
+
+Borg_Machete_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.MeleeBorgStaminaDrain";
+			modifierType = "Additive";
+			value = 5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Strength";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 2.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MeleeAttackComboDuration";
+			modifierType = "Additive";
+			value = 0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Machete_Misc_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		"BaseStats.EquipDurationModifier", "BaseStats.UnequipDurationModifier", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EquipDuration_First";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Machete_NPC_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			value = 8.f;
+		} : PhysicalImpulseModifier, 
+		{
+			statType = "BaseStats.CanBlock";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			float value = 15.f;
+		} : KnockdownImpulseModifier, 
+		{
+			float value = 15.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			float value = 15.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			float value = 8.f;
+		} : PhysicalImpulseModifier, 
+		{
+			value = 0.4f;
+		} : EquipItemTime_GangModifier, 
+		{
+			value = 1.167f;
+		} : EquipAnimationDuration_GangModifier, 
+		{
+			value = 1.9f;
+		} : EquipActionDuration_GangModifier, 
+		{
+			value = 0.933f;
+		} : UnequipItemTime_GangModifier, 
+		{
+			value = 1.067f;
+		} : UnequipAnimationDuration_GangModifier, 
+		{
+			value = 1.4f;
+		} : UnequipDuration_GangModifier, 
+		{
+			value = 0.4f;
+		} : EquipItemTime_CorpoModifier, 
+		{
+			value = 1.167f;
+		} : EquipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.9f;
+		} : EquipActionDuration_CorpoModifier, 
+		{
+			value = 0.933f;
+		} : UnequipItemTime_CorpoModifier, 
+		{
+			value = 1.067f;
+		} : UnequipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.4f;
+		} : UnequipDuration_CorpoModifier
+	];
+}
+
+Base_Machete_NPC_Data : Base_NPC_RPG_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Machete_NPC_Stats"
+	];
+}
+
+w_kukri_common_grip : ItemWeaponRoot
+{
+	string friendlyName = "w_kukri_common_grip";
+	CName appearanceResourceName = "w_kukri_common_grip";
+}
+
+w_machete_common_grip : ItemWeaponRoot
+{
+	string friendlyName = "w_machete_common_grip";
+	CName appearanceResourceName = "w_machete_common_grip";
+}
+
+w_machete_borg_grip : ItemWeaponRoot
+{
+	string friendlyName = "w_machete_borg_grip";
+	CName appearanceResourceName = "w_machete_borg_grip";
+}
+

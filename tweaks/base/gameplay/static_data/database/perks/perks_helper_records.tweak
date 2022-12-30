@@ -1,0 +1,730 @@
+package Perks
+using RTDB, Prereqs
+
+PlayerIsAiming : IPrereq
+{
+	prereqClassName = "UpperBodyPSMPrereq";
+	string stateName = "Aim";
+	bool isInState = true;
+}
+
+PlayerIsNotAiming : IPrereq
+{
+	prereqClassName = "UpperBodyPSMPrereq";
+	string stateName = "Aim";
+	bool isInState = false;
+}
+
+PlayerIsReloading : IPrereq
+{
+	prereqClassName = "RangedWeaponPSMPrereq";
+	string stateName = "Reload";
+	bool isInState = true;
+}
+
+PlayerNotReloading : IPrereq
+{
+	prereqClassName = "RangedWeaponPSMPrereq";
+	string stateName = "Reload";
+	bool isInState = false;
+}
+
+IsMemoryBelowHalf : StatPoolPrereq
+{
+	prereqClassName = "ConstantStatPoolPrereq";
+	float valueToCheck = 50;
+	CName statPoolType = "Memory";
+	CName comparisonType = "LessOrEqual";
+}
+
+IsPlayerSliding : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Slide";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "SlideFall";
+		} : Prereqs.DetailedLocomotionPSMPrereq
+	];
+}
+
+IsPlayerVaulting : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "Vault";
+	bool isInState = true;
+}
+
+IsPlayerGrappling : IPrereq
+{
+	prereqClassName = "TakedownPSMPrereq";
+	string stateName = "Grapple";
+	bool isInState = true;
+}
+
+IsPlayerStatic : IPrereq
+{
+	prereqClassName = "IsPlayerMovingPrereq";
+	bool isMoving = false;
+}
+
+IsPlayerInMotion : IPrereq
+{
+	prereqClassName = "IsPlayerMovingPrereq";
+	bool isMoving = true;
+}
+
+IsPlayerSprinting : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "Sprint";
+	bool isInState = true;
+}
+
+IsPlayerNotSprinting : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "Sprint";
+	bool isInState = false;
+}
+
+IsPlayerCrouching : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "Crouch";
+	bool isInState = true;
+}
+
+ShouldModifyMaxSpeedInCombat : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statType = "Reflexes";
+			valueToCheck = 8;
+			comparisonType = "LessOrEqual";
+		} : StatPrereq, 
+		{
+			stateName = "InCombat";
+			isInState = true;
+		} : Prereqs.CombatPSMPrereq
+	];
+}
+
+ShouldModifyMaxSpeedInCombatIgnoreSprint : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statType = "Reflexes";
+			valueToCheck = 8;
+			comparisonType = "Greater";
+		} : StatPrereq, 
+		{
+			stateName = "InCombat";
+			isInState = true;
+		} : Prereqs.CombatPSMPrereq, 
+		"Perks.IsPlayerNotSprinting"
+	];
+}
+
+IsPlayerDodging : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Dodge";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "DodgeAir";
+		} : Prereqs.DetailedLocomotionPSMPrereq
+	];
+}
+
+IsPlayerBlocking : IPrereq
+{
+	prereqClassName = "MeleePSMPrereq";
+	string stateName = "Block";
+	bool isInState = true;
+}
+
+HitIsTheSameTarget : ProcessHitTriggered
+{
+	conditions = 
+	[
+		"Prereqs.SameTargetHitPrereqCondition"
+	];
+}
+
+HitIsBodyPartLimb : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			bodyPart = "Limb";
+		} : BodyPartHitPrereqCondition
+	];
+}
+
+HitIsBodyPartHead : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			bodyPart = "Head";
+		} : BodyPartHitPrereqCondition
+	];
+}
+
+HitIsBodyPartTorso : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			bodyPart = "Torso";
+		} : BodyPartHitPrereqCondition
+	];
+}
+
+IsHitTargetAlive : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			statusEffect = "Defeated";
+			checkType = "CheckType.Type";
+			invert = true;
+		} : StatusEffectPresentHitPrereqCondition, 
+		{
+			statusEffect = "Unconscious";
+			checkType = "CheckType.Type";
+			invert = true;
+		} : StatusEffectPresentHitPrereqCondition, 
+		{
+			float valueToCheck = 0f;
+			CName objectToCheck = "Target";
+			string statPoolToCompare = "Health";
+			string comparisonType = "NotEqual";
+		} : StatPoolHitPrereqCondition
+	];
+}
+
+IsHitACritical : PostProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			hitFlag = "CriticalHit";
+		} : HitFlagHitPrereqCondition
+	];
+}
+
+IsTargetKilled : PostProcessHitTriggered
+{
+	isSynchronous = false;
+	conditions = 
+	[
+		"Prereqs.TargetKilledHitPrereqCondition"
+	];
+}
+
+IsAttackRanged : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "Ranged";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+IsAttackMelee : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "Melee";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+IsReceivedAttackExplosion : ProcessHitReceived
+{
+	conditions = 
+	[
+		{
+			attackType = "Explosion";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+IsHitFastAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "Melee";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+IsHitStrongAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "StrongMelee";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+IsHitStrongOrFastAttack : ORPrereq
+{
+	nestedPrereqs = 
+	[
+		"Perks.IsHitStrongAttack", "Perks.IsAttackMelee"
+	];
+}
+
+IsHitQuickMelee : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "QuickMelee";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+IsHitDeflectAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "DeflectAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitSprintAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "SprintAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitEquipAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "EquipAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitFinalAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "FinalAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitComboAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "ComboAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitCrouchAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "CrouchAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitBlockAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "BlockAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsHitJumpAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackSubtype = "JumpAttack";
+		} : AttackSubtypeHitPrereqCondition
+	];
+}
+
+IsAttackThrownType : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "Thrown";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+HitReceivedIsSourceGrenade : PreProcessHitReceived
+{
+	conditions = 
+	[
+		{
+			source = "Grenade";
+		} : SourceTypeHitPrereqCondition
+	];
+}
+
+HitIsTargetHuman : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			npcType = "Human";
+		} : TargetNPCTypeHitPrereqCondition
+	];
+}
+
+HitIsTargetMechanical : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			invert = true;
+			npcType = "Human";
+		} : TargetNPCTypeHitPrereqCondition
+	];
+}
+
+PostHitIsTargetMechanical : PostProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			invert = true;
+			npcType = "Human";
+		} : TargetNPCTypeHitPrereqCondition
+	];
+}
+
+IsHitTargetBoss : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			rarity = "Boss";
+		} : TargetNPCRarityHitPrereqCondition
+	];
+}
+
+IsHitTargetNotBoss : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			invert = true;
+			rarity = "Boss";
+		} : TargetNPCRarityHitPrereqCondition
+	];
+}
+
+IsPlayer : IPrereq
+{
+	prereqClassName = "IsPlayerPrereq";
+	bool invert = false;
+}
+
+IsHuman : IPrereq
+{
+	prereqClassName = "IsHumanPrereq";
+	bool invert = false;
+}
+
+IsMechanical : IPrereq
+{
+	prereqClassName = "IsHumanPrereq";
+	bool invert = true;
+}
+
+IsTargetMoving : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			isMoving = true;
+			object = "Target";
+		} : AgentMovingHitPrereqCondition
+	];
+}
+
+IsInstigatorMoving : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			isMoving = true;
+			object = "Instigator";
+		} : AgentMovingHitPrereqCondition
+	];
+}
+
+IsTargetStatic : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			isMoving = false;
+			object = "Target";
+		} : AgentMovingHitPrereqCondition
+	];
+}
+
+IsTargetPlayer : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			targetType = "Player";
+		} : TargetTypeHitPrereqCondition
+	];
+}
+
+IsTargetNotPlayer : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			targetType = "Player";
+			invert = true;
+		} : TargetTypeHitPrereqCondition
+	];
+}
+
+IsInstigatorStatic : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			isMoving = false;
+			object = "Instigator";
+		} : AgentMovingHitPrereqCondition
+	];
+}
+
+TargetHasMoreHealthThanInstigator : HitTriggeredPrereq
+{
+	conditions = 
+	[
+		{
+			CName comparisonSource = "Target";
+			CName comparisonTarget = "Instigator";
+			string statPoolToCompare = "Health";
+			string comparisonType = "Greater";
+		} : StatPoolComparisonHitPrereqCondition
+	];
+}
+
+TargetHasLessHealthThanInstigator : HitTriggeredPrereq
+{
+	conditions = 
+	[
+		{
+			CName comparisonSource = "Target";
+			CName comparisonTarget = "Instigator";
+			string statPoolToCompare = "Health";
+			string comparisonType = "Less";
+		} : StatPoolComparisonHitPrereqCondition
+	];
+}
+
+TargetHasFullHealth : HitTriggeredPrereq
+{
+	conditions = 
+	[
+		{
+			valueToCheck = 90.f;
+			objectToCheck = "Target";
+			string statPoolToCompare = "Health";
+			string comparisonType = "GreaterOrEqual";
+		} : StatPoolHitPrereqCondition
+	];
+}
+
+QuickHackUploaded : StatusEffectPrereq
+{
+	statusEffect = "BaseStatusEffect.QuickHackUploaded";
+}
+
+ApplyStatGroupOnPlayer : ApplyStatGroupEffector
+{
+}
+
+ApplyStatGroupOnWeapon : ApplyStatGroupEffector
+{
+	applicationTarget = "Weapon";
+}
+
+ApplyEffectorOnPlayer : ApplyEffectorEffector
+{
+}
+
+ApplyEffectorOnWeapon : ApplyEffectorEffector
+{
+	applicationTarget = "Weapon";
+}
+
+ApplyStatusEffectOnPlayer : ApplyStatusEffectEffector
+{
+	CName effectorClassName = "ApplyStatusEffectEffector";
+	bool removeWithEffector = false;
+}
+
+ApplyStatusEffectOnWeapon : ApplyStatusEffectEffector
+{
+	CName effectorClassName = "ApplyStatusEffectEffector";
+	applicationTarget = "Weapon";
+	bool removeWithEffector = false;
+}
+
+AddCritChance : Effector
+{
+	CName effectorClassName = "ModifyAttackCritChanceEffector";
+	float value = 0f;
+}
+
+MultiplyDamage : Effector
+{
+	CName effectorClassName = "ModifyDamageEffector";
+	string operationType = "Multiply";
+	float value = 1f;
+}
+
+MultiplyDamageWithVelocity : Effector
+{
+	effectorClassName = "ModifyDamageWithVelocity";
+	float percentMult = 0f;
+	float unitThreshold = 0f;
+	string operationType = "Multiply";
+}
+
+AddDamage : Effector
+{
+	CName effectorClassName = "ModifyDamageEffector";
+	string operationType = "Add";
+	float value = 1f;
+}
+
+ReloadWeapon : Effector
+{
+	CName effectorClassName = "ReloadWeaponEffector";
+}
+
+CanEnableSynapticAccelerator : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Perks.IsPlayerInExploration", "Perks.IsPlayerNotInVehicle", "Perks.IsPlayerOutOfCombatOrStealthPSMState", {
+			isPlayerNoticed = true;
+		} : Prereqs.EntityNoticedPlayerPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.SynapticAcceleratorCooldown";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.PhoneCall";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+CanActivateReflexRecorder : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Perks.IsPlayerInCombatState", "Perks.IsPlayerInCritHealth", {
+			statusEffect = "BaseStatusEffect.ReflexRecorderCooldown";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.PhoneCall";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+IsPlayerNotInVehicle : IPrereq
+{
+	prereqClassName = "VehiclePSMPrereq";
+	string stateName = "Default";
+	bool isInState = true;
+}
+
+IsPlayerInExploration : IPrereq
+{
+	prereqClassName = "HighLevelPSMPrereq";
+	string stateName = "SceneTier1";
+	bool isInState = true;
+}
+
+IsPlayerInCritHealth : StatPoolPrereq
+{
+	float valueToCheck = 25;
+	CName statPoolType = "Health";
+	CName comparisonType = "LessOrEqual";
+}
+
+IsPlayerOutOfCombatOrStealthPSMState : MultiPrereq
+{
+	aggregationType = "OR";
+	nestedPrereqs = 
+	[
+		{
+			stateName = "OutOfCombat";
+		} : CombatPSMPrereq, 
+		{
+			stateName = "Stealth";
+		} : CombatPSMPrereq
+	];
+}
+
+IsPlayerInCombatState : CombatPSMPrereq
+{
+	stateName = "InCombat";
+}
+
+IsPlayerInStealthState : CombatPSMPrereq
+{
+	stateName = "Stealth";
+}
+

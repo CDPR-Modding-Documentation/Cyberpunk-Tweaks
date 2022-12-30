@@ -1,0 +1,1321 @@
+package BaseStatusEffect
+using RTDB, Prereqs, Effectors, Perks
+
+HealthRegeneration : BuffStatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"Regeneration"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "splinter_buff";
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40965";
+		string iconPath = "regeneration_icon";
+		priority = -9.0f;
+	};
+}
+
+ForceStagger : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags = 
+	[
+		"HitReaction", "Stagger"
+	];
+}
+
+HitReactionTBHCooldown : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+Unconscious : DebuffStatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Defeated";
+	CName[] gameplayTags += 
+	[
+		"Unconscious", "Defeated"
+	];
+	fk< Stat >[] immunityStats = 
+	[
+		"BaseStats.UnconsciousImmunity"
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 9.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40949";
+		string iconPath = "stun_icon";
+	};
+}
+
+TranquilizerUnconscious : Unconscious
+{
+	fk< Stat >[] immunityStats += 
+	[
+		"BaseStats.TranquilizerImmunity"
+	];
+}
+
+Defeated : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Defeated";
+	duration = "BaseStats.InfiniteDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"Defeated"
+	];
+	fk< StatusEffectAIData > AIData = "BaseStatusEffect.DefeatedAIData";
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "LocKey#40950";
+		string iconPath = "stun_icon";
+	};
+	bool replicated = true;
+}
+
+DefeatedAIData : StatusEffectAIData
+{
+	float priority = 9.f;
+	fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+	fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	fk< Stim >[] stimulis = 
+	[
+		"stims.AttentionStimuli"
+	];
+}
+
+DefeatedWithRecover : Invulnerable
+{
+	statusEffectType = "BaseStatusEffectTypes.DefeatedWithRecover";
+	duration = "BaseStats.InfiniteDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"DefeatedWithRecover", "Blind", "Deaf", "ClearThreats", "ResetSquadSync"
+	];
+	fk< StatusEffectAIData > AIData = "BaseStatusEffect.DefeatedAIData";
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Defeated";
+		string iconPath = "stun_icon";
+		priority = -10.0f;
+	};
+	bool replicated = true;
+}
+
+FollowerDefeated : DefeatedWithRecover
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 30;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+MonowireGrapple : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Grapple";
+	duration = "BaseStats.InfiniteDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"Monowire", "Grapple"
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 9.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40966";
+		string iconPath = "stun_icon";
+		priority = -12.0f;
+	};
+}
+
+Encumbered : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	duration = "BaseStats.InfiniteDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.4f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40967";
+		description = "LocKey#77864";
+		string iconPath = "weight_icon";
+	};
+}
+
+PlayerExhausted : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	duration = "BaseStats.InfiniteDuration";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#45300";
+		description = "LocKey#77876";
+		string iconPath = "exhausted_icon";
+	};
+}
+
+OutOfOxygen : DoTStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_out_of_oxygen";
+		}
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.OutOfOxygenSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 1.2f;
+					attackRecord = "Attacks.OutOfOxygenDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40968";
+		description = "LocKey#77879";
+		string iconPath = "decreased_stats_icon";
+	};
+}
+
+OutOfOxygenSFX : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "vfx_fullscreen_drowning_start";
+	CName deactivationSFXName = "vfx_fullscreen_drowning_stop";
+	bool unique = true;
+}
+
+WaterCollision : DebuffStatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.3;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Deceleration";
+					modifierType = "Additive";
+					value = 12;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+VehicleBaseDamageOverTimeEffect : DoTStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.35f;
+					attackRecord = "Attacks.VehicleBaseDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+VehicleHighDamageOverTimeEffect : DoTStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.1f;
+					attackRecord = "Attacks.VehicleHighDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Sleep : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Sleep";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags = 
+	[
+		"Sleep"
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40970";
+		string iconPath = "stun_icon";
+		priority = 1.0f;
+	};
+	fk< GameplayLogicPackage >[] packages = [];
+}
+
+Uninterested : StatusEffect
+{
+	string displayName = "Uninterested";
+	fk< GameplayLogicPackage >[] packages = [];
+}
+
+LoreAnim : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	additionalParam = "LoreAnim";
+	CName[] gameplayTags = 
+	[
+		"LoreAnim"
+	];
+}
+
+LoreVictimSaved : LoreAnim
+{
+	additionalParam = "LoreVictimSaved";
+	CName[] gameplayTags = 
+	[
+		"LoreVictimSaved"
+	];
+}
+
+Berserker : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Berserker";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"Berserker"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "energy_off";
+		}, 
+		{
+			name = "weakspot_weak";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Stamina";
+					modifierType = "Multiplier";
+					value = 999999;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 0.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40971";
+		string iconPath = "stun_icon";
+	};
+}
+
+ForceSwim : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+ForceDive : ForceSwim
+{
+}
+
+Invulnerable : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableAfterDefeated : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.3;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					CName effectorClassName = "RemoveDOTStatusEffectsEffector";
+					float delay = 0f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableFinisherWorkspot : Invulnerable
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3.5f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+TestEffect : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	string iconPath = "jamweapon_icon";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "LocomotionPSMPrereq";
+						string stateName = "Crouch";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.FragGrenade";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+TE2 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	string iconPath = "jamweapon_icon";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "LocomotionPSMPrereq";
+						string stateName = "Crouch";
+					} : IPrereq;
+					CName effectorClassName = "TriggerAttackOnTargetEffect";
+					fk< Attack > attackRecord = "Attacks.FragGrenade";
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CyberspacePresence : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"CyberspacePresence", "NoCombat", "NoRadialMenus", "VehicleNoInteraction"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasCybereye";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseZoom";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanCrouch";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasAirHover";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+TemporarilyBlockMovement : DebuffStatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Deceleration";
+					modifierType = "Additive";
+					value = 32;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanJump";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasSandevistan";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasKerenzikov";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SpreadFear : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"SpreadFear"
+	];
+}
+
+GreaterSpreadFear : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.5;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"GreaterSpreadFear"
+	];
+}
+
+UncontrolledMovement_Base : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.UncontrolledMovement";
+}
+
+UncontrolledMovement_Default : UncontrolledMovement_Base
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName debugSourceName = "SE_UncontrolledMovement_Default";
+					ragdollNoGroundThreshold = 0.0f;
+					ragdollOnCollision = true;
+				} : UncontrolledMovementEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+UncontrolledMovement_RagdollOffLedge : UncontrolledMovement_Base
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName debugSourceName = "SE_UncontrolledMovement_RagdollOffLedge";
+					ragdollNoGroundThreshold = 0.5f;
+					ragdollOnCollision = false;
+				} : UncontrolledMovementEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+NonInteractable : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 200;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+CallReinforcement : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.CanCallReinforcements";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CallReinforcement";
+					modifierType = "Additive";
+					value = 100f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+TalkCooldown : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+}
+
+GenericTalkDisabled : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+BlockGrapple : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+BossTakedownCooldown : StatusEffect
+{
+	isAffectedByTimeDilationPlayer = true;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+BossNoTakeDown : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	gameplayTags += 
+	[
+		"NoTakeDown"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+BossNoInterrupt : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	gameplayTags += 
+	[
+		"NoInterrupt"
+	];
+}
+
+StrongArmsActive : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.StrongArmsActive";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"StrongArms"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40971";
+		string iconPath = "stun_icon";
+	};
+}
+
+StrongArmsPhysicalActive : StrongArmsActive
+{
+}
+
+StrongArmsThermalActive : StrongArmsActive
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "idle_thermal";
+		}
+	];
+}
+
+StrongArmsChemicalActive : StrongArmsActive
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "idle_chemical";
+		}
+	];
+}
+
+StrongArmsElecricActive : StrongArmsActive
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "idle_electric";
+		}
+	];
+}
+
+NPCForceEquipPrimaryWeapon : StatusEffect
+{
+	gameplayTags += 
+	[
+		"NPCForceEquipPrimaryWeapon"
+	];
+}
+
+NPCForceEquipSecondaryWeapon : StatusEffect
+{
+	gameplayTags += 
+	[
+		"NPCForceEquipSecondaryWeapon"
+	];
+}
+
+DistractionDuration : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Bleeding";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.DurationBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< StatusEffectUIData > uiData = 
+	{
+		displayName = "LocKey#54057";
+		iconPath = "distracted";
+		priority = -8.0f;
+	};
+}
+
+BeingCarried : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+DoNotUseVehicle : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"BlockMountVehicle"
+	];
+}
+
+DeviceTrapHit : DebuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", "Prereqs.TargetNotInCombatPrereq", {
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.Unconscious";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Normal";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Weak";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Trash";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.Unconscious";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsDrone", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Normal";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Weak";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Trash";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.ForceKill";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsAndroid", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Normal";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Weak";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Trash";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.ForceKill";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						rarity = "Boss";
+					} : NPCRarityPrereq;
+					attackRecord = "Attacks.PhysicalPercentageDeviceAttack";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.TargetInCombatPrereq", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Elite";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Rare";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Officer";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					attackRecord = "Attacks.PhysicalPercentageDeviceAttack";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+					activationSFXName = "quickhack_system_reset";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+					CName vfxName = "hacks_system_collapse";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+PlayerInvulnerable : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5f;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								fk< StatusEffect > statusEffect = "BaseStatusEffect.ForceKill";
+							} : StatusEffectAbsentPrereq, 
+							{
+								stateName = "DeathLand";
+								isInState = false;
+							} : DetailedLocomotionPSMPrereq
+						];
+					} : ANDPrereq;
+					effectorToApply = 
+					{
+						prereqRecord = "Prereqs.ProcessHitReceived";
+						value = 0.0f;
+					} : MultiplyDamage;
+				} : ApplyEffectorOnPlayer
+			];
+		}, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.BurningImmunity";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.BleedingImmunity";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.EMPImmunity";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.PoisonImmunity";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectrocuteImmunity";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#80637";
+		string iconPath = "immunity_icon";
+	};
+}
+

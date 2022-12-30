@@ -1,0 +1,194 @@
+package Attacks
+using RTDB, AttackModifier
+
+CPO_Turret : Bullet_GameEffect
+{
+	effectName = "bullet_generic";
+	effectTag = "bullet";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_FragGrenade : BaseExplosion
+{
+	effectTag = "frag_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 300;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_ConcussionGrenade : BaseExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_Flashbang : BaseExplosion
+{
+	effectTag = "flashbang_explosion";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Blind";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier
+	];
+	attackType = "AttackType.Ranged";
+}
+
+CPO_BurningBulletEffect : Bullet_GameEffect
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Burning";
+			resistPool = "BaseStatPools.BurningTrigger";
+		}
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_BurningBulletProjectile : Bullet_Projectile
+{
+	statModifiers = 
+	[
+		"AttackModifier.ThermalAlliedDamage"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Burning";
+			resistPool = "BaseStatPools.BurningTrigger";
+		}
+	];
+}
+
+CPO_ThermalExplosion : BaseExplosion
+{
+	effectTag = "frag_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			value = 30;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_ShockedBulletEffect : Bullet_GameEffect
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CPO_Shocked";
+			resistPool = "BaseStatPools.CPOShockedTrigger";
+		}
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			value = 50;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_ShockedBulletProjectile : Bullet_Projectile
+{
+	statModifiers = 
+	[
+		"AttackModifier.ElectricAlliedDamage"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.CPO_Shocked";
+			resistPool = "BaseStatPools.CPOShockedTrigger";
+		}
+	];
+}
+
+CPO_AchillesBulletPackage : RangedAttackPackage
+{
+	defaultFire = "Attacks.PhysicalBullet";
+	chargeFire = "Attacks.CPO_ChargedAchillesFire";
+}
+
+CPO_ChargedAchillesFire : RangedAttack
+{
+	playerAttack = "Attacks.CPO_BurningAchillesBullet";
+}
+
+CPO_BurningAchillesBullet : Bullet_GameEffect
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Burning";
+			resistPool = "BaseStatPools.BurningTrigger";
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			value = 150;
+		} : ConstantStatModifier
+	];
+}
+
+CPO_QuickMelee : Attack_Melee
+{
+	attackName = "NPCQuickAttack";
+	userDataPath = "attack.slash";
+	attackType = "AttackType.QuickMelee";
+	effectName = "quickmelee";
+	effectTag = "impact";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			value = 1000;
+		} : ConstantStatModifier
+	];
+	fk< AttackDirection > attackDirection = "";
+	bool hasDeflectAnim = true;
+	bool hasHitAnim = true;
+}
+

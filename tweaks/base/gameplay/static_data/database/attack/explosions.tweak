@@ -1,0 +1,1148 @@
+package Attacks
+using RTDB, AttackModifier
+
+BaseFragExplosion : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.1f;
+	effectTag = "frag_explosion";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ExplosionStun";
+			applyImmediately = true;
+		}
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+FragGrenade : BaseFragExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+OzobGrenade : FragGrenade
+{
+	effectTag = "ozob_explosion";
+}
+
+FragGrenadeHack : FragGrenade
+{
+	hitFlags += 
+	[
+		"FriendlyFire", "GrenadeQuickhackExplosion"
+	];
+}
+
+FragGrenadeHE : BaseFragExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+FragGrenadeKnockdown : BaseFragExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+}
+
+FragGrenadeLethal : BaseFragExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+FragGrenadeUnderwaterShallow : FragGrenade
+{
+	effectTag = "frag_explosion_underwater_shallow";
+	range = 3.f;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.8f;
+		} : ConstantStatModifier
+	];
+}
+
+FragGrenadeUnderwaterDeep : FragGrenade
+{
+	effectTag = "frag_explosion_underwater_deep";
+	range = 2.5f;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier
+	];
+}
+
+FragGrenadeHackUnderwaterShallow : FragGrenadeHack
+{
+	effectTag = "frag_explosion_underwater_shallow";
+	range = 3.f;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.8f;
+		} : ConstantStatModifier
+	];
+}
+
+FragGrenadeHackUnderwaterDeep : FragGrenadeHack
+{
+	effectTag = "frag_explosion_underwater_deep";
+	range = 2.5f;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier
+	];
+}
+
+DeactivatedGrenadeUnderwater : BaseExplosion
+{
+	effectTag = "deactivated_explosion_underwater";
+	range = 0.5f;
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ExplosionStun";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.05f;
+		} : ConstantStatModifier
+	];
+	hitFlags += 
+	[
+		"WeakExplosion"
+	];
+}
+
+BaseFlashbangExplosion : BaseExplosion
+{
+	effectTag = "flashbang_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+	attackType = "AttackType.Ranged";
+}
+
+FlashbangMinorFlash : Attack_GameEffect
+{
+	attackType = "AttackType.Explosion";
+	effectName = "grenade_helper_effects";
+	effectTag = "minor_flash";
+	range = 35.f;
+}
+
+FlashbangGrenadeMinor : BaseFlashbangExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MinorBlind";
+			applyImmediately = true;
+		}
+	];
+}
+
+FlashbangGrenadeRegular : BaseFlashbangExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Blind";
+			applyImmediately = true;
+		}
+	];
+}
+
+FlashbangGrenadeRegularHack : FlashbangGrenadeRegular
+{
+	hitFlags += 
+	[
+		"FriendlyFire", "GrenadeQuickhackExplosion"
+	];
+}
+
+FlashbangGrenadeMajor : BaseFlashbangExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MajorBlind";
+			applyImmediately = true;
+		}
+	];
+}
+
+FlashbangGrenadeWithWounded : BaseFlashbangExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+FlashbangGrenadeWithConfusion : BaseFlashbangExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Madness";
+			applyImmediately = true;
+		}, 
+		{
+			statusEffect = "BaseStatusEffect.Blind";
+			applyImmediately = true;
+		}
+	];
+}
+
+BaseEMPExplosion : BaseExplosion
+{
+	effectTag = "emp_explosion";
+	attackType = "AttackType.Ranged";
+	playerIncomingDamageMultiplier = 0.025f;
+}
+
+EMPGrenade : BaseEMPExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.EmpLowDamage";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : ElectricAlliedDamage
+	];
+}
+
+EMPPanzerGrenade : BaseEMPExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.EmpHighDamage";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : ElectricAlliedDamage, 
+		"Attacks.RainMissileDamage"
+	];
+}
+
+EMPGrenadeHack : EMPGrenade
+{
+	hitFlags += 
+	[
+		"FriendlyFire", "GrenadeQuickhackExplosion"
+	];
+}
+
+EmpGrenadeJamWeaponChance : BaseEMPExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.EmpJamWeaponChance";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : ElectricAlliedDamage
+	];
+}
+
+EmpGrenadeJamWeapon : BaseEMPExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunction";
+			applyImmediately = true;
+		}, 
+		{
+			statusEffect = "BaseStatusEffect.EMP";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : ElectricAlliedDamage
+	];
+}
+
+EmpGrenadeKnockdown : BaseEMPExplosion
+{
+	effectTag = "emp_explosion_knockdown";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+EmpGrenadeJamWeaponWithAccuracyDebuff : BaseEMPExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.EmpJamWeaponAccuracyDebuff";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : ElectricAlliedDamage
+	];
+}
+
+BaseIncendiaryExplosion : BaseExplosion
+{
+	effectTag = "incendiary_explosion";
+	playerIncomingDamageMultiplier = 0.025f;
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+IncendiaryGrenade : BaseIncendiaryExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MediumBurning";
+			applyImmediately = true;
+		}
+	];
+}
+
+LightIncendiaryGrenade : BaseIncendiaryExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.LightBurning";
+			applyImmediately = true;
+		}
+	];
+}
+
+IncendiaryGrenadeHack : MediumIncendiaryGrenade
+{
+	hitFlags += 
+	[
+		"FriendlyFire", "GrenadeQuickhackExplosion"
+	];
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier
+	];
+}
+
+MediumIncendiaryGrenade : BaseIncendiaryExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Burning";
+			applyImmediately = true;
+		}
+	];
+}
+
+StackableIncendiaryGrenade : BaseIncendiaryExplosion
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.StackableMediumBurning";
+			applyImmediately = true;
+		}
+	];
+}
+
+BaseBiotechExplosion : BaseExplosion
+{
+	effectTag = "biotech_explosion";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Poisoned";
+			applyImmediately = true;
+		}
+	];
+	playerIncomingDamageMultiplier = 0.025f;
+}
+
+BiotechGrenade : BaseExplosion
+{
+	effectTag = "biotech_explosion";
+	attackType = "AttackType.Ranged";
+}
+
+LightBiotechGrenade : BiotechGrenade
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.LightPoision";
+			applyImmediately = true;
+		}
+	];
+}
+
+BiotechGrenadeV2 : BiotechGrenade
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.HeavyPoision";
+			applyImmediately = true;
+		}
+	];
+}
+
+LightBiotechGrenadeHack : LightBiotechGrenade
+{
+	hitFlags += 
+	[
+		"FriendlyFire", "GrenadeQuickhackExplosion"
+	];
+}
+
+BaseFragmentationExplosion : BaseExplosion
+{
+	effectTag = "fragmentation_explosion";
+	string[] hitFlags = 
+	[
+		"Nonlethal", "FragmentationSplinter"
+	];
+}
+
+FragmentationGrenadeNonLethal : BaseFragmentationExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+FragmentationGrenadeLethal : BaseFragmentationExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+GrenadeTargetTracker : Attack_GameEffect
+{
+	attackType = "AttackType.Effect";
+	effectName = "grenade_helper_effects";
+	effectTag = "grenade_target_tracker";
+}
+
+Missile : BaseExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+WeakspotCPOExoExplosion : BaseExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectName = "cpoTestExplosion";
+	effectTag = "damage";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+WeakspotCPOExoExplosionTest : BaseExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectName = "cpoTestExplosion";
+	effectTag = "damage";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+WeakspotExplosion : BaseExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+WeakspotGreatExplosion : BaseExplosion
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+WeakspotEngineExplosion : BaseExplosion
+{
+	range = 1.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+AndroidDeathExplosion : BaseExplosion
+{
+	effectTag = "android_death_explosion";
+	range = 2.5f;
+	hitFlags += 
+	[
+		"FriendlyFire", "OverridePlayerDamageWithFixedPercentage"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			id = "puppet_powerLevelToHealth";
+			column = "puppet_powerLevelToHealth";
+			refObject = "Root";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+	float overridePlayerDamageFixedPercentage = 0.2;
+}
+
+DroneBombusDeathExplosion : BaseExplosion
+{
+	effectTag = "drone_death_explosion";
+	range = 1.5f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+DroneWyvernDeathExplosion : BaseExplosion
+{
+	effectTag = "drone_death_explosion";
+	range = 2.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+DroneGriffinDeathExplosion : BaseExplosion
+{
+	effectTag = "drone_death_explosion";
+	range = 2.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+DroneOctantDeathExplosion : BaseExplosion
+{
+	effectTag = "drone_death_explosion";
+	range = 3.5f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+DroneOctantDeathExplosionPlayerSafe : BaseExplosion
+{
+	effectTag = "drone_death_explosion_player_safe";
+	range = 3.5f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+}
+
+TwoStageMissileEffect : BaseExplosion
+{
+	effectTag = "missile_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 0.2f;
+		} : CombinedStatModifier
+	];
+	range = 3.0f;
+}
+
+DelamainMissileEffect : BaseExplosion
+{
+	effectTag = "missile_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			refObject = "Owner";
+			opSymbol = "*";
+			value = 0.3f;
+		} : CombinedStatModifier
+	];
+	range = 3.0f;
+	playerIncomingDamageMultiplier = 0.001f;
+}
+
+RainMissileBulletEffect : BaseExplosion
+{
+	effectTag = "missile_explosion";
+	attackType = "AttackType.Ranged";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	range = 4.0f;
+}
+
+PanzerMissileEffect : BaseExplosion
+{
+	effectTag = "panzer_missile_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier
+	];
+	range = 6.0f;
+}
+
+PiercingGrenadeBase : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.1f;
+	effectTag = "frag_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+PiercingGrenadeV1 : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.1f;
+	effectTag = "frag_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+PiercingGrenadeV2 : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.1f;
+	effectTag = "frag_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+PiercingGrenadeImpact : BaseExplosion
+{
+	effectTag = "piercing_contact";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : PhysicalAlliedDamage
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+KnockdownOnGrenadeImpact : BaseExplosion
+{
+	effectTag = "knockdown_contact";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+	attackType = "AttackType.Ranged";
+}
+
+RocketExplosion : BaseExplosion
+{
+	effectTag = "frag_explosion";
+	range = 5.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"AttackModifier.BaseAlliedDamage", {
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.0f;
+		} : ConstantStatModifier
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.ExplosionStun";
+			applyImmediately = true;
+		}
+	];
+	hitFlags += 
+	[
+		"FriendlyFire", "DetonateGrenades"
+	];
+}
+
+RocketChargedExplosion : RocketExplosion
+{
+	effectTag = "frag_explosion";
+	range = 7.5f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"AttackModifier.BaseAlliedDamage", {
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.MediumBurning";
+			applyImmediately = true;
+		}
+	];
+}
+
+BulletExplosion : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.18f;
+	effectTag = "bullet_explosion";
+	range = 2.f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"AttackModifier.BaseAlliedDamage", {
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+BulletSasquatchExplosion : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.18f;
+	effectTag = "bullet_explosion";
+	range = 2.f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"AttackModifier.BaseAlliedDamage", {
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.15f;
+		} : ConstantStatModifier
+	];
+	hitFlags += 
+	[
+		"DetonateGrenades"
+	];
+}
+
+BulletExplosionSmall : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.18f;
+	effectTag = "bullet_explosion";
+	range = 1.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"AttackModifier.BaseAlliedDamage", {
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier
+	];
+	hitFlags += 
+	[
+		"WeakExplosion"
+	];
+}
+
+BulletExplosionPanzer : BulletExplosion
+{
+	playerIncomingDamageMultiplier = 0.1f;
+	effectTag = "bullet_explosion_panzer";
+	range = 7.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 2;
+		} : CombinedStatModifier
+	];
+}
+
+BulletSmartBulletHighExplosion : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.025f;
+	range = 0.5f;
+	hitFlags += 
+	[
+		"WeakExplosion"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.7f;
+		} : ConstantStatModifier
+	];
+}
+
+ElectricAbility : BaseExplosion
+{
+	effectTag = "emp_explosion";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			refObject = "Parent";
+		} : ElectricAlliedDamage
+	];
+}
+
+OdaSmokeBomb : BaseExplosion
+{
+	playerIncomingDamageMultiplier = 0.4f;
+	range = 6.0f;
+	effectName = "oda_explosions";
+	effectTag = "smoke_explosion";
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SmokeBomb";
+			applyImmediately = true;
+		}
+	];
+}
+
+WeaponMalfunctionBlowWeaponHackAttack : BaseExplosion
+{
+	effectTag = "weapon_malfunction_blow_weapon";
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			refObject = "Target";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+WeaponMalfunctionBlowWeaponHackAttackManMassive : BaseExplosion
+{
+	effectTag = "weapon_malfunction_blow_weapon";
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			refObject = "Target";
+			value = 0.1f;
+		} : CombinedStatModifier
+	];
+}
+
+CyberwareMalfunctionAttack : BaseExplosion
+{
+	effectTag = "weapon_malfunction_blow_weapon";
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 100;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			refObject = "Target";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+}
+

@@ -1,0 +1,4682 @@
+package StatusEffectActions
+using RTDB, AIActionTarget, Effectors
+
+AIStatusEffectAction : AIAction
+{
+}
+
+AIQuickhackDefaultAction : AIStatusEffectAction
+{
+	subActions = 
+	[
+		{
+			name = "combat_quick_hack";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_Burning : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BurningArmed", "StatusEffectActions.SE_BurningUnarmed"
+	];
+}
+
+SE_BurningArmed : SE_BurningResidualArmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SE_BurningUnarmed : SE_BurningResidualUnarmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SE_BurningResidual : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BurningResidualArmed", "StatusEffectActions.SE_BurningResidualUnarmed"
+	];
+}
+
+SE_BurningResidualArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBurning", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 4.9f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Burning";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BurningResidualUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBurning"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.4f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Burning";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Stun : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_StunArmed", "StatusEffectActions.SE_StunUnarmed"
+	];
+}
+
+SE_StunWorkspot : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 0.001f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_StunArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectStun"
+					];
+				} : AIActionOR, 
+				"Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.733f;
+	};
+	loop = 
+	{
+		repeat = 0;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.NotStatusEffectStun";
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.567f;
+	};
+	animData = 
+	{
+		animFeature = "SE_StunArmed";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_StunUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectStun"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.8f;
+	};
+	loop = 
+	{
+		repeat = 0;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectStun"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.8f;
+	};
+	animData = 
+	{
+		animFeature = "SE_StunUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_Blind : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BlindQuickhackCombat", "StatusEffectActions.SE_BlindQuickhackStealth", "StatusEffectActions.SE_BlindDefault"
+	];
+}
+
+SE_BlindBase : AIStatusEffectAction
+{
+	startup = 
+	{
+		duration = 0.833f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.InStatesStatic";
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_Blind";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1
+			];
+		} : AISubActionRandomize;
+	};
+}
+
+SE_BlindDefault : SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedRegular"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			name = "stlh_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_BlindQuickhackCombat : SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack", "Condition.InStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			name = "combat_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_BlindQuickhackStealth : SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			name = "stlh_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_BlindWorkspotSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BlindQuickhackWorkspot", "StatusEffectActions.SE_BlindWorkspot", "GenericArchetype.Idle"
+	];
+}
+
+SE_BlindWorkspot : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedRegular"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim, 
+		{
+			name = "stlh_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+	};
+}
+
+SE_BlindQuickhackWorkspot : SE_BlindBase
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim, 
+		{
+			name = "stlh_blinded";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+	};
+}
+
+SE_ReducedVisibilityArmed : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.RandomSelector";
+	nodes = 
+	[
+		"StatusEffectActions.SE_ReducedVisibilityPanicArmed", "StatusEffectActions.SE_ReducedVisibilityFootstepsArmedPatrol", "StatusEffectActions.SE_ReducedVisibilityFootstepsArmedSearching"
+	];
+}
+
+SE_ReducedVisibilityUnarmed : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.RandomSelector";
+	nodes = 
+	[
+		"StatusEffectActions.SE_ReducedVisibilityPanicUnarmed", "StatusEffectActions.SE_ReducedVisibilityFootstepsUnarmed"
+	];
+}
+
+SE_ReducedVisibilityPanicArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectReducedVisibility", "Condition.StatusEffectGreaterReducedVisibility"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+	};
+	loop = 
+	{
+		duration = 0.767f;
+	};
+	recovery = 
+	{
+		duration = 0.8f;
+	};
+	animData = 
+	{
+		animFeature = "Panic";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_ReducedVisibilityPanicUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectReducedVisibility", "Condition.StatusEffectGreaterReducedVisibility"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+	};
+	loop = 
+	{
+		duration = 1.767f;
+	};
+	recovery = 
+	{
+		duration = 0.f;
+	};
+	animData = 
+	{
+		animFeature = "Panic";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_ReducedVisibilityFootstepsUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectReducedVisibility", "Condition.StatusEffectGreaterReducedVisibility"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		animFeature = "HearFootstepsUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_ReducedVisibilityFootstepsArmedPatrol : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectReducedVisibility", "Condition.StatusEffectGreaterReducedVisibility"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		animFeature = "HearFootstepsArmedPatrol";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_ReducedVisibilityFootstepsArmedSearching : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectReducedVisibility", "Condition.StatusEffectGreaterReducedVisibility"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		animFeature = "HearFootstepsArmedSearch";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_HearingImpairedArmed : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.RandomSelector";
+	nodes = 
+	[
+		"StatusEffectActions.SE_HearingImpairedHearNoiseArmed", "StatusEffectActions.SE_HearingImpairedLookAroundArmed", "StatusEffectActions.SE_HearingImpairedDisconnectArmed"
+	];
+}
+
+SE_HearingImpairedUnarmed : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.RandomSelector";
+	nodes = 
+	[
+		"StatusEffectActions.SE_HearingImpairedHearNoiseUnarmed", "StatusEffectActions.SE_HearingImpairedLookAroundUnarmed", "StatusEffectActions.SE_HearingImpairedDisconnectUnarmed"
+	];
+}
+
+SE_HearingImpairedHearNoiseArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectHearingImpaired", "Condition.StatusEffectSeverelyHearingImpaired"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+	};
+	recovery = 
+	{
+		duration = 1.133f;
+	};
+	animData = 
+	{
+		animFeature = "HearDeviceNoiseFront";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_HearingImpairedHearNoiseUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectHearingImpaired", "Condition.StatusEffectSeverelyHearingImpaired"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.5f;
+	};
+	loop = 
+	{
+		duration = 2.333f;
+	};
+	recovery = 
+	{
+		duration = 0.867f;
+	};
+	animData = 
+	{
+		animFeature = "HearDeviceNoiseFront";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_HearingImpairedLookAroundArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectHearingImpaired", "Condition.StatusEffectSeverelyHearingImpaired"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.1f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.InStatesStatic";
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 2.1f;
+	};
+	recovery = 
+	{
+		duration = 2.167f;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_HearingImpairedLookAroundUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectHearingImpaired", "Condition.StatusEffectSeverelyHearingImpaired"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 2.1f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.InStatesStatic";
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 2.1f;
+	};
+	recovery = 
+	{
+		duration = 2.133f;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_HearingImpairedDisconnectArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectHearingImpaired", "Condition.StatusEffectSeverelyHearingImpaired"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	loop = 
+	{
+		duration = 1.433f;
+	};
+	recovery = 
+	{
+		duration = 1.1f;
+	};
+	animData = 
+	{
+		animFeature = "SE_CommsNoise";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_HearingImpairedDisconnectUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectHearingImpaired", "Condition.StatusEffectSeverelyHearingImpaired"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	loop = 
+	{
+		duration = 1.433f;
+	};
+	recovery = 
+	{
+		duration = 1.1f;
+	};
+	animData = 
+	{
+		animFeature = "SE_CommsNoise";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Poisoned : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_PoisonArmed", "StatusEffectActions.SE_PoisonedUnarmed"
+	];
+}
+
+SE_PoisonedResidual : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_PoisonedResidualArmed", "StatusEffectActions.SE_PoisonedResidualUnarmed"
+	];
+}
+
+SE_PoisonArmed : SE_PoisonedResidualArmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_PoisonedResidualArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypePoisoned", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.633f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.InStatesStatic";
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 4.533f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Poisoned";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1
+			];
+		} : AISubActionRandomize;
+	};
+}
+
+SE_PoisonedUnarmed : SE_PoisonedResidualUnarmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_PoisonedResidualUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypePoisoned"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.933f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.InStatesStatic";
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 4.9f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Poisoned";
+		animSlot = 
+		{
+		};
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1
+			];
+		} : AISubActionRandomize;
+	};
+}
+
+SE_Bleeding : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BleedingArmed", "StatusEffectActions.SE_BleedingUnarmed"
+	];
+}
+
+SE_BleedingWorkspot : SE_BleedingResidualArmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectBleeding"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+	};
+}
+
+SE_BleedingArmed : SE_BleedingResidualArmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_BleedingUnarmed : SE_BleedingResidualUnarmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_BleedingResidual : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BleedingResidualArmed", "StatusEffectActions.SE_BleedingResidualUnarmed"
+	];
+}
+
+SE_BleedingResidualArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectBleeding"
+					];
+				} : AIActionOR, 
+				"Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 4.267f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Bleeding";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BleedingResidualUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectBleeding"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 3.6f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Bleeding";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_WeaponJammed : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectWeaponMalfunction", "Condition.StatusEffectWeaponMalfunctionLvl2", "Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	animData = 
+	{
+		animFeature = "SE_WeaponJammed";
+	};
+}
+
+SE_WeaponJammedBlowUpWeaponSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WeaponJammedBlowUpWeaponManMassive", "StatusEffectActions.SE_WeaponJammedBlowUpWeapon"
+	];
+}
+
+SE_WeaponJammedBlowUpWeapon : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.NotAbilityHasQuickhackResistance"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	subActions += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.WeaponMalfunctionBlowUpWeapon"
+			];
+			delay = 1.7f;
+		} : AISubActionCustomEffectors, 
+		{
+			name = "weapon_malfunction_blow_up";
+			delay = 1.7f;
+		} : AISubActionSpawnFX, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = true;
+			delay = 2f;
+		} : AISubActionForceUnequip
+	];
+	animData = 
+	{
+		animFeature = "SE_WeaponJammed";
+	};
+}
+
+SE_WeaponJammedBlowUpWeaponManMassive : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon", "Condition.NotAbilityHasQuickhackResistance", "Condition.ManMassive"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	subActions += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.WeaponMalfunctionBlowUpWeaponManMassive"
+			];
+			delay = 1.7f;
+		} : AISubActionCustomEffectors, 
+		{
+			name = "weapon_malfunction_blow_up";
+			delay = 1.7f;
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_WeaponJammed";
+	};
+}
+
+SE_ForceShoot : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectForceShoot"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+	};
+	loop = 
+	{
+		duration = 0.767f;
+	};
+	recovery = 
+	{
+		duration = 0.8f;
+	};
+	startupSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			rangedAttack = "Attacks.PhysicalBullet";
+			delay = 0.1f;
+		} : AISubActionShootWithWeapon, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+			delay = 0.25f;
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_CommsNoise : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CommNoise"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.567f;
+	};
+	loop = 
+	{
+		duration = 1.833f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCommNoise", "Condition.InStatesCombat"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.133f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious_grunt";
+			delay = 0.3f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "SE_CommsNoise";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CommsCallIn : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCommsCallIn"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+	};
+	loop = 
+	{
+		duration = 2.8f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.767f;
+	};
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+			delay = 1.6f;
+		} : AISubActionTriggerStim
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "SE_CommsCallInTarget";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CommsCallInWait : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCommsCallIn", "Condition.StatusEffectCommsCallInLevel3"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 10.f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTarget", "Condition.NearestSquadmateBelow4m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SE_CommsCallInCombatInCombat : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectCommsCallInLevel3", "Condition.InStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.CombatCall";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_CommsCallInCombat : SE_CommsCallIn
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCommsCallInLevel3"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 2.8f;
+	};
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.CombatCall";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+			delay = 1.6f;
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_CommsCallOut : AIQuickhackDefaultAction
+{
+	startup = 
+	{
+		duration = 0.533f;
+	};
+	loop = 
+	{
+		duration = 0.867f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.567f;
+	};
+	subActions = 
+	[
+		{
+			name = "phone_start";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.FurthestSquadmate";
+			stimType = "StimTypes.Call";
+			direct = true;
+			target = "AIActionTarget.Owner";
+			delay = 1.6f;
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_CommsCall";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Whistle : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMech", {
+					OR = 
+					[
+						"Condition.StatusEffectWhistle", "Condition.StatusEffectWhistleLvl2"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+	};
+	loop = 
+	{
+		duration = 2.867f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.InStatesCombat";
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.667f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.Whistle";
+			direct = true;
+			target = "AIActionTarget.Owner";
+			delay = 1.6f;
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "CallSquad";
+	};
+}
+
+SE_CombatWhistle : SE_Whistle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMech", "Condition.StatusEffectWhistleLvl3"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.8f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.CombatWhistle";
+			direct = true;
+			target = "AIActionTarget.Owner";
+			delay = 1.6f;
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_CombatWhistleInCombat : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMech", "Condition.StatusEffectWhistleLvl3", "Condition.InStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.CombatWhistle";
+			direct = true;
+			target = "AIActionTarget.Owner";
+			delay = 1.6f;
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_QuickHackStaggerLocomotion : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerLocomotionLegs";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackFreezeLocomotion : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerLocomotionFull";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackStaggerWeapon : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectWeaponMalfunction"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			hitType = 0;
+			hitBodyPart = 3;
+			hitDirection = 1;
+		} : AISubActionForceHitReaction
+	];
+}
+
+SE_QuickHackStaggerCyberware : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerCyberware";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Madness : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectMadness"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 3.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "hit_reaction_heavy";
+			delay = 0.3f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_Madness";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SetFriendly : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectSetFriendly"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.63f;
+	};
+	loop = 
+	{
+		duration = 0.83f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.DontShootAtMe"
+			];
+			apply = false;
+			delay = 6.5f;
+		} : AISubActionStatusEffect
+	];
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.DontShootAtMe"
+			];
+			remove = false;
+			delay = 0.f;
+		} : AISubActionStatusEffect, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SetFriendly";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MadnessSquadmateVoiceReaction : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectMadnessCombatTarget", "Condition.StatusEffectSetFriendlyCombatTarget"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			name = "madness_quick_hack_reaction";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SE_AndroidTurnOn : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectAndroidTurnOn"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 5.23f;
+	};
+	animData = 
+	{
+		animFeature = "SE_AndroidTurnOn";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_AndroidTurnOff : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectAndroidTurnOff"
+			];
+		} : AIActionOR;
+	};
+	recovery = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "SE_AndroidTurnOff";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_AndroidBoxingAttack : AIStatusEffectAction
+{
+	recovery = 
+	{
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			attackDuration = 0.15f;
+			attackRange = 2.f;
+			attackTime = 1.1f;
+			attackName = "";
+			attack = "NPCAttacks.MassiveDamageAttack";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "SE_AndroidBoxingAttack";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.f;
+}
+
+SystemCollapseSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_SystemCollapseAndroid", "StatusEffectActions.SE_SystemCollapseMech", "StatusEffectActions.SE_SystemCollapse"
+	];
+}
+
+SE_SystemCollapse : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectSystemCollapse"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 6.5f;
+	};
+	loop = 
+	{
+		duration = 0.2f;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.05f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Unconscious"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_death";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Hacked";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SystemCollapse";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SystemCollapseAndroid : SE_SystemCollapse
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSystemCollapse", "Condition.Android"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 6.5f;
+	};
+	startupSubActions += 
+	[
+		{
+			hitSource = 4;
+		} : AISubActionForceDeath
+	];
+	animData = 
+	{
+	};
+}
+
+SE_SystemCollapseMech : SE_SystemCollapse
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSystemCollapse", "Condition.Mech"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 6.5f;
+	};
+	startupSubActions += 
+	[
+		{
+		} : AISubActionForceDeath
+	];
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Hacked";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+	};
+}
+
+SE_SystemCollapseWorkspot : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectSystemCollapse", "Condition.Human"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.001f;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Unconscious"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_death";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Hacked";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_Pain : AIStatusEffectAction
+{
+	startup = 
+	{
+		duration = 2.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 2.833f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 2.033f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_Knockdown";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_PainWorkspot : AIStatusEffectAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			CName name = "weakspot_explode";
+		} : AISubActionSpawnFX, 
+		{
+			name = "WeakspotDestroyedA";
+		} : AISubActionPlayVoiceOver, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Berserker"
+			];
+			remove = false;
+			delay = -1.f;
+		} : AISubActionStatusEffect, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = true;
+			delay = 0.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Fists";
+			delay = -1.f;
+		} : AISubActionForceEquip
+	];
+}
+
+ForceScream : AIQuickhackDefaultAction
+{
+	startup = 
+	{
+		duration = 0.f;
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SuicideWithWeaponSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_SuicideWithGunMech", "StatusEffectActions.SE_SuicideWithGunHandgunEquipped", "StatusEffectActions.SE_SuicideWithMeleeShortBladeEquipped", "StatusEffectActions.SE_SuicideWithMeleeLongWeaponEquipped", "StatusEffectActions.SE_SuicideWithGunRifleEquipped", "StatusEffectActions.SE_SuicideWithGunUnarmed"
+	];
+}
+
+SE_SuicideWithGunMech : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon", "Condition.Mech"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 6.5f;
+	};
+	startupSubActions += 
+	[
+		{
+		} : AISubActionForceDeath
+	];
+	animData = 
+	{
+	};
+}
+
+SE_SuicideWithGunHandgunEquipped : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon", "Condition.HasHandgunWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 7.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.Owner";
+			rangedAttack = "Attacks.SuicideBullet";
+			delay = 2.f;
+			numberOfShots = 1;
+			maxNumberOfShots = 1;
+		} : AISubActionShootWithWeapon, 
+		{
+			effectors = 
+			[
+				"Effectors.ForceSuicideGunWeapon"
+			];
+			delay = 2f;
+		} : AISubActionCustomEffectors, 
+		{
+			delay = 7.f;
+			apply = false;
+			statusEffects = 
+			[
+				"BaseStatusEffect.SuicideWithWeapon"
+			];
+		} : AISubActionStatusEffect
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGunEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithGunRifleEquipped : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon", "Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 4.3f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.05f;
+			dropItem = true;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.75f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Unity_Default";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.Owner";
+			rangedAttack = "Attacks.SuicideBullet";
+			numberOfShots = 1;
+			maxNumberOfShots = 1;
+		} : AISubActionShootWithWeapon, 
+		{
+			effectors = 
+			[
+				"Effectors.ForceSuicideGunWeapon"
+			];
+			float delay = 0.4f;
+		} : AISubActionCustomEffectors, 
+		{
+			delay = 4f;
+			apply = false;
+			statusEffects = 
+			[
+				"BaseStatusEffect.SuicideWithWeapon"
+			];
+		} : AISubActionStatusEffect
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGunNoEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithGunUnarmed : SE_SuicideWithGunRifleEquipped
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.5f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Unity_Default";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGunEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithMeleeShortBladeEquipped : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon", "Condition.NotManMassive", "Condition.NotManBig", {
+					OR = 
+					[
+						"Condition.HasShortBlade", "Condition.HasLongBlade", "Condition.HasKnife"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 7.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.ForceSuicideMeleeWeapon"
+			];
+			delay = 3.f;
+		} : AISubActionCustomEffectors, 
+		{
+			delay = 5.f;
+			apply = false;
+			statusEffects = 
+			[
+				"BaseStatusEffect.SuicideWithWeapon"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "blood_mouth_punch_strong";
+			delay = 3.f;
+		} : AISubActionSpawnFX
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithMeleeEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithMeleeLongWeaponEquipped : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon", "Condition.NotManMassive", "Condition.NotManBig", {
+					OR = 
+					[
+						"Condition.HasKatana", "Condition.HasOneHandedClub", "Condition.HasTwoHandedClub", "Condition.HasFistsWeaponEquipped", "Condition.HasHammer"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.5f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 3.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.48f;
+			dropItem = true;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Knife_Military";
+		} : AISubActionForceEquip
+	];
+	loopSubActions = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.ForceSuicideMeleeWeapon"
+			];
+			delay = 3.f;
+		} : AISubActionCustomEffectors, 
+		{
+			delay = 5.f;
+			apply = false;
+			statusEffects = 
+			[
+				"BaseStatusEffect.SuicideWithWeapon"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			name = "blood_mouth_punch_strong";
+			delay = 3.f;
+		} : AISubActionSpawnFX
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithMeleeEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithWeaponNoEquipMotionOnly : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideMotion", "Condition.HasHandgunWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 4.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGunEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithWeaponWithEquipMotionOnly : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideMotion"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.3;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 4.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.48f;
+			dropItem = true;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.75f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Base_Lexington";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithWeapon";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SuicideWithGrenadeSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SuicideWithGrenadeFrag", "StatusEffectActions.SuicideWithGrenadeFlash", "StatusEffectActions.SuicideWithGrenadeBiohazard", "StatusEffectActions.SuicideWithGrenadeEMP", "StatusEffectActions.SuicideWithGrenadeIncendiary", "StatusEffectActions.SuicideWithGrenadeRecon", "StatusEffectActions.SuicideWithGrenadeCutting"
+	];
+}
+
+SE_SuicideWithGrenade : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.AbilityCanUseFragGrenades", "Condition.AbilityCanUseFlashbangGrenades", "Condition.AbilityCanUseBiohazardGrenades", "Condition.AbilityCanUseEMPGrenades", "Condition.AbilityCanUseIncendiaryGrenades", "Condition.AbilityCanUseReconGrenades", "Condition.AbilityCanUseCuttingGrenades"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.96f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			name = "fx_beeping";
+			delay = 1.1f;
+		} : AISubActionSpawnFX, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.8f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			delay = -1f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionTriggerItemActivation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CrippledArmLeft"
+			];
+			delay = -1f;
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SuicideWithGrenade"
+			];
+			delay = 1f;
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGrenade";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SuicideWithGrenadeFrag : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFragGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SuicideWithGrenadeFlash : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFlashbangGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SuicideWithGrenadeBiohazard : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseBiohazardGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SuicideWithGrenadeEMP : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseEMPGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SuicideWithGrenadeIncendiary : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseIncendiaryGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SuicideWithGrenadeRecon : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseReconGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeReconRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SuicideWithGrenadeCutting : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCuttingGrenades"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeCuttingRegularHack";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_Knockdown : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectKnockdown", "Condition.StatusEffectKnockdownInfinite"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 2.667f;
+	};
+	loop = 
+	{
+		repeat = 0;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectKnockdown", "Condition.NotStatusEffectKnockdownInfinite"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.033f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_Knockdown";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Knockdown_Infinite : SE_Knockdown
+{
+	loop = 
+	{
+	};
+}
+
+SE_Civilian_Knockdown_Infinite : SE_Knockdown
+{
+	startup = 
+	{
+		duration = 2.667f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+}
+
+SE_EMP : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_EMPArmed", "StatusEffectActions.SE_EMPUnarmed"
+	];
+}
+
+SE_EMPWorkspot : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 0.001f;
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_EMPArmed : SE_EMPResidualArmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_EMPUnarmed : SE_EMPResidualUnarmed
+{
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+}
+
+SE_EMPResidual : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_EMPResidualArmed", "StatusEffectActions.SE_EMPResidualUnarmed"
+	];
+}
+
+SE_EMPResidualArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeEMP", "Condition.IsNPCElectrocuted", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.2f;
+	};
+	animData = 
+	{
+		animFeature = "SE_EMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_EMPResidualUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeEMP", "Condition.IsNPCElectrocuted"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 7.f;
+	};
+	animData = 
+	{
+		animFeature = "SE_EMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BrainMelt : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BrainMeltArmed", "StatusEffectActions.SE_BrainMeltUnarmed"
+	];
+}
+
+SE_BrainMeltArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeBrainMelt", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.2f;
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_EMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BrainMeltUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeBrainMelt"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 7.f;
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_EMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_MonowireGrapple : AIStatusEffectAction
+{
+	startup = 
+	{
+		duration = 5.03f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_MonoWireGrappleStart";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_MonowireGrappleHack : AIStatusEffectAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_MonoWireGrappleHack";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_MonowireGrappleUnconscious : AIStatusEffectAction
+{
+	disableAction = true;
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_MonoWireGrappleUnconscious";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_MonowireGrappleDeath : AIStatusEffectAction
+{
+	disableAction = true;
+	recovery = 
+	{
+		duration = 2.5f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_MonoWireGrappleDeath";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_DefeatedShouldRagdoll : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.KnockdownSignal"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_SkipDefeatedStartup : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectTagSkipDefeatedStartup"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_DefeatedStartup : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_DefeatedStartupBurningArmed", "StatusEffectActions.SE_DefeatedStartupBurningUnarmed", "StatusEffectActions.SE_DefeatedStartupPoisoned", "StatusEffectActions.SE_DefeatedStartupBleeding", "StatusEffectActions.SE_DefeatedStartupEMPArmed", "StatusEffectActions.SE_DefeatedStartupEMPUnarmed", "StatusEffectActions.SE_DefeatedStartupKnockdown", "StatusEffectActions.SE_UnconsciousStartupArmed", "StatusEffectActions.SE_UnconsciousStartupUnarmed", "StatusEffectActions.SE_DefeatedStartupRegular"
+	];
+}
+
+SE_DefeatedStartupRegular : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 9.5f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Defeated";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_DefeatedStartupBurningUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBurning", "Condition.BurningSignal"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.3f;
+	};
+	loop = 
+	{
+		duration = 10f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedBurning";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_DefeatedStartupBurningArmed : SE_DefeatedStartupBurningUnarmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBurning", "Condition.ArmedTwoHandedWeapon", "Condition.BurningSignal"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.533f;
+	};
+	loop = 
+	{
+		duration = 9.767f;
+	};
+}
+
+SE_DefeatedStartupPoisoned : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypePoisoned", "Condition.PoisonedSignal"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 9.667f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedPoisoned";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_DefeatedStartupBleeding : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectBleeding"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 5.167f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedBleeding";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_DefeatedStartupKnockdown : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectKnockdown"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 6.7f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedKnockdown";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_DefeatedStartupEMPArmed : SE_DefeatedStartupEMPUnarmed
+{
+	loop = 
+	{
+		duration = 4.733f;
+	};
+}
+
+SE_DefeatedStartupEMPUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCElectrocuted", "Condition.ElectrocutedSignal"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 4.733f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedEMP";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_UnconsciousStartupArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthAbove1perc", "Condition.StatusEffectUnconscious", "Condition.NotStatusEffectSystemCollapse", "Condition.ArmedTwoHandedWeapon", "Condition.BurningSignal"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 3.867f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Unconscious";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_UnconsciousStartupUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthAbove1perc", "Condition.StatusEffectUnconscious", "Condition.NotStatusEffectSystemCollapse"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.5f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Unconscious";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_DefeatedLoop : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_UnconsciousTakedown", "StatusEffectActions.SE_UnconsciousArmed", "StatusEffectActions.SE_UnconsciousUnarmed", "StatusEffectActions.SE_Defeated"
+	];
+}
+
+SE_UnconsciousTakedown : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectUnconscious"
+					];
+				} : AIActionOR, 
+				"Condition.TakedownDefeatSignal"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.0f;
+		changeNPCState = 
+		{
+			hitReactionMode = "UnstoppableTwitchMin";
+			highLevelState = "Unconscious";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_Unconscious";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+		};
+	};
+}
+
+SE_UnconsciousArmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectUnconscious"
+					];
+				} : AIActionOR, 
+				"Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "UnstoppableTwitchMin";
+			highLevelState = "Unconscious";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_Unconscious";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+		};
+	};
+}
+
+SE_UnconsciousUnarmed : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectUnconscious"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.0f;
+		changeNPCState = 
+		{
+			hitReactionMode = "UnstoppableTwitchMin";
+			highLevelState = "Unconscious";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_Unconscious";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+			usePoseMatching = true;
+		};
+	};
+}
+
+SE_Defeated : AIStatusEffectAction
+{
+	startup = 
+	{
+		duration = 2.2f;
+	};
+	loop = 
+	{
+		repeat = 0;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.4f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	animData = 
+	{
+		animFeature = "SE_DefeatedLoop";
+		animSlot = 
+		{
+			useRootMotion = true;
+			usePoseMatching = true;
+		};
+		ragdollOnDeath = true;
+		animVariation = 1;
+	};
+}
+
+SE_DefeatedRecover : AIStatusEffectAction
+{
+	startup = 
+	{
+	};
+	loop = 
+	{
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedLoop";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+		animVariationSubAction = 
+		{
+		} : AISubActionHitData;
+	};
+}
+
+SE_DefeatedWithRecover_startup : SE_DefeatedStartupRegular
+{
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionForceUnequip
+	];
+}
+
+SE_DefeatedWithRecover_loop : AIStatusEffectAction
+{
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		repeat = 0;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.NotStatusEffectDefeatedWithRecover";
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedLoop";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+	};
+	allowBlendDuration = 0.f;
+}
+
+SE_DefeatedWithRecover_recover : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DefeatedRecover";
+		animSlot = 
+		{
+		};
+		ragdollOnDeath = true;
+	};
+	allowBlendDuration = 0.f;
+}
+
+SE_WoundedLArmEntrySelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WoundedLArmEntryDefinition", "StatusEffectActions.SE_WoundedLArmEntryLexingtonDefinition", "StatusEffectActions.SE_WoundedLArmEntryFistDefinition"
+	];
+	defaultAction = "StatusEffectActions.SE_WoundedLArmEntryDefinition";
+}
+
+SE_WoundedRArmEntrySelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WoundedRArmEntryDefinition", "StatusEffectActions.SE_WoundedRArmEntryLexingtonDefinition", "StatusEffectActions.SE_WoundedRArmEntryKnifeDefinition", "StatusEffectActions.SE_WoundedRArmEntryFistDefinition"
+	];
+	defaultAction = "StatusEffectActions.SE_WoundedRArmEntryDefinition";
+}
+
+SE_WoundedLLegEntrySelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WoundedLLegEntryDefinition"
+	];
+}
+
+SE_WoundedRLegEntrySelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WoundedRLegEntryDefinition"
+	];
+}
+
+WoundedArmHandgunConditionDefinition : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.HasHandgunInInventory", "Condition.HasRevolverInInventory"
+					];
+				} : AIActionOR, 
+				"StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+WoundedArmKnifeConditionDefinition : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasKnifeInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition", {
+					OR = 
+					[
+						"Condition.StatusEffectCrippledArmRight", "Condition.StatusEffectCrippledHandRight", "Condition.StatusEffectDismemberedArmRight", "Condition.StatusEffectDismemberedHandRight"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+WaitForWoundedStatusEffect : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotWounded"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.Wounded"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RangedWeaponCondition : AIActionOR
+{
+	OR = 
+	[
+		"Condition.HasPrimaryEquipmentRangedInInventory", "Condition.HasSecondaryEquipmentRangedInInventory"
+	];
+}
+
+PrimaryRangedWeaponCondition : AIActionOR
+{
+	OR = 
+	[
+		"Condition.HasPrimaryEquipmentRangedInInventory"
+	];
+}
+
+SE_WoundedBaseEntryDefinition : AIStatusEffectAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.1f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	allowBlendDuration = 0.f;
+}
+
+SE_WoundedLArmEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasHandgunInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Right_Arm_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SE_WoundedLArmEntryRevolverDefinition : SE_WoundedLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRevolverInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Revolver";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedLArmEntryLexingtonDefinition : SE_WoundedLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"StatusEffectActions.RangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Lexington_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedLArmEntryFistDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemID = "Items.Npc_fists_wounded";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedRArmEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasHandgunInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Left_Arm_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SE_WoundedRArmEntryRevolverDefinition : SE_WoundedLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRevolverInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Revolver";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedRArmEntryLexingtonDefinition : SE_WoundedLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"StatusEffectActions.RangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Lexington_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedRArmEntryKnifeDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasKnifeInInventory"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemID = "Items.Preset_Knife_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedRArmEntryFistDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemID = "Items.Npc_fists_wounded";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedLLegEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	startupSubActions = [];
+	loopSubActions = [];
+}
+
+SE_WoundedRLegEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	startupSubActions = [];
+	loopSubActions = [];
+}
+
+SE_WoundedCyberLArmEntrySelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WoundedCyberLArmEntryDefinition", "StatusEffectActions.SE_WoundedCyberLArmEntryLexingtonDefinition", "StatusEffectActions.SE_WoundedCyberLArmEntryKnifeDefinition", "StatusEffectActions.SE_WoundedCyberLArmEntryFistDefinition"
+	];
+	defaultAction = "StatusEffectActions.SE_WoundedCyberLArmEntryFistDefinition";
+}
+
+SE_WoundedCyberRArmEntrySelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_WoundedCyberRArmEntryDefinition", "StatusEffectActions.SE_WoundedCyberRArmEntryLexingtonDefinition", "StatusEffectActions.SE_WoundedCyberRArmEntryKnifeDefinition", "StatusEffectActions.SE_WoundedCyberRArmEntryFistDefinition"
+	];
+	defaultAction = "StatusEffectActions.SE_WoundedCyberLArmEntryFistDefinition";
+}
+
+SE_WoundedCyberLArmEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasHandgunInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = -1.0f;
+			dropItem = true;
+		} : AISubActionForceUnequip, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionShootWithWeapon
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Right_Arm_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SE_WoundedCyberLArmEntryRevolverDefinition : SE_WoundedCyberLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRevolverInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberLArmEntryLexingtonDefinition : SE_WoundedCyberLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Lexington_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberLArmEntryKnifeDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasKnifeInInventory"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.2f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemID = "Items.Preset_Knife_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberLArmEntryFistDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.2f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemID = "Items.Npc_fists_wounded";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberRArmEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasHandgunInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.1f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Left_Arm_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SE_WoundedCyberRArmEntryRevolverDefinition : SE_WoundedCyberLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRevolverInInventory", "StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberRArmEntryLexingtonDefinition : SE_WoundedCyberLArmEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"StatusEffectActions.PrimaryRangedWeaponCondition"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Lexington_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberRArmEntryKnifeDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasKnifeInInventory"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.2f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemID = "Items.Preset_Knife_Default";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberRArmEntryFistDefinition : SE_WoundedBaseEntryDefinition
+{
+	activationCondition = 
+	{
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.2f;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemID = "Items.Npc_fists_wounded";
+		} : AISubActionForceEquip
+	];
+}
+
+SE_WoundedCyberLLegEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = [];
+	loopSubActions = [];
+	animData = 
+	{
+		ragdollOnDeath = true;
+	};
+}
+
+SE_WoundedCyberRLegEntryDefinition : SE_WoundedBaseEntryDefinition
+{
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = [];
+	loopSubActions = [];
+	animData = 
+	{
+		ragdollOnDeath = true;
+	};
+}
+
+DismemberedLegSequence : AIActionSequence
+{
+	actions = 
+	[
+		"StatusEffectActions.WoundedLegReactionDelay", "StatusEffectActions.WoundedCrawlForward", "StatusEffectActions.DismemberedLegDeath"
+	];
+}
+
+WoundedLegReactionDelay : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 1.5f;
+	};
+}
+
+WoundedCrawlForward : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 2.7f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotCalculatePathStraightFullCheckForwardClose"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "SE_WoundedCrawlForward";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+		};
+	};
+}
+
+DismemberedLegDeath : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 2.5f;
+		} : AISubActionForceDeath, 
+		{
+			name = "status_electrocuted";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_WoundedDeath";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+		};
+	};
+}
+
+StartWoundedShootCooldown : AIStatusEffectAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "WoundedShoot";
+					duration = 2.3f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+

@@ -1,0 +1,228 @@
+package CyberwareAction
+using RTDB, Items, Prereqs, Perks, Effectors
+
+UseSandevistan : ObjectAction
+{
+	actionName = "Use";
+	fk< IPrereq >[] instigatorPrereqs = 
+	[
+		{
+			statType = "HasSandevistan";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.SandevistanPlayerBuff";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+}
+
+UseBerserk : ObjectAction
+{
+	actionName = "Use";
+	fk< IPrereq >[] instigatorPrereqs = 
+	[
+		{
+			statType = "HasBerserk";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.BerserkPlayerBuff";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+}
+
+UseOpticalCamoRare : ObjectAction
+{
+	actionName = "Use";
+	fk< IPrereq >[] instigatorPrereqs = 
+	[
+		{
+			statType = "CanUseOpticalCamo";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OpticalCamoPlayerBuffRare";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+}
+
+UseOpticalCamoEpic : UseOpticalCamoRare
+{
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OpticalCamoPlayerBuffEpic";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+}
+
+UseOpticalCamoLegendary : UseOpticalCamoRare
+{
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+}
+
+UseBloodPumpCommon : ObjectAction
+{
+	instigatorPrereqs = 
+	[
+		{
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.PlayerBloodPumpCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	actionName = "Use";
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			effectorToTrigger = 
+			{
+				statPoolUpdates = 
+				[
+					{
+						statPoolType = "BaseStatPools.Health";
+						statPoolValue = 50;
+					} : StatPoolUpdate
+				];
+			} : BloodPumpEffector;
+		} : BloodPumpObjectActionEffect, 
+		"CyberwareAction.BloodPumpSFXObjectActionEffect"
+	];
+}
+
+UseBloodPumpUncommon : UseBloodPumpCommon
+{
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			effectorToTrigger = 
+			{
+				statPoolUpdates = 
+				[
+					{
+						statPoolType = "BaseStatPools.Health";
+						statPoolValue = 60;
+					} : StatPoolUpdate
+				];
+			} : BloodPumpEffector;
+		} : BloodPumpObjectActionEffect, 
+		"CyberwareAction.BloodPumpSFXObjectActionEffect"
+	];
+}
+
+UseBloodPumpRare : UseBloodPumpCommon
+{
+	instigatorPrereqs = 
+	[
+		{
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.PlayerBloodPumpRareCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			effectorToTrigger = 
+			{
+				statPoolUpdates = 
+				[
+					{
+						statPoolType = "BaseStatPools.Health";
+						statPoolValue = 70;
+					} : StatPoolUpdate
+				];
+			} : BloodPumpEffector;
+			statusEffect = "BaseStatusEffect.PlayerBloodPumpRareCooldown";
+		}, 
+		"CyberwareAction.BloodPumpSFXObjectActionEffect"
+	];
+}
+
+UseBloodPumpEpic : UseBloodPumpCommon
+{
+	instigatorPrereqs = 
+	[
+		{
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.PlayerBloodPumpRareCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			effectorToTrigger = 
+			{
+				statPoolUpdates = 
+				[
+					{
+						statPoolType = "BaseStatPools.Health";
+						statPoolValue = 80;
+					} : StatPoolUpdate
+				];
+			} : BloodPumpEffector;
+			statusEffect = "BaseStatusEffect.PlayerBloodPumpRareCooldown";
+		} : BloodPumpObjectActionEffect, 
+		"CyberwareAction.BloodPumpSFXObjectActionEffect"
+	];
+}
+
+UseBloodPumpLegendary : UseBloodPumpCommon
+{
+	instigatorPrereqs = 
+	[
+		{
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.PlayerBloodPumpLegendaryCooldown";
+		} : StatusEffectAbsentPrereq
+	];
+	fk< ObjectActionEffect >[] startEffects = 
+	[
+		{
+			effectorToTrigger = 
+			{
+				statPoolUpdates = 
+				[
+					{
+						statPoolType = "BaseStatPools.Health";
+						statPoolValue = 90;
+					} : StatPoolUpdate
+				];
+			} : BloodPumpEffector;
+			statusEffect = "BaseStatusEffect.PlayerBloodPumpLegendaryCooldown";
+		} : BloodPumpObjectActionEffect, 
+		"CyberwareAction.BloodPumpSFXObjectActionEffect"
+	];
+}
+
+BloodPumpObjectActionEffect : ObjectActionEffect
+{
+	statusEffect = "BaseStatusEffect.PlayerBloodPumpCooldown";
+	recipient = "ObjectActionReference.Instigator";
+}
+
+BloodPumpSFXObjectActionEffect : ObjectActionEffect
+{
+	effectorToTrigger = 
+	{
+		CName activationSFXName = "vfx_fullscreen_cyberware_heal_activate";
+	} : PlaySFXEffector;
+	recipient = "ObjectActionReference.Instigator";
+}
+

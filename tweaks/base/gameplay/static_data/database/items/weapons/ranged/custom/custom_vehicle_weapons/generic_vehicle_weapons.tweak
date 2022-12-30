@@ -1,0 +1,132 @@
+package Items
+using RTDB, BaseStats
+
+[ notQueryable ]
+Missile_Launcher : Base_Weapon
+{
+	CName entityName = "blank_weapon";
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.TwoStageMissile"
+	];
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.WeaponRight"
+	];
+	statModifierGroups += 
+	[
+		"Items.Base_Missile_Launcher_RPG_Stats", "Items.Base_Missile_Launcher_Technical_Stats"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Multiplier";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 3.f;
+		} : ConstantStatModifier
+	];
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Missile_Launcher_Technical_Stats", "Items.Base_Missile_Launcher_RPG_Stats", {
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.HitReactionFactor";
+						modifierType = "Additive";
+						value = 2.f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HitWoundsFactor";
+						modifierType = "Additive";
+						value = 1;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HitDismembermentFactor";
+						modifierType = "Additive";
+						value = 1;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+Base_Missile_Launcher_RPG_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_rifles_RPG_stats";
+			column = "power_level_to_DPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier
+	];
+}
+
+Base_Missile_Launcher_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.CanUseCloseRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 5.f;
+		} : CycleTimeModifier, 
+		{
+			value = 300.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 300.f;
+		} : ReloadAmountModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 100.f;
+		} : OverheatModifier, 
+		{
+			value = 50.f;
+		} : EffectiveRangeModifier, 
+		{
+			value = 30.f;
+		} : PhysicalImpulseModifier, 
+		{
+			value = 3.3f;
+		} : ReloadTimeModifier, 
+		"AttackModifier.HMGMinTBH", "AttackModifier.HMGMinLineOfSight", "AttackModifier.HMGDamageMultiplier"
+	];
+}
+

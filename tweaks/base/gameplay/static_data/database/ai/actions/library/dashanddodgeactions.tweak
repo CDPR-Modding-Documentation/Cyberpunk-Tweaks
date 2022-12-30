@@ -1,0 +1,3517 @@
+package DashAndDodgeActions
+using RTDB
+
+MeleeCombatStepsSelectorConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetPOVBelow60deg", "Condition.AbilityCanUseLegs"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeCombatStepsSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.StepsFrontDefinition", "DashAndDodgeActions.StepsBackDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.StepsIdleDefinition";
+}
+
+StepsFrontDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 4.5f;
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "StepsFront";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+StepsLeftDefinition : AIAction
+{
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "StepsLeft";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+StepsRightDefinition : AIAction
+{
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "StepsRight";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+StepsBackDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.9f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove3m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "StepsBack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+StepsIdleDefinition : AIAction
+{
+	loop = 
+	{
+		duration = 3.6f;
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBetween3and6m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "StepsIdle";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+SandevistanChargeCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove4m", "Condition.AbilityCanSprint", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanUseLegs", "Condition.AbilityHasSandevistan", "Condition.CalculatePathToTarget", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone"
+			];
+		} : AIActionAND;
+	};
+}
+
+SandevistanChargeCompositeSequenceDefinition : AIActionSmartComposite
+{
+	disableActionsLimit = true;
+	nodes = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashRightSelectorDefinition", "DashAndDodgeActions.SandevistanChargeDashLeftSelectorDefinition"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+	gracefulInterruptionConditionCheckInterval = 0.1f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone", {
+						AND = 
+						[
+							"Condition.TargetBelow2dot5m", "Condition.NotCalculatePathToTarget"
+						];
+					} : AIActionAND
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+SandevistanChargeDashLeftSelectorDefinition : AIActionSelector
+{
+	disableActionsLimit = true;
+	actions = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashLeftDefinition", "DashAndDodgeActions.SandevistanChargeDashFrontLDefinition", "DashAndDodgeActions.DefaultSandevistanChargeLocomotionDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SandevistanChargeDashRightSelectorDefinition : AIActionSelector
+{
+	disableActionsLimit = true;
+	actions = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashRightDefinition", "DashAndDodgeActions.SandevistanChargeDashFrontRDefinition", "DashAndDodgeActions.DefaultSandevistanChargeLocomotionDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SandevistanDecorator : AIAction
+{
+	loop = 
+	{
+	};
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+}
+
+SandevistanStartup : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "fx_sandevistan_center";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanStartup";
+		animSlot = 
+		{
+			useRootMotion = false;
+			loopSlide = "AnimalsBoss_Fists.RotateSlideData";
+		};
+	};
+}
+
+SandevistanChargeDashLeftDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.CalculatePathStraightToTarget", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.CalculatePathStraightFullCheckFrontLeftClose", "Condition.TargetUpTo1dot4mZDiff", "Condition.TargetAbove5m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "fx_sandevistan_left";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "AtkFromSprint";
+		} : AISubActionRegisterActionName, 
+		{
+			name = "enemy_melee_charge";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanChargeLeft";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.SandevistanChargeSlideData";
+		};
+	};
+}
+
+SandevistanChargeDashRightDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.CalculatePathStraightToTarget", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.CalculatePathStraightFullCheckFrontRightClose", "Condition.TargetUpTo1dot4mZDiff", "Condition.TargetAbove5m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "AtkFromSprint";
+		} : AISubActionRegisterActionName, 
+		{
+			name = "enemy_melee_charge";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanChargeRight";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.SandevistanChargeSlideData";
+		};
+	};
+}
+
+SandevistanChargeDashFrontLDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetUpTo1dot4mZDiff"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow2m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "fx_sandevistan_left";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "AtkFromSprint";
+		} : AISubActionRegisterActionName, 
+		{
+			name = "enemy_melee_charge";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanChargeFrontL";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.SandevistanChargeStraightSlideData";
+		};
+	};
+}
+
+SandevistanChargeDashFrontRDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetUpTo1dot4mZDiff"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Attack";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow2m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "AtkFromSprint";
+		} : AISubActionRegisterActionName, 
+		{
+			name = "enemy_melee_charge";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanChargeFrontR";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.SandevistanChargeStraightSlideData";
+		};
+	};
+}
+
+SandevistanChargeToItemCompositeSequenceDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashLeftToItemSelectorDefinition", "DashAndDodgeActions.SandevistanChargeDashRightToItemSelectorDefinition"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.TargetBelow2m"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+SandevistanChargeDashLeftToItemSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashFrontLToItemDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DefaultSandevistanChargeLocomotionDefinition";
+}
+
+SandevistanChargeDashRightToItemSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashFrontRToitemDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DefaultSandevistanChargeLocomotionDefinition";
+}
+
+SandevistanChargeDashFrontLToItemDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.CalculatePathStraightFullCheckForwardClose"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "fx_sandevistan_left";
+		} : AISubActionSpawnFX
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanChargeFrontL";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.SandevistanToItemSlideData";
+		};
+	};
+}
+
+SandevistanChargeDashFrontRToitemDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.CalculatePathStraightFullCheckForwardClose"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.133f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanChargeFrontR";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.SandevistanToItemSlideData";
+		};
+	};
+}
+
+DefaultSandevistanChargeLocomotionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.AbilityCanSprint", {
+					OR = 
+					[
+						"Condition.NotCalculatePathToTarget", "Condition.NotCalculatePathStraightFullCheckToTarget", "Condition.TargetAbove1dot4mZDiff"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			distance = 1.5f;
+			dontUseStart = true;
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.TargetUpTo1dot4mZDiff", "Condition.CalculatePathStraightFullCheckToTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "AtkFromSprint";
+		} : AISubActionRegisterActionName, 
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 5.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+}
+
+ToItemSandevistanChargeLocomotionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.AbilityCanSprint", "Condition.NotCalculatePathStraightFullCheckToItem"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.TargetItem";
+			movementType = "Sprint";
+			dontUseStart = true;
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ItemBelow2m", "Condition.NotTargetItem"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			name = "fx_sandevistan_loop";
+		} : AISubActionSpawnFX
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+}
+
+SandevistanStraightCompositeSequenceDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashLeftStraightSelectorDefinition", "DashAndDodgeActions.SandevistanChargeDashRightStraightSelectorDefinition"
+	];
+	type = "AISmartCompositeType.Sequence";
+	repeat = 0;
+}
+
+SandevistanChargeDashLeftStraightSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashFrontLDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DefaultSandevistanChargeLocomotionDefinition";
+}
+
+SandevistanChargeDashRightStraightSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.SandevistanChargeDashFrontRDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DefaultSandevistanChargeLocomotionDefinition";
+}
+
+DashCooldown : AIActionCooldown
+{
+	name = "DashCooldown";
+	duration = 1.f;
+}
+
+DashSelectorConditionDefinition : AIAction
+{
+	activationCondition = "DashAndDodgeActions.GenericDashCondition";
+	cooldowns = 
+	[
+		"DashAndDodgeActions.DashCooldown"
+	];
+}
+
+DashSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DashSandevistanSprintLeftDefinition", "DashAndDodgeActions.DashSandevistanSprintRightDefinition", "DashAndDodgeActions.DashSandevistanBackDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DashSandevistanBackDefinition";
+}
+
+DashForwardToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetAbove2dot5m", "Condition.NotPreviousAttackNameAtkFromSprint", "Condition.AbilityCanUseLegs"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			actionName = "DashForward";
+		} : AISubActionRegisterActionName, 
+		{
+			name = "enemy_melee_charge";
+		} : AISubActionPlayVoiceOver
+	];
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.200f;
+	};
+	recovery = 
+	{
+		duration = 0.733f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	animData = 
+	{
+		animFeature = "DashForwardLong";
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.DashForwardSlideData";
+			loopSlide = "DashAndDodgeActions.DashForwardSlideData";
+		};
+	};
+	allowBlendDuration = 0.2f;
+}
+
+DashSandevistanBackDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.AbilityCanUseLegs", "Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.3f;
+	};
+	loopSubActions = 
+	[
+		{
+			hitReactionMode = "ForceStagger";
+		} : AIActionChangeNPCState, 
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		animFeature = "DashForwardSandevistan";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashSandevistanSprintLeftDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.AbilityCanUseLegs", "Condition.CalculatePathStraightFullCheckLeftClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.3f;
+	};
+	loopSubActions = 
+	[
+		{
+			hitReactionMode = "ForceStagger";
+		} : AIActionChangeNPCState, 
+		{
+			name = "fx_sandevistan_left";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		animFeature = "DashLeftSandevistanSprint";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DashSandevistanSprintRightDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.AbilityCanUseLegs", "Condition.CalculatePathStraightFullCheckRightClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.3f;
+	};
+	loopSubActions = 
+	[
+		{
+			hitReactionMode = "ForceStagger";
+		} : AIActionChangeNPCState, 
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 7.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		animFeature = "DashRightSandevistanSprint";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HitDodgeCooldown : AIActionCooldown
+{
+	name = "DodgeCooldown";
+	duration = 1.f;
+}
+
+DodgeAfterHitReaction : AIActionCooldown
+{
+	name = "DodgeAfterHitReaction";
+	duration = 3.f;
+}
+
+DodgeMeleeContactCooldown : AIActionCooldown
+{
+	name = "DodgeMeleeContactCooldown";
+	duration = 10.f;
+}
+
+SetDodgeCooldownAction : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DashAndDodgeActions.HitDodgeCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetDodgeAfterHitReactionCooldownAction : AIAction
+{
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"DashAndDodgeActions.DodgeAfterHitReaction"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+DodgeBulletSelectorConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DashAndDodgeActions.GenericDodgeBulletConditionDefinition", "Condition.AbilityHasKerenzikov"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+DodgeMeleeSelectorConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		"DashAndDodgeActions.HitDodgeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DashAndDodgeActions.GenericMeleeDodgeConditionDefinition", "Condition.AbilityHasDodge"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+DodgeCollisionSelectorConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		"DashAndDodgeActions.HitDodgeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DashAndDodgeActions.GenericCollisionDodgeConditionDefinition", "Condition.AbilityHasDodge"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+DodgeMeleeContactSelectorConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		"DashAndDodgeActions.DodgeMeleeContactCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"DashAndDodgeActions.GenericMeleeDodgeConditionDefinition", "Condition.TargetBelow3mLongPrediction", "Condition.TargetHeadingToOwnerDotProduct", "Condition.NotAbilityIsReckless", "Condition.NotAbilityIsAggressive", "Condition.AbilityHasDodge"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			cooldowns = 
+			[
+				"DashAndDodgeActions.DodgeMeleeContactCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+NotDodgeAfterHitReactionMonitorConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			invert = true;
+			AND = 
+			[
+				"Condition.HitTimeout3MinSeverity1MaxSeverity6", "Condition.AbilityCanUseLegs", "Condition.TargetHasMeleeWeapon", "Condition.HitDodgeCooldown", "Condition.NotAbilityIsReckless"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.HitTimeout3MinSeverity1MaxSeverity6", "Condition.AbilityCanUseLegs", "Condition.TargetHasMeleeWeapon", "Condition.HitDodgeCooldown", "Condition.NotAbilityIsReckless"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+DodgeAfterHitReactionConditionDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HitTimeout3MinSeverity1MaxSeverity6", "Condition.AbilityCanUseLegs", "Condition.TargetHasMeleeWeapon", "Condition.DodgeAfterHitReactionCooldown", "Condition.NotAbilityIsReckless"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+CarDodgeComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.RangedCarDodgeSelector", "DashAndDodgeActions.MeleeCarDodgeSelector"
+	];
+}
+
+KerenzikovDodgeCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.KerenzikovDodgeSelectorDefinition"
+	];
+}
+
+DodgeAfterHitReactionCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.DodgeHitReactionSelectorDefaultDefinition"
+	];
+}
+
+DodgeMeleeCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.DodgeMeleeSelectorDefaultDefinition"
+	];
+}
+
+DodgeMeleeContactCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.DodgeMeleeContactSelectorDefaultDefinition"
+	];
+}
+
+DodgeForParryMeleeCompositeSelectorDefinition : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"DashAndDodgeActions.DodgeForParryMeleeSelectorDefaultDefinition"
+	];
+}
+
+DodgeHitReactionSelectorDefaultDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DodgeMeleeKerenzikovLeftDefinition", "DashAndDodgeActions.DodgeHitMeleeLeftDefinition", "DashAndDodgeActions.DodgeMeleeKerenzikovRightDefinition", "DashAndDodgeActions.DodgeHitMeleeRightDefinition", "DashAndDodgeActions.DodgeMeleeKerenzikovBackDefinition", "DashAndDodgeActions.DodgeHitMeleeBackDefinition"
+	];
+	defaultAction = "MeleeActions.SlowPushAttack01Definition";
+}
+
+DodgeMeleeSelectorDefaultDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DodgeMeleeKerenzikovLeftDefinition", "DashAndDodgeActions.DodgeMeleeLeftDefinition", "DashAndDodgeActions.DodgeMeleeKerenzikovRightDefinition", "DashAndDodgeActions.DodgeMeleeRightDefinition", "DashAndDodgeActions.DodgeMeleeKerenzikovBackDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DodgeMeleeBackDefinition";
+}
+
+DodgeMeleeContactSelectorDefaultDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DodgeMeleeContactKerenzikovBackDefinition", "DashAndDodgeActions.DodgeMeleeContactBackDefinition", "DashAndDodgeActions.DodgeMeleeContactKerenzikovLeftDefinition", "DashAndDodgeActions.DodgeMeleeContactLeftDefinition", "DashAndDodgeActions.DodgeMeleeContactKerenzikovRightDefinition", "DashAndDodgeActions.DodgeMeleeContactRightDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DodgeMeleeContactBackDefinition";
+}
+
+DodgeCollisionSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DodgeCollisionLeftDefinition", "DashAndDodgeActions.DodgeCollisionRightDefinition", "DashAndDodgeActions.DodgeCollisionBackDefinition", "DashAndDodgeActions.DodgeCollisionForwardDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DodgeCollisionBackDefinition";
+}
+
+DodgeForParryMeleeSelectorDefaultDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DodgeMeleeForParryMeleeBackDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+KerenzikovDodgeSelectorDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.DodgeKerenzikovLeftOnSpotDefinition", "DashAndDodgeActions.DodgeKerenzikovRightOnSpotDefinition", "DashAndDodgeActions.DodgeKerenzikovRightFrontDefinition", "DashAndDodgeActions.DodgeKerenzikovLeftFrontDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.DodgeMeleeKerenzikovBackDefinition";
+}
+
+GrenadeDodgeKerenzikovSelectorDefaultDefinition : AIActionSelector
+{
+	actions = 
+	[
+		"DashAndDodgeActions.GrenadeDodgeKerenzikovBackDefinition", "DashAndDodgeActions.GrenadeDodgeKerenzikovRightFrontDefinition", "DashAndDodgeActions.GrenadeDodgeKerenzikovLeftFrontDefinition"
+	];
+	defaultAction = "DashAndDodgeActions.GrenadeDodgeKerenzikovBackDefinition";
+}
+
+RangedCarDodgeSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"DashAndDodgeActions.CarDodgeKerenzikovRightFront", "DashAndDodgeActions.CarDodgeRightFront", "DashAndDodgeActions.CarDodgeKerenzikovLeftFront", "DashAndDodgeActions.CarDodgeLeftFront", "DashAndDodgeActions.CarDodgeKerenzikovBack", "DashAndDodgeActions.CarDodgeBack"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeCarDodgeSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"DashAndDodgeActions.CarDodgeKerenzikovRightFront", "DashAndDodgeActions.CarDodgeRightFront", "DashAndDodgeActions.CarDodgeKerenzikovLeftFront", "DashAndDodgeActions.CarDodgeLeftFront", "DashAndDodgeActions.CarDodgeKerenzikovBack", "DashAndDodgeActions.CarDodgeBack"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+DodgeSelectorComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DashAndDodgeActions.CannotDodge", "DashAndDodgeActions.DodgeOutFromLineOfSight", "DashAndDodgeActions.DodgeToAvoidCollision", "DashAndDodgeActions.DodgeApproachingCars", "GenericArchetype.Wait0dot2Second"
+	];
+}
+
+DodgeOutFromLineOfSightComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DashAndDodgeActions.DodgeOutFromLineOfSight", "GenericArchetype.Success"
+	];
+}
+
+CannotDodge : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotAbilityCanUseLegs", "Condition.IsEnteringOrLeavingCover", "Condition.IsUsingOffMeshLink", "Condition.InStatesAttack", {
+					AND = 
+					[
+						"Condition.InRegularCover", "Condition.NotCoverIsOwnerExposed"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+}
+
+DodgeOutFromLineOfSight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetPOVBelow10deg", "Condition.NotInCover", "Condition.TargetInStatesAim", "Condition.NotTicketEquip", "Condition.TargetHasRangedWeapon", "Condition.HasMeleeWeapon", "Condition.LineOfSightDodgeCooldown", "Condition.HitDodgeCooldown"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "MeleeDodgeOpportunity";
+		} : AISubActionQueueAIEvent, 
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "OutOfLineOfSightDodge";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+DodgeToAvoidCollisionComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DashAndDodgeActions.DodgeToAvoidCollision", "GenericArchetype.Success"
+	];
+}
+
+DodgeToAvoidCollision : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketMelee", "Condition.NotMeleeStatesConditions", "Condition.NearestSquadmateBelow0dot7m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "MeleeCollisionDodgeOpportunity";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DodgeApproachingCarsComposite : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DashAndDodgeActions.CannotDodge", "DashAndDodgeActions.DodgeApproachingCars", "GenericArchetype.Success"
+	];
+}
+
+DodgeApproachingCars : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HitDodgeCooldown", "Condition.TargetInVehicle", "Condition.TargetBelow3mLongPrediction", "Condition.TargetBelow225deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "CarDodgeOpportunity";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DodgeCollisionLeftDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NearestSquadmateRight", "Condition.CalculatePathStraightFullCheckLeft1dot5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeLeft";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.1f;
+}
+
+DodgeCollisionRightDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NearestSquadmateLeft", "Condition.CalculatePathStraightFullCheckRight1dot5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeRight";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.1f;
+}
+
+DodgeCollisionBackDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckBack1dot5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeBack";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.1f;
+}
+
+DodgeCollisionForwardDefinition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckForward1dot5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DashForwardLong";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.1f;
+}
+
+DodgeMeleeLeftDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackVertical", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.CalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.NotCalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.167f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeLeft";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+DodgeMeleeContactLeftDefinition : DodgeMeleeLeftDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.TargetPOVRight", "Condition.CalculatePathStraightFullCheckLeftClose"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.TargetPOVLeft", "Condition.NotCalculatePathStraightFullCheckRightClose"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+}
+
+DodgeHitMeleeLeftDefinition : DodgeMeleeLeftDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HitDirectionRight", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.CalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.NotCalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.167f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+}
+
+DodgeMeleeKerenzikovLeftDefinition : DodgeKerenzikovLeftFrontDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.PreviousAttackVertical", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.CalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.NotCalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_right";
+			delay = 0.1f;
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 4.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName
+	];
+}
+
+DodgeMeleeContactKerenzikovLeftDefinition : DodgeMeleeKerenzikovLeftDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.CalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.NotCalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeRightDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PreviousAttackVertical", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.CalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.NotCalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.067f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeRight";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+DodgeMeleeContactRightDefinition : DodgeMeleeRightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.TargetPOVLeft", "Condition.CalculatePathStraightFullCheckRightClose"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.TargetPOVRight", "Condition.NotCalculatePathStraightFullCheckLeftClose"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+}
+
+DodgeHitMeleeRightDefinition : DodgeMeleeRightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HitDirectionLeft", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.CalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.NotCalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.067f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+}
+
+DodgeMeleeKerenzikovRightDefinition : DodgeKerenzikovRightFrontDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.NotPreviousAttackHorizontal", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.CalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.NotCalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_left";
+			delay = 0.1f;
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 4.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName
+	];
+}
+
+DodgeMeleeContactKerenzikovRightDefinition : DodgeMeleeKerenzikovRightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.CalculatePathStraightFullCheckRightClose"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.NotCalculatePathStraightFullCheckLeftClose"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeBackDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "StaggerMin";
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeDodgeBack";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+DodgeMeleeContactBackDefinition : DodgeMeleeBackDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckBackClose", "Condition.TargetPOVBelow10deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeHitMeleeBackDefinition : DodgeMeleeBackDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+}
+
+DodgeMeleeKerenzikovBackDefinition : DodgeKerenzikovBackDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName
+	];
+}
+
+DodgeMeleeContactKerenzikovBackDefinition : DodgeKerenzikovBackDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.CalculatePathStraightFullCheckBackClose", "Condition.TargetPOVBelow10deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeForParryMeleeBackDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow2dot5m", "Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Parry";
+		};
+	};
+	animData = 
+	{
+		animFeature = "MeleeDodgeBack";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+DodgeMeleeKerenzikovForParryMeleeBackDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.TargetBelow2dot5m", "Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Parry";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		animFeature = "DodgeBackKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DodgeKerenzikovBackDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 4.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 2.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeBackKerenzikov";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+DodgeKerenzikovLeftFrontDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.TargetPOVRight"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 2.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeLeftKerenzikov";
+		weaponOverride = 2;
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+DodgeKerenzikovRightFrontDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.TargetPOVLeft"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_left";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 2.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeRightKerenzikov";
+		weaponOverride = 2;
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+CarDodgeKerenzikovBack : DashAndDodgeActions.CarDodgeLeftFront
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.CalculatePathStraightBackClose"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 0.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeBackKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CarDodgeBack : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightBackClose"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	startupSubActions = 
+	[
+		{
+			multiplier = 1.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 1.5f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 0.5f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeBackKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CarDodgeKerenzikovLeftFront : DashAndDodgeActions.CarDodgeLeftFront
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.CalculatePathStraightLeftClose", "Condition.TargetBelow120deg", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.TargetPOVBelow180deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.TargetPOVAbove180deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+CarDodgeLeftFront : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightLeftClose", "Condition.TargetBelow120deg", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.TargetPOVBelow180deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.TargetPOVAbove180deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	startupSubActions = 
+	[
+		{
+			multiplier = 1.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 1.5f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "DodgeLeftKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CarDodgeKerenzikovRightFront : DashAndDodgeActions.CarDodgeRightFront
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.CalculatePathStraightRightClose", "Condition.TargetBelow120deg", "Condition.TargetPOVLeft", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.TargetPOVBelow180deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.TargetPOVAbove180deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_left";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+CarDodgeRightFront : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightRightClose", "Condition.TargetBelow120deg", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVLeft", "Condition.TargetPOVBelow180deg"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVRight", "Condition.TargetPOVAbove180deg"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	startupSubActions = 
+	[
+		{
+			multiplier = 1.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 1.5f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 1.f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "DodgeRightKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DodgeKerenzikovLeftOnSpotDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.TargetPOVRight", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotHasFullAutoWeapon", "Condition.MaxDodgeCount2"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.HasFullAutoWeapon", "Condition.MaxDodgeCount4"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.65f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_right";
+			delay = 0.1f;
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 3.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 0.25f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeLeftOnSpotKerenzikov";
+		weaponOverride = 2;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1, 2
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.3f;
+}
+
+DodgeMeleeKerenzikovCenterLeftOnSpotDefinition : DodgeKerenzikovLeftOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.PreviousAttackVerticalOrDiagonalRightToLeft", "Condition.MaxDodgeCount3", {
+					OR = 
+					[
+						"Condition.TargetPOVRight", "Condition.TargetPOVBelow10deg"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "DodgeLeftOnSpotKerenzikov";
+		weaponOverride = 2;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 2
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+DodgeMeleeKerenzikovLeftOnSpotDefinition : DodgeKerenzikovLeftOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.PreviousAttackDiagonalRightToLeft", "Condition.MaxDodgeCount3", {
+					OR = 
+					[
+						"Condition.TargetPOVRight", "Condition.TargetPOVBelow10deg"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "DodgeLeftOnSpotKerenzikov";
+		weaponOverride = 2;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 2
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+DodgeKerenzikovRightOnSpotDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.TargetPOVLeft", {
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotHasFullAutoWeapon", "Condition.MaxDodgeCount2"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.HasFullAutoWeapon", "Condition.MaxDodgeCount4"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.65f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_left";
+			delay = 0.1f;
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 3.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 0.25f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "DodgeRightOnSpotKerenzikov";
+		weaponOverride = 2;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1, 2
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.3f;
+}
+
+DodgeMeleeKerenzikovCenterRightOnSpotDefinition : DodgeKerenzikovRightOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.PreviousAttackVerticalOrDiagonalLeftToRight", "Condition.MaxDodgeCount3", {
+					OR = 
+					[
+						"Condition.TargetPOVLeft", "Condition.TargetPOVBelow10deg"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "DodgeRightOnSpotKerenzikov";
+		weaponOverride = 2;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+DodgeMeleeKerenzikovRightOnSpotDefinition : DodgeKerenzikovRightOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasKerenzikov", "Condition.NotTargetStatusEffectSandevistanBuff", "Condition.PreviousAttackDiagonalLeftToRight", "Condition.MaxDodgeCount3", {
+					OR = 
+					[
+						"Condition.TargetPOVLeft", "Condition.TargetPOVBelow10deg"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "DodgeRightOnSpotKerenzikov";
+		weaponOverride = 2;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+GrenadeDodgeCooldown : AIActionCooldown
+{
+	name = "GrenadeDodgeCooldown";
+	duration = 5.f;
+}
+
+GrenadeDodgeKerenzikovBackDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	cooldowns = 
+	[
+		"DashAndDodgeActions.GrenadeDodgeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.43f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Defend";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "DodgeBackKerenzikov";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+GrenadeDodgeKerenzikovRightFrontDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckRightClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Defend";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_left";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "DodgeRightKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+GrenadeDodgeKerenzikovLeftFrontDefinition : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Dodge"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathStraightFullCheckLeftClose"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Defend";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "kerenzikov_right";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 2.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "DodgeLeftKerenzikov";
+		animSlot = 
+		{
+		};
+	};
+}
+
+GenericDashCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.AbilityCanDash", "Condition.AbilityCanUseLegs", "Condition.TargetBelow3m", "Condition.TargetPOVBelow45deg"
+		];
+	} : AIActionAND;
+}
+
+GenericDodgeBulletConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.HitDodgeCooldown", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotStatusEffectAnyKnockdown", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotAttackWithSubActionInAir", "Condition.NotTicketEquip", "Condition.TargetBelow180deg", "Condition.TargetAbove3m", "Condition.TargetPOVBelow45deg", {
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.NotHasFullAutoWeapon", "Condition.MaxDodgeCount3"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.HasFullAutoWeapon", "Condition.MaxDodgeCount5"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR, 
+		{
+			OR = 
+			[
+				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
+			];
+		} : AIActionOR
+	];
+}
+
+GenericDodgeConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.HitDodgeCooldown", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesExceptTauntConditions", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "Condition.TargetAbove2m", "Condition.TargetPOVBelow45deg", "Condition.AbilityCanUseLegs", "Condition.MaxDodgeCount3", {
+			OR = 
+			[
+				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
+			];
+		} : AIActionOR
+	];
+}
+
+GenericCollisionDodgeConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.HitDodgeCooldown", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.AbilityCanUseLegs", {
+			OR = 
+			[
+				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
+			];
+		} : AIActionOR
+	];
+}
+
+GenericMeleeDodgeConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.HitDodgeCooldown", "Condition.NotTargetInStatesBlock", "Condition.HasMeleeWeapon", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.TargetBelow90deg", "Condition.TargetBelow20m", "Condition.AbilityCanUseLegs", "Condition.NotHitTimeout2MinSeverity0", "Condition.NotTargetStatusEffectSandevistanBuff"
+	];
+}
+
+StepsSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 1.0f;
+	distance = 0.f;
+	positionSpeed = 0.f;
+	rotationSpeed = 360.f;
+	offsetToTarget = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+}
+
+SandevistanChargeSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.5f;
+	distance = 3.f;
+	positionSpeed = 10.f;
+	offsetToTarget = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+	disablePositionSlideAgainstNpc = true;
+}
+
+SandevistanChargeStraightSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.5f;
+	distance = 1.f;
+	positionSpeed = 5.f;
+	offsetToTarget = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+	disablePositionSlideAgainstNpc = true;
+}
+
+SandevistanChargeSlideData2TOREMOVE : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.5f;
+	distance = 3.f;
+	positionSpeed = 0.f;
+	offsetToTarget = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+	disablePositionSlideAgainstNpc = true;
+}
+
+SandevistanToItemSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.TargetItem";
+	duration = 0.5f;
+	distance = 1.f;
+	positionSpeed = 10.f;
+	offsetToTarget = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+}
+
+DashForwardSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.2f;
+	distance = 1.25f;
+	positionSpeed = 5.f;
+	rotationSpeed = 180.f;
+	offsetToTarget = 2.f;
+	usePositionSlide = true;
+	useRotationSlide = true;
+}
+
+DashSideSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 0.2f;
+	distance = 0.f;
+	positionSpeed = 0.f;
+	rotationSpeed = 900.f;
+	directionAngle = 0.f;
+	finalRotationAngle = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+}
+

@@ -1,0 +1,158 @@
+package BaseStatusEffect
+using RTDB, Prereqs
+
+DontShootAtMe : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"Cheat"
+	];
+}
+
+Madness : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Madness";
+	CName[] gameplayTags += 
+	[
+		"Debuff", "Quickhack", "Madness"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60.0;
+			} : ConstantStatModifier
+		];
+	};
+	bool canReapply = false;
+	SFX = 
+	[
+		{
+			name = "quickhack_cyberpsychosis";
+		} : StatusEffectFX
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanUseCovers";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanCallReinforcements";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseMediumRing";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseFarRing";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseExtremeRing";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseGrenades";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanQuickhack";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprintHarass";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseCloseRing";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 3.3f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "MadnessEffector";
+				} : Effector, 
+				{
+					statusEffect = "BaseStatusEffect.DontShootAtMe";
+				} : ApplyStatusEffectEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 8.3f;
+					} : Prereqs.DurationPrereq;
+					statusEffect = "BaseStatusEffect.DontShootAtMe";
+					inverted = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					statusEffect = "BaseStatusEffect.SuicideWithWeapon";
+					inverted = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						CName prereqClassName = "gameMultiPrereq";
+						CName aggregationType = "AND";
+						nestedPrereqs = 
+						[
+							{
+								duration = 10.0f;
+							} : Prereqs.DurationPrereq, 
+							{
+								stateName = "Combat";
+								isInState = false;
+							} : Prereqs.HighLevelNPCStatePrereq
+						];
+					} : MultiPrereq;
+					statusEffect = "BaseStatusEffect.SuicideWithWeapon";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		float priority = 6.f;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#27958";
+		string iconPath = "Cyberpsychosis";
+		priority = 1.0f;
+	};
+}
+
+DoNotBlockShootingOnFriendlyFire : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	CName[] gameplayTags += 
+	[
+		"Debuff"
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	bool canReapply = false;
+}
+

@@ -1,0 +1,655 @@
+package DroneStatusEffectActions
+using RTDB
+
+SE_Blind : AIActionSelector
+{
+	actions = 
+	[
+		"DroneStatusEffectActions.SE_BlindRegular"
+	];
+}
+
+SE_BlindRegular : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeBlind"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.833f;
+	};
+	loopSubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Malfunction";
+		} : AISubActionActivateLightPreset, 
+		{
+			lightPreset = "MechanicalLightPreset.ScanResultsIgnored";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BlindRegularOctant : SE_BlindRegular
+{
+	loop = 
+	{
+		duration = 5.567f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DroneCyberpsychosis";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SetFriendly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSetFriendly"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 3.9f;
+	};
+	startupSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.DontShootAtMe"
+			];
+			apply = true;
+			remove = false;
+			delay = 0.f;
+		} : AISubActionStatusEffect, 
+		{
+			lightPreset = "MechanicalLightPreset.Friendly";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_EMP : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectEMP"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+	};
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DroneQuickhackDefaultAction : AIAction
+{
+	loop = 
+	{
+		duration = 4.f;
+	};
+	subActions = 
+	[
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DroneQuickhackDefaultActionMalfunctionLights : AIAction
+{
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+ShouldStimsBeIgnored : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTagCommsNoiseIgnore"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_SystemCollapse : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+		} : AISubActionForceDeath
+	];
+}
+
+SE_ForceSuicide : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+		} : AISubActionForceDeath
+	];
+}
+
+SE_CommsNoise : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCommsNoise", "Condition.StatusEffectCommsNoiseLevel2", "Condition.StatusEffectCommsNoiseLevel3", "Condition.StatusEffectCommsNoiseLevel4"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 7.f;
+	};
+	loopSubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CommsCallIn : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCommsCallIn", "Condition.StatusEffectCommsCallInLevel3"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 7.f;
+	};
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+			delay = -1.f;
+		} : AISubActionTriggerStim, 
+		{
+			name = "danger";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CommsCallInCombat : SE_CommsCallIn
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCommsCallInLevel3"
+			];
+		} : AIActionOR;
+	};
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.CombatCall";
+			direct = true;
+			target = "AIActionTarget.NearestNavigableSquadmate";
+			delay = -1.f;
+		} : AISubActionTriggerStim, 
+		{
+			name = "danger";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+}
+
+SE_Whistle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectWhistle", "Condition.StatusEffectWhistleLvl2", {
+					AND = 
+					[
+						"Condition.StatusEffectWhistleLvl3", "Condition.NotInStatesCombat"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 4.f;
+	};
+	loopSubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.Whistle";
+			direct = true;
+			target = "AIActionTarget.Owner";
+			delay = -1.f;
+		} : AISubActionTriggerStim, 
+		{
+			lightPreset = "MechanicalLightPreset.ReactToStimuli";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "danger";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CombatWhistle : SE_Whistle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectWhistleLvl3"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 4.f;
+	};
+	loopSubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ReactToStimuli";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "danger";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_CommsCallInMalfunctionLights : AIAction
+{
+	loop = 
+	{
+		duration = 7.f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_CommsCallOut : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+SE_QuickHackStaggerLocomotionMalfunctionLights : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+	};
+	loopSubActions = 
+	[
+		{
+			altitudeOffset = -0.35f;
+		} : AISubActionDroneModifyAltitude, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_QuickHackStaggerLocomotion : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 4.f;
+	};
+	subActions = 
+	[
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackFreezeLocomotionMalfunctionLights : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseConditionCheckInterval = 0.3f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Malfunction";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_QuickHackFreezeLocomotion : AIActionSequence
+{
+	actions = 
+	[
+		"DroneStatusEffectActions.SE_QuickHackFreezeLocomotionInitialReaction", "DroneStatusEffectActions.SE_QuickHackFreezeLocomotionFreeze"
+	];
+}
+
+SE_QuickHackFreezeLocomotionInitialReaction : AIAction
+{
+	loop = 
+	{
+		duration = 1.2f;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "hacks_overload";
+		} : AISubActionSpawnFX, 
+		{
+			altitudeOffset = -0.35f;
+		} : AISubActionDroneModifyAltitude
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackFreezeLocomotionFreeze : AIAction
+{
+	loop = 
+	{
+		repeat = 0;
+		toNextPhaseConditionCheckInterval = 0.3f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			altitudeOffset = -0.35f;
+		} : AISubActionDroneModifyAltitude
+	];
+	animData = 
+	{
+		animFeature = "SE_DroneFrozen";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_WeaponJammedSelector : AIActionSelector
+{
+	actions = 
+	[
+		"DroneStatusEffectActions.SE_WeaponJammedWithExplosion", "DroneStatusEffectActions.SE_WeaponJammed"
+	];
+}
+
+SE_WeaponJammedWithExplosion : SE_WeaponJammed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.WeaponMalfunctionBlowUpWeapon"
+			];
+		} : AISubActionCustomEffectors, 
+		{
+			name = "weapon_malfunction_blow_up";
+		} : AISubActionSpawnFX
+	];
+}
+
+SE_WeaponJammed : DroneQuickhackDefaultAction
+{
+	subActions = 
+	[
+		{
+			name = "hacks_weapon_malfunction";
+		} : AISubActionSpawnFX
+	];
+}
+
+SE_UnconsciousStartup : AIActionSelector
+{
+	actions = 
+	[
+		"GenericArchetype.Success"
+	];
+}
+
+SE_Unconscious : AIActionSelector
+{
+	actions = 
+	[
+		{
+			loop = 
+			{
+				duration = -1.f;
+			};
+			loopSubActions = 
+			[
+				{
+				} : AISubActionForceDeath
+			];
+		} : AIAction, 
+		"GenericArchetype.Success"
+	];
+}
+

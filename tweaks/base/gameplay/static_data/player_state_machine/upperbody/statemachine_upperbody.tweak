@@ -1,0 +1,176 @@
+package playerStateMachineUpperBody
+using playerStateMachineBaseUpperBody, playerStateMachineStateBase
+
+forceEmptyHands : baseUpperBodyState
+{
+	CName[] alias = 
+	[
+		"upperBodyDefaults"
+	];
+	string stateBodyClassName = "EquipItem";
+	string scriptedDecisionsClassName = "ForceEmptyHandsDecisions";
+	string scriptedEventsClassName = "ForceEmptyHandsEvents";
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"emptyHands", "singleWield", "aimingState"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", ""
+	];
+	bool[] transitionConditionOverridesEnterCondition = 
+	[
+		false, false, true
+	];
+	bool emptyHands = true;
+	string slotId = "AttachmentSlots.WeaponRight";
+}
+
+forceSafe : baseUpperBodyState
+{
+	CName[] alias = 
+	[
+		"upperBodyDefaults"
+	];
+	string scriptedDecisionsClassName = "ForceSafeDecisions";
+	string scriptedEventsClassName = "ForceSafeEvents";
+	bool hasEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool hasOnEnter = true;
+	float timeToAutoUnequipWeapon = -1.f;
+	float addedTimeToAutoUnequipAfterSafeAction = 5.f;
+	string[] transitionTo = 
+	[
+		"forceEmptyHands", "singleWield", "emptyHands", "aimingState", "temporaryUnequip"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", "", ""
+	];
+}
+
+singleWield : baseUpperBodyState
+{
+	CName[] alias = 
+	[
+		"upperBodyDefaults"
+	];
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"forceSafe", "forceEmptyHands", "aimingState", "temporaryUnequip", "emptyHands", "adHocAnimation"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "=", ""
+	];
+}
+
+emptyHands : baseUpperBodyState
+{
+	CName[] alias = 
+	[
+		"upperBodyDefaults"
+	];
+	string stateBodyClassName = "EquipItem";
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"forceSafe", "forceEmptyHands", "aimingState", "singleWield", "temporaryUnequip", "adHocAnimation"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "", ""
+	];
+	bool emptyHands = true;
+	string slotId = "AttachmentSlots.WeaponRight";
+}
+
+aimingState : baseUpperBodyState
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string animationStateName = "aiming";
+	string[] transitionTo = 
+	[
+		"forceEmptyHands", "temporaryUnequip", "forceSafe", "singleWield", "emptyHands"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "=", "=", "="
+	];
+	bool useAnalogZoom = false;
+	bool resetZoomOnExit = true;
+	int maxNumberOfZoomLevels = 4;
+	float timeToBlendZoomLevels = 0.2f;
+	float noWeaponZoomLevel1 = 1.5f;
+	float noWeaponZoomLevel2 = 2.5f;
+	float noWeaponZoomLevel3 = 4.0f;
+	float noWeaponZoomLevel4 = 8.0f;
+	float noWeaponAimInTime = 0.07f;
+	float noWeaponAimOutTime = 0.16f;
+	bool debugForceUseNoWeaponZoomParams = false;
+}
+
+temporaryUnequip
+{
+	string stateBodyClassName = "UpperBodyBase";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"emptyHands", "waitForEquip", "singleWield"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", "="
+	];
+	bool instantlyUnequip = true;
+}
+
+adHocAnimation : temporaryUnequip
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"forceEmptyHands", "emptyHands", "singleWield", "temporaryUnequip"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", ""
+	];
+	float animDuration = 2.0;
+}
+
+waitForEquip
+{
+	string stateBodyClassName = "UpperBodyBase";
+	bool hasOnEnter = true;
+	string[] transitionTo = 
+	[
+		"singleWield", "emptyHands"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "="
+	];
+}
+

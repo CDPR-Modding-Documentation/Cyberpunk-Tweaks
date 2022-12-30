@@ -1,0 +1,456 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+
+[ notQueryable ]
+Base_Grad : Base_Power_Sniper_Rifle
+{
+	buyPrice += 
+	[
+		"Price.Techtronika", "Price.MediumManufactureQuality"
+	];
+	sellPrice += 
+	[
+		"Price.Techtronika", "Price.MediumManufactureQuality"
+	];
+	displayName = "LocKey#3613";
+	string friendlyName = "w_rifle_sniper_techtronika_grad";
+	localizedDescription = "LocKey#3614";
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Grad";
+	CName audioName = "wea_set_grad";
+	CName[] tags += 
+	[
+		"Preload", "Weapon", "Rifle Sniper", "AnimCycleRound"
+	];
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.SemiAuto";
+	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Corporation";
+	fk< WeaponEvolution > evolution = "WeaponEvolution.Power";
+	fk< Item > ammo = "Ammo.SniperRifleAmmo";
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< ItemPartListElement >[] itemPartList = 
+			[
+				{
+					item = "Items.w_rifle_sniper__techtronika_grad__rcv1";
+				}
+			];
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< ItemPartListElement >[] itemPartList = 
+			[
+				{
+					item = "Items.w_rifle_sniper__techtronika_grad__base1";
+				}
+			];
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< ItemPartListElement >[] itemPartList = 
+			[
+				{
+					item = "Items.w_rifle_sniper__techtronika_grad__mag_std";
+				}
+			];
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< ItemPartListElement >[] itemPartList = 
+			[
+				{
+					item = "Items.w_rifle_sniper__techtronika_grad__mag_stdr";
+				}
+			];
+		}, 
+		"Items.SniperPossibleScopesList"
+	];
+	fk< WeaponFxPackage > fxPackage = 
+	{
+	} : WeaponFxPackage.PowerLargeCaliberPiercing;
+	fk< AIPatternsPackage >[] shootingPatternPackages = 
+	[
+		"ShootingPatterns.SemiAutoSniperShootingPackage"
+	];
+	enableNpcRPGData = true;
+	npcRPGData = "Items.Base_Grad_NPC_Data";
+	statModifierGroups += 
+	[
+		"Items.Base_Grad_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_Constant_Stats"
+	];
+	fk< ConstantStatModifier > price = 
+	{
+		statType = "BaseStats.Price";
+		modifierType = "Additive";
+		value = 120;
+	} : ConstantStatModifier;
+	bool useNewSpawnMethod = true;
+	baseReloadTime = 3.5f;
+	baseEmptyReloadTime = 6.2f;
+	uninterruptibleReloadStart = 3.f;
+	uninterruptibleEmptyReloadStart = 4.5f;
+	float weaponNearPlane = 0.27f;
+	float weaponFarPlane = 0.6f;
+	float weaponEdgesSharpness = 0.4958f;
+	float weaponVignetteIntensity = 0.1357f;
+	float weaponVignetteRadius = 0.6482f;
+	float weaponVignetteCircular = 0.0f;
+	float weaponBlurIntensity = 1.0f;
+	float weaponNearPlane_aim = 0.19f;
+	float weaponFarPlane_aim = 0.5f;
+	float weaponEdgesSharpness_aim = 0.4958f;
+	float weaponVignetteIntensity_aim = 0.1357f;
+	float weaponVignetteRadius_aim = 0.6814f;
+	float weaponVignetteCircular_aim = 0.1745f;
+	float weaponBlurIntensity_aim = 1.f;
+	OnAttach += 
+	[
+		"Items.GradCrouchPackage", "EquipmentGLP.BorgWeaponHeavy"
+	];
+}
+
+GradCrouchPackage : GameplayLogicPackage
+{
+	stackable = false;
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsPlayerCrouching";
+			statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.RecoilKickMin";
+						modifierType = "Multiplier";
+						value = 0.9f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilKickMax";
+						modifierType = "Multiplier";
+						value = 0.9f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SwayTraversalTime";
+						modifierType = "Multiplier";
+						value = 3.0f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon, 
+		{
+			prereqRecord = "Prereqs.UsingCoverPSMPrereq";
+			statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.RecoilKickMin";
+						modifierType = "Multiplier";
+						value = 0.9f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilKickMax";
+						modifierType = "Multiplier";
+						value = 0.9f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilScaleMax";
+						modifierType = "Multiplier";
+						value = 0.25f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SwaySideMaximumAngleDistance";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SwaySideMaximumAngleDistance";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SwayTraversalTime";
+						modifierType = "Multiplier";
+						value = 2.0f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon
+	];
+}
+
+Base_Grad_NPC_Data : Base_Power_Sniper_Rifle_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Grad_Technical_Stats"
+	];
+}
+
+Base_Grad_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 2.7f;
+		} : CycleTimeModifier, 
+		{
+			value = 4.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Strength";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 0.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Grad_Handling_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 3.5f;
+		} : ReloadTimeModifier, 
+		{
+			value = 6.2f;
+		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.1f;
+		} : ZoomLevelModifier, 
+		{
+			value = 4.7f;
+		} : EquipDuration_FirstModifier, 
+		{
+			value = 10.f;
+		} : TechPierceScanAngleModifier, 
+		{
+			value = -0.2f;
+		} : TechPierceDamageFactorModifier
+	];
+}
+
+Base_Grad_Recoil_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.f;
+		} : RecoilDirModifier, 
+		{
+			value = 30.f;
+		} : RecoilAngleModifier, 
+		{
+			value = 0.1f;
+		} : RecoilHoldDurationModifier, 
+		{
+			value = 0.15f;
+		} : RecoilTimeModifier, 
+		{
+			value = 0.1f;
+		} : RecoilDelayModifier, 
+		{
+			value = 0.5f;
+		} : RecoilRecoveryTimeModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXADSModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYADSModifier, 
+		{
+			value = 1.0f;
+		} : RecoilUseDifferentStatsInADSModifier, 
+		{
+			value = 1.0f;
+		} : RecoilDirADSModifier, 
+		{
+			value = 15.0f;
+		} : RecoilAngleADSModifier, 
+		{
+			value = 0.1f;
+		} : RecoilTimeADSModifier, 
+		{
+			value = 0.05f;
+		} : RecoilHoldDurationADSModifier, 
+		{
+			value = 0.45f;
+		} : RecoilRecoveryTimeADSModifier
+	];
+}
+
+Base_Grad_Spread_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.2f;
+		} : SpreadMinXModifier, 
+		{
+			value = 0.125f;
+		} : SpreadMinYModifier, 
+		{
+			value = 12.0f;
+		} : SpreadMaxXModifier, 
+		{
+			value = 7.5f;
+		} : SpreadMaxYModifier, 
+		{
+			value = 0.f;
+		} : SpreadUseInAdsModifier, 
+		{
+			value = 0.2f;
+		} : SpreadAdsMinXModifier, 
+		{
+			value = 0.125f;
+		} : SpreadAdsMinYModifier, 
+		{
+			value = 1.2f;
+		} : SpreadResetSpeedModifier, 
+		{
+			value = 0.1f;
+		} : SpreadResetTimeThresholdModifier, 
+		{
+			value = 0.f;
+		} : SpreadRandomizeOriginPointModifier, 
+		{
+			value = 1.f;
+		} : SpreadUseCircularSpreadModifier
+	];
+}
+
+Base_Grad_Aim_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.AimFOV";
+			modifierType = "Additive";
+			value = 35;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AimOffset";
+			modifierType = "Additive";
+			value = -0.1f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Grad_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 7.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadDefaultY";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 8.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 6.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 12.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 15.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMinADS";
+			modifierType = "Additive";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMaxADS";
+			modifierType = "Additive";
+			value = 4.5f;
+		} : ConstantStatModifier
+	];
+}
+
+w_rifle_sniper__techtronika_grad__rcv1 : WeaponRifleReceiverBase
+{
+	string friendlyName = "w_rifle_sniper__techtronika_grad__rcv1";
+	CName appearanceResourceName = "w_rifle_sniper__techtronika_grad__rcv1_01";
+}
+
+w_rifle_sniper__techtronika_grad__base1 : WeaponRifleBarrelBase
+{
+	string friendlyName = "w_rifle_sniper__techtronika_grad__base1";
+	CName appearanceResourceName = "w_rifle_sniper__techtronika_grad__base1_01";
+}
+
+w_rifle_sniper__techtronika_grad__mag_std : WeaponMagazineBase
+{
+	string friendlyName = "w_rifle_sniper__techtronika_grad__mag_std";
+	CName appearanceResourceName = "w_rifle_sniper__techtronika_grad__mag_std_01";
+}
+
+w_rifle_sniper__techtronika_grad__mag_stdr : WeaponMagazineBaseEmpty
+{
+	string friendlyName = "w_rifle_sniper__techtronika_grad__mag_stdr";
+	CName appearanceResourceName = "w_rifle_sniper__techtronika_grad__mag_stdr_01";
+}
+

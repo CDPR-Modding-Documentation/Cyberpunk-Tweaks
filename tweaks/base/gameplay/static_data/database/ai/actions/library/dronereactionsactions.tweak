@@ -1,0 +1,1821 @@
+package DroneReactionsActions
+using RTDB, DroneActions, AIActionTarget
+
+IsDrone : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.Drone"
+		];
+	} : AIActionAND;
+}
+
+AIDroneReactionSequence : AIActionSequence
+{
+	activationCondition = "DroneReactionsActions.IsDrone";
+}
+
+AIDroneReactionSelector : AIActionSelector
+{
+	activationCondition = "DroneReactionsActions.IsDrone";
+}
+
+InvestigateInitialReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimSource", "GenericArchetype.Success"
+	];
+}
+
+InvestigateInProgress : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.ApplyScanningDiodes", "DroneReactionsActions.MoveToStimSource", "DroneReactionsActions.ScanStimSource"
+	];
+}
+
+InvestigateComplete : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.IgnoreReactionResults", "GenericArchetype.Success"
+	];
+}
+
+InvestigateDeviceInitialReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimTarget"
+	];
+}
+
+InvestigateDeviceExecution : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.ApplyScanningDiodes", "DroneReactionsActions.MoveToDeviceInvestigationSpot", "DroneReactionsActions.RotateToCustomWorldPosition", "DroneReactionsActions.ScanDevice"
+	];
+}
+
+InvestigateDeviceComplete : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.IgnoreReactionResults", "GenericArchetype.Success"
+	];
+}
+
+TurnAtReaction : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.LookAtVehicle", "DroneReactionsActions.LookAtStimSource", "GenericArchetype.Success"
+	];
+}
+
+EndTurnAtReaction : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.IgnoreReactionResults", "GenericArchetype.Success"
+	];
+}
+
+CallGuardInitialReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.RotateToStimTarget", "DroneReactionsActions.MoveToStimTarget", "DroneReactionsActions.ScanStimTargetShort", "DroneReactionsActions.CallGuard"
+	];
+}
+
+CallGuardRunAway : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.SetStimTargetAsThreat", "DroneReactionsActions.RunAwayFromStimTarget", "DroneReactionsActions.RotateToStimTarget"
+	];
+}
+
+CallGuardWait : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"DroneReactionsActions.ObserveStimTarget", "DroneReactionsActions.CallGuardIdle"
+	];
+}
+
+ForceCombatInitialReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimTarget"
+	];
+}
+
+ForceCombatTurnHostile : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.ChangeAttitudeToHostile", "GenericArchetype.Success"
+	];
+}
+
+RotateToTarget : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.RotateToStimTarget", "GenericArchetype.Success"
+	];
+}
+
+AskToHolsterReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.MoveToReprimandPosition", "DroneReactionsActions.AskToHolsterWeapon", "GenericArchetype.Success"
+	];
+}
+
+InvestigateBody : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.MoveToStimTarget", "DroneReactionsActions.ScanStimTarget"
+	];
+}
+
+ReprimandAskToLeave : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.MoveToReprimandPosition", "DroneReactionsActions.AskToLeave", "GenericArchetype.Success"
+	];
+}
+
+ReprimandFollowMove : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.MoveToStimTargetInSecurityArea", "DroneReactionsActions.RotateToStimTarget", "GenericArchetype.Success"
+	];
+}
+
+SearchHiddenTarget : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.MoveToStimSource", "GenericArchetype.Success"
+	];
+}
+
+TargetCompliesReaction : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.TargetComplies", "GenericArchetype.Success"
+	];
+}
+
+ReprimandFinalWarning : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.FinalWarning", "GenericArchetype.Success"
+	];
+}
+
+EnterCombatWithTarget : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StopScanning", "DroneReactionsActions.ChangeAttitudeToHostile", "GenericArchetype.Success"
+	];
+}
+
+IsNonCombatTypeCheck : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.IsNonCombatType"
+	];
+}
+
+ReprimandSuccessful : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.ReprimandConcluded", "GenericArchetype.Success"
+	];
+}
+
+ReprimandAssist : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.ReprimandAssistTrackTarget", "GenericArchetype.Success"
+	];
+}
+
+GrenadeLandedInitialReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimTarget", "DroneReactionsActions.WaitAMoment"
+	];
+}
+
+GrenadeLandedContinuedReaction : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.MoveAwayFromStimTarget", "DroneReactionsActions.WaitAMoment", "GenericArchetype.Success"
+	];
+}
+
+GrenadeLandedInitialReactionFast : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimTarget"
+	];
+}
+
+GrenadeLandedContinuedReactionFast : AIDroneReactionSelector
+{
+	actions = 
+	[
+		"DroneReactionsActions.MoveAwayFromStimTarget", "GenericArchetype.Success"
+	];
+}
+
+ExplosionReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimSource", "DroneReactionsActions.MoveToStimSource", "DroneReactionsActions.ScanStimSource", "GenericArchetype.Success"
+	];
+}
+
+DeviceExplosionReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimSource", "DroneReactionsActions.MoveToStimSource", "DroneReactionsActions.ScanStimSource", "GenericArchetype.Success"
+	];
+}
+
+LandingVeryHardReaction : AIDroneReactionSequence
+{
+	actions = 
+	[
+		"DroneReactionsActions.StartReaction", "DroneReactionsActions.RotateToStimTarget", "DroneReactionsActions.HandleSuspiciousTarget", "DroneReactionsActions.IgnoreReactionResults", "GenericArchetype.Success"
+	];
+}
+
+AnswerCall : StartReaction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimSource";
+			deadAngle = 0f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimSourceBelow15deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CallSquadMove : MoveToStimTarget
+{
+}
+
+CallSquadTalk : ScanStimTarget
+{
+	recovery = 
+	{
+		duration = 1.5f;
+	};
+	recoverySubActions = 
+	[
+		{
+			name = "investigation_result_ignore";
+		} : AISubActionPlayVoiceOver, 
+		{
+			lightPreset = "MechanicalLightPreset.ScanResultsIgnored";
+		} : AISubActionActivateLightPreset
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReactionCanEquipWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Human"
+			];
+		} : AIActionAND;
+	};
+}
+
+CallSquadMoveToStimPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceAbove4m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			strafingTarget = "AIActionTarget.StimSource";
+			movementType = "Walk";
+			ignoreLoSPrecheck = true;
+			tolerance = 0.5f;
+			distance = 3.5f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.StimSourceBelow4m", {
+							AND = 
+							[
+								"Condition.StimTargetIsVisible", "Condition.StimTargetBelow4m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CallPlayerTalk : DroneActions.LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceBelow5m"
+			];
+		} : AIActionAND;
+	};
+}
+
+WaitAMoment : AIAction
+{
+	loop = 
+	{
+		duration = 0.35f;
+	};
+}
+
+LookAtVehicle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.DrivingStim"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetAbove20m", "Condition.NotDriverInStimVehicle"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ReactToStimuli";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "initial_reaction";
+			delay = 0.3f;
+		} : AISubActionPlaySound
+	];
+}
+
+MoveToDeviceInvestigationSpot : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToStimSource", "Condition.StimSourceAbove2m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			strafingTarget = "AIActionTarget.StimSource";
+			deadAngle = 0.f;
+			distance = 1.4f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimSourceBelow1dot5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CustomWorldPosition";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CustomWorldPosition";
+		}
+	];
+}
+
+RotateToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceAbove25deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimSource";
+			deadAngle = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimSourceBelow15deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+MoveToCustomWorldPosition : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CustomWorldPosition";
+			strafingTarget = "AIActionTarget.CustomWorldPosition";
+			movementType = "Walk";
+			ignoreLoSPrecheck = true;
+			tolerance = 0.4f;
+			distance = 3.5f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.CustomWorldPositionBelow4m", {
+							AND = 
+							[
+								"Condition.StimTargetIsVisible", "Condition.StimTargetBelow4m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RotateToCustomWorldPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositionAbove25deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CustomWorldPosition";
+			deadAngle = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.CustomWorldPositionBelow15deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CustomWorldPosition";
+		}
+	];
+}
+
+LookAtStimSource : RotateToStimSource
+{
+	startup = 
+	{
+		duration = 0.5f;
+	};
+	recovery = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.f;
+		};
+		conditionSuccessDuration = 0.3f;
+		toNextPhaseConditionCheckInterval = 0.3f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotStimTarget", "Condition.NotStimTargetIsVisible", "Condition.StimTargetMinDetectionValue1"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ReactToStimuli";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "initial_reaction";
+			delay = 0.3f;
+		} : AISubActionPlaySound
+	];
+}
+
+ReprimandAssistTrackTarget : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.f;
+			tolerance = 47.f;
+			distance = 50.f;
+			ignoreLoSPrecheck = true;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+	};
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.LookingForIntruder";
+			delay = 0.25f;
+		} : AISubActionActivateLightPreset
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+MoveToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceAbove4m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			strafingTarget = "AIActionTarget.StimSource";
+			deadAngle = 0.f;
+			tolerance = 0.4f;
+			distance = 3.5f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimSourceBelow4m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.StimSource";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+MoveAwayFromStimTargetSlow : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBelow5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.f;
+			tolerance = 1.5f;
+			distance = 12.f;
+			movementType = "Run";
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetAbove6m", "Condition.NotStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+MoveAwayFromStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBelow5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0f;
+			tolerance = 1.5f;
+			distance = 12.f;
+			movementType = "Sprint";
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetAbove6m", "Condition.NotStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+ScanStimSource : DroneActions.Scan
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceBelow5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 6.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.StimSource";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+ScanDevice : DroneActions.Scan
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositionBelow5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 6.f;
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions += 
+	[
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.TargetDevice";
+		} : AISubActionQueueCommunicationEvent
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.TargetDevice";
+		} : AISubActionQueueCommunicationEvent
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CustomWorldPosition";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CustomWorldPosition";
+		}
+	];
+}
+
+IgnoreReactionResults : AIAction
+{
+	loop = 
+	{
+		duration = 1.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "investigation_result_ignore";
+		} : AISubActionPlaySound, 
+		{
+			name = "idle";
+			delay = -1.f;
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.ScanResultsIgnored";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+RotateToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetAbove20deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+			movementType = "Run";
+			deadAngle = 0.1f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow15deg", "Condition.NotCalculatePathToStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+MoveToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StimTargetBelow2m", "Condition.StimTargetAbove4m"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0f;
+			tolerance = 0.4f;
+			distance = 3.5f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimTargetBelow4m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.StimTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+ScanStimTarget : DroneActions.Scan
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBelow5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 6.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.StimTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+ScanStimTargetShort : ScanStimTarget
+{
+	loop = 
+	{
+		duration = 1.5f;
+	};
+}
+
+HandleSuspiciousTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBelow15m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.f;
+			tolerance = 1.4f;
+			distance = 4.5f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimTargetAbove15m", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", {
+							AND = 
+							[
+								"Condition.StimTargetAbove3m", "Condition.StimTargetBelow6m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 3.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.f;
+			tolerance = 1.4f;
+			distance = 4.5f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PathFindingFailed", "Condition.StimTargetBelow2m", "Condition.StimTargetAbove10m", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", {
+							AND = 
+							[
+								"Condition.StimTargetAbove3m", "Condition.StimTargetBelow6m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 15.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0f;
+			tolerance = 8.f;
+			distance = 10.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetAbove20m", "Condition.SuspiciousTargetEscalation"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+CallGuard : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 0.2f;
+	};
+	recoverySubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Combat";
+		} : AISubActionTriggerStim
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.CallGuards";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+ChangeAttitudeToHostile : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetIsActive", "Condition.StimTargetMinDetectionValue0"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ReprimandTargetDoesNotComply";
+		} : AISubActionActivateLightPreset, 
+		{
+			target = "AIActionTarget.StimTarget";
+			attitude = "AIA_Hostile";
+			delay = 0.25f;
+		} : AISubActionChangeAttitude
+	];
+}
+
+ObserveStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget", "Condition.StimTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 1.f;
+		};
+		conditionSuccessDuration = 0.7f;
+		toNextPhaseConditionCheckInterval = 0.35f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotStimTarget", "Condition.NotStimTargetIsVisible"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+CallGuardIdle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotStimTarget", "Condition.NotStimTargetIsVisible"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StimTarget", "Condition.StimTargetIsVisible"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+RunAwayFromStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			target = "AIActionTarget.StimTarget";
+			distance = 20.f;
+			tolerance = 10.f;
+			minDistance = 15.f;
+			movementType = "Sprint";
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.DestinationReached", "Condition.StimTargetAbove15m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MoveToStimTargetInSecurityArea : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetAbove10m", "Condition.StimTargetIsTresspassing"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow8m", "Condition.PathFindingFailed", "Condition.NotStimTargetIsTresspassing"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.StimTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+MoveToReprimandPosition : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			movementType = "Run";
+			ignoreLoSPrecheck = true;
+			tolerance = 0.5f;
+			distance = 3.5f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StimTargetAbove3m", "Condition.StimTargetBelow4m"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+AskToLeave : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			ignoreLoSPrecheck = true;
+			tolerance = 1.f;
+			distance = 3.f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			lightPreset = "MechanicalLightPreset.ReprimandInitialWarning";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			name = "command_leave_area";
+			delay = 0.3f;
+		} : AISubActionPlaySound
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+AskToHolsterWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTarget"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	loop = 
+	{
+		duration = 7.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			ignoreLoSPrecheck = true;
+			tolerance = 1.f;
+			distance = 3.f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "ScanLong";
+		} : AISubActionQueueAIEvent, 
+		{
+			lightPreset = "MechanicalLightPreset.ReprimandInitialWarning";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			name = "command_holster_weapon";
+			delay = 0.3f;
+		} : AISubActionPlaySound
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+FinalWarning : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			strafingTarget = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			ignoreLoSPrecheck = true;
+			tolerance = 1.f;
+			distance = 3.5f;
+			deadAngle = 0.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidSafeArea = true;
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "ScanDanger";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "CombatPose";
+		} : AISubActionQueueAIEvent, 
+		{
+			lightPreset = "MechanicalLightPreset.ReprimandFinalWarning";
+		} : AISubActionActivateLightPreset
+	];
+	subActions = 
+	[
+		{
+			name = "final_warning";
+			delay = 0.3f;
+		} : AISubActionPlaySound, 
+		{
+			altitudeOffset = 0.35f;
+		} : AISubActionDroneModifyAltitude, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+TargetComplies : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	loop = 
+	{
+	};
+	startupSubActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ReprimandTargetComplies";
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+	subActions = 
+	[
+		{
+			name = "RelaxedPose";
+			delay = 0.25f;
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "target_complies";
+			delay = 0.25f;
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.Idle";
+			delay = -1.f;
+		} : AISubActionActivateLightPreset, 
+		{
+			name = "idle";
+			delay = -1.f;
+		} : AISubActionPlaySound
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandConcluded : AIAction
+{
+	loop = 
+	{
+		duration = 1.2f;
+	};
+	recoverySubActions = 
+	[
+		{
+			name = "ReprimandSuccessful";
+		} : AISubActionQueueAIEvent
+	];
+	subActions = 
+	[
+		{
+			name = "StopScanning";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+StopScanning : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "StopScanning";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+IsNonCombatType : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsMechanicalNonCombat"
+			];
+		} : AIActionAND;
+	};
+}
+
+StartReaction : AIAction
+{
+	startup = 
+	{
+		duration = 0.7f;
+	};
+	subActions = 
+	[
+		{
+			name = "initial_reaction";
+			delay = 0.3f;
+		} : AISubActionPlaySound, 
+		{
+			lightPreset = "MechanicalLightPreset.ReactToStimuli";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+ApplyScanningDiodes : AIAction
+{
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ScanInProgress";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+ApplyScanResultIgnoredDiodes : AIAction
+{
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.ScanResultsIgnored";
+		} : AISubActionActivateLightPreset
+	];
+}
+

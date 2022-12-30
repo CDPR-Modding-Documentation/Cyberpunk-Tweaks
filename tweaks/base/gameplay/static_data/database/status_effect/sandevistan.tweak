@@ -1,0 +1,145 @@
+package BaseStatusEffect
+using RTDB, Effectors
+
+Sandevistan : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Sandevistan";
+	bool replicated = true;
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 99;
+			} : ConstantStatModifier
+		];
+	};
+	bool isAffectedByTimeDilationPlayer = true;
+	packages = 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"Sandevistan"
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = "BaseStatusEffect.BaseSandevistanUI";
+}
+
+SandevistanBuff : Sandevistan
+{
+	removeOnStoryTier = true;
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	VFX = 
+	[
+		{
+			name = "eye_glow_gold";
+		}
+	];
+	AIData = 
+	{
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				"BaseStatusEffect.DeactivateMaskedStatusEffects"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SandevistanBuffHumanoidRanged : Sandevistan
+{
+	removeOnStoryTier = true;
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1.f;
+			} : ConstantStatModifier
+		];
+	};
+	VFX = 
+	[
+		{
+			name = "eye_glow_gold";
+		}
+	];
+	AIData = 
+	{
+	};
+}
+
+DeactivateMaskedStatusEffects : Effector
+{
+	prereqRecord = "Prereqs.IncapacitatedPrereq";
+	effectorClassName = "RemoveStatusEffectsEffector";
+	string[] statusEffects = 
+	[
+		"BaseStatusEffect.SandevistanBuff"
+	];
+}
+
+SandevistanPlayerBuff : BuffStatusEffect
+{
+	isAffectedByTimeDilationNPC = false;
+	isAffectedByTimeDilationPlayer = false;
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.TimeDilationSandevistanDuration";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.SandevistanCooldown";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		}
+	];
+	uiData = "BaseStatusEffect.BaseSandevistanUI";
+}
+
+BaseSandevistanUI : StatusEffectUIData
+{
+	displayName = "LocKey#40988";
+	description = "LocKey#77866";
+	iconPath = "sandevistan_buff_icon";
+}
+

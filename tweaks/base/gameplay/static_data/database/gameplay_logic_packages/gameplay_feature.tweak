@@ -1,0 +1,448 @@
+package GLP
+using RTDB, Attribute, Prereqs, Perks
+
+NoHitReactions : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Multiplier";
+			value = 999999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Multiplier";
+			value = 999999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThreshold";
+			modifierType = "Multiplier";
+			value = 999999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Multiplier";
+			value = 999999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Multiplier";
+			value = 999999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdInCover";
+			modifierType = "Multiplier";
+			value = 999999;
+		} : ConstantStatModifier
+	];
+}
+
+MaxResistances : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricResistance";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier
+	];
+}
+
+SasquatchIncreasedResistances : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 9999999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalResistance";
+			modifierType = "Additive";
+			value = 65;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalResistance";
+			modifierType = "Additive";
+			value = 65;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricResistance";
+			modifierType = "Additive";
+			value = 65;
+		} : ConstantStatModifier
+	];
+}
+
+HoldingHeavyWeapon : GameplayLogicPackage
+{
+	fk< StatModifier >[] stats = 
+	[
+		{
+			statType = "BaseStats.MaxSpeed";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.MaxSpeed";
+			modifierType = "Multiplier";
+			column = "body_to_hmg_move_speed";
+		} : BodyPassive, 
+		{
+			statType = "BaseStats.JumpHeight";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.JumpHeight";
+			modifierType = "Multiplier";
+			column = "body_to_hmg_jump_height";
+		} : BodyPassive, 
+		{
+			statType = "BaseStats.HasDodge";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasDodgeAir";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanSprint";
+			modifierType = "Multiplier";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseCovers";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier
+	];
+}
+
+HoldingLightMachineGun : GameplayLogicPackage
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				prereqClassName = "IsPlayerPrereq";
+				bool invert = true;
+			} : IPrereq;
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				fk< StatModifier >[] statModifiers = 
+				[
+					{
+						statType = "BaseStats.MaxSpeed";
+						modifierType = "Multiplier";
+						value = 0.65f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.MaxSpeed";
+						modifierType = "Multiplier";
+						column = "body_to_lmg_move_speed";
+					} : BodyPassive, 
+					{
+						statType = "BaseStats.JumpHeight";
+						modifierType = "Multiplier";
+						value = 0.65f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.JumpHeight";
+						modifierType = "Multiplier";
+						column = "body_to_lmg_jump_height";
+					} : BodyPassive, 
+					{
+						statType = "BaseStats.HasDodge";
+						modifierType = "Multiplier";
+						value = 0.f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HasDodgeAir";
+						modifierType = "Multiplier";
+						value = 0.f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.CanSprint";
+						modifierType = "Multiplier";
+						value = 0f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupEffector
+	];
+}
+
+HoldingBorgMelee : GameplayLogicPackage
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "EquipmentGLP.MeleeBorgStrengthPrereq";
+			fk< StatModifierGroup > statGroup = 
+			{
+				fk< StatModifier >[] statModifiers = 
+				[
+					{
+						statType = "BaseStats.MeleeBorgStaminaDrain";
+						modifierType = "Additive";
+						value = 10f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.MaxSpeed";
+						modifierType = "Multiplier";
+						value = 0.8f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.MaxSpeed";
+						modifierType = "Multiplier";
+						column = "body_to_borg_melee_handicap";
+					} : BodyPassive, 
+					{
+						statType = "BaseStats.JumpHeight";
+						modifierType = "Multiplier";
+						value = 0.8f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.JumpHeight";
+						modifierType = "Multiplier";
+						column = "body_to_borg_melee_handicap";
+					} : BodyPassive, 
+					{
+						statType = "BaseStats.HasDodge";
+						modifierType = "Multiplier";
+						value = 0.f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnPlayer, 
+		{
+			prereqRecord = "EquipmentGLP.MeleeBorgStrengthPrereq";
+			fk< StatModifierGroup > statGroup = 
+			{
+				fk< StatModifier >[] statModifiers = 
+				[
+					{
+						statType = "BaseStats.AttackSpeed";
+						modifierType = "AdditiveMultiplier";
+						value = -0.3;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.CanWeaponDeflect";
+						modifierType = "Multiplier";
+						value = 0;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.BlockFactor";
+						modifierType = "AdditiveMultiplier";
+						value = -0.50;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon
+	];
+}
+
+MaxStamina : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Multiplier";
+			value = 2;
+		} : ConstantStatModifier
+	];
+}
+
+MaxEvasion : GameplayLogicPackage
+{
+	stats = 
+	[
+		{
+			statType = "BaseStats.Evasion";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+}
+
+DeactivateCyberware : GameplayLogicPackage
+{
+	fk< StatModifier >[] stats = 
+	[
+		{
+			statType = "BaseStats.HasCybereye";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasSandevistan";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasSandevistanTier2";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanSprintHarass";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SandevistanDashShoot";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasKerenzikov";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasKerenzikovSlide";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasSuperheroFall";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasAirHover";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasDoubleJump";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasChargeJump";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasThermovision";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasInfravision";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasCyberdeck";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasSpiderBotControl";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasSelfHealingSkin";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasHealthMonitorBomb";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasGlowingTattoos";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasBerserk";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanQuickhack";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseStrongArms";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseCoolingSystem";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseOpticalCamo";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseTerrainCamo";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseRetractableShield";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.IsAggressive";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.IsReckless";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier
+	];
+}
+
+DeactivateCyberwareStatusEffects : GameplayLogicPackage
+{
+	fk< Effector >[] effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.AlwaysTruePrereq";
+			effectorClassName = "RemoveStatusEffectsEffector";
+			string[] statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanBuff", "AIQuickHackStatusEffect.BuffCamo", "AIQuickHackStatusEffect.BuffSturdiness", "BaseStatusEffect.CamoEffector"
+			];
+		} : Effector
+	];
+}
+

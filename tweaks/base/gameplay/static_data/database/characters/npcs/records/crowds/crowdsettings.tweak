@@ -1,0 +1,551 @@
+package Crowds
+using RTDB
+
+DefaultMovementPattern : CrowdSlotMovementPatternBase
+{
+}
+
+DefaultMovement : CrowdSlotMovementSettingsBase
+{
+	minSpeed = 1.0f;
+	maxSpeed = 1.5f;
+	bumpTriggerMinSpeed = 2.0;
+	bumpTriggerMaxDistanceNPC = 0.2;
+	bumpTriggerMaxDistancePlayer = 0.5;
+	bumpTriggerSpeedFactor = 0.4;
+	bumpTriggerRadiusFactor = 0.5;
+}
+
+StopMovementPattern : DefaultMovementPattern
+{
+	name = "stop";
+	settings = "Crowds.StopMovement";
+}
+
+StopMovement : DefaultMovement
+{
+	minSpeed = 0.0f;
+	maxSpeed = 0.0f;
+	moveSpeedType = 0;
+}
+
+WalkMovementPattern : DefaultMovementPattern
+{
+	name = "walk";
+	settings = "Crowds.WalkMovement";
+}
+
+WalkMovement : DefaultMovement
+{
+	minStopSpeed = 0.1;
+	overlapTolerance = 0.1;
+	baseRadius = 0.35;
+	directionSmoothFactor = 0.17;
+	surroundDistance = 4.0;
+	rotationSpeed = 100.f;
+	maxDeviationFromPath = 70.0;
+	moveSpeedType = 1;
+	deceleration = 2.0;
+	minLightDelay = 0.25;
+	maxLightDelay = 1.0;
+	minAnimScale = 0.8f;
+	maxAnimScale = 1.1f;
+}
+
+RunMovementPattern : DefaultMovementPattern
+{
+	name = "run";
+	settings = "Crowds.RunMovement";
+}
+
+RunMovement : DefaultMovement
+{
+	acceleration = 3.0;
+	deceleration = 4.3;
+	moveSpeedType = 2;
+	dropItems = true;
+	rotationSpeed = 110.f;
+	directionSmoothFactor = 0.0;
+	minLightDelay = 0.0f;
+	maxLightDelay = 0.25f;
+	minAnimScale = 0.9f;
+	maxAnimScale = 1.15f;
+}
+
+UmbrellaMovement : WalkMovement
+{
+}
+
+UmbrellaMovementPattern : WalkMovementPattern
+{
+	name = "umbrella";
+	settings = "Crowds.UmbrellaMovement";
+}
+
+JogMovement : WalkMovement
+{
+	minStopSpeed = 0.1;
+	baseRadius = 0.4;
+	directionSmoothFactor = 0.0;
+	surroundDistance = 4.0;
+	maxDeviationFromPath = 60.0;
+	moveSpeedType = 3;
+	acceleration = 3.0;
+	deceleration = 4.3;
+}
+
+JogMovementPattern : WalkMovementPattern
+{
+	name = "jog";
+	settings = "Crowds.JogMovement";
+}
+
+DefaultCrowdPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.WalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.StopMovementPattern", "Crowds.UmbrellaMovementPattern"
+	];
+}
+
+DefaultCarPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.DefaultDrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+ManCivilianSettings : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.ManCivilianWalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.UmbrellaMovementPattern", "Crowds.StopMovementPattern", "Crowds.JogMovementPattern"
+	];
+}
+
+WomanCivilianSettings : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.WomanCivilianWalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.StopMovementPattern", "Crowds.JogMovementPattern"
+	];
+}
+
+ManHomelessSettings : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.ManHomelessWalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.StopMovementPattern", "Crowds.JogMovementPattern"
+	];
+}
+
+ManBigCivilianSettings : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.ManBigCivilianWalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.StopMovementPattern", "Crowds.JogMovementPattern"
+	];
+}
+
+StoopKingSettings : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.StoopKingWalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.StopMovementPattern", "Crowds.JogMovementPattern"
+	];
+}
+
+StoopQueenSettings : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.StoopQueenWalkMovementPattern", "Crowds.RunMovementPattern", "Crowds.StopMovementPattern", "Crowds.JogMovementPattern"
+	];
+}
+
+DefaultDriving : CrowdSlotMovementSettingsBase
+{
+	minStopSpeed = 0.1;
+	maxStopSpeed = 0.2;
+	minSpeed = 2.0;
+	maxSpeed = 32.0;
+	acceleration = 5.0;
+	deceleration = 7.0;
+	baseRadius = 1.75;
+	length = 10.0;
+	stopReserve = 0.1;
+	minLightDelay = 0.0;
+	maxLightDelay = 0.7;
+	brakePressureFactor = 1.2;
+	accelerationFactor = 1.5;
+	curveFactor = 0.8;
+	reachFactor = 1.0;
+	curveLimit = 75.0;
+}
+
+DrivingSlow : DefaultDriving
+{
+}
+
+DrivingNormal : DefaultDriving
+{
+}
+
+DrivingFast : DefaultDriving
+{
+}
+
+Truck_Slow_Driving : DefaultDriving
+{
+	minStopSpeed = 0.2;
+	maxStopSpeed = 0.5;
+	minSpeed = 2.0;
+	maxSpeed = 25.0;
+	acceleration = 2.5;
+	deceleration = 5.4;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 1.3;
+	brakePressureFactor = 1.2;
+	accelerationFactor = 0.6;
+	curveFactor = 0.9;
+	reachFactor = 2.0;
+	curveLimit = 45.0;
+}
+
+Truck_Normal_Driving : DefaultDriving
+{
+	minStopSpeed = 0.2;
+	maxStopSpeed = 0.5;
+	minSpeed = 2.0;
+	maxSpeed = 28.0;
+	acceleration = 3.5;
+	deceleration = 5.4;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 1.3;
+	brakePressureFactor = 1.5;
+	accelerationFactor = 1.0;
+	curveFactor = 0.9;
+	reachFactor = 6.0;
+	curveLimit = 50.0;
+}
+
+Car_Calm_Driving : DefaultDriving
+{
+	minStopSpeed = 0.2;
+	maxStopSpeed = 0.5;
+	minSpeed = 2.0;
+	maxSpeed = 27.0;
+	acceleration = 4.0;
+	deceleration = 4.0;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 1.0;
+	brakePressureFactor = 1.5;
+	accelerationFactor = 1.5;
+	curveFactor = 1.2;
+	reachFactor = 0.99;
+	curveLimit = 75.0;
+}
+
+Car_Sport_Driving : DefaultDriving
+{
+	minStopSpeed = 0.1;
+	maxStopSpeed = 0.3;
+	minSpeed = 7.0;
+	maxSpeed = 41.0;
+	acceleration = 8.0;
+	deceleration = 10.0;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 0.3;
+	brakePressureFactor = 3.0;
+	accelerationFactor = 7.0;
+	curveFactor = 0.8;
+	reachFactor = 1.0;
+	curveLimit = 60.0;
+	maxSpeedTolerance = 1.3f;
+}
+
+Mini_Slow_Driving : DefaultDriving
+{
+	minStopSpeed = 0.5;
+	maxStopSpeed = 0.6;
+	minSpeed = 3.0;
+	maxSpeed = 21.0;
+	acceleration = 4.0;
+	deceleration = 4.0;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 1.3;
+	brakePressureFactor = 0.6;
+	accelerationFactor = 0.8;
+	curveFactor = 0.6;
+	reachFactor = 1.2;
+	curveLimit = 50.0;
+}
+
+Mini_Normal_Driving : DefaultDriving
+{
+	minStopSpeed = 0.5;
+	maxStopSpeed = 0.6;
+	minSpeed = 4.0;
+	maxSpeed = 26.0;
+	acceleration = 5.0;
+	deceleration = 5.0;
+	stopReserve = 0.5;
+	minLightDelay = 0.0;
+	maxLightDelay = 0.4;
+	brakePressureFactor = 3.0;
+	accelerationFactor = 3.0;
+	curveFactor = 0.5;
+	reachFactor = 5.0;
+	curveLimit = 85.0;
+	maxSpeedTolerance = 1.1f;
+}
+
+SUV_Normal_Driving : DefaultDriving
+{
+	minStopSpeed = 0.3;
+	maxStopSpeed = 0.4;
+	minSpeed = 2.0;
+	maxSpeed = 31.0;
+	acceleration = 4.5;
+	deceleration = 8.0;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 0.6;
+	brakePressureFactor = 3.0;
+	accelerationFactor = 1.3;
+	curveFactor = 0.9;
+	reachFactor = 3.0;
+	curveLimit = 77.0;
+	maxSpeedTolerance = 1.3f;
+}
+
+Commoners_Normal_Driving : DefaultDriving
+{
+	minStopSpeed = 0.05;
+	maxStopSpeed = 0.2;
+	minSpeed = 1.0;
+	maxSpeed = 31.0;
+	acceleration = 6.0;
+	deceleration = 6.0;
+	stopReserve = 0.1;
+	minLightDelay = 0.0;
+	maxLightDelay = 1.2;
+	brakePressureFactor = 0.8;
+	accelerationFactor = 1.0;
+	curveFactor = 0.8;
+	reachFactor = 1.0;
+	curveLimit = 70.0;
+}
+
+NormalDriving : DefaultDriving
+{
+	minSpeed = 3.0;
+	maxSpeed = 30.0;
+	acceleration = 5.5;
+	deceleration = 10.0;
+	stopReserve = 0.0;
+	minLightDelay = 0.0;
+	maxLightDelay = 0.5;
+	brakePressureFactor = 2.0;
+	accelerationFactor = 3.0;
+	curveFactor = 1.0;
+	reachFactor = 1.0;
+}
+
+StopDrivingPattern : DefaultMovementPattern
+{
+	name = "stop";
+	settings = "Crowds.StopDriving";
+}
+
+StopDriving : DefaultDriving
+{
+	minSpeed = 0.0f;
+	maxSpeed = 0.0f;
+}
+
+PanicDrivingPattern : DefaultMovementPattern
+{
+	name = "panic";
+	settings = "Crowds.PanicDriving";
+}
+
+PanicDriving : DefaultDriving
+{
+	acceleration = 9;
+	minSpeed = 14.0f;
+	maxSpeed = 35.0f;
+	accelerationFactor = 6.0;
+	curveFactor = 1.0;
+	reachFactor = 1.0;
+	curveLimit = 100.0;
+	maxSpeedTolerance = 1.7;
+	ignoreLights = true;
+	ignoreSpeedLimitations = true;
+	ignorePedestrians = true;
+	ignoreStatics = true;
+	ignorePlayer = true;
+}
+
+SlowDrivingPattern : DefaultMovementPattern
+{
+	name = "slow";
+	settings = "Crowds.DrivingSlow";
+}
+
+FastDrivingPattern : DefaultMovementPattern
+{
+	name = "fast";
+	settings = "Crowds.DrivingFast";
+}
+
+DefaultDrivingPattern : DefaultMovementPattern
+{
+	name = "default";
+	settings = "Crowds.DefaultDriving";
+}
+
+Truck__Slow_DrivingPattern : DefaultMovementPattern
+{
+	name = "slow";
+	settings = "Crowds.Truck_Slow_Driving";
+}
+
+Truck__Normal_DrivingPattern : DefaultMovementPattern
+{
+	name = "normal";
+	settings = "Crowds.Truck_Normal_Driving";
+}
+
+Car__Calm_DrivingPattern : DefaultMovementPattern
+{
+	name = "normal";
+	settings = "Crowds.Car_Calm_Driving";
+}
+
+Car__Sport_DrivingPattern : DefaultMovementPattern
+{
+	name = "normal";
+	settings = "Crowds.Car_Sport_Driving";
+}
+
+Mini__Slow_DrivingPattern : DefaultMovementPattern
+{
+	name = "slow";
+	settings = "Crowds.Mini_Slow_Driving";
+}
+
+Mini__Normal_DrivingPattern : DefaultMovementPattern
+{
+	name = "normal";
+	settings = "Crowds.Mini_Normal_Driving";
+}
+
+SUV__Normal_DrivingPattern : DefaultMovementPattern
+{
+	name = "normal";
+	settings = "Crowds.SUV_Normal_Driving";
+}
+
+Commoners__Normal_DrivingPattern : DefaultMovementPattern
+{
+	name = "normal";
+	settings = "Crowds.Commoners_Normal_Driving";
+}
+
+Truck_DrivingPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.Truck__Normal_DrivingPattern", "Crowds.Truck__Slow_DrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+Car_DrivingPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.Car__Calm_DrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+Sport_DrivingPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.Car__Sport_DrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+Mini_DrivingPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.Mini__Normal_DrivingPattern", "Crowds.Mini__Slow_DrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+SUV_DrivingPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.SUV__Normal_DrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+Commoners_DrivingPackage : CrowdSettingsPackageBase
+{
+	specs = 
+	[
+		"Crowds.Commoners__Normal_DrivingPattern", "Crowds.StopDrivingPattern", "Crowds.PanicDrivingPattern"
+	];
+}
+
+ManCivilianWalkMovementPattern : Crowds.WalkMovementPattern
+{
+	settings = 
+	{
+	} : Crowds.WalkMovement;
+}
+
+WomanCivilianWalkMovementPattern : Crowds.WalkMovementPattern
+{
+	settings = 
+	{
+	} : Crowds.WalkMovement;
+}
+
+ManHomelessWalkMovementPattern : Crowds.WalkMovementPattern
+{
+	settings = 
+	{
+	} : Crowds.WalkMovement;
+}
+
+ManBigCivilianWalkMovementPattern : Crowds.WalkMovementPattern
+{
+	settings = 
+	{
+	} : Crowds.WalkMovement;
+}
+
+StoopKingWalkMovementPattern : Crowds.WalkMovementPattern
+{
+	settings = 
+	{
+	} : Crowds.WalkMovement;
+}
+
+StoopQueenWalkMovementPattern : Crowds.WalkMovementPattern
+{
+	settings = 
+	{
+	} : Crowds.WalkMovement;
+}
+

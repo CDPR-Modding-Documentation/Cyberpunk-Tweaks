@@ -1,0 +1,7737 @@
+package ReactionsActions
+using RTDB, ItemHandling, 0xF242B6C8F, AIActionTarget, MeleeActions
+
+Success : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000000000001f;
+	};
+}
+
+BodyInvestigationSearchComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.BodyInvestigateSearchUnarmed"
+	];
+}
+
+BodyInvestigateSearch : AIActionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.AlertedState", "ReactionsActions.MoveToStimTarget", "ReactionsActions.BodyInvestigationSearch"
+	];
+}
+
+BodyInvestigateSearchUnarmed : AIActionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.AlertedState", "ReactionsActions.MoveToStimTarget", "ReactionsActions.BodyInvestigationSearchUnarmed"
+	];
+}
+
+BodyInvestigateSearchHandgun : BodyInvestigateSearchUnarmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ArmedOneHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+BodyInvestigationPatrolComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.BodyInvestigatePatrolUnarmed", "ReactionsActions.Success"
+	];
+}
+
+BodyInvestigatePatrolUnarmed : AIActionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.AlertedState", "ReactionsActions.MoveToStimTarget", "ReactionsActions.BodyInvestigationPatrolUnarmed"
+	];
+}
+
+BodyInvestigatePatrolHandgun : BodyInvestigatePatrolUnarmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ArmedOneHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+BodyInvestigatePatrol : AIActionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.AlertedState", "ReactionsActions.MoveToStimTarget", "ReactionsActions.BodyInvestigationPatrol"
+	];
+}
+
+AskToLeaveSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskToLeaveMelee", "ReactionsActions.ReprimandAskToLeaveUnarmed", "ReactionsActions.ReprimandAskToLeaveHangun", "ReactionsActions.ReprimandAskToLeave", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.ReprimandPhaseOneMelee", "ReactionsActions.ReprimandPhaseOneUnarmed", "ReactionsActions.ReprimandPhaseOne", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneUnarmed : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalationUnarmedCacheWeapon", "ReactionsActions.ReprimandAskToLeaveUnarmed", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneMelee : AIActionSequence
+{
+	activationCondition = "ReactionsActions.Melee";
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskToLeaveMelee", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOne : AIActionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskToLeave", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoMelee", "ReactionsActions.ReprimandPhaseTwoRifle", "ReactionsActions.ReprimandPhaseTwoHandgun", "ReactionsActions.ReprimandPhaseTwoUnarmed", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoRifle : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalation", "ReactionsActions.ReprimandAskAgainToLeave", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoHandgun : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalationHangun", "ReactionsActions.ReprimandAskAgainToLeave", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoUnarmed : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalationUnarmedCacheWeapon", "ReactionsActions.ReprimandEscalationUnarmed", "ReactionsActions.ReprimandAskAgainToLeave", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoMelee : AIActionSequence
+{
+	activationCondition = "ReactionsActions.Melee";
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalationMelee", "ReactionsActions.ReprimandAskAgainToLeaveMelee", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoStartupComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoStartupCivilian", "ReactionsActions.ReprimandPhaseTwoStartupMelee", "ReactionsActions.ReprimandPhaseTwoStartupRifle", "ReactionsActions.ReprimandPhaseTwoStartupHandgun", "ReactionsActions.ReprimandPhaseTwoStartupUnarmed", "ReactionsActions.Success"
+	];
+}
+
+AskToHolsterPhaseTwoStartupComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.AskToHolsterPhaseTwoStartupMelee", "ReactionsActions.AskToHolsterPhaseTwoStartupRifle", "ReactionsActions.AskToHolsterPhaseTwoStartupHandgun", "ReactionsActions.AskToHolsterPhaseTwoStartupUnarmed", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoStartupCivilian : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsCivilian";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUpCivilian", "ReactionsActions.ReprimandAskAgainToLeaveCivilian", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoStartupRifle : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUp", "ReactionsActions.ReprimandAskAgainToLeave", "ReactionsActions.Success"
+	];
+}
+
+AskToHolsterPhaseTwoStartupRifle : ReprimandPhaseTwoStartupRifle
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUp", "ReactionsActions.AskAgainToHolster", "ReactionsActions.Success"
+	];
+}
+
+BackOffGuardRifle : BackOffStartupRifle
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUp", "ReactionsActions.AimAtPose", "ReactionsActions.Success"
+	];
+}
+
+BackOffStartupRifle : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.BackOffAim", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoStartupHandgun : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUpHandgun", "ReactionsActions.ReprimandAskAgainToLeave", "ReactionsActions.Success"
+	];
+}
+
+AskToHolsterPhaseTwoStartupHandgun : AIActionSequence
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUpHandgun", "ReactionsActions.AskAgainToHolster", "ReactionsActions.Success"
+	];
+}
+
+BackOffStartupHandgun : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.BackOffAim", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoStartupUnarmed : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalationUnarmedCacheWeapon", "ReactionsActions.ReprimandAskAgainToLeaveStartUpUnarmed", "ReactionsActions.ReprimandAskAgainToLeave", "ReactionsActions.Success"
+	];
+}
+
+AskToHolsterPhaseTwoStartupUnarmed : ReprimandPhaseTwoStartupUnarmed
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandEscalationUnarmedCacheWeapon", "ReactionsActions.ReprimandAskAgainToLeaveStartUpUnarmed", "ReactionsActions.AskAgainToHolster", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoStartupMelee : AIActionSequence
+{
+	activationCondition = "ReactionsActions.Melee";
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUpMelee", "ReactionsActions.ReprimandAskAgainToLeaveMelee", "ReactionsActions.Success"
+	];
+}
+
+AskToHolsterPhaseTwoStartupMelee : ReprimandPhaseTwoStartupMelee
+{
+	actions = 
+	[
+		"ReactionsActions.ReprimandAskAgainToLeaveStartUpMelee", "ReactionsActions.AskAgainToHolster", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneToIdleComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.ReprimandPhaseOneToIdleCivi", "ReactionsActions.ReprimandPhaseOneToIdleMeleeWeapon", "ReactionsActions.ReprimandPhaseOneToIdleRifle", "ReactionsActions.ReprimandPhaseOneToIdleHandgunner", "ReactionsActions.ReprimandPhaseOneToIdleNoWeapon", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneToIdleCivi : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsCivilian";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseOneToIdleCivilian", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneToIdleRifle : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseOneToIdle", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneToIdleHandgunner : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseOneToIdleHandgun", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneToIdleNoWeapon : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseOneToIdleUnarmed", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseOneToIdleMeleeWeapon : AIActionSequence
+{
+	activationCondition = "ReactionsActions.Melee";
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseOneToIdleMelee", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoToIdleComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoToIdleCivi", "ReactionsActions.ReprimandPhaseTwoToIdleMeleeWeapon", "ReactionsActions.ReprimandPhaseTwoToIdleRifle", "ReactionsActions.ReprimandPhaseTwoToIdleHandgunner", "ReactionsActions.ReprimandPhaseTwoToIdleNoWeapon", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoToIdleCivi : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsCivilian";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoToIdleCivilian", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoToIdleRifle : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoToIdle", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoToIdleHandgunner : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoToIdleHandgun", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoToIdleNoWeapon : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoToIdleUnarmed", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+ReprimandPhaseTwoToIdleMeleeWeapon : AIActionSequence
+{
+	activationCondition = "ReactionsActions.Melee";
+	actions = 
+	[
+		"ReactionsActions.ReprimandPhaseTwoToIdleMelee", "ReactionsActions.TargetComplies", "ReactionsActions.Success"
+	];
+}
+
+CallGuardComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.CallGuard", "ReactionsActions.Success"
+	];
+}
+
+BackOffGuardComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.BackOffGuardRifle", "ReactionsActions.Success"
+	];
+}
+
+BackOffComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.BackOffStartupRifle", "ReactionsActions.BackOffStartupHandgun", "ReactionsActions.Success"
+	];
+}
+
+HearGunshotSelector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.GunshotWalkSelector", "ReactionsActions.GunshotIdleSelector"
+	];
+}
+
+GunshotWalkSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsMoving";
+	};
+	actions = 
+	[
+		"ReactionsActions.HearGunshotBackWalkUnarmed", "ReactionsActions.HearGunshotFrontWalkUnarmed", "ReactionsActions.Success"
+	];
+}
+
+GunshotWalkArmedSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsMoving";
+	};
+	actions = 
+	[
+		"ReactionsActions.HearGunshotBackWalk", "ReactionsActions.HearGunshotFrontWalk", "ReactionsActions.Success"
+	];
+}
+
+GunshotIdleSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.HearGunshotBackIdleUnarmed", "ReactionsActions.HearGunshotRightIdleUnarmed", "ReactionsActions.HearGunshotLeftIdleUnarmed", "ReactionsActions.HearGunshotFrontIdleUnarmed", "ReactionsActions.Success"
+	];
+}
+
+GunshotIdleArmedSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.HearGunshotBackIdleSearch", "ReactionsActions.HearGunshotFrontIdleSearch", "ReactionsActions.HearGunshotBackIdle", "ReactionsActions.HearGunshotLeftIdle", "ReactionsActions.HearGunshotRightIdle", "ReactionsActions.HearGunshotFrontIdle", "ReactionsActions.Success"
+	];
+}
+
+PanicSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.PanicEarlySuccess", "ReactionsActions.PanicBackUnarmed", "ReactionsActions.PanicBackUnarmedFlee", "ReactionsActions.PanicFrontUnarmed", "ReactionsActions.PanicFrontUnarmedFlee", "ReactionsActions.Success"
+	];
+}
+
+PanicSelector02 : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.PanicEarlySuccess", "ReactionsActions.PanicBackUnarmed02", "ReactionsActions.PanicBackUnarmedFlee02", "ReactionsActions.PanicFrontUnarmed02", "ReactionsActions.PanicFrontUnarmedFlee02", "ReactionsActions.Success"
+	];
+}
+
+PanicArmedSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.PanicBack", "ReactionsActions.PanicFront", "ReactionsActions.Success"
+	];
+}
+
+PanicArmedSelector02 : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.PanicBack02", "ReactionsActions.PanicFront02", "ReactionsActions.Success"
+	];
+}
+
+SurrenderFearDirectionSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.SurrenderFearReactionFront", "ReactionsActions.SurrenderFearReactionLeftSide", "ReactionsActions.SurrenderFearReactionRightSide", "ReactionsActions.SurrenderFearReactionLeftBack", "ReactionsActions.SurrenderFearReactionRightBack", "ReactionsActions.Success"
+	];
+}
+
+PanicFearDirectionSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.PanicFearReactionFront", "ReactionsActions.PanicFearReactionLeftSide", "ReactionsActions.PanicFearReactionRightSide", "ReactionsActions.PanicFearReactionLeftBack", "ReactionsActions.PanicFearReactionRightBack", "ReactionsActions.Success"
+	];
+}
+
+CallPoliceSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.CallPoliceFront", "ReactionsActions.CallPoliceLeftSide", "ReactionsActions.CallPoliceRightSide", "ReactionsActions.CallPoliceBack", "ReactionsActions.Success"
+	];
+}
+
+HearDeviceNoiseSelector : HearDeviceNoiseArmedSelector
+{
+}
+
+HearDeviceNoiseArmedSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.HearDeviceNoiseFront", "ReactionsActions.HearDeviceNoiseFrontIdle", "ReactionsActions.HearDeviceNoiseFrontIdleRight", "ReactionsActions.HearDeviceNoiseFrontIdleLeft", "ReactionsActions.HearDeviceNoiseBack", "ReactionsActions.HearDeviceNoiseBackIdle", "ReactionsActions.Success"
+	];
+}
+
+DeviceInvestigationSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.DeviceInvestigationHighUnarmed", "ReactionsActions.DeviceInvestigationLowUnarmed", "ReactionsActions.DeviceInvestigationUnarmed", "ReactionsActions.Success"
+	];
+}
+
+DeviceInvestigationArmedSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.DeviceInvestigationHigh", "ReactionsActions.DeviceInvestigationLow", "ReactionsActions.DeviceInvestigation", "ReactionsActions.Success"
+	];
+}
+
+HearDeviceNoiseBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBack260deg", "Condition.IsMoving"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.767f;
+	};
+	loop = 
+	{
+		duration = 3.3f;
+	};
+	recovery = 
+	{
+		duration = 1.567f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.3f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "npcDistracted";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearDeviceNoiseBack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearDeviceNoiseBackIdle : HearDeviceNoiseBack
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBack260deg";
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearDeviceNoiseBackIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearDeviceNoiseFront : ReactionsActions.HearDeviceNoiseBack
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsMoving", "Condition.StimTargetFront90deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearDeviceNoiseFront";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearDeviceNoiseFrontIdle : ReactionsActions.HearDeviceNoiseBack
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront90deg";
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearDeviceNoiseFrontIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearDeviceNoiseFrontIdleRight : ReactionsActions.HearDeviceNoiseBack
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetRightSide", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearDeviceNoiseFrontIdleRight";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearDeviceNoiseFrontIdleLeft : ReactionsActions.HearDeviceNoiseBack
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetLeftSide", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearDeviceNoiseFrontIdleLeft";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotBackIdleSearch : ReactionsActions.HearGunshotBackIdle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceBack200deg", "Condition.InStatesAlerted"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotBackIdleSearch";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotBackIdle : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceBack260deg";
+	};
+	startup = 
+	{
+		duration = 1.5f;
+	};
+	loop = 
+	{
+		duration = 0.267f;
+	};
+	recovery = 
+	{
+		duration = 0.367f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotBackIdle";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+HearGunshotBackIdleUnarmed : ReactionsActions.HearGunshotBackIdle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceBack260deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotBackIdleUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotRightIdleUnarmed : HearGunshotBackIdleUnarmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceRightSide", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotRightIdleUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotLeftIdleUnarmed : HearGunshotBackIdleUnarmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceLeftSide", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotLeftWalkUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotBackWalk : ReactionsActions.HearGunshotBackIdle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceBack200deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotBackWalk";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotBackWalkUnarmed : ReactionsActions.HearGunshotBackIdle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceBack200deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotBackWalkUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotFrontIdle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceFront90deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.133f;
+	};
+	loop = 
+	{
+		duration = 0.267f;
+	};
+	recovery = 
+	{
+		duration = 0.3f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotFrontIdle";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+HearGunshotFrontIdleSearch : HearGunshotFrontIdle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceFront200deg", "Condition.InStatesAlerted"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotFrontIdleSearch";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotRightIdle : HearGunshotFrontIdle
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceRightSide";
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotRightIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotLeftIdle : HearGunshotFrontIdle
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceLeftSide";
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotLeftIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotFrontIdleUnarmed : HearGunshotFrontIdle
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceFront200deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "HearGunshotFrontIdleUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearGunshotFrontWalk : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceFront200deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.467f;
+	};
+	recovery = 
+	{
+		duration = 0.400f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearGunshotFrontWalk";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+HearGunshotFrontWalkUnarmed : HearGunshotFrontWalk
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceFront200deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "HearGunshotFrontWalkUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+HearFootstepsUnarmed : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon", "Condition.NotStimTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		animFeature = "HearFootstepsUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+HearFootstepsArmedPatrol : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon", "Condition.NotStimTargetIsVisible", "Condition.InStatesRelaxed"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearFootstepsArmedPatrol";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+HearFootstepsArmedSearch : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon", "Condition.NotStimTargetIsVisible", "Condition.InStatesAlerted"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "HearFootstepsArmedSearch";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+FleeFromVehicle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.DrivingStimType"
+			];
+		} : AIActionAND;
+	};
+}
+
+FleeFrontFast : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront200deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.333f;
+	};
+	recovery = 
+	{
+		duration = 0.367f;
+	};
+	animData = 
+	{
+		animFeature = "FleeFrontFast";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FleeBackFast : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBack200deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.267f;
+	};
+	recovery = 
+	{
+		duration = 0.267f;
+	};
+	animData = 
+	{
+		animFeature = "FleeBackFast";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeBack01 : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBack200deg", "Condition.CalculatePathStraight5m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.700f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.700f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeBack01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeBack02 : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBack200deg";
+	};
+	startup = 
+	{
+		duration = 0.900f;
+	};
+	loop = 
+	{
+		duration = 0.900f;
+	};
+	recovery = 
+	{
+		duration = 0.900f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeBack02";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeBackShort : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetBack200deg", "Condition.CalculatePathStraight3m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.4f;
+	};
+	recovery = 
+	{
+		duration = 0.367f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeBackShort";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeFront01 : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront200deg", "Condition.CalculatePathStraight5m180deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.600f;
+	};
+	loop = 
+	{
+		duration = 0.600f;
+	};
+	recovery = 
+	{
+		duration = 0.600f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeFront01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeFront02 : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront200deg";
+	};
+	startup = 
+	{
+		duration = 0.667;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.633f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeFront02";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeFront03 : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront200deg";
+	};
+	startup = 
+	{
+		duration = 0.967f;
+	};
+	loop = 
+	{
+		duration = 0.967;
+	};
+	recovery = 
+	{
+		duration = 0.967;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeFront03";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeFront04 : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront200deg";
+	};
+	startup = 
+	{
+		duration = 0.700f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.700f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeFront04";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeFrontShort : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront200deg", "Condition.CalculatePathStraight3m180deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.6f;
+	};
+	loop = 
+	{
+		duration = 0.6f;
+	};
+	recovery = 
+	{
+		duration = 0.6f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeFrontShort";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeInPlaceShort : AIAction
+{
+	loop = 
+	{
+		duration = 0.6f;
+	};
+	recovery = 
+	{
+		duration = 0.633f;
+	};
+	animData = 
+	{
+		animFeature = "FearInPlaceShort";
+		animSlot = 
+		{
+		};
+	};
+}
+
+IsInWorkspotCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsInWorkspot";
+	};
+	loop = 
+	{
+	};
+}
+
+DeviceInvestigationBossCustomSequence : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"GenericArchetype.Success"
+	];
+}
+
+OverloadBossCustomAction : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+}
+
+DeviceInvestigation : AIAction
+{
+	startup = 
+	{
+		duration = 4.633f;
+	};
+	loop = 
+	{
+		duration = 4.633f;
+	};
+	recovery = 
+	{
+		duration = 4.633f;
+	};
+	recoverySubActions = 
+	[
+		{
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.StimTarget";
+			delay = 3.f;
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.TargetDevice";
+			delay = 3.f;
+		} : AISubActionQueueCommunicationEvent
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_investigate";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.TargetDevice";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "DeviceInvestigation";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+DeviceInvestigationUnarmed : AIAction
+{
+	startup = 
+	{
+		duration = 3.2f;
+	};
+	loop = 
+	{
+		duration = 3.2f;
+	};
+	recovery = 
+	{
+		duration = 3.267f;
+	};
+	recoverySubActions = 
+	[
+		{
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.StimTarget";
+			delay = 3.f;
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.TargetDevice";
+			delay = 3.f;
+		} : AISubActionQueueCommunicationEvent
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_investigate";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.TargetDevice";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "DeviceInvestigation";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+DeviceInvestigationHigh : DeviceInvestigation
+{
+	activationCondition = 
+	{
+		condition = "Condition.CustomWorldPosition1point8High";
+	};
+	animData = 
+	{
+		animFeature = "DeviceInvestigationHigh";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+DeviceInvestigationHighUnarmed : DeviceInvestigation
+{
+	activationCondition = 
+	{
+		condition = "Condition.CustomWorldPosition1point8High";
+	};
+	animData = 
+	{
+		animFeature = "DeviceInvestigationHigh";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+DeviceInvestigationLow : DeviceInvestigation
+{
+	activationCondition = 
+	{
+		condition = "Condition.CustomWorldPosition0point4Low";
+	};
+	animData = 
+	{
+		animFeature = "DeviceInvestigationLow";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+DeviceInvestigationLowUnarmed : DeviceInvestigation
+{
+	activationCondition = 
+	{
+		condition = "Condition.CustomWorldPosition0point4Low";
+	};
+	animData = 
+	{
+		animFeature = "DeviceInvestigationLow";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+DeviceInvestigationCommunication : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_investigate";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			name = "InvestigationStarted";
+			targetListener = "AIActionTarget.TargetDevice";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			delay = -1.f;
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.StimTarget";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			delay = -1.f;
+			name = "InvestigationEnded";
+			targetListener = "AIActionTarget.TargetDevice";
+		} : AISubActionQueueCommunicationEvent
+	];
+}
+
+EndDeviceInvestigation : AIAction
+{
+	loop = 
+	{
+		duration = 2.f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_patrol_back";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+EndTurnAt : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+EndTurnAtStimSource : AIAction
+{
+	loop = 
+	{
+		duration = 2.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+InvestigateController : AIAction
+{
+	loop = 
+	{
+	};
+	activationCondition = 
+	{
+		condition = "Condition.InvestigateController";
+	};
+	subActions = 
+	[
+		{
+			useInvestigateData = true;
+		} : AISubActionSetStimSource
+	];
+}
+
+AnswerCall : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CallStimType", "Condition.NearestSquadmateNotBelow6m"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.53f;
+	};
+	loop = 
+	{
+		duration = 0.86f;
+	};
+	recovery = 
+	{
+		duration = 0.56f;
+	};
+	animData = 
+	{
+		animFeature = "CallSquad";
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_call";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+StealthVOCooldown : AIActionCooldown
+{
+	name = "stlh_search";
+	duration = 3.f;
+}
+
+PlayStealthSearchVoiceOver : AISubActionPlayVoiceOver
+{
+	name = "stlh_search";
+	delay = 0.25f;
+	cooldown = "ReactionsActions.StealthVOCooldown";
+	repeat = true;
+}
+
+LookAroundForIntruderCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded"
+			];
+		} : AIActionAND;
+	};
+}
+
+LookAroundForIntruderFastCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Human"
+			];
+		} : AIActionAND;
+	};
+}
+
+LookAroundForIntruderUnarmedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsUnarmed"
+			];
+		} : AIActionAND;
+	};
+}
+
+LookAroundForIntruder : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.1f;
+	};
+	loop = 
+	{
+		duration = 2.1f;
+	};
+	recovery = 
+	{
+		duration = 2.167f;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	subActions = 
+	[
+		"ReactionsActions.PlayStealthSearchVoiceOver"
+	];
+}
+
+LookAroundForIntruderFast : LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded", "Condition.Human"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.1f;
+	};
+	loop = 
+	{
+		duration = 0.0f;
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 0.0f;
+		useDurationFromAnimSlot = false;
+	};
+}
+
+LookAroundForIntruderUnarmed : LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded", "Condition.IsUnarmed"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+LookAroundForIntruderUnarmedFast : LookAroundForIntruderUnarmed
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded", "Condition.IsUnarmed", "Condition.Human"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.1f;
+	};
+	loop = 
+	{
+		duration = 0.0f;
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 0.0f;
+		useDurationFromAnimSlot = false;
+	};
+}
+
+BackUpCallSquad : AIAction
+{
+	startup = 
+	{
+		duration = 0.53f;
+	};
+	loop = 
+	{
+		duration = 0.86f;
+	};
+	recovery = 
+	{
+		duration = 0.56f;
+	};
+	animData = 
+	{
+		animFeature = "CallSquad";
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.StimTarget";
+		} : AISubActionCallSquadSearchBackUp
+	];
+}
+
+CallOffSquad : BackUpCallSquad
+{
+	subActions = 
+	[
+		{
+			name = "stlh_patrol_back";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+NotifySecuritySystemCombat : AIAction
+{
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	recovery = 
+	{
+		duration = 0.3f;
+	};
+	recoverySubActions = 
+	[
+		{
+			threat = "AIActionTarget.CombatTarget";
+			notificationType = "AIActionSecurityNotificationType.COMBAT";
+		} : AISubActionSecuritySystemNotification
+	];
+}
+
+NotifyReprimandEscalation : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			threat = "AIActionTarget.StimTarget";
+			notificationType = "AIActionSecurityNotificationType.REPRIMAND_ESCALATE";
+		} : AISubActionSecuritySystemNotification
+	];
+}
+
+CallSquad : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.Human";
+	};
+	startup = 
+	{
+		duration = 0.4f;
+	};
+	loop = 
+	{
+		duration = 2.86f;
+	};
+	recovery = 
+	{
+		duration = 1.667f;
+	};
+	animData = 
+	{
+		animFeature = "CallSquad";
+	};
+}
+
+ReprimandEscalationCondition : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.ReprimandEscalationMaxValue";
+			}
+		];
+	};
+}
+
+ReprimandDeescalationCondition : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.ReprimandEscalationMinValue";
+			}
+		];
+	};
+}
+
+ReprimandAskToLeave : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	startup = 
+	{
+		duration = 0.767f;
+	};
+	loop = 
+	{
+		duration = 0.767f;
+	};
+	recovery = 
+	{
+		duration = 0.833f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskToLeave";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	subActions = 
+	[
+		{
+			name = "rep_ask_to_leave";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandAskToLeaveHangun : ReprimandAskToLeave
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+}
+
+ReprimandAskToLeaveUnarmed : ReprimandAskToLeave
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskToLeaveUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			useItemSpawnDelayFromWeapon = false;
+		} : AISubActionEquipOnSlot
+	];
+}
+
+ReprimandAskToLeaveMelee : ReprimandAskToLeave
+{
+	activationCondition = "ReactionsActions.Melee";
+	animData = 
+	{
+		animFeature = "ReprimandAskToLeaveMelee";
+		animSlot = 
+		{
+		};
+	};
+}
+
+AskToHolsterWeapon : AskToHolsterWeaponUnarmed
+{
+	activationCondition = 
+	{
+		condition = "Condition.HasAnyWeapon";
+	};
+	startup = 
+	{
+		duration = 1.733f;
+	};
+	loop = 
+	{
+		duration = 1.7f;
+	};
+	recovery = 
+	{
+		duration = 1.733f;
+	};
+	animData = 
+	{
+		animFeature = "AskToHolsterWeapon";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+AskToHolsterWeaponUnarmed : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTarget";
+	};
+	startup = 
+	{
+		duration = 1.733f;
+	};
+	loop = 
+	{
+		duration = 1.7f;
+	};
+	recovery = 
+	{
+		duration = 1.733f;
+	};
+	animData = 
+	{
+		animFeature = "AskToHolsterWeapon";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "rep_ask_to_holster";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+WaitToLeave : AIAction
+{
+	loop = 
+	{
+		duration = 4.f;
+	};
+}
+
+CombatLocoWrapper : AIAction
+{
+	loop = 
+	{
+		duration = -1.f;
+	};
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+ReprimandAskAgainToLeaveStartUp : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	startup = 
+	{
+		duration = 0.233f;
+	};
+	loop = 
+	{
+		duration = 0.233f;
+	};
+	recovery = 
+	{
+		duration = 0.267f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskAgainToLeaveStartUp";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandAskAgainToLeaveStartUpHandgun : ReprimandAskAgainToLeaveStartUp
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskAgainToLeaveStartUpHandgun";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandAskAgainToLeaveStartUpUnarmed : ReprimandAskAgainToLeaveStartUp
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskAgainToLeaveStartUpUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			useItemSpawnDelayFromWeapon = false;
+		} : AISubActionEquipOnSlot
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandAskAgainToLeaveStartUpMelee : AIAction
+{
+	activationCondition = "ReactionsActions.Melee";
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 0.833f;
+	};
+	recovery = 
+	{
+		duration = 0.6f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskAgainToLeaveStartUpMelee";
+		animSlot = 
+		{
+		};
+	};
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandAskAgainToLeaveStartUpCivilian : ReprimandAskAgainToLeaveStartUpMelee
+{
+	startup = 
+	{
+		duration = 0.233f;
+	};
+	loop = 
+	{
+		duration = 0.233f;
+	};
+	recovery = 
+	{
+		duration = 0.2f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandAskAgainToLeaveStartUpCivilian";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ReprimandAskAgainToLeave : AIAction
+{
+	loop = 
+	{
+		duration = -1.f;
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+BackOffAim : ReprimandAskAgainToLeave
+{
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 3.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animationWrapperOverrides = [];
+}
+
+BackOffMelee : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 3.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+BackOffPhase1 : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "rep_ask_to_leave";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+AskAgainToHolster : ReprimandAskAgainToLeave
+{
+	loop = 
+	{
+		duration = 5.f;
+	};
+}
+
+NonCombatAimPoseDecorator : AIAction
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+}
+
+AimAtPose : AIAction
+{
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+EndAim : AIAction
+{
+	loop = 
+	{
+		duration = 2f;
+	};
+	recovery = 
+	{
+		duration = 0.2f;
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "rep_complies";
+			delay = 1f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+ReadyToFightMeleePose : AIAction
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "Reprimand";
+		animVariation = 1;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+ReprimandAskAgainToLeaveMelee : AIAction
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "Reprimand";
+		animVariation = 1;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+ReprimandAskAgainToLeaveCivilian : ReprimandAskAgainToLeaveMelee
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "Reprimand";
+		animVariation = 0;
+	};
+}
+
+AskToHolsterAgain : ReprimandAskAgainToLeave
+{
+	subActions = 
+	[
+		{
+			name = "rep_ask_to_holster";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+EndReprimand : AIAction
+{
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_patrol_back";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+EndAskToHolsterWeapon : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+	subActions = 
+	[
+		{
+			name = "stlh_patrol_back";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+ReprimandSuccessful : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	recoverySubActions = 
+	[
+		{
+			name = "ReprimandSuccessful";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+ReprimandPhaseOneToIdle : AIAction
+{
+	startup = 
+	{
+		duration = 0.8f;
+	};
+	loop = 
+	{
+		duration = 0.8f;
+	};
+	recovery = 
+	{
+		duration = 0.833f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseOneToIdle";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseOneToIdleHandgun : AIAction
+{
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 0.033f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseOneToIdle";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseOneToIdleUnarmed : AIAction
+{
+	startup = 
+	{
+		duration = 0.667f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 0.667f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseOneToIdleUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseOneToIdleMelee : AIAction
+{
+	startup = 
+	{
+		duration = 0.267f;
+	};
+	loop = 
+	{
+		duration = 0.4f;
+	};
+	recovery = 
+	{
+		duration = 0.2f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseOneToIdleMelee";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseOneToIdleCivilian : AIAction
+{
+	startup = 
+	{
+		duration = 0.267f;
+	};
+	loop = 
+	{
+		duration = 0.3f;
+	};
+	recovery = 
+	{
+		duration = 0.267f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseOneToIdleCivilian";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ReprimandPhaseTwoToIdle : AIAction
+{
+	startup = 
+	{
+		duration = 0.8f;
+	};
+	loop = 
+	{
+		duration = 0.8f;
+	};
+	recovery = 
+	{
+		duration = 0.833f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseTwoToIdle";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseTwoToIdleHandgun : AIAction
+{
+	startup = 
+	{
+		duration = 0.3f;
+	};
+	loop = 
+	{
+		duration = 0.267f;
+	};
+	recovery = 
+	{
+		duration = 0.3f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseTwoToIdleHandgun";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseTwoToIdleUnarmed : AIAction
+{
+	startup = 
+	{
+		duration = 0.7f;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	recovery = 
+	{
+		duration = 0.567f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseTwoToIdleUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseTwoToIdleMelee : AIAction
+{
+	startup = 
+	{
+		duration = 1.467f;
+	};
+	loop = 
+	{
+		duration = 1.633f;
+	};
+	recovery = 
+	{
+		duration = 0.733f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseTwoToIdleMelee";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandPhaseTwoToIdleCivilian : AIAction
+{
+	startup = 
+	{
+		duration = 0.333f;
+	};
+	loop = 
+	{
+		duration = 0.333f;
+	};
+	recovery = 
+	{
+		duration = 0.333f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandPhaseTwoToIdleCivilian";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ReprimandEscalation : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedTwoHandedWeapon";
+	};
+	startup = 
+	{
+		duration = 0.433f;
+	};
+	loop = 
+	{
+		duration = 0.433f;
+	};
+	recovery = 
+	{
+		duration = 0.433f;
+	};
+	animData = 
+	{
+		animFeature = "ReprimandEscalation";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+ReprimandEscalationUnarmedCacheWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	startup = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			animationTime = -1.f;
+		} : AISubActionSetEquipPrimaryWeapons
+	];
+}
+
+ReprimandEscalationUnarmed : ReprimandEscalation
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsUnarmed";
+	};
+	animData = 
+	{
+		animFeature = "ReprimandEscalationUnarmed";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			useItemSpawnDelayFromWeapon = false;
+		} : AISubActionEquipOnSlot
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandEscalationHangun : ReprimandEscalation
+{
+	activationCondition = 
+	{
+		condition = "Condition.ArmedOneHandedWeapon";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+ReprimandEscalationMelee : ReprimandEscalation
+{
+	activationCondition = "ReactionsActions.Melee";
+	animData = 
+	{
+		animFeature = "ReprimandEscalationMelee";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+AskToFollowOrderCondition : AIAction
+{
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetAbove10m", "Condition.StimTargetDriver", "Condition.NotStimTargetIsVisible"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AskToFollowOrder : AIAction
+{
+	startup = 
+	{
+		duration = 0.5f;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "FollowOrder";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "rep_final_warning";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+BackOffFollowOrder : AskToFollowOrder
+{
+	animData = 
+	{
+		animFeature = "FollowOrderAim";
+		animSlot = 
+		{
+		};
+	};
+}
+
+WaitToRepeatAskToFollowOrder : AIAction
+{
+	loop = 
+	{
+		duration = 4.5f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+TargetComplies : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	subActions = 
+	[
+		{
+			name = "rep_complies";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+CallPoliceFront : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront120deg";
+	};
+	startup = 
+	{
+		duration = 3f;
+	};
+	loop = 
+	{
+		duration = 3f;
+	};
+	recovery = 
+	{
+		duration = 3f;
+	};
+	subActions = 
+	[
+		{
+			name = "rep_call_grd";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "CallPolice_0";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CallPoliceLeftSide : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetLeftSide";
+	};
+	startup = 
+	{
+		duration = 2.3f;
+	};
+	loop = 
+	{
+		duration = 2.3f;
+	};
+	recovery = 
+	{
+		duration = 2.3f;
+	};
+	subActions = 
+	[
+		{
+			name = "rep_call_grd";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "CallPolice_90";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CallPoliceRightSide : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetLeftSide";
+	};
+	startup = 
+	{
+		duration = 2.667f;
+	};
+	loop = 
+	{
+		duration = 2.667f;
+	};
+	recovery = 
+	{
+		duration = 2.667f;
+	};
+	subActions = 
+	[
+		{
+			name = "rep_call_grd";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "CallPolice_270";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CallPoliceBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBack260deg";
+	};
+	startup = 
+	{
+		duration = 3.f;
+	};
+	loop = 
+	{
+		duration = 3.f;
+	};
+	recovery = 
+	{
+		duration = 3.f;
+	};
+	subActions = 
+	[
+		{
+			name = "rep_call_grd";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "CallPolice_180";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ObserveCrime : AIAction
+{
+	loop = 
+	{
+		duration = 2.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+CallPoliceCondition : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 1.f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetAbove15m";
+			}
+		];
+	};
+}
+
+CallGuard : CallHelp
+{
+	startup = 
+	{
+		duration = 0.53f;
+	};
+	loop = 
+	{
+		duration = 0.86f;
+	};
+	recovery = 
+	{
+		duration = 0.56f;
+	};
+	animData = 
+	{
+		animFeature = "CallSquad";
+	};
+}
+
+CallHelp : AIAction
+{
+	loop = 
+	{
+		duration = 0.2f;
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+	recoverySubActions = 
+	[
+		{
+			stimSource = "AIActionTarget.StimTarget";
+			stimType = "StimTypes.Combat";
+		} : AISubActionTriggerStim
+	];
+	subActions = 
+	[
+		{
+			name = "rep_call_grd";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+CivilianGuardExitToIdle : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 1.f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetAbove5m";
+			}
+		];
+	};
+}
+
+MonitorEquipWeapon : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 1.f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetHasAnyWeapon";
+			}
+		];
+		completeActionWithFailureOnCondition = true;
+	};
+}
+
+AlarmReprimand : AIAction
+{
+	loop = 
+	{
+		duration = 1.2f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Alarm";
+			delay = 0.8f;
+			radius = 20.f;
+		} : AISubActionTriggerStim
+	];
+}
+
+GuardQuickMelee : BackOffQucikMelee
+{
+	startup = 
+	{
+		duration = 0.467f;
+	};
+	loop = 
+	{
+		duration = 0.467f;
+	};
+	recovery = 
+	{
+		duration = 0.467f;
+	};
+	animData = 
+	{
+		animFeature = "FollowOrderQuickMelee";
+		animSlot = 
+		{
+		};
+	};
+}
+
+BackOffQucikMelee : AIAction
+{
+	cooldowns = 
+	[
+		{
+			name = "QuickMelee";
+			duration = 1.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront40deg", "Condition.StimTargetBelow1point5mPrediction0point1", "Condition.HasRangedWeapon", "Condition.NotAndroid", "Condition.NotIsUsingOffMeshLink", "Condition.NotStatusEffectExhausted", "Condition.NotInStatesEquip"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.167f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.StimTarget";
+			isWindUp = false;
+		} : AISubActionMeleeAttackAttemptEvent
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.QuickMelee";
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeQuickStatic";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+BackOffPush : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront40deg", "Condition.StimTargetBelow1point5mPrediction0point1", "Condition.HasFistsWeaponEquipped"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.733f;
+	};
+	loop = 
+	{
+		duration = 0.733f;
+	};
+	recovery = 
+	{
+		duration = 0.767f;
+	};
+	startupSubActions = 
+	[
+		{
+			attackTime = 0.43f;
+			colliderBoxSize = ( 1f, 0.8f, 2f );
+		} : NPCPushData
+	];
+	animData = 
+	{
+		animFeature = "BackOffPush";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+BackOffUnequipCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasPrimaryEquipmentMeleeInInventory", "Condition.NotHasPrimaryEquipmentFistsInInventory"
+			];
+		} : AIActionAND;
+	};
+}
+
+BackOffEquipCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotHasPrimaryEquipmentMeleeInInventory";
+	};
+}
+
+BackOffAimCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.HasRangedWeapon";
+	};
+}
+
+BackOffToCombatCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectStimTargetGameplayRestrictionNoCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 7.5f;
+	};
+}
+
+BackOffToIdleCondition : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 1f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetAbove3m";
+			}
+		];
+	};
+}
+
+PanicBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ArmedTwoHandedWeapon", "Condition.StimTargetBack200deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+	};
+	loop = 
+	{
+		duration = 0.667f;
+	};
+	recovery = 
+	{
+		duration = 0.767f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "PanicBack";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicBack02 : PanicBack
+{
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "PanicBack02";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicEarlySuccess : ReactionsActions.Success
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsFollower"
+			];
+		} : AIActionAND;
+	};
+}
+
+PanicBackUnarmed : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsCivilian", "Condition.StimTargetBack200deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.2f;
+	};
+	loop = 
+	{
+		duration = 0.3f;
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "PanicBackIdle";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicBackUnarmed02 : PanicBackUnarmed
+{
+	animData = 
+	{
+		animFeature = "PanicBackIdle02";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicBackUnarmedFlee : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBack200deg";
+	};
+	startup = 
+	{
+		duration = 1.267f;
+	};
+	loop = 
+	{
+		duration = 0.733f;
+	};
+	recovery = 
+	{
+		duration = 1.033f;
+	};
+	animData = 
+	{
+		animFeature = "PanicBack";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicBackUnarmedFlee02 : PanicBackUnarmedFlee
+{
+	animData = 
+	{
+		animFeature = "PanicBack02";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicFront : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront200deg", "Condition.ArmedTwoHandedWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.f;
+	};
+	loop = 
+	{
+		duration = 0.767f;
+	};
+	recovery = 
+	{
+		duration = 0.8f;
+	};
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "PanicFront";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+PanicFront02 : PanicFront
+{
+	animData = 
+	{
+		weaponOverride = 2;
+		animFeature = "PanicFront02";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicFrontUnarmed : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFront200deg", "Condition.NotIsCivilian"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+	};
+	loop = 
+	{
+		duration = 1.167f;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "PanicFrontIdle";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+PanicFrontUnarmed02 : PanicFrontUnarmed
+{
+	animData = 
+	{
+		animFeature = "PanicFrontIdle02";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicFrontUnarmedFlee : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront200deg";
+	};
+	startup = 
+	{
+		duration = 0.833f;
+	};
+	loop = 
+	{
+		duration = 1.767f;
+	};
+	recovery = 
+	{
+		duration = 1.3f;
+	};
+	animData = 
+	{
+		animFeature = "PanicFront";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+PanicFrontUnarmedFlee02 : PanicFrontUnarmedFlee
+{
+	animData = 
+	{
+		animFeature = "PanicFront02";
+		animSlot = 
+		{
+			startupSlide = "ReactionsActions.ReactionSlideData";
+		};
+	};
+}
+
+BodyInvestigationSignal : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "BodyInvestigationTicketReceived";
+			duration = -1f;
+			delay = 0f;
+		} : AISubActionSendSignal
+	];
+}
+
+BodyInvestigationSearch : AIAction
+{
+	startup = 
+	{
+		duration = 2.033f;
+	};
+	loop = 
+	{
+		duration = 2.067f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StatusEffectStimTargetBeingCarried";
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.033f;
+	};
+	animData = 
+	{
+		animFeature = "BodyInvestigationSearch";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_defeated_body";
+			delay = 0.25f;
+			condition = 
+			{
+				condition = "Condition.StatusEffectStimTargetDefeated";
+			} : AIActionCondition;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "stlh_body";
+			delay = 0.25f;
+			condition = 
+			{
+				condition = "Condition.StatusEffectStimTargetKill";
+			} : AIActionCondition;
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+BodyInvestigationSearchUnarmed : BodyInvestigationSearch
+{
+	startup = 
+	{
+		duration = 3.767f;
+	};
+	loop = 
+	{
+		duration = 3.767f;
+	};
+	recovery = 
+	{
+		duration = 3.767f;
+	};
+	animData = 
+	{
+		animFeature = "BodyInvestigationSearch";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+BodyInvestigationPatrol : AIAction
+{
+	startup = 
+	{
+		duration = 1.867f;
+	};
+	loop = 
+	{
+		duration = 1.867f;
+	};
+	recovery = 
+	{
+		duration = 1.933f;
+	};
+	animData = 
+	{
+		animFeature = "BodyInvestigationPatrol";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_defeated_body";
+			delay = 0.25f;
+			condition = 
+			{
+				condition = "Condition.StatusEffectStimTargetDefeated";
+			} : AIActionCondition;
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "stlh_body";
+			delay = 0.25f;
+			condition = 
+			{
+				condition = "Condition.StatusEffectStimTargetKill";
+			} : AIActionCondition;
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+BodyInvestigationPatrolUnarmed : BodyInvestigationPatrol
+{
+	startup = 
+	{
+		duration = 3.767f;
+	};
+	loop = 
+	{
+		duration = 3.767f;
+	};
+	recovery = 
+	{
+		duration = 3.767f;
+	};
+	animData = 
+	{
+		animFeature = "BodyInvestigationPatrol";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+SurrenderFearReactionFront : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront90deg";
+	};
+	startup = 
+	{
+		duration = 1.2f;
+	};
+	animData = 
+	{
+		animFeature = "fear_0";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SurrenderFearReactionLeftSide : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetLeftSide";
+	};
+	startup = 
+	{
+		duration = 1.3f;
+	};
+	animData = 
+	{
+		animFeature = "fear_090";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SurrenderFearReactionRightSide : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetRightSide";
+	};
+	startup = 
+	{
+		duration = 1.067f;
+	};
+	animData = 
+	{
+		animFeature = "fear_270";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SurrenderFearReactionLeftBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetLeftBack";
+	};
+	startup = 
+	{
+		duration = 1.333f;
+	};
+	animData = 
+	{
+		animFeature = "fear_180_l";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SurrenderFearReactionRightBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetRightBack";
+	};
+	startup = 
+	{
+		duration = 1.233f;
+	};
+	animData = 
+	{
+		animFeature = "fear_180_r";
+		animSlot = 
+		{
+		};
+	};
+}
+
+PanicFearReactionFront : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront120deg";
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	animData = 
+	{
+		animFeature = "panic_0";
+		animSlot = 
+		{
+		};
+	};
+}
+
+PanicFearReactionLeftSide : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetLeftSide";
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	animData = 
+	{
+		animFeature = "panic_090";
+		animSlot = 
+		{
+		};
+	};
+}
+
+PanicFearReactionRightSide : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetRightSide";
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	animData = 
+	{
+		animFeature = "panic_270";
+		animSlot = 
+		{
+		};
+	};
+}
+
+PanicFearReactionLeftBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetLeftBack";
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	animData = 
+	{
+		animFeature = "panic_180_l";
+		animSlot = 
+		{
+		};
+	};
+}
+
+PanicFearReactionRightBack : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetRightBack";
+	};
+	startup = 
+	{
+		duration = 1.667f;
+	};
+	animData = 
+	{
+		animFeature = "panic_180_r";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SurrenderFearInPlace01 : AIAction
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "FearInPlace01";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "fear_beg";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SurrenderFearInPlace02 : AIAction
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "FearInPlace02";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "fear_beg";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SurrenderToIdle : AIAction
+{
+	loop = 
+	{
+		duration = 1.7f;
+	};
+	animData = 
+	{
+		animFeature = "SurrenderToIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+StanceCrouchState : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			stanceState = "Crouch";
+		};
+	};
+}
+
+PanicFearInPlace : AIAction
+{
+	loop = 
+	{
+	};
+	animData = 
+	{
+		animFeature = "PanicFearIdle";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "fear_beg";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+PanicFearToIdle : AIAction
+{
+	recovery = 
+	{
+		duration = 3.f;
+	};
+	animData = 
+	{
+		animFeature = "PanicFearToIdle";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFromPlaceToRun : AIAction
+{
+	startup = 
+	{
+		duration = 0.533f;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "FearFromPlaceToRun";
+		animSlot = 
+		{
+		};
+	};
+}
+
+FearFleeStop01 : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBelow15m";
+	};
+	startup = 
+	{
+		duration = 3.267f;
+	};
+	loop = 
+	{
+		duration = -1.f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeStop01";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "fear_foll";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+FearFleeStop02 : AIAction
+{
+	startup = 
+	{
+		duration = 2.003f;
+	};
+	loop = 
+	{
+		duration = -1.f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeStop02";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "fear_foll";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+FearBreathToIdle : AIAction
+{
+	recovery = 
+	{
+		duration = 3.000f;
+	};
+	animData = 
+	{
+		animFeature = "FearFleeStop01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RecoverFromFearInPlace01 : AIAction
+{
+	recovery = 
+	{
+		duration = 2.5f;
+	};
+	animData = 
+	{
+		animFeature = "FearInPlace01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RecoverFromFearInPlace02 : AIAction
+{
+	recovery = 
+	{
+		duration = 2.5f;
+	};
+	animData = 
+	{
+		animFeature = "FearInPlace02";
+		animSlot = 
+		{
+		};
+	};
+}
+
+PanicFearInPlaceDurationCondition : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 3.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsInCameraFrustrum", {
+							OR = 
+							[
+								"Condition.StimTargetAbove7point5mBack180deg", "Condition.StimTargetAbove12point5mFront180deg"
+							];
+						} : AIActionOR, 
+						"Condition.StimTargetNotInVehicle"
+					];
+				} : AIActionAND;
+			}, 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StimTargetHasNotAnyWeapon", "Condition.StimTargetNotInVehicle"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+PanicFearInPlaceToRunAway : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 2.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								{
+									AND = 
+									[
+										"Condition.PlayerInStatesCombat", "Condition.NotIsInCameraFrustrum", "Condition.PlayerAbove15m"
+									];
+								} : AIActionAND, 
+								{
+									AND = 
+									[
+										"Condition.PlayerNotInStatesCombat", "Condition.PlayerAbove5m"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR, 
+						"Condition.StimTargetNotInVehicle"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+SurrenderFearInPlaceDurationCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.PlayerBelow15m";
+	};
+	loop = 
+	{
+		conditionSuccessDuration = 1.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								"Condition.StimTargetAbove7point5mBack180deg", "Condition.StimTargetAbove12point5mFront180deg"
+							];
+						} : AIActionOR, 
+						"Condition.StimTargetNotInVehicle"
+					];
+				} : AIActionAND;
+			}, 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StimTargetHasNotAnyWeapon", "Condition.StimTargetNotInCarryState", "Condition.StimTargetNotInVehicle"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+GuardFearToRelaxCondition : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 2f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetAbove10m", "Condition.NotStimTargetIsVisible"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SurrenderToRelaxCondition : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 1f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetAbove10m";
+			}
+		];
+	};
+}
+
+SurrenderToFleeCondition : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 0.7f;
+		toNextPhaseConditionCheckInterval = 0.35f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								"Condition.StimTargetBack40degTargetPOV", "Condition.StimTargetAbove3mBack230deg"
+							];
+						} : AIActionOR, 
+						"Condition.CalculatePathStraight1m"
+					];
+				} : AIActionAND;
+			}
+		];
+		completeActionWithFailureOnCondition = true;
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+	};
+}
+
+IdleInFear : AIAction
+{
+	loop = 
+	{
+		duration = 1.53f;
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetBelow15m";
+			}
+		];
+	};
+}
+
+DeescalatePanicOnTraffic : AIAction
+{
+	loop = 
+	{
+		conditionSuccessDuration = 2.5f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsInCameraFrustrum", "Condition.StimTargetAbove10m"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+DeescalateStressOnTraffic : DeescalatePanicOnTraffic
+{
+}
+
+PanicExitPendingReaction : AIAction
+{
+	loop = 
+	{
+		duration = 1.7f;
+	};
+	subActions = 
+	[
+		{
+			name = "TriggerPendingReaction";
+			delay = 1.5f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+TeleportToSpawnPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsInCameraFrustrum", "Condition.StimTargetAbove20m", "Condition.StimTargetToSpawnPositionAbove20m"
+			];
+		} : AIActionAND;
+	};
+}
+
+IsVehicleForwardRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceFrontRight90deg";
+	};
+}
+
+IsVehicleForwardLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceFrontLeft90deg";
+	};
+}
+
+IsVehicleBackwardRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceRightBack";
+	};
+}
+
+IsVehicleBackwardLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceLeftBack";
+	};
+}
+
+IsVehicleLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceFrontSides";
+	};
+}
+
+IsVehicleRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceBackSides";
+	};
+}
+
+DodgeVehicleForward : AIAction
+{
+	activationCondition = 
+	{
+		condition = "ReactionsActions.CalculatePathStraightDodgeVehicleFront";
+	};
+	loop = 
+	{
+		duration = 0.9;
+	};
+	animData = 
+	{
+		animFeature = "DodgeVehicleFront";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+DodgeVehicleBackward : AIAction
+{
+	activationCondition = 
+	{
+		condition = "ReactionsActions.CalculatePathStraightDodgeVehicleBack";
+	};
+	loop = 
+	{
+		duration = 0.867;
+	};
+	animData = 
+	{
+		animFeature = "DodgeVehicleBack";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+DodgeVehicleLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = "ReactionsActions.CalculatePathStraightDodgeVehicleLeft";
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "DodgeVehicleLeft";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+DodgeVehicleRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = "ReactionsActions.CalculatePathStraightDodgeVehicleRight";
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	animData = 
+	{
+		animFeature = "DodgeVehicleRight";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+CalculatePathStraightDodgeVehicleFront : AICalculatePathCond
+{
+	distance = 3.5f;
+	directionAngle = 0.f;
+	checkStraightPath = true;
+	checkDynamicObstacle = true;
+}
+
+CalculatePathStraightDodgeVehicleBack : AICalculatePathCond
+{
+	distance = 4.5f;
+	directionAngle = 180.f;
+	checkStraightPath = true;
+	checkDynamicObstacle = true;
+}
+
+CalculatePathStraightDodgeVehicleLeft : AICalculatePathCond
+{
+	distance = 3.6f;
+	directionAngle = 270.f;
+	checkStraightPath = true;
+	checkDynamicObstacle = true;
+}
+
+CalculatePathStraightDodgeVehicleRight : AICalculatePathCond
+{
+	distance = 3.4f;
+	directionAngle = 90.f;
+	checkStraightPath = true;
+	checkDynamicObstacle = true;
+}
+
+BumpBackLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceLeftSideBack160deg", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.867f;
+	};
+	animData = 
+	{
+		animFeature = "BumpBackLeft";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	allowBlendDuration = 0.f;
+}
+
+BumpBackRight : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceRightSideBack160deg", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.567f;
+	};
+	animData = 
+	{
+		animFeature = "BumpBackRight";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+BumpFrontLeft : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceLeftSideFront160deg", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.667f;
+	};
+	animData = 
+	{
+		animFeature = "BumpFrontLeft";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+BumpFrontRight : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceRightSideFront160deg", "Condition.NotIsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+	};
+	animData = 
+	{
+		animFeature = "BumpFrontRight";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "bump";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+BumpBackLeftWalk : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceLeftSideBack160deg", "Condition.IsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.833f;
+	};
+	animData = 
+	{
+		animFeature = "BumpBackLeftWalk";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+BumpBackRightWalk : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceRightSideBack160deg", "Condition.IsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.633f;
+	};
+	animData = 
+	{
+		animFeature = "BumpBackRightWalk";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+BumpFrontLeftWalk : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceLeftSideFront160deg", "Condition.IsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.8f;
+	};
+	animData = 
+	{
+		animFeature = "BumpFrontLeftWalk";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+BumpFrontRightWalk : BumpBackLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceRightSideFront160deg", "Condition.IsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.8f;
+	};
+	animData = 
+	{
+		animFeature = "BumpFrontRightWalk";
+		weaponOverride = 2;
+		animSlot = 
+		{
+		};
+	};
+}
+
+ChangeAttitudeToHostileNoAnim : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasPrimaryEquipmentMeleeInInventory", "Condition.StimTargetFullyDetected"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.5f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.StimTarget";
+			attitude = "AIA_Hostile";
+		} : AISubActionChangeAttitude
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+ChangeAttitudeToHostile : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetFullyDetected"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.StimTarget";
+			attitude = "AIA_Hostile";
+			delay = 0.25f;
+		} : AISubActionChangeAttitude
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+ChangeAttitudeToHostileAgainstPlayer : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.PlayerDetectedVisibleActive";
+	};
+	loop = 
+	{
+		duration = 0.5f;
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.Player;
+		}
+	];
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.Player";
+			attitude = "AIA_Hostile";
+		} : AISubActionChangeAttitude
+	];
+	animationWrapperOverrides = 
+	[
+		"combatLocomotion"
+	];
+}
+
+AlertedState : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsCivilian", "Condition.NotInStatesCombat", "Condition.NotCombatTarget", "Condition.NotFollower"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			highLevelState = "Alerted";
+		};
+	};
+}
+
+AlertedStateDecorator : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			highLevelState = "Alerted";
+		};
+	};
+}
+
+FearState : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			highLevelState = "Fear";
+		};
+	};
+}
+
+SetStimTargetAsThreat : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			highLevelState = "Fear";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			threat = true;
+			radius = 30.f;
+			positionObj = "AIActionTarget.StimTarget";
+			lerp = ( 0.f, 5f );
+		} : AISubActionSetInfluenceMap
+	];
+}
+
+ReserveWorkspot : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetWSObject";
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			workspotObject = "AIActionTarget.StimTarget";
+		} : AISubActionWorkspot
+	];
+}
+
+UpdateStimSource : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			stimTarget = "";
+		} : AISubActionSetStimSource
+	];
+}
+
+UnequipAnyWeapon : ItemHandling.UnequipAnyWeapon
+{
+	activationCondition = 
+	{
+	};
+}
+
+UnequipOnlyWeapon : ItemHandling.UnequipAnyWeapon
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipAnyWeaponInDangerousArea : ItemHandling.EquipAnyWeapon
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon", "Condition.InsideDangerousArea"
+			];
+		} : AIActionAND;
+	};
+}
+
+PreCombatEquipDelay : AIAction
+{
+	loop = 
+	{
+		duration = 0.5f;
+	};
+}
+
+PanicEquipDelay : AIAction
+{
+	loop = 
+	{
+		duration = 1.3f;
+	};
+}
+
+QuickLookAtGrenade : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetFront180deg";
+	};
+	startup = 
+	{
+		duration = 0.f;
+	};
+	loop = 
+	{
+		duration = 0.35f;
+	};
+	recovery = 
+	{
+		duration = 0.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+ReactionLookAt : AIAction
+{
+	loop = 
+	{
+		duration = 0.7f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+ReactionLookAtLong : AIAction
+{
+	loop = 
+	{
+		duration = 2f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+TurnAtLookAt : AIAction
+{
+	loop = 
+	{
+		duration = 2f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+ReactionInfiniteLookAt : AIAction
+{
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+RifleInfiniteLookAt : AIAction
+{
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.StimTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.StimTarget;
+		}
+	];
+}
+
+WalkAwayAnimationWrapper : AIAction
+{
+	loop = 
+	{
+	};
+	animationWrapperOverrides = 
+	[
+		"disturbed"
+	];
+}
+
+FearFollIdle : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBelow15m";
+	};
+	loop = 
+	{
+		duration = 3f;
+		conditionSuccessDuration = 1f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetAbove10m";
+			}
+		];
+		completeActionWithFailureOnCondition = true;
+	};
+	subActions = 
+	[
+		{
+			name = "fear_foll";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+SurrenderFearAnimationWrapper : AIAction
+{
+	loop = 
+	{
+	};
+	animationWrapperOverrides = 
+	[
+		"fear"
+	];
+}
+
+PanicFearAnimationWrapper : AIAction
+{
+	loop = 
+	{
+	};
+	animationWrapperOverrides = 
+	[
+		"panic"
+	];
+}
+
+CallSquadMechanicalTargetSelectorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Human", "Condition.NearestSquadmateNotHuman"
+			];
+		} : AIActionAND;
+	};
+}
+
+CallSquadMechanicalTargetSelector : AIActionSelector
+{
+	actions = 
+	[
+		"ReactionsActions.CallSquadMechanicalTargetHigh", "ReactionsActions.CallSquadMechanicalTargetHighUnarmed", "ReactionsActions.CallSquadMechanicalTarget", "ReactionsActions.CallSquadMechanicalTargetUnarmed"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+CallSquadMechanicalTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.HasAnyWeapon";
+	};
+	startup = 
+	{
+		duration = 4.633f;
+	};
+	loop = 
+	{
+		duration = 4.633f;
+	};
+	recovery = 
+	{
+		duration = 4.633f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "DeviceInvestigation";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.NearestSquadmate";
+		}
+	];
+}
+
+CallSquadMechanicalTargetUnarmed : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotHasAnyWeapon";
+	};
+	startup = 
+	{
+		duration = 3.2f;
+	};
+	loop = 
+	{
+		duration = 3.2f;
+	};
+	recovery = 
+	{
+		duration = 3.267f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "DeviceInvestigation";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.NearestSquadmate";
+		}
+	];
+}
+
+CallSquadMechanicalTargetHigh : CallSquadMechanicalTarget
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon", "Condition.NearestSquadmate1point8High"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "DeviceInvestigationHigh";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+}
+
+CallSquadMechanicalTargetHighUnarmed : CallSquadMechanicalTarget
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon", "Condition.NearestSquadmate1point8High"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "DeviceInvestigationHigh";
+		animSlot = 
+		{
+		};
+	};
+}
+
+CallSquadTalk : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NearestSquadmateBelow10m", "Condition.NearestSquadmateIsVisible"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 6.f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 1.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_QuickHackCallInGestures";
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1
+			];
+		} : AISubActionRandomize;
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.NearestSquadmate";
+		}
+	];
+}
+
+CallSquadCurse : AIAction
+{
+	loop = 
+	{
+		duration = 2.f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+CallPlayerTalk : AIAction
+{
+	loop = 
+	{
+		duration = 6.f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+			delay = 1.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			randomPointDurationRange = ( 0.5f, 1.5f );
+			squadMateDurationRange = ( 0.5f, 1.5f );
+			choosingRandomPointChanceWeight = 2.0f;
+			choosingSquadMateChanceWeight = 1.0f;
+			choosingFriendlyTargetChanceWeight = 0.0f;
+			choosingClosestThreatChanceWeight = 0.0f;
+			randomPointZRotationAngleRange = ( -60.0f, 60.0f );
+			randomPointYRotationAngleRange = ( -6.0f, 10.0f );
+			squadMateWatchingMaxAngle = 120.0f;
+			friendlyTargetWatchingMaxAngle = 120.0f;
+		} : AISubActionGeneratePointOfInterestTarget
+	];
+	lookats = 
+	[
+		{
+			activationCondition = 
+			{
+				condition = "0xF242B6C8F.0x1CF16F6C86";
+			};
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.ObjectOfInterest;
+			preset = "LookatPreset.LookAtObjectOfInterest";
+		}, 
+		{
+			activationCondition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"0xF242B6C8F.0x1F43DB4F4F"
+					];
+				} : AIActionAND;
+			};
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+			} : AIActionTarget.PointOfInterest;
+			preset = "LookatPreset.LookAtPointOfInterest";
+		}
+	];
+}
+
+AlertedWhistleQuickhackCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StatusEffectWhistle";
+	};
+}
+
+RemoveWhistleHack : AIAction
+{
+	subActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"BaseStatusEffect.WhistleLvl3"
+			];
+			apply = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects += 
+			[
+				"BaseStatusEffect.WhistleLvl2"
+			];
+			apply = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects += 
+			[
+				"BaseStatusEffect.Whistle"
+			];
+			apply = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveCallInHack : AIAction
+{
+	subActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"BaseStatusEffect.CommsCallInLevel3"
+			];
+			apply = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects += 
+			[
+				"BaseStatusEffect.CommsCallIn"
+			];
+			apply = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+MoveToTrafficLane : RunToTrafficLane
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.MovementDestination";
+			movementType = "Walk";
+			destinationOrientationPosition = "AIActionTarget.CustomWorldPosition";
+			dontUseStart = false;
+			dontUseStop = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.DestinationReached";
+			}
+		];
+	};
+}
+
+RunToTrafficLane : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToMovementDestination"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.MovementDestination";
+			movementType = "Sprint";
+			destinationOrientationPosition = "AIActionTarget.CustomWorldPosition";
+			dontUseStart = true;
+			dontUseStop = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.DestinationReached";
+			}
+		];
+	};
+}
+
+MoveToStimSourceInvestigate : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.CalculatePathToStimSource";
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Walk";
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.StimTarget";
+			ignoreRestrictedMovementArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.DestinationReached";
+			}
+		];
+	};
+}
+
+DeviceInvestigationLookat : AIAction
+{
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.CustomWorldPosition";
+		}
+	];
+}
+
+RotateToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBack45deg";
+	};
+	loop = 
+	{
+		duration = 3.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetFront40deg";
+			}, 
+			{
+				condition = "Condition.NotStimTarget";
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+RotateToStimTargeInReprimand : RotateToStimTarget
+{
+	lookats = [];
+}
+
+RotateToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimSourceBack45deg";
+	};
+	loop = 
+	{
+		duration = 3f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimSource";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimSourceFront40deg";
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+RotateToDistractionSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.CustomWorldPositionBack45deg";
+	};
+	loop = 
+	{
+		duration = 3f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CustomWorldPosition";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.CustomWorldPositionFront30deg";
+			}
+		];
+	};
+}
+
+MoveToStimSourceSearch : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToStimSource"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 20.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Walk";
+			dontUseStart = true;
+			ignoreRestrictedMovementArea = true;
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Aim";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.EvaluatedReachedDestination0dot5";
+			}
+		];
+	};
+	subActions = 
+	[
+		"ReactionsActions.PlayStealthSearchVoiceOver"
+	];
+}
+
+MoveCloserToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceInRestrictedMovementArea", "Condition.CalculatePathToStimSource"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Walk";
+			dontUseStart = true;
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Aim";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.NotCalculatePathToStimSource"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		"ReactionsActions.PlayStealthSearchVoiceOver"
+	];
+}
+
+BackOffMoveToStimTarget : AIAction
+{
+	loop = 
+	{
+		duration = 0.5f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			dontUseStart = true;
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Aim";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow1point5m", "Condition.NotCalculatePathToStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+IdleWhileTargetIsVisible : AIAction
+{
+	loop = 
+	{
+		duration = 8f;
+		conditionSuccessDuration = 2.0f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.NotStimTargetIsVisible";
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+RunToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.CalculatePathToStimTarget";
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Run";
+			dontUseStart = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetBelow2point5m";
+			}
+		];
+	};
+}
+
+MoveToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToStimTarget", "Condition.StimTargetInRestrictedMovementArea"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			dontUseStop = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow2point5m", "Condition.StatusEffectStimTargetBeingCarried"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MoveToStimTargetWithTimeout : MoveToStimTarget
+{
+	loop = 
+	{
+		duration = 1f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			dontUseStop = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimTargetBelow2point5m";
+			}
+		];
+	};
+}
+
+MoveToStimTargetInSecurityArea : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetAbove9m", "Condition.StimTargetIsTresspassing"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			dontUseStart = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow8m", "Condition.StimTargetIsNotTresspassing", "Condition.NotStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+FearInPlaceCondition : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			target = "AIActionTarget.StimTarget";
+			distance = 50.f;
+			tolerance = 45.f;
+			minDistance = 8.f;
+			movementType = "Sprint";
+			dontUseStart = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.EvaluatedPathFinding";
+			}
+		];
+	};
+}
+
+RunAwayFromStimThreat : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.MovementDestination";
+			movementType = "Sprint";
+			dontUseStart = true;
+			dontUseStop = true;
+			calculateStartTangent = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RunAwayWithStartUpFromStimThreat : RunAwayFromStimThreat
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.MovementDestination";
+			movementType = "Sprint";
+			dontUseStart = false;
+			dontUseStop = true;
+			calculateStartTangent = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+WalkAwayFromStimThreat : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.MovementDestination";
+			movementType = "Walk";
+			dontUseStart = false;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+WalkRelaxedAwayFromStimThreat : WalkAwayFromStimThreat
+{
+	subActions = 
+	[
+		{
+			name = "fear_foll";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+WalkAwayFromStimThreatNoStartUp : WalkAwayFromStimThreat
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.MovementDestination";
+			movementType = "Walk";
+			dontUseStart = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RunAwayFromGrenade : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsGrenadeLandedStimType", "Condition.NotWounded"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			target = "AIActionTarget.StimTarget";
+			distance = 10.f;
+			tolerance = 5.f;
+			movementType = "Sprint";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.NotStimTarget", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "fear_run";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+SandevistanVersusSandevistanTimeDilation : AISubActionApplyTimeDilation
+{
+	reason = "sandevistanVersusSandevistan";
+	easeIn = "SandevistanEaseIn";
+	easeOut = "SandevistanEaseOut";
+	overrideMultiplerWhenPlayerInTimeDilation = 6.f;
+}
+
+SandevistanVersusSandevistanFX : AISubActionSpawnFX
+{
+	name = "fx_sandevistan_loop";
+}
+
+SandevistanVersusSandevistan : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan", "Condition.StatusEffectSandevistanBuff", "Condition.TargetIsPlayer", "Condition.TargetIsVisible", "Condition.StatusEffectSandevistanPlayerBuff"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.75f;
+	};
+	loop = 
+	{
+		duration = -1.f;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotStatusEffectSandevistanPlayerBuff"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		maxDuration = 1.f;
+	};
+	loopSubActions = 
+	[
+		"ReactionsActions.SandevistanVersusSandevistanFX", {
+			easeOut = "";
+		} : SandevistanVersusSandevistanTimeDilation
+	];
+	recoverySubActions = 
+	[
+		"ReactionsActions.SandevistanVersusSandevistanFX", {
+			easeIn = "";
+		} : SandevistanVersusSandevistanTimeDilation
+	];
+}
+
+CallSquadMove : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.NotStimTargetIsVisible", "Condition.StimTargetAbove4m"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			distance = 2.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.StimTargetIsVisible", "Condition.StimTargetBelow4m"
+							];
+						} : AIActionAND, 
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.NotStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CallSquadSprint : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.NotStimTargetIsVisible", "Condition.StimTargetAbove12m"
+					];
+				} : AIActionOR, 
+				"Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			distance = 2.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.StimTargetIsVisible", "Condition.StimTargetBelow4m"
+							];
+						} : AIActionAND, 
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.NotStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CallSquadMoveToStimPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceAbove4m", "Condition.NotAdamPhase1", "Condition.NotAdamPhase2", "Condition.NotAdamPhase3"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			distance = 2.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow4m", "Condition.PathFindingFailed", "Condition.DestinationReached"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CallSquadSprintToStimPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceAbove4m", {
+					OR = 
+					[
+						"Condition.AdamPhase1", "Condition.AdamPhase2", "Condition.AdamPhase3"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			distance = 2.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			movementType = "Sprint";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow4m", "Condition.PathFindingFailed", "Condition.DestinationReached"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+FollowOrderAbility : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.AbilityCanAskToFollowOrder";
+	};
+}
+
+InvestigateSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotAreaEffectStimType";
+	};
+}
+
+FearThreshold : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FearThreshold", "Condition.NotStimTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+HearGunshot : AIAction
+{
+	loop = 
+	{
+	};
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.GunshotStimType", "Condition.NotStimTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+	cooldowns = 
+	[
+		{
+			name = "Sync";
+			duration = 3f;
+		}
+	];
+}
+
+HearDying : AIAction
+{
+	loop = 
+	{
+	};
+	activationCondition = 
+	{
+		condition = "Condition.DyingStimType";
+	};
+}
+
+HearExplosion : AIAction
+{
+	loop = 
+	{
+	};
+	activationCondition = 
+	{
+		condition = "Condition.ExplosionStimType";
+	};
+	cooldowns = 
+	[
+		{
+			name = "Sync";
+			duration = 3f;
+		}
+	];
+}
+
+HearNoise : AIAction
+{
+	loop = 
+	{
+	};
+	cooldowns = 
+	[
+		{
+			name = "Sync";
+			duration = 3f;
+		}
+	];
+}
+
+RelaxedStateCheck : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.InStatesRelaxed";
+	};
+}
+
+IsTargetNotVisible : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotStimTargetIsVisible";
+	};
+}
+
+IsTargetVisible : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetIsVisible";
+	};
+}
+
+IsTargetHidingInAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetMaxDetectionValue90", "Condition.NotStimTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+}
+
+IsTargetArmed : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetHasAnyWeapon";
+	};
+}
+
+IsOwnerOutOfCombatCivilian : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsCivilian", "Condition.NotCombatTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+IsOwnerCivilian : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsCivilian";
+	};
+}
+
+ReprimandFinalWarningCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ReprimandFinalWarningStimType"
+			];
+		} : AIActionAND;
+	};
+}
+
+ReprimandStepCloserCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetBelow1m";
+	};
+}
+
+AgileNPCGrenadeDodge : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsGrenadeLandedStimType", "Condition.AbilityHasKerenzikov", "Condition.StimTargetFront180deg", "Condition.GrenadeDodgeCooldown"
+			];
+		} : AIActionAND;
+	};
+}
+
+GrenadeLandedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsGrenadeLandedStimType";
+	};
+}
+
+IsTargetTrespassing : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetIsTresspassing";
+	};
+}
+
+IsNotTargetTrespassing : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StimTargetIsNotTresspassing";
+	};
+}
+
+Melee : AIActionCondition
+{
+	condition = "Condition.HasPrimaryEquipmentMeleeInInventory";
+}
+
+EquipInReprimand : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasBothHandWeaponAsPrimary", "Condition.StimTargetHasNotAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+ReactionCanEquipWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotIsInWorkspot", "Condition.NotWoundedArms"
+			];
+		} : AIActionAND;
+	};
+}
+
+IsMech : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.Mech", "Condition.Android"
+			];
+		} : AIActionOR;
+	};
+}
+
+FurtherExplosionReaction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesCombat", "Condition.StimTargetAbove15m"
+			];
+		} : AIActionAND;
+	};
+}
+
+LookAtInsteadOfTurnAtCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityCanExitWSOnSoundStimuli", "Condition.NotDrivingStim", "Condition.StimTargetFront260deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+LookAtExplosionSource : RotateToStimSource
+{
+	recovery = 
+	{
+		duration = 0.7f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimSource";
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+AimAroundExplosionInstigator : AIAction
+{
+	loop = 
+	{
+		duration = 1.7f;
+	};
+	animData = 
+	{
+		animFeature = "NonCombatAim";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.RangedCombatLookAtPreset";
+			target = "AIActionTarget.StimSource";
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+AimAroundExplosionInstigatorLowerWeapon : AIAction
+{
+	loop = 
+	{
+		duration = 0.4f;
+	};
+}
+
+ReprimandTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Reprimand"
+	];
+	loop = 
+	{
+		duration = -1f;
+	};
+}
+
+ReactionGroupTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.GroupReaction"
+	];
+	loop = 
+	{
+		duration = -1f;
+	};
+}
+
+InvestigateTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Investigate"
+	];
+	loop = 
+	{
+		duration = -1f;
+	};
+}
+
+SearchTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Search"
+	];
+	loop = 
+	{
+		duration = -1f;
+	};
+}
+
+SyncActionCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusTypeEffectMadness", "Condition.NotStatusEffectMadness"
+			];
+		} : AIActionAND;
+	};
+}
+
+SyncTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Sync"
+	];
+	initCooldowns = 
+	[
+		{
+			name = "Sync";
+			duration = 2.f;
+		}
+	];
+	cooldowns = 
+	[
+		{
+			name = "Sync";
+			duration = 5.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketShoot", "Condition.NotTicketBlock", "Condition.NotTicketMelee", "Condition.NotTicketGrenadeThrow", "Condition.NotInStatesReload"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+BackUpTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.BackUp"
+	];
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+CallOffTicket : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CallOff"
+	];
+	loop = 
+	{
+	};
+}
+
+CombatShoutCompositeDecorator : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ReactionsActions.CombatShout", "GenericArchetype.Success"
+	];
+	repeat = 0;
+}
+
+CombatShout : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.BattleCry"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTargetIsVisible"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 5.f;
+	};
+	subActions = 
+	[
+		{
+			name = "combat_target_sight_lost";
+			delay = 0.5f;
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+CuriousVO : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_curious";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+AlertedVO : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "start_alerted";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+GrenadeVO : AIAction
+{
+	loop = 
+	{
+		duration = 0.35f;
+	};
+	subActions = 
+	[
+		{
+			name = "grenade";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+HolsterVO : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "rep_ask_to_holster";
+		} : AISubActionPlayVoiceOver
+	];
+}
+
+ReactionSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.StimSource";
+	finalRotationAngle = 90;
+	usePositionSlide = true;
+}
+

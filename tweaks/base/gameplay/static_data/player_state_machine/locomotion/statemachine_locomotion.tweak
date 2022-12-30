@@ -1,0 +1,883 @@
+package playerStateMachineLocomotion
+using playerStateMachineBaseLocomotion, playerStateMachineStateBase
+
+initial : baseState
+{
+	bool hasEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnEnter = false;
+	bool hasOnExit = false;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"workspot", "forceIdle", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "="
+	];
+}
+
+forceIdle : locomotionGround
+{
+	CName[] alias = 
+	[
+		"toForceState"
+	];
+	bool hasOnExit = true;
+	bool hasOnEnter = true;
+	CName onEnterCameraParamsName = "Tier3Scene";
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"workspot", "forceWalk", "forceFreeze", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "ToStand"
+	];
+	string scriptedDecisionsClassName = "ForceIdleDecisions";
+	string scriptedEventsClassName = "ForceIdleEvents";
+	string stateBodyClassName = "LocomotionForceIdle";
+	float capsuleHeight = -1;
+	float capsuleRadius = -1;
+	float upwardsGravity = 0;
+	float downwardsGravity = 0;
+	bool collisionFilterPresetIsZero = true;
+	CName affinity = "idle";
+	bool causeContactDestruction = false;
+}
+
+workspot : forceIdle
+{
+	bool hasInternalEnterCondition = false;
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasExitCondition = true;
+	string[] transitionTo = 
+	[
+		"forcedKnockdown", "forceIdle", "forceWalk", "forceFreeze", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "=", "="
+	];
+	bool[] transitionSkipInternalCondition = 
+	[
+		false, false, false, false, true, false
+	];
+	CName onEnterCameraParamsName = "Workspot";
+	string scriptedDecisionsClassName = "WorkspotDecisions";
+	string scriptedEventsClassName = "WorkspotEvents";
+	CName affinity = "workspot";
+}
+
+workspot_flavour_lockedCamera
+{
+	CName onEnterCameraParamsName = "WorkspotLocked";
+}
+
+workspot_flavour_unlockedCameraVerySmall
+{
+	CName onEnterCameraParamsName = "WorkspotUnlockedCameraVerySmall";
+}
+
+workspot_flavour_unlockedCamera
+{
+	CName onEnterCameraParamsName = "WorkspotUnlocked";
+}
+
+forceFreeze : locomotionGround
+{
+	CName[] alias = 
+	[
+		"toForceState"
+	];
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	CName onEnterCameraParamsName = "LockedHeading";
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"workspot", "forceIdle", "forceWalk", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "", "=", "ToStand"
+	];
+	string scriptedDecisionsClassName = "ForceFreezeDecisions";
+	string scriptedEventsClassName = "ForceFreezeEvents";
+	string stateBodyClassName = "LocomotionForceFreeze";
+	float upwardsGravity = 0;
+	float downwardsGravity = 0;
+	bool collisionFilterPresetIsZero = true;
+	bool causeContactDestruction = false;
+}
+
+forceWalk : locomotionGround
+{
+	CName[] alias = 
+	[
+		"toForceState"
+	];
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "forceIdle", "forceFreeze", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "ToStand"
+	];
+	string scriptedDecisionsClassName = "ForceWalkDecisions";
+	string scriptedEventsClassName = "ForceWalkEvents";
+	bool causeContactDestruction = false;
+}
+
+stand : locomotionGround
+{
+	bool hasInternalEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool hasOnTick = true;
+	float tickRate = 0.2;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "toStatusEffect", "aimWalk", "ladder", "forceIdle", "forceWalk", "forceFreeze", "dodge", "crouch", "vault", "climb", "jump", "chargeJump", "hoverJump", "toAir", "sprint"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+	];
+	string[] enterConstraintsStates = 
+	[
+		"HighLevel.sceneTierIV", "HighLevel.sceneTierV"
+	];
+	bool[] enterConstraintsLogic = 
+	[
+		false, false
+	];
+	float footstepStimuliSpeedThreshold = 2.5;
+	bool followTarget = true;
+	float followAngleTolerance = 60.f;
+	float followAngleToleranceForVelocity = 60.f;
+	float followActivationDistanceTolerance = 6.f;
+	float followCloseDistanceSoftCap = 2.8f;
+	float followCloseDistanceHardCap = 2.2f;
+	float followMinSpeed = 1.3f;
+	bool causeContactDestruction = false;
+}
+
+aimWalk : stand
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnUpdate = false;
+	bool hasOnTick = false;
+	string[] transitionTo = 
+	[
+		"workspot", "toStatusEffect", "stand", "ladder", "forceIdle", "forceWalk", "forceFreeze", "dodge", "crouch", "vault", "climb", "jump", "chargeJump", "hoverJump", "toAir", "sprint"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "", "", "", "", "", "", "", "", "", "", "", "", ""
+	];
+}
+
+dodge : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "toStatusEffect", "stand", "crouch", "ladder", "vault"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "ToStand", "", ""
+	];
+	bool imperfectTurn = true;
+	bool dodgeWithNoMovementInput = false;
+	float downwardsGravity = -4;
+	float impulse = 10.f;
+	float impulseNoStamina = 2.7f;
+	float movementDecelerationNoStamina = -90;
+}
+
+crouch : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = false;
+	bool hasOnExit = true;
+	string animationStateName = "donotuse";
+	string[] transitionTo = 
+	[
+		"toStatusEffect", "toForceState", "dodge", "stand", "vault", "climb", "jump", "chargeJump", "hoverJump", "toAir", "sprint", "ladder"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "", "", "", "", "", "", "=", ""
+	];
+	float capsuleHeight = 1.0f;
+	bool causeContactDestruction = false;
+}
+
+sprint : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"toForceState", "toStatusEffect", "slide", "crouch", "vault", "climb", "jump", "chargeJump", "hoverJump", "toAir", "ladder", "stand"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", "", "", "", "", "", "", "="
+	];
+	string animationStateName = "sprint";
+	float enterAngleThreshold = 45.f;
+	float minStickInputThreshold = 0.9f;
+	float minLinearVelocityThreshold = 0.5;
+	float reloadModifierStart = -4.f;
+	float reloadModifierEnd = -3.f;
+	float sprintDisableTimeAfterShoot = 0.5;
+	bool enableTwoStepSprint_EXPERIMENTAL = false;
+	float minTimeToEnterTwoStepSprint = 0.1f;
+}
+
+slide : locomotionGround
+{
+	CName onEnterCameraParamsName = "Slide";
+	string scriptedDecisionsClassName = "SlideDecisions";
+	string scriptedEventsClassName = "SlideEvents";
+	string animationStateName = "slide";
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string rumbleName = "medium_slow";
+	float rumbleDelay = 0.33f;
+	string[] transitionTo = 
+	[
+		"toForceState", "toStatusEffect", "slideFall", "crouch", "stand", "ladder"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "=", ""
+	];
+	float capsuleHeight = 1.0f;
+	float maxCameraYawToExit = 96.f;
+	float minSpeedToEnter = 4.3f;
+	float minSpeedToExit = 2.5f;
+	float minTimeToExit = 0.5f;
+	bool backInputExitsSlide = false;
+	float minTimeToAllowDeceleration = 0.1f;
+	bool backInputDeceleratesSlide = true;
+	float backInputDecelerationModifier = 4.f;
+	bool pushAnimEventOnEnter = true;
+	CName decelerationCurve = "";
+	float minAngleToStopUphillSlide = 10.0f;
+}
+
+slideAfterFall : slide
+{
+	bool pushAnimEventOnEnter = false;
+	float minTimeToExit = 0.f;
+	float rumbleDelay = 0.0f;
+}
+
+slideFall : locomotionAir
+{
+	CName onEnterCameraParamsName = "Slide";
+	string scriptedDecisionsClassName = "SlideFallDecisions";
+	string scriptedEventsClassName = "SlideFallEvents";
+	string animationStateName = "slide";
+	float capsuleHeight = 0.9;
+	float maxCameraYawToExit = 96.;
+	float heightToEnterFall = 9.0;
+	float minSpeedToExit = 3.0;
+	bool backInputExitsSlide = false;
+	string[] transitionTo = 
+	[
+		"workspot", "slideAfterFall", "hardLand", "veryHardLand", "airHover", "doubleJump", "dodgeAir", "climb", "ladder", "fall", "toStatusEffect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToRegularLand", "=", "=", "", "", "", "", "", "=", ""
+	];
+}
+
+climb : locomotionGround
+{
+	CName onEnterCameraParamsName = "Climb";
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string stateBodyClassName = "Climb";
+	CName affinity = "climb";
+	bool hotSwapOnRemove = true;
+	string[] transitionTo = 
+	[
+		"workspot", "forcedKnockdown", "toStatusEffect", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "="
+	];
+	bool[] transitionConditionOverridesEnterCondition = 
+	[
+		true, true, false, true
+	];
+	float capsuleHeight = 1.0;
+	float minHeight = 0.8;
+	float maxHeight = 2.0;
+	float detectionRange = 1.0;
+	float minExtent = 0.1;
+	float forwardStep = 0.3;
+	float highThreshold = 1.6;
+	float midThreshold = 1.2;
+	float verticalDurationHigh = 1.0;
+	float horizontalDurationHigh = 0.3;
+	float verticalDurationMid = 0.6;
+	float horizontalDurationMid = 0.2;
+	float verticalDurationLow = 0.3;
+	float horizontalDurationLow = 0.1;
+	float obstacleEnterAngleThreshold = 40.;
+	float inputAngleThreshold = 30.;
+	float cameraPitchThreshold = -70.;
+	bool ignoreBarbedWire = false;
+	CName animationNameApproach = "climb_entity_vertical";
+}
+
+vault : locomotionGround
+{
+	CName onEnterCameraParamsName = "Vault";
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string stateBodyClassName = "Vault";
+	string[] transitionTo = 
+	[
+		"workspot", "toStatusEffect", "crouch", "stand"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "="
+	];
+	bool[] transitionConditionOverridesEnterCondition = 
+	[
+		true, true, false, false
+	];
+	float minDetectionRange = 0.6;
+	float detectionRange = 2.0;
+	float maxDistanceForMaxSpeed = 1.6;
+	float minSpeed = 3.5;
+	float forwardStep = 0.5;
+	float maxExtent = 2.1;
+	float minHeight = 0.8;
+	float maxHeight = 1.2;
+	float landingTime = 0.232;
+	float enterAngleThreshold = 90.f;
+	bool requireDirectionalInputToVault = true;
+	bool collisionFilterPresetIsZero = true;
+	bool ignoreBarbedWire = false;
+}
+
+ladder : locomotionGround
+{
+	CName[] alias = 
+	[
+		"LadderAlias"
+	];
+	string stateBodyClassName = "LocomotionLadder";
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName affinity = "ladder";
+	bool hotSwapOnRemove = true;
+	string animationStateName = "ladder";
+	string[] transitionTo = 
+	[
+		"workspot", "stand", "crouch", "ladderSlide", "ladderSprint", "ladderJump", "ladderCrouch", "chargeJump", "toStatusEffect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "ToStand", "", "", "", "=", "", ""
+	];
+	float enterDurationTop = 1.0f;
+	float exitDurationTop = 0.86f;
+	float verticalStepDurationTop = 1.2f;
+	float enterDurationBottom = 0.2f;
+	float exitDurationBottom = 0.2f;
+	float verticalStepDurationBottom = 0.3f;
+	float enterDurationJump = 0.2f;
+	float verticalStepDurationJump = 0.2f;
+	float enterAngleThreshold = 45.f;
+	float exitToStandPushMagnitude = 3.f;
+	bool collisionFilterPresetIsZero = false;
+	float ladderEntryDuration = 0.5f;
+	float ladderEntryDurationFromTop = 2.8f;
+	float minStickInputToSwapToClimbCamera = 0.f;
+	float climbCameraMinActiveTime = 1.0f;
+}
+
+ladderSprint : ladder
+{
+	CName[] alias = 
+	[
+		"LadderAlias"
+	];
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"workspot", "stand", "crouch", "ladder", "ladderJump", "ladderCrouch", "chargeJump", "toStatusEffect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "ToStand", "=", "", "=", "", ""
+	];
+	float enterDurationTop = 0.2f;
+	float exitDurationTop = 1.0f;
+	float enterDurationBottom = 0.2f;
+	float exitDurationBottom = 0.6f;
+	float enterDurationJump = 0.125f;
+	bool collisionFilterPresetIsZero = false;
+}
+
+ladderSlide : ladder
+{
+	CName[] alias = 
+	[
+		"LadderAlias"
+	];
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"workspot", "stand", "crouch", "ladder", "toStatusEffect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "ToStand", "=", ""
+	];
+	float enterDurationTop = 0.2f;
+	float exitDurationTop = 1.0f;
+	float enterDurationBottom = 0.2f;
+	float exitDurationBottom = 0.6f;
+	float enterDurationJump = 0.125f;
+	bool collisionFilterPresetIsZero = false;
+}
+
+ladderCrouch : jump
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string scriptedDecisionsClassName = "JumpDecisions";
+	string scriptedEventsClassName = "LadderJumpEvents";
+	float impulseStrength = 1.5f;
+	float pitchAngle = 0.0f;
+	float angleToleranceForLateralJump = 360.0f;
+}
+
+ladderJump : jump
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string scriptedDecisionsClassName = "JumpDecisions";
+	string scriptedEventsClassName = "LadderJumpEvents";
+	float impulseStrength = 2.5f;
+	float pitchAngle = 60.0f;
+	float angleToleranceForLateralJump = 30.0f;
+}
+
+abstractStatusEffect : locomotionGround
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName[] alias = 
+	[
+		"toStatusEffect"
+	];
+	string scriptedDecisionsClassName = "StatusEffectDecisions";
+	string scriptedEventsClassName = "StatusEffectEvents";
+	string animationStateName = "donotuse";
+	string[] transitionTo = 
+	[
+		"toForceState", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToStand", "ToStand"
+	];
+}
+
+stunned : abstractStatusEffect
+{
+	string statusEffectEnumName = "Stunned";
+	string[] transitionTo = 
+	[
+		"toForceState", "vehicleKnockdown", "knockdown", "dodge", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "ToStand", "ToStand"
+	];
+	bool forceExitToStand = true;
+}
+
+vehicleKnockdown : abstractStatusEffect
+{
+	string statusEffectEnumName = "VehicleKnockdown";
+	CName onEnterCameraParamsName = "VehicleKnockdown";
+}
+
+knockdown : abstractStatusEffect
+{
+	string statusEffectEnumName = "Knockdown";
+	CName onEnterCameraParamsName = "Knockdown";
+	string[] transitionTo = 
+	[
+		"toForceState", "knockdown", "fall", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToSecondaryKnockdown", "ToRegularFall", "ToStand", "ToStand"
+	];
+	string scriptedDecisionsClassName = "";
+	string scriptedEventsClassName = "";
+}
+
+forcedKnockdown : knockdown
+{
+	CName[] alias = 
+	[
+		"forcedKnockdown"
+	];
+	CName onEnterCameraParamsName = "BikeKnockdown";
+	float capsuleHeight = 1.0f;
+	bool hasInternalEnterCondition = false;
+}
+
+fall : locomotionAir
+{
+	CName[] alias = 
+	[
+		"toAir"
+	];
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"toForceState", "unsecureFootingFall", "regularLand", "hardLand", "veryHardLand", "deathLand", "airThrusters", "doubleJump", "chargeJump", "hoverJump", "dodgeAir", "climb", "ladder", "airHover", "toStatusEffect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", "=", "=", "", "", "", "", "", "", "", "", ""
+	];
+}
+
+unsecureFootingFall : fall
+{
+	bool hasInternalEnterCondition = false;
+	bool hasExitCondition = false;
+	bool hasOnUpdate = true;
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	string scriptedDecisionsClassName = "UnsecureFootingFallDecisions";
+	string scriptedEventsClassName = "UnsecureFootingFallEvents";
+	string[] transitionTo = 
+	[
+		"toForceState", "regularLand", "hardLand", "veryHardLand", "deathLand", "ladder", "toStatusEffect"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", "=", "=", "", ""
+	];
+	float minVerticalVelocityToEnter = -2.5f;
+	float slideImpulseModifier = 0.12f;
+}
+
+airThrusters : locomotionAir
+{
+	bool hasInternalEnterCondition = true;
+	bool hasEnterCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"doubleJump", "fall", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"ToDoubleJump", "ToFall", "ToStand", "ToStand"
+	];
+	bool debug_Enable_Air_Thrusters = false;
+	bool autoActivationAboutToHitGround = true;
+	float autoActivationDistanceToGround = 3.0;
+	float minFallHeight = 6.0;
+	float minInputHoldTime = 0.25;
+	float minDistanceToGround = 1.0;
+	float upwardsGravity = -10;
+	float downwardsGravity = -3;
+	float stateDuration = 2.0;
+	bool autoTransitionToFall = true;
+	bool allowCancelingWithCrouchAction = true;
+}
+
+airHover : locomotionAir
+{
+	bool hasInternalEnterCondition = true;
+	bool hasEnterCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "superheroFall"
+	];
+	string[] transitionCondition = 
+	[
+		"", "="
+	];
+	float minInputHoldTime = 0.15;
+	float minDistanceToGround = 0.7;
+	float verticalUpwardsImpulse = 2.5;
+	float downwardsGravity = 0;
+	float maxAirHoverTime = 0.37;
+	bool autoTransitionToSuperheroFall = true;
+}
+
+superheroFall : locomotionAir
+{
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "superheroLand", "deathLand"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "="
+	];
+	float inputHoldTime = 0.2f;
+	float downwardsImpulseStrength = -25.f;
+}
+
+superheroLand : landingAbstract
+{
+	string stateBodyClassName = "LocomotionForceIdle";
+	CName onEnterCameraParamsName = "SuperheroLand";
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "superheroLandRecovery"
+	];
+	string[] transitionCondition = 
+	[
+		"", "="
+	];
+	float stateDuration = 0.9;
+}
+
+superheroLandRecovery : landingAbstract
+{
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"workspot", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "ToStand"
+	];
+	float stateDuration = 0.3;
+}
+
+jump : locomotionAir
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"toForceState", "unsecureFootingFall", "regularLand", "hardLand", "veryHardLand", "deathLand", "airHover", "chargeJump", "doubleJump", "hoverJump", "dodgeAir", "climb", "ladder", "toStatusEffect", "airThrusters"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", "=", "=", "", "", "", "", "", "", "", "", ""
+	];
+	float capsuleHeight = 1.8;
+	float capsuleRadius = 0.4;
+}
+
+doubleJump : locomotionAir
+{
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string rumbleOnEnter = "light_fast";
+	string[] transitionTo = 
+	[
+		"workspot", "unsecureFootingFall", "regularLand", "hardLand", "veryHardLand", "deathLand", "airHover", "climb", "dodgeAir", "ladder", "doubleJump", "toStatusEffect", "airThrusters"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", "=", "=", "", "", "", "", "", "", ""
+	];
+	string animationStateName = "doublejump";
+	int numberOfMultiJumps = 1;
+	float capsuleHeight = 1.8;
+	float capsuleRadius = 0.4;
+}
+
+chargeJump : locomotionAir
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "unsecureFootingFall", "regularLand", "hardLand", "veryHardLand", "deathLand", "airHover", "climb", "dodgeAir", "ladder", "toStatusEffect", "airThrusters"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", "=", "=", "", "", "", "", "", ""
+	];
+	float capsuleHeight = 1.8;
+	float capsuleRadius = 0.4;
+	float minHoldTime = 0.08;
+	float medChargeHoldTime = 0.2;
+	float maxChargeHoldTime = 0.3;
+	float jumpHeightMinCharge = 1.5;
+	float jumpHeightMedCharge = 2.5;
+	float downwardsGravityMinCharge = -16;
+	float upwardsGravityMedCharge = -16;
+	float downwardsGravityMedCharge = -16;
+	float verticalImpulse = 2.0;
+	float jumpHeightMaxCharge = 3.0;
+	float upwardsGravityMaxCharge = -40;
+	float downwardsGravityMaxCharge = -14;
+}
+
+hoverJump : locomotionAir
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName onEnterCameraParamsName = "HoverJump";
+	string[] transitionTo = 
+	[
+		"workspot", "unsecureFootingFall", "regularLand", "hardLand", "veryHardLand", "deathLand", "airHover", "climb", "dodgeAir", "ladder", "toStatusEffect", "airThrusters"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "=", "=", "=", "=", "", "", "", "", "", ""
+	];
+	float capsuleHeight = 1.8;
+	float capsuleRadius = 0.4;
+	float upwardsGravity = -10;
+	float downwardsGravity = -9;
+	float verticalImpulse = 0.08;
+	float upwardsGravityOnThrust = -12;
+	float downwardsGravityOnThrust = -5;
+	bool stabilizeOnAim = true;
+	float verticalImpulseStabilize = 1.5;
+	float upwardsGravityOnStabilize = -10;
+	float downwardsGravityOnStabilize = 0;
+}
+
+dodgeAir : locomotionAir
+{
+	bool hasEnterCondition = true;
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	string[] transitionTo = 
+	[
+		"workspot", "regularLand", "hardLand", "veryHardLand", "deathLand", "climb", "ladder", "fall", "airHover", "toStatusEffect", "airThrusters"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", "=", "=", "", "", "=", "", "", ""
+	];
+	int numberOfAirDodges = 1;
+	bool imperfectTurn = true;
+	bool dodgeWithNoMovementInput = false;
+	float impulse = 10.f;
+	float downwardsGravity = -4;
+}
+
+landingAbstract : stand
+{
+	bool hasOnTick = false;
+}
+
+regularLand : landingAbstract
+{
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string animationStateName = "softland";
+	string[] transitionTo = 
+	[
+		"workspot", "jump", "sprint", "slide", "crouch", "stand"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", ""
+	];
+}
+
+failedLandingAbstract : landingAbstract
+{
+	bool hasInternalEnterCondition = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = 
+	[
+		"workspot", "stand", "crouch"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "ToStand"
+	];
+}
+
+hardLand : failedLandingAbstract
+{
+	bool hasInternalEnterCondition = true;
+	float duration = 0.6;
+}
+
+veryHardLand : failedLandingAbstract
+{
+	string stateBodyClassName = "LocomotionForceIdle";
+	bool hasInternalEnterCondition = true;
+	CName onEnterCameraParamsName = "VeryHardLand";
+	float duration = 4.0;
+}
+
+deathLand : failedLandingAbstract
+{
+	string stateBodyClassName = "LocomotionForceIdle";
+	bool hasInternalEnterCondition = true;
+	CName onEnterCameraParamsName = "DeathLand";
+	float duration = 1.8;
+}
+

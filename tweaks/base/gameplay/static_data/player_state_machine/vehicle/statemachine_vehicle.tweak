@@ -1,0 +1,275 @@
+package playerStateMachineVehicle
+
+idle : baseVehicleState
+{
+	bool hasOnEnter = true;
+	CName onEnterCameraParamsName = "";
+	string[] transitionTo = 
+	[
+		"exit", "scene", "waitingForScene", "entering"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "", ""
+	];
+	bool continueTransitioning_EXPERIMENTAL = true;
+}
+
+entering : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasExitCondition = true;
+	CName onEnterCameraParamsName = "VehicleTransitions";
+	string[] transitionTo = 
+	[
+		"exiting", "scene", "switchSeats", "allSlotStates"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "ToSwitchSeats", ""
+	];
+	float durationTime = 1.3f;
+}
+
+abstractSlotState : baseVehicleState
+{
+	alias = 
+	[
+		"allSlotStates"
+	];
+}
+
+drive : abstractSlotState
+{
+	string stateBodyClassName = "VehicleDrive";
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasOnUpdate = true;
+	CName onEnterCameraParamsName = "Vehicle";
+	CName onEnterCameraParamsNameSecondary = "Bike";
+	string[] transitionTo = 
+	[
+		"scene", "switchSeats", "driverCombat", "deathExiting", "collisionExiting", "exiting"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", "", "", ""
+	];
+}
+
+passenger : abstractSlotState
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName onEnterCameraParamsName = "VehiclePassenger";
+	string[] transitionTo = 
+	[
+		"scene", "switchSeats", "combat", "enteringCombat", "exiting"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", "", ""
+	];
+}
+
+gunner : abstractSlotState
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	CName onEnterCameraParamsName = "VehicleGunner";
+	string[] transitionTo = 
+	[
+		"scene"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+switchSeats : baseVehicleState
+{
+	string stateBodyClassName = "SwitchSeats";
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName onEnterCameraParamsName = "VehicleTransitionsSwitchSeats";
+	string[] transitionTo = 
+	[
+		"passenger", "drive"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "="
+	];
+}
+
+waitingForScene : baseVehicleState
+{
+	bool hasEnterCondition = true;
+	string[] transitionTo = 
+	[
+		"exit", "scene", "entering"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "="
+	];
+}
+
+scene : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	bool hasExitCondition = true;
+	CName onEnterCameraParamsName = "";
+	string[] transitionTo = 
+	[
+		"sceneExiting", "combat", "driverCombat", "allSlotStates"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", "=", ""
+	];
+}
+
+sceneExiting : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	CName onEnterCameraParamsName = "";
+	string[] transitionTo = 
+	[
+		"exit"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+enteringCombat : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	CName onEnterCameraParamsName = "VehicleTransitions";
+	string[] transitionTo = 
+	[
+		"combat"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	float durationTime = 1.6f;
+}
+
+exitingCombat : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasExitCondition = true;
+	CName onEnterCameraParamsName = "VehicleTransitions";
+	string[] transitionTo = 
+	[
+		"passenger", "drive"
+	];
+	string[] transitionCondition = 
+	[
+		"", ""
+	];
+	float durationTime = 1.4;
+}
+
+sceneExitingCombat : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasExitCondition = true;
+	CName onEnterCameraParamsName = "";
+	string[] transitionTo = 
+	[
+		"scene"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+}
+
+combat : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	CName onEnterCameraParamsName = "VehicleCombat";
+	string[] transitionTo = 
+	[
+		"exitingCombat", "sceneExitingCombat", "exiting"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "=", ""
+	];
+}
+
+driverCombat : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName onEnterCameraParamsName = "DriverCombat";
+	string[] transitionTo = 
+	[
+		"drive", "deathExiting", "collisionExiting", "exiting"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "", ""
+	];
+}
+
+exiting : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	CName onEnterCameraParamsName = "VehicleTransitions";
+	string[] transitionTo = 
+	[
+		"exit"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	float durationTime = 2.267f;
+}
+
+collisionExiting : exiting
+{
+	bool hasOnUpdate = false;
+}
+
+deathExiting : exiting
+{
+	bool hasOnUpdate = false;
+}
+
+exit : baseVehicleState
+{
+	bool hasOnEnter = true;
+	bool hasOnUpdate = false;
+	string[] transitionTo = [];
+	string[] transitionCondition = [];
+}
+

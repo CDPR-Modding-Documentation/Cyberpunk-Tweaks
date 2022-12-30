@@ -1,0 +1,134 @@
+package Prereqs
+using RTDB
+
+AlwaysTruePrereq : IPrereq
+{
+	prereqClassName = "AlwaysTruePrereq";
+}
+
+ANDPrereq : MultiPrereq
+{
+	prereqClassName = "gameMultiPrereq";
+	aggregationType = "AND";
+	nestedPrereqs = [];
+}
+
+ORPrereq : MultiPrereq
+{
+	prereqClassName = "gameMultiPrereq";
+	aggregationType = "OR";
+	nestedPrereqs = [];
+}
+
+OnOffPrereq : IPrereq
+{
+	prereqClassName = "OnOffPrereq";
+}
+
+RandomChancePrereq : IPrereq
+{
+	prereqClassName = "RandomChancePrereq";
+}
+
+SetChancePrereq : IPrereq
+{
+	prereqClassName = "SetChancePrereq";
+	float setChance = 0f;
+}
+
+GameTimePrereq : IPrereq
+{
+	prereqClassName = "GametimePrereq";
+	float delay = 0f;
+}
+
+DurationPrereq : IPrereq
+{
+	prereqClassName = "TemporalPrereq";
+	float duration = 0.f;
+	float randRange = 0.f;
+}
+
+IncapacitatedPrereq : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Dead";
+			isInState = true;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Defeated";
+		} : Prereqs.SampleStatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+		} : Prereqs.SampleStatusEffectPrereq
+	];
+}
+
+AfterFirstVisitAtVictor : IPrereq
+{
+	prereqClassName = "FactValuePrereq";
+	CName fact = "q001_viktor_char_entry";
+	int value = 0;
+	CName comparisonType = "Greater";
+}
+
+WakakoReward : IPrereq
+{
+	prereqClassName = "FactValuePrereq";
+	CName fact = "sq_q001_add_reward";
+	int value = 0;
+	CName comparisonType = "Greater";
+}
+
+AfterJackiesFuneral : IPrereq
+{
+	prereqClassName = "FactValuePrereq";
+	CName fact = "sq018_done";
+	int value = 0;
+	CName comparisonType = "Greater";
+}
+
+SalesAtWilsonStart : IPrereq
+{
+	prereqClassName = "FactValuePrereq";
+	CName fact = "dlc2_show_new_items";
+	int value = 0;
+	CName comparisonType = "Greater";
+}
+
+BeforeFirstVisit_SalesAtWilsonStart : IPrereq
+{
+	prereqClassName = "FactValuePrereq";
+	CName fact = "dlc2_after_first_wilson_visit_with_dlc2";
+	int value = 0;
+	CName comparisonType = "LessOrEqual";
+}
+
+AfterFirstVisit_SalesAtWilsonStart : IPrereq
+{
+	prereqClassName = "FactValuePrereq";
+	CName fact = "dlc2_after_first_wilson_visit_with_dlc2";
+	int value = 0;
+	CName comparisonType = "Greater";
+}
+
+WilsonSalesStock : MultiPrereq
+{
+	aggregationType = "AND";
+	nestedPrereqs = 
+	[
+		"Prereqs.SalesAtWilsonStart", "Prereqs.BeforeFirstVisit_SalesAtWilsonStart"
+	];
+}
+
+LegenaryTreasureDrop : StatPrereq
+{
+	statType = "StreetCred";
+	comparisonType = "GreaterOrEqual";
+	valueToCheck = 40;
+}
+

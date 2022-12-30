@@ -1,0 +1,272 @@
+package TutorialMeleeBlock
+using RTDB, MeleeActions
+
+Map : ActionMap
+{
+	defaultMap = 
+	{
+		map = 
+		[
+			{
+				node = "GenericArchetype.MeleeCloseAttackLight01Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeCloseAttackLight02Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeAttackLight01Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeAttackLight02Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeAttackLight03Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeStrongSingle01Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeStrongSingle02Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeChargeSingle01Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeChargeSingle02Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeChargeSingle03Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeChargeJump01Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeChargeJump02Condition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "GenericArchetype.MeleeBlockState";
+				isOverriddenBy = "TutorialMeleeBlock.TutorialMeleeBlockState";
+			}, 
+			{
+				node = "GenericArchetype.MeleeParryState";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "CombatDecorator.MeleeCombatCloseDistanceDecorator";
+				isOverriddenBy = "TutorialMeleeBlock.TutorialMeleeCombatCloseDistanceDecorator";
+			}, 
+			{
+				node = "CombatDecorator.MeleeCombatSafeDistanceDecorator";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "CombatDecorator.MeleeTicketDecorator";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "CombatDecorator.MeleeTicketNoRequestCondition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "MeleeActions.MeleeBlockDodge01ConditionDefinition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "DashAndDodgeActions.DodgeMeleeCompositeSelectorDefinition";
+				isOverriddenBy = "";
+			}, 
+			{
+				node = "MovementActions.MeleeMoveToCombatContact";
+				isOverriddenBy = "TutorialMeleeDeflect.TutorialMeleeMoveToCombatContact";
+			}, 
+			{
+				node = "CombatDecorator.MeleeApproachTicketDecorator";
+				isOverriddenBy = "TutorialMeleeDeflect.TutorialMeleeApproachTicketDecorator";
+			}, 
+			{
+				node = "MeleeActions.MeleeTauntSupportAreaSelector";
+				isOverriddenBy = "TutorialMeleeBlock.MeleeTauntSupportAreaSelector";
+			}, 
+			{
+				node = "MeleeActions.MeleeTauntCombatAreaSelector";
+				isOverriddenBy = "TutorialMeleeBlock.MeleeTauntCombatAreaSelector";
+			}, 
+			{
+				node = "MeleeActions.SimpleMeleeTauntCombatAreaSelector";
+				isOverriddenBy = "TutorialMeleeBlock.SimpleMeleeTauntCombatAreaSelector";
+			}, 
+			{
+				node = "MeleeActions.MeleeTauntContactAreaSelector";
+				isOverriddenBy = "TutorialMeleeBlock.MeleeTauntContactAreaSelector";
+			}, 
+			{
+				node = "MeleeActions.MeleeTauntHitReactionSelector";
+				isOverriddenBy = "TutorialMeleeBlock.MeleeTauntHitReactionSelector";
+			}, 
+			{
+				node = "MeleeActions.MeleeTauntPreAttackSelector";
+				isOverriddenBy = "TutorialMeleeBlock.MeleeTauntPreAttackSelector";
+			}
+		];
+	};
+}
+
+TutorialMeleeApproachTicketDecorator : AIAction
+{
+	loop = 
+	{
+	};
+}
+
+TutorialMeleeMoveToCombatContact : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			tolerance = 1.f;
+			distance = 2.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+		};
+	};
+}
+
+TutorialMeleeCombatCloseDistanceDecorator : AIAction
+{
+	loop = 
+	{
+	};
+}
+
+TutorialMeleeBlockState : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPreviousAttackNameBlockDodge", "Condition.TargetBelow3dot8m", "Condition.TargetBelow90deg", "Condition.NotTicketEquip", "Condition.NotInStatesTaunt"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Defend";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove4dot5m", "Condition.TargetAbove90deg", "Condition.NotInStatesDefend", {
+							AND = 
+							[
+								"Condition.AbilityCanParry", "Condition.MinBlockCount1"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "BlockStateCooldown";
+					duration = 3.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "BlockIdle";
+		animSlot = 
+		{
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+}
+
+MeleeTauntSupportAreaSelector : MeleeActions.MeleeTauntSupportAreaSelector
+{
+	actions = 
+	[
+		"MeleeFistActions.MeleeTauntSupportAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntCombatAreaSelector : MeleeActions.MeleeTauntCombatAreaSelector
+{
+	actions = 
+	[
+		"MeleeFistActions.MeleeTauntCombatAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+SimpleMeleeTauntCombatAreaSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MeleeFistActions.SimpleMeleeTauntCombatAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntContactAreaSelector : MeleeActions.MeleeTauntContactAreaSelector
+{
+	actions = 
+	[
+		"MeleeFistActions.MeleeTauntContactAreaDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntHitReactionSelector : MeleeActions.MeleeTauntHitReactionSelector
+{
+	actions = 
+	[
+		"MeleeFistActions.MeleeTauntHitReactionDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+
+MeleeTauntPreAttackSelector : MeleeActions.MeleeTauntPreAttackSelector
+{
+	actions = 
+	[
+		"MeleeFistActions.MeleeTauntPreAttackDefinition"
+	];
+	defaultAction = "GenericArchetype.Success";
+}
+

@@ -1,0 +1,267 @@
+package Items
+using RTDB, Prereqs
+
+[ notQueryable ]
+FaceClothingBase : Clothing
+{
+	useHeadgearGarmentAggregator = true;
+	fk< ItemBlueprint > blueprint = "Items.FaceClothingBlueprint";
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes = 
+	[
+		"itemsFactoryAppearanceSuffix.Gender", "itemsFactoryAppearanceSuffix.Camera"
+	];
+	bool[] appearanceSuffixesOwnerOverride = 
+	[
+		true, false
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			min = 0f;
+			max = 0.95f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "Additive";
+			id = "item_clothing_RPG_stats";
+			column = "face_clothing_power_level_to_armor";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 10f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Additive";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.IsItemCrafted";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.Eyes"
+	];
+	fk< EquipmentArea > equipArea = "EquipmentArea.FaceArmor";
+	CName[] tags += 
+	[
+		"FaceArmor"
+	];
+	CName entityName = "player_face_item";
+	fk< ItemType > itemType = "ItemType.Clo_Face";
+	quality = "Quality.Random";
+	buyPrice += 
+	[
+		"Price.FaceClothing"
+	];
+	sellPrice += 
+	[
+		"Price.FaceClothing"
+	];
+}
+
+[ notQueryable ]
+GenericFaceClothing : FaceClothingBase
+{
+	fk< ItemBlueprint > blueprint = "Items.FaceClothingBlueprint";
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem", {
+			slot = "AttachmentSlots.FaceFabricEnhancer1";
+		} : FaceClothingSlotBaseItemList
+	];
+}
+
+[ notQueryable ]
+EmptySlotsFaceClothing : FaceClothingBase
+{
+	tags += 
+	[
+		"EmptySlots"
+	];
+	fk< ItemBlueprint > blueprint = "Items.FaceClothingBlueprint";
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem"
+	];
+}
+
+FaceClothingBlueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.GenericItemRoot";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.FaceFabricEnhancer1";
+				prereqID = 
+				{
+					valueToCheck = 0;
+				} : ItemQualityPrereq;
+			}
+		];
+	};
+}
+
+[ notQueryable ]
+Glasses : GenericFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.Glasses"
+	];
+	sellPrice += 
+	[
+		"Price.Glasses"
+	];
+}
+
+[ notQueryable ]
+Mask : GenericFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.Mask"
+	];
+	sellPrice += 
+	[
+		"Price.Mask"
+	];
+}
+
+[ notQueryable ]
+Visor : GenericFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.Visor"
+	];
+	sellPrice += 
+	[
+		"Price.Visor"
+	];
+}
+
+[ notQueryable ]
+Tech : GenericFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.TechFaceClothing"
+	];
+	sellPrice += 
+	[
+		"Price.TechFaceClothing"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsGlasses : EmptySlotsFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.Glasses"
+	];
+	sellPrice += 
+	[
+		"Price.Glasses"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsMask : EmptySlotsFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.Mask"
+	];
+	sellPrice += 
+	[
+		"Price.Mask"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsVisor : EmptySlotsFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.Visor"
+	];
+	sellPrice += 
+	[
+		"Price.Visor"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsTech : EmptySlotsFaceClothing
+{
+	buyPrice += 
+	[
+		"Price.TechFaceClothing"
+	];
+	sellPrice += 
+	[
+		"Price.TechFaceClothing"
+	];
+}
+

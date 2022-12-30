@@ -1,0 +1,100 @@
+package GenericInteraction
+using RTDB
+
+Scrap : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "Scrap";
+	interactionLayer = "Loot";
+	instigatorPrereqs = 
+	[
+		{
+			valueToCheck = 1;
+			statType = "CanScrapPartsFromMechanicals";
+			comparisonType = "GreaterOrEqual";
+		} : StatPrereq
+	];
+	targetPrereqs = 
+	[
+		{
+			prereqClassName = "IsPuppetActivePrereq";
+			bool invert = true;
+		} : IPrereq
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.Scrap";
+	rewards = 
+	[
+		"GenericInteraction.CraftingMaterialsScrapReward", "GenericInteraction.MoneyScrapReward", "RPGActionRewards.Engineering"
+	];
+}
+
+CraftingMaterialsScrapReward : RewardBase
+{
+	fk< CurrencyReward >[] currencyPackage = 
+	[
+		"GenericInteraction.CraftingCommonMaterialScrapReward", "GenericInteraction.CraftingUncommonMaterialScrapReward", "GenericInteraction.CraftingRareMaterialScrapReward", "GenericInteraction.CraftingEpicMaterialScrapReward", "GenericInteraction.CraftingLegendaryMaterialScrapReward"
+	];
+}
+
+CraftingMaterialScrapRewardBase : CurrencyReward
+{
+	fk< StatModifier >[] quantityModifiers = 
+	[
+		{
+			statType = "BaseStats.Quantity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Quantity";
+			modifierType = "Additive";
+			min = 0;
+			max = 1;
+		} : RandomStatModifier
+	];
+}
+
+CraftingCommonMaterialScrapReward : CraftingMaterialScrapRewardBase
+{
+	fk< Item > currency = "Items.CommonMaterial1";
+}
+
+CraftingUncommonMaterialScrapReward : CraftingMaterialScrapRewardBase
+{
+	fk< Item > currency = "Items.UncommonMaterial1";
+}
+
+CraftingRareMaterialScrapReward : CraftingMaterialScrapRewardBase
+{
+	fk< Item > currency = "Items.EpicMaterial1";
+}
+
+CraftingEpicMaterialScrapReward : CraftingMaterialScrapRewardBase
+{
+	fk< Item > currency = "Items.RareMaterial1";
+}
+
+CraftingLegendaryMaterialScrapReward : CraftingMaterialScrapRewardBase
+{
+	fk< Item > currency = "Items.LegendaryMaterial1";
+}
+
+MoneyScrapReward : RewardBase
+{
+	currencyPackage = 
+	[
+		{
+			currency = "Items.money";
+			quantityModifiers = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					min = 10;
+					max = 20;
+				} : RandomStatModifier
+			];
+		}
+	];
+}
+

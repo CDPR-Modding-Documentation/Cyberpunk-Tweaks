@@ -1,0 +1,515 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage, AttachmentSlots, Prereqs
+
+[ notQueryable ]
+Base_Dual_Shotgun : Base_Weapon
+{
+	CName[] tags += 
+	[
+		"inventoryDoubleSlot"
+	];
+	fk< ItemBlueprint > blueprint = "Items.Base_Dual_Shotgun_Blueprint";
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ItemSlotTechRifle"
+	];
+	fk< ItemType > itemType = "ItemType.Wea_ShotgunDual";
+	triggerEffectName = "te_wea_aim_mid";
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	CName effectiveRangeCurve = "ShotgunRange";
+	forcedMinHitReaction = 1;
+	shootingPatternPackages = 
+	[
+		"ShootingPatterns.ShotgunShootingPackage"
+	];
+	statModifierGroups += 
+	[
+		"Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Shotgun_Sway_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Proficiencies.DemolitionDualShotgunStats", "Items.Base_PlayerState_Spread_Stats"
+	];
+	Vector3 position = ( 0.01f, 0.0f, 0.06f );
+	float offset = -0.1f;
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"w_base_shotgun_dual"
+			];
+		} : GameplayLogicPackage
+	];
+	bool divideAttacksByPelletsOnUI = true;
+	useForcedTBHZOffset = true;
+}
+
+Base_Dual_Shotgun_Blueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.PowerModRareElement", "Items.PowerModEpicElement", "Items.PowerModLegendaryElement", "Items.IconicWeaponModElement", {
+				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
+				fk< ItemBlueprintElement >[] childElements = 
+				[
+					{
+						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
+					}, 
+					{
+						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
+					}
+				];
+			}
+		];
+	};
+}
+
+Base_Tech_Dual_Shotgun_Blueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.TechModRareElement", "Items.TechModEpicElement", "Items.TechModLegendaryElement", "Items.IconicWeaponModElement", {
+				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
+				fk< ItemBlueprintElement >[] childElements = 
+				[
+					{
+						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
+					}, 
+					{
+						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
+					}
+				];
+			}
+		];
+	};
+}
+
+Base_Smart_Dual_Shotgun_Blueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.SmartModRareElement", "Items.SmartModEpicElement", "Items.SmartModLegendaryElement", "Items.IconicWeaponModElement", {
+				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
+				fk< ItemBlueprintElement >[] childElements = 
+				[
+					{
+						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
+					}, 
+					{
+						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
+					}
+				];
+			}
+		];
+	};
+}
+
+Base_Dual_Shotgun_RPG_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_shotguns_RPG_stats";
+			column = "item_level_to_DPS";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 8.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Dual_Shotgun_Misc_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			float value = 0.5f;
+		} : UnequipDurationModifier, 
+		{
+			float value = 0.3f;
+		} : EquipDurationModifier, 
+		"BaseStats.SlideWhenLeaningOutOfCoverModifier", "BaseStats.BlockLocomotionWhenLeaningOutOfCoverModifier", {
+			statType = "BaseStats.BulletMagnetismDefaultAngle";
+			modifierType = "Additive";
+			value = 0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletMagnetismHighVelocityAngle";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			float value = 20.f;
+		} : EffectiveRangeModifier, 
+		{
+			float value = 1.f;
+		} : RecoilRecoveryMinSpeedModifier, 
+		{
+			float value = 30.f;
+		} : RecoilMaxLengthModifier, 
+		{
+			float value = 20.f;
+		} : PhysicalImpulseModifier, 
+		{
+			float value = 50.f;
+		} : KnockdownImpulseModifier, 
+		{
+			float value = 50.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			float value = 50.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			value = 0.20f;
+		} : AimInTimeModifier, 
+		{
+			value = 0.20f;
+		} : AimOutTimeModifier, 
+		{
+			statType = "BaseStats.WeaponHasAutoloader";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletPseudoPierceHitVFxChance";
+			modifierType = "Multiplier";
+			value = 0.33;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletSurroundingHitVFxChance";
+			modifierType = "Multiplier";
+			value = 0.33;
+		} : ConstantStatModifier, 
+		{
+			value = 35.f;
+		} : MaximumRangeModifier
+	];
+}
+
+Base_Dual_Shotgun_NPC_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.CanUseCovers";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseMeleeRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseCloseRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseMediumRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletMagnetismDefaultAngle";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletMagnetismHighVelocityAngle";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxAI";
+			modifierType = "Additive";
+			value = 8.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			value = 0.5f;
+		} : ShootingOffsetAIModifier, 
+		{
+			float value = 20.f;
+		} : PhysicalImpulseModifier, 
+		{
+			float value = 50.f;
+		} : KnockdownImpulseModifier, 
+		{
+			float value = 50.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			float value = 50.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			value = 0.3f;
+		} : EquipItemTime_GangModifier, 
+		{
+			value = 1.0f;
+		} : EquipAnimationDuration_GangModifier, 
+		{
+			value = 1.333f;
+		} : EquipActionDuration_GangModifier, 
+		{
+			value = 0.567f;
+		} : UnequipItemTime_GangModifier, 
+		{
+			value = 0.8f;
+		} : UnequipAnimationDuration_GangModifier, 
+		{
+			value = 1.0f;
+		} : UnequipDuration_GangModifier, 
+		{
+			value = 0.3f;
+		} : EquipItemTime_CorpoModifier, 
+		{
+			value = 0.667f;
+		} : EquipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.333f;
+		} : EquipActionDuration_CorpoModifier, 
+		{
+			value = 0.8f;
+		} : UnequipItemTime_CorpoModifier, 
+		{
+			value = 1.0f;
+		} : UnequipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.067f;
+		} : UnequipDuration_CorpoModifier
+	];
+}
+
+Base_Dual_Shotgun_Sway_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.f;
+		} : SwayResetOnAimStartModifier, 
+		{
+			value = 5.f;
+		} : SwayTraversalTimeModifier, 
+		{
+			value = 1.8f;
+		} : SwaySideMaximumAngleDistanceModifier, 
+		{
+			value = 1.5f;
+		} : SwaySideMinimumAngleDistanceModifier, 
+		{
+			value = 75.f;
+		} : SwaySideTopAngleLimitModifier, 
+		{
+			value = 75.f;
+		} : SwaySideBottomAngleLimitModifier, 
+		{
+			value = 0.07f;
+		} : SwaySideStepChangeMaximumFactorModifier, 
+		{
+			value = 0.07f;
+		} : SwaySideStepChangeMinimumFactorModifier, 
+		{
+			value = 0.7f;
+		} : SwayCurvatureMaximumFactorModifier, 
+		{
+			value = 0.7f;
+		} : SwayCurvatureMinimumFactorModifier, 
+		{
+			value = 0.165f;
+		} : SwayCenterMaximumAngleOffsetModifier, 
+		{
+			value = 0.0f;
+		} : SwayInitialOffsetRandomFactorModifier, 
+		{
+			value = 0.f;
+		} : SwayStartDelayModifier, 
+		{
+			value = 1.0f;
+		} : SwayStartBlendTimeModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilMagForFullDrift";
+			modifierType = "Additive";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Dual_Shotgun_NPC_Data : Base_NPC_RPG_Data
+{
+	statModifiers += 
+	[
+		"AttackModifier.DualShotgunMinTBH", "AttackModifier.DualShotgunMinLineOfSight", "AttackModifier.DualShotgunNPCDamageMultiplier"
+	];
+	statModifierGroups += 
+	[
+		"Items.Base_Dual_Shotgun_NPC_Stats"
+	];
+}
+
+[ notQueryable ]
+Base_Power_Dual_Shotgun : Base_Dual_Shotgun
+{
+	buyPrice += 
+	[
+		"Price.PowerWeapon"
+	];
+	sellPrice += 
+	[
+		"Price.PowerWeapon"
+	];
+	previewEffectName = "weaponPreview";
+	previewEffectTag = "ricochet";
+	rangedAttacks = "Attacks.PowerBuckshotsBulletPackage";
+	statModifierGroups += 
+	[
+		"Items.Base_Power_Shotgun_Stats", "Items.Base_Power_Shotgun_Mult_Stats", "Items.Base_Power_Shotgun_RPG_Randomized_Stats"
+	];
+}
+
+Base_Power_Dual_Shotgun_NPC_Data : Base_Dual_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+	];
+}
+
+[ notQueryable ]
+Base_Tech_Dual_Shotgun : Base_Dual_Shotgun
+{
+	buyPrice += 
+	[
+		"Price.TechWeapon"
+	];
+	sellPrice += 
+	[
+		"Price.TechWeapon"
+	];
+	blueprint = "Items.Base_Tech_Dual_Shotgun_Blueprint";
+	statModifierGroups += 
+	[
+		"Items.Base_Tech_Stats", "Items.Base_Tech_Shotgun_Mult_Stats", "Items.Base_Tech_Shotgun_RPG_Randomized_Stats", "Proficiencies.EngineeringWeaponPassives"
+	];
+}
+
+Base_Tech_Dual_Shotgun_NPC_Data : Base_Dual_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+	];
+}
+
+[ notQueryable ]
+Base_Smart_Dual_Shotgun : Base_Dual_Shotgun
+{
+	tags += 
+	[
+		"Smart"
+	];
+	buyPrice += 
+	[
+		"Price.SmartWeapon"
+	];
+	sellPrice += 
+	[
+		"Price.SmartWeapon"
+	];
+	blueprint = "Items.Base_Smart_Dual_Shotgun_Blueprint";
+	statModifierGroups = 
+	[
+		"Items.Base_Smart_Shotgun_Mult_Stats", "Items.Base_Smart_Dual_Shotgun_No_Sway_Stats", "Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Proficiencies.DemolitionDualShotgunStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Randomization", "Items.QualityRandomization"
+	];
+}
+
+Base_Smart_Dual_Shotgun_No_Sway_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilMagForFullDrift";
+			modifierType = "Additive";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Smart_Dual_Shotgun_NPC_Data : Base_Dual_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_NPC_SmartGun_Stats"
+	];
+}
+

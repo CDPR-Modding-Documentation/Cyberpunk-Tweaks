@@ -1,0 +1,79 @@
+package ShootPreciseCrouchTest
+using RTDB, AttachmentSlots, ItemCategory, ItemType, AIActionTarget, ShootActions
+
+WeaponTestsComposite : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"ShootPreciseCrouchTest.CrouchPreciseShoot", "GenericArchetype.ReloadSelector", "GenericArchetype.Success"
+	];
+}
+
+CrouchPreciseShoot : ShootDefault
+{
+	cooldowns = 
+	[
+		{
+			name = "PreciseShoot";
+			duration = 2.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanPreciseShoot", "Condition.MaxVisibilityToTargetDistance3m", "Condition.TargetBelow15m", "Condition.NotIsMoving", "Condition.NotInCover", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotTicketTakeCover", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			stanceState = "Crouch";
+			locomotionMode = "Static";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow2m", "Condition.TargetAbove90deg", "Condition.AmmoCount0", "Condition.NotMaxVisibilityToTargetDistance3m", "Condition.FriendlyFire", "Condition.TicketTakeCover", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.CombatTargetChanged"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	animData = 
+	{
+		animFeature = "CrouchShootAction";
+		animSlot = 
+		{
+		};
+	};
+}
+

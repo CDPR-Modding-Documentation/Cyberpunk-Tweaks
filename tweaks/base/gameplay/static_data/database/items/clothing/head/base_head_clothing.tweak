@@ -1,0 +1,406 @@
+package Items
+using RTDB, Prereqs
+
+[ notQueryable ]
+HeadClothingBase : Clothing
+{
+	useHeadgearGarmentAggregator = true;
+	fk< ItemBlueprint > blueprint = "Items.HeadClothingBlueprint";
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes = 
+	[
+		"itemsFactoryAppearanceSuffix.Gender", "itemsFactoryAppearanceSuffix.Camera"
+	];
+	bool[] appearanceSuffixesOwnerOverride = 
+	[
+		true, false
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			min = 0f;
+			max = 0.95f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "Additive";
+			id = "item_clothing_RPG_stats";
+			column = "head_clothing_power_level_to_armor";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 10f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Additive";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.IsItemCrafted";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.Head"
+	];
+	fk< EquipmentArea > equipArea = "EquipmentArea.HeadArmor";
+	CName[] tags += 
+	[
+		"HeadArmor"
+	];
+	CName entityName = "player_head_item";
+	fk< ItemType > itemType = "ItemType.Clo_Head";
+	buyPrice += 
+	[
+		"Price.HeadClothing"
+	];
+	sellPrice += 
+	[
+		"Price.HeadClothing"
+	];
+}
+
+[ notQueryable ]
+GenericHeadClothing : HeadClothingBase
+{
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem", {
+			slot = "AttachmentSlots.HeadFabricEnhancer1";
+		} : HeadClothingSlotBaseItemList
+	];
+}
+
+[ notQueryable ]
+EmptySlotsHeadClothing : HeadClothingBase
+{
+	tags += 
+	[
+		"EmptySlots"
+	];
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem"
+	];
+}
+
+HeadClothingBlueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.GenericItemRoot";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.HeadFabricEnhancer1";
+				prereqID = 
+				{
+					valueToCheck = 0;
+				} : ItemQualityPrereq;
+			}
+		];
+	};
+}
+
+[ notQueryable ]
+Helmet : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Helmet"
+	];
+	sellPrice += 
+	[
+		"Price.Helmet"
+	];
+}
+
+[ notQueryable ]
+HelmetHair : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Helmet"
+	];
+	sellPrice += 
+	[
+		"Price.Helmet"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+Hat : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Hat"
+	];
+	sellPrice += 
+	[
+		"Price.Hat"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+Cap : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Cap"
+	];
+	sellPrice += 
+	[
+		"Price.Cap"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+Scarf : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Scarf"
+	];
+	sellPrice += 
+	[
+		"Price.Scarf"
+	];
+}
+
+[ notQueryable ]
+ScarfHair : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Scarf"
+	];
+	sellPrice += 
+	[
+		"Price.Scarf"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+Balaclava : GenericHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Balaclava"
+	];
+	sellPrice += 
+	[
+		"Price.Balaclava"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsHelmet : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Helmet"
+	];
+	sellPrice += 
+	[
+		"Price.Helmet"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsHelmetHair : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Helmet"
+	];
+	sellPrice += 
+	[
+		"Price.Helmet"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsHat : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Hat"
+	];
+	sellPrice += 
+	[
+		"Price.Hat"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsCap : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Cap"
+	];
+	sellPrice += 
+	[
+		"Price.Cap"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsScarf : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Scarf"
+	];
+	sellPrice += 
+	[
+		"Price.Scarf"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsScarfHair : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Scarf"
+	];
+	sellPrice += 
+	[
+		"Price.Scarf"
+	];
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes += 
+	[
+		"itemsFactoryAppearanceSuffix.HairType"
+	];
+	hairSkinnedMeshComponents = 
+	[
+		"buzz", "dreads", "long", "short"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsBalaclava : EmptySlotsHeadClothing
+{
+	buyPrice += 
+	[
+		"Price.Balaclava"
+	];
+	sellPrice += 
+	[
+		"Price.Balaclava"
+	];
+}
+

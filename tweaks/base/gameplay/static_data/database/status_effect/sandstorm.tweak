@@ -1,0 +1,82 @@
+package BaseStatusEffect
+using RTDB, Prereqs
+
+SandstormAbstract : DoTStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	gameplayTags += 
+	[
+		"Sandstorm"
+	];
+	replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_sandstorm";
+		}
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+Sandstorm : SandstormAbstract
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName animFeatureName = "CameraBreathingHeavy";
+					float amplitudeWeight = 0.7f;
+					float blendInDuration = 0.5f;
+					float blendOutDuration = 0.7f;
+				} : BaseStatusEffect.BreathingAnimationEffector
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "PlaySFXEffector";
+					CName activationSFXName = "vfx_fullscreen_sandstorm_start";
+					CName deactivationSFXName = "vfx_fullscreen_sandstorm_stop";
+				} : BaseStatusEffect.SandstormSFXEffector
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.StaminaRegenRate";
+					modifierType = "Multiplier";
+					value = -0.02f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Acceleration";
+					modifierType = "Multiplier";
+					value = 0.3f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Deceleration";
+					modifierType = "Multiplier";
+					value = 0.7f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SandstormSFXEffector : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "";
+	CName deactivationSFXName = "";
+}
+

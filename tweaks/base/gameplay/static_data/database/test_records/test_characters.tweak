@@ -1,0 +1,812 @@
+package TEST
+using RTDB, Character, Vendors
+
+EliteEnemy : animals_grunt1_ranged1_nova_mb
+{
+	rarity = "NPCRarity.Elite";
+}
+
+TrashEnemy : animals_grunt1_ranged1_nova_mb
+{
+	rarity = "NPCRarity.Trash";
+}
+
+WeakEnemy : animals_grunt1_ranged1_nova_mb
+{
+	rarity = "NPCRarity.Weak";
+}
+
+RareEnemy : animals_grunt1_ranged1_nova_mb
+{
+	rarity = "NPCRarity.Rare";
+}
+
+OfficerEnemy : animals_grunt1_ranged1_nova_mb
+{
+	rarity = "NPCRarity.Officer";
+}
+
+BossEnemy : animals_grunt1_ranged1_nova_mb
+{
+	rarity = "NPCRarity.Boss";
+}
+
+MoneyEnemy : militech_ranger1_ranged1_saratoga_ma
+{
+	dropsMoneyOnDeath = true;
+	itemGroups = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.money";
+					quantity = 1000;
+				}
+			];
+		}
+	];
+}
+
+AbilityItemEnemy : militech_ranger1_ranged1_saratoga_ma
+{
+	itemGroups = 
+	[
+		{
+			items = 
+			[
+				"Character.Standard_Ammo_Unlimited_Base", "Character.Special_Ammo_Unlimited_Base", "Character.Grenade_Ammo_Unlimited_Base", {
+					item = "Ammo.HandgunAmmo";
+					quantity = 999999;
+				}, 
+				{
+					item = "Ammo.ShotgunAmmo";
+					quantity = 999999;
+				}, 
+				{
+					item = "Ammo.RifleAmmo";
+					quantity = 999999;
+				}, 
+				{
+					item = "Ammo.SniperRifleAmmo";
+					quantity = 999999;
+				}, 
+				"TEST.DodgeAbilityInventory"
+			];
+		}
+	];
+	abilities += 
+	[
+		"Ability.HasSandevistanTier1"
+	];
+}
+
+HitReactionEnemy : militech_ranger1_ranged1_saratoga_ma
+{
+	statPools = 
+	[
+		"TEST.InstantRegenHealth"
+	];
+}
+
+AnimWrapperSpawnTest : militech_ranger1_ranged1_saratoga_ma
+{
+	onSpawnGLPs = 
+	[
+		"TEST.WoundedGLP"
+	];
+}
+
+AnimWrapperEquipTest : militech_ranger1_ranged1_saratoga_ma
+{
+	itemGroups = 
+	[
+		{
+			items = 
+			[
+				"Character.Standard_Ammo_Unlimited_Base", "Character.Special_Ammo_Unlimited_Base", "Character.Grenade_Ammo_Unlimited_Base", {
+					item = "Ammo.HandgunAmmo";
+					quantity = 999999;
+				}, 
+				{
+					item = "Ammo.ShotgunAmmo";
+					quantity = 999999;
+				}, 
+				{
+					item = "Ammo.RifleAmmo";
+					quantity = 999999;
+				}, 
+				{
+					item = "Ammo.SniperRifleAmmo";
+					quantity = 999999;
+				}, 
+				"TEST.WoundedRifleInventory"
+			];
+		}
+	];
+}
+
+WoundedGLP : GameplayLogicPackage
+{
+	animationWrapperOverrides = 
+	[
+		"woundedLocomotion_l_leg"
+	];
+}
+
+StandardEnemy : animals_grunt2_ranged2_overture_mb
+{
+	rarity = "NPCRarity.Elite";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 32;
+		} : ConstantStatModifier
+	];
+}
+
+DeterministicDamage : StandardEnemy
+{
+	tags += 
+	[
+		"DeterministicDamage"
+	];
+}
+
+VendorPuppet : Silverhand
+{
+	vendorID = "TEST.Shop";
+}
+
+OtherVendor : Silverhand
+{
+	vendorID = "TEST.Shop";
+}
+
+ItemPass_Ripperdoc : Victor_Vector
+{
+	vendorID = "Vendors.wat_kab_ripperdoc_02";
+}
+
+Shop : RipperDoc
+{
+	itemStock += 
+	[
+		{
+			item = "Items.FuyutsuiCommonMKI";
+			quantity = 
+			[
+				"Vendors.IsPresent"
+			];
+		}, 
+		{
+			item = "Items.RavenLegendaryMKIV";
+			quantity = 
+			[
+				"Vendors.IsPresent"
+			];
+		}, 
+		{
+			item = "Items.BonesMcCoy70V0";
+			quantity = 
+			[
+				{
+					statType = "BaseStats.Quantity";
+					modifierType = "Additive";
+					refStat = "BaseStats.Hacking";
+					refObject = "Player";
+					opSymbol = "*";
+					value = 1.f;
+				} : CombinedStatModifier
+			];
+		}, 
+		{
+			item = "Items.Preset_Dian_Default";
+			generationPrereqs = 
+			[
+				{
+					statType = "Hacking";
+					valueToCheck = 2;
+					comparisonType = "Greater";
+				} : StatPrereq
+			];
+		}, 
+		{
+			item = "Items.Preset_Q001_Lexington";
+			availabilityPrereq = 
+			{
+				valueToCheck = 5;
+				statType = "StreetCred";
+				comparisonType = "GreaterOrEqual";
+			} : StatPrereq;
+		}, 
+		{
+			item = "Items.OverheatLvl2Program";
+		}, 
+		{
+			item = "Items.NanoWires";
+		}, 
+		{
+			item = "Items.TShirt_01_rich_01";
+			forceQuality = "Legendary";
+		}, 
+		{
+			item = "Items.StrongArms";
+		}, 
+		{
+			item = "Items.MantisBlades";
+		}, 
+		{
+			item = "Items.ProjectileLauncher";
+		}, 
+		{
+			item = "Items.RecipeGrenadeFlashHoming";
+		}, 
+		{
+			item = "Items.money";
+			quantity = 
+			[
+				{
+					min = 3;
+					max = 5;
+				} : RandomQuantity
+			];
+		}
+	];
+}
+
+Shop2 : Crafter
+{
+	itemStock += 
+	[
+		{
+			item = "Items.Preset_Base_Lexington";
+		}
+	];
+}
+
+boxingrobot : Android_NPC_Base
+{
+	entityTemplatePath = "base\characters\entities\generic_enemy\generic__boxingrobot_ma.ent";
+	abilities += 
+	[
+	];
+	displayName = "Boxing Robot";
+	reactionPreset = "ReactionPresets.NoReaction";
+	baseAttitudeGroup = "neutral";
+	fk< AISquadParams > squadParamsID = "FactionSquads.ArasakaSquad";
+	fk< Affiliation > affiliation = "Factions.Arasaka";
+	visualTags = 
+	[
+		"Arasaka"
+	];
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.StrongArms";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				equipCondition = 
+				[
+					"WeaponConditions.BaseMeleePrimaryWeaponEquipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 3.0f;
+		} : ConstantStatModifier
+	];
+}
+
+franged2 : arasaka_base_ma
+{
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Yukimura_Military";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunRight";
+				equipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Yukimura_Military";
+				equipSlot = "AttachmentSlots.WeaponRight";
+			} : NPCEquipmentItem
+		];
+	};
+	visualTags += 
+	[
+		"Agent"
+	];
+	archetypeData = "ArchetypeData.FastRangedT2";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims", "Ability.HasElectricCoating"
+	];
+}
+
+franged3 : arasaka_base_ma
+{
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Saratoga_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Yukimura_Military";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunRight";
+			} : NPCEquipmentItem
+		];
+	};
+	visualTags += 
+	[
+		"Agent"
+	];
+	archetypeData = "ArchetypeData.FastRangedT3";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims"
+	];
+}
+
+franged4 : maelstrom_grunt2_ranged2_copperhead_ma
+{
+	archetypeData = "ArchetypeData.FastRangedT3";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims"
+	];
+}
+
+dual1 : valentinos_base_ma
+{
+	entityTemplatePath = "base\quest\secondary_characters\jackie.ent";
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Nue_Pimp_Left_Hand";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunLeft";
+			} : NPCEquipmentItem, 
+			{
+				item = "Items.Preset_Nue_Pimp";
+				equipSlot = "AttachmentSlots.WeaponLeft";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunRight";
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.w_melee_004__fists_a";
+				equipSlot = "AttachmentSlots.WeaponRight";
+			} : NPCEquipmentItem
+		];
+	};
+	visualTags += 
+	[
+		"Grunt", "Lvl3"
+	];
+	rarity = "NPCRarity.Rare";
+	archetypeData = "ArchetypeData.GenericRangedT3";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims"
+	];
+}
+
+dual2 : valentinos_base_mb
+{
+	entityTemplatePath = "base\quest\secondary_characters\jackie.ent";
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Igla_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedUnequipCondition"
+				];
+			} : NPCEquipmentItem, 
+			{
+				item = "Items.Preset_Nue_Pimp_Left_Hand";
+				equipSlot = "AttachmentSlots.WeaponLeft";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunLeft";
+				equipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryLeftHandWeaponRangedEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedUnequipCondition"
+				];
+			} : NPCEquipmentItem, 
+			{
+				item = "Items.Preset_Nue_Pimp";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunRight";
+				equipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.w_melee_004__fists_a";
+				equipSlot = "AttachmentSlots.WeaponRight";
+			} : NPCEquipmentItem
+		];
+	};
+	visualTags += 
+	[
+		"Grunt", "Lvl3"
+	];
+	rarity = "NPCRarity.Rare";
+	archetypeData = "ArchetypeData.GenericRangedT3";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims", "Ability.HasAutoReloader"
+	];
+}
+
+ranged2 : arasaka_base_ma
+{
+	baseAttitudeGroup = "hostile";
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Saratoga_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Yukimura_Military";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunRight";
+			} : NPCEquipmentItem
+		];
+	};
+	visualTags += 
+	[
+		"Agent"
+	];
+	archetypeData = "ArchetypeData.GenericRangedT2";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims", "Ability.HasElectricCoating", "Ability.HasFireproofSkin", "Ability.HasToxicCleanser"
+	];
+}
+
+tattoo : TygerClawsBikerTattooTest_ma
+{
+	archetypeData = "ArchetypeData.GenericRangedT1";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims", "Ability.HasGlowingTattoos"
+	];
+	statModifiers = 
+	[
+		{
+			value = 1000.f;
+			modifierType = "Multiplier";
+			statType = "BaseStats.Health";
+		} : ConstantStatModifier, 
+		{
+			value = 0.1f;
+			modifierType = "Multiplier";
+			statType = "BaseStats.DPS";
+		} : ConstantStatModifier
+	];
+}
+
+contextual : arasaka_cyborg_grenadier3_yukimura_ma_elite
+{
+}
+
+roger1 : arasaka_android_android2_masamune_ma
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.HasElectricExplosion"
+	];
+}
+
+roger2 : arasaka_android_android2_shingen_ma
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.HasElectricExplosion"
+	];
+}
+
+fshotgun2 : arasaka_soldier2_shotgun2_tactician_mah_rare
+{
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Tactician_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Yukimura_Military";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunLeft";
+			} : NPCEquipmentItem
+		];
+	};
+	archetypeData = "ArchetypeData.FastShotgunnerT2";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims"
+	];
+}
+
+fshotgun3 : arasaka_soldier2_shotgun2_tactician_mah_rare
+{
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Tactician_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.BaseRangedPrimaryWeaponUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Yukimura_Military";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunLeft";
+			} : NPCEquipmentItem
+		];
+	};
+	visualTags = 
+	[
+		"Lvl3", "Terminator"
+	];
+	archetypeData = "ArchetypeData.FastShotgunnerT3";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCombatStims"
+	];
+}
+
+gang_shotgun_b : scavenger_elite2_shotgun_tactician_ma
+{
+	entityTemplatePath = "base\characters\entities\gang\gang__scavenger_mb.ent";
+}
+
+gang_shotgun : scavenger_elite2_shotgun_tactician_ma
+{
+}
+
+corpo_shotgun : arasaka_soldier2_shotgun2_tactician_mah_rare
+{
+}
+
+corpo_rifle : militech_ranger1_ranged1_saratoga_ma
+{
+}
+
+fsniper3 : arasaka_sniper_sniper3_nekomata_ma_elite
+{
+	actionMap = "Corpo.Map";
+	archetypeData = "ArchetypeData.FastSniperT3";
+}
+
+reloader1 : valentinos_strong2_shotgun2_igla_ma_rare
+{
+	primaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Igla_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedUnequipCondition"
+				];
+			} : NPCEquipmentItem, 
+			{
+				item = "Items.Preset_Nue_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotGenericRanged";
+				equipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedEquipCondition"
+				];
+				unequipCondition = 
+				[
+					"WeaponConditions.AutoReloaderPrimaryWeaponRangedUnequipCondition"
+				];
+			} : NPCEquipmentItem
+		];
+	};
+	secondaryEquipment = 
+	{
+		equipmentItems = 
+		[
+			{
+				item = "Items.Preset_Lexington_Default";
+				equipSlot = "AttachmentSlots.WeaponRight";
+				onBodySlot = "AttachmentSlots.ItemSlotHandgunLeft";
+			} : NPCEquipmentItem
+		];
+	};
+	archetypeData = "ArchetypeData.ShotgunnerT2";
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.HasAutoReloader"
+	];
+}
+
+grenade_frag : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseFragGrenades"
+	];
+}
+
+grenade_flash : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseFlashbangGrenades"
+	];
+}
+
+grenade_emp : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseEMPGrenades"
+	];
+}
+
+grenade_biohazard : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseBiohazardGrenades"
+	];
+}
+
+grenade_incendiary : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseIncendiaryGrenades"
+	];
+}
+
+grenade_recon : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseReconGrenades"
+	];
+}
+
+grenade_cutting : ranged2
+{
+	fk< GameplayAbility >[] abilities += 
+	[
+		"Ability.CanUseCuttingGrenades"
+	];
+}
+

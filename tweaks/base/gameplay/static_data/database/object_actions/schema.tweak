@@ -1,0 +1,125 @@
+package RTDB
+
+ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	CName actionName = "";
+	CName interactionLayer = "";
+	float priority = 0.f;
+	fk< IPrereq >[] targetPrereqs = [];
+	fk< IPrereq >[] instigatorPrereqs = [];
+	fk< ObjectActionPrereq >[] targetActivePrereqs = [];
+	fk< ObjectActionPrereq >[] instigatorActivePrereqs = [];
+	fk< ObjectActionCost >[] costs = [];
+	fk< StatModifier >[] activationTime = [];
+	fk< Cooldown > cooldown = "";
+	fk< RewardBase >[] rewards = [];
+	fk< ObjectActionEffect >[] startEffects = [];
+	fk< ObjectActionEffect >[] completionEffects = [];
+	fk< InteractionBase > objectActionUI = "";
+	fk< ObjectActionGameplayCategory > gameplayCategory = "";
+	fk< HackCategory > hackCategory = "HackCategories.NotAHack";
+}
+
+ObjectActionType
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+ObjectActionGameplayCategory : ScannableData
+{
+}
+
+ObjectActionEffect
+{
+	fk< Effector > effectorToTrigger = "";
+	fk< StatusEffect > statusEffect = "";
+	fk< ObjectActionReference > recipient = "";
+}
+
+ObjectActionReference
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+ObjectActionCost
+{
+	fk< StatModifier >[] costMods = [];
+}
+
+StatPoolCost : ObjectActionCost
+{
+	fk< StatPool > statPool = "";
+}
+
+ItemCost : ObjectActionCost
+{
+	fk< Item > item = "";
+}
+
+ActionPayment : ObjectAction
+{
+	interactionLayer = "any";
+}
+
+ItemAction : ObjectAction
+{
+	objectActionType = "ObjectActionType.Item";
+	bool removeAfterUse = true;
+	bool isDefaultLootChoice = false;
+}
+
+CrackAction : ItemAction
+{
+	actionName = "Crack";
+	fk< Effector > effector = "Effectors.Crack";
+}
+
+MinigameAction : ObjectAction
+{
+	float complexity = 0f;
+	fk< MinigameActionType > type = "";
+	float memoryCost = 0f;
+	fk< MinigameCategory > category = "";
+	float duration = 0f;
+	fk< RewardBase > reward = "";
+	string journalEntry = "";
+	CName factName = "";
+	int factValue = 0;
+	bool showPopup = false;
+}
+
+MinigameActionType
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+MinigameCategory
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+ActionRestrictionGroup
+{
+	string inactiveReason = "";
+	string[] allowedActionNames = [];
+	string[] disallowedActionNames = [];
+}
+
+ObjectActionPrereq
+{
+	fk< IPrereq >[] failureConditionPrereq = [];
+	string failureExplanation = "";
+}
+
+HackCategory
+{
+	CName enumName = "";
+	string enumComment = "";
+	string localizedDescription = "";
+}
+

@@ -1,0 +1,764 @@
+package RTDB
+
+ActionMap
+{
+	fk< ActionMapField >[] map = [];
+	fk< AINodeMap > defaultMap = "";
+}
+
+ActionMapField
+{
+	fk< ItemType > itemType = "";
+	fk< AINodeMap > map = "";
+}
+
+AINodeMap
+{
+	fk< AINodeMapField >[] map = [];
+}
+
+AINodeMapField
+{
+	fk< AIRecord > node = "";
+	fk< AIRecord > isOverriddenBy = "";
+	int forLOD = 0;
+}
+
+AIRecord
+{
+}
+
+AINode : AIRecord
+{
+	bool isVirtual = false;
+	int minLOD = -1;
+	fk< AIActionCondition > activationCondition = "";
+	fk< AIActionAND > activateCondition = "";
+}
+
+AIAction : AINode
+{
+	bool disableAction = false;
+	bool disableActionInMultiplayer = false;
+	bool completeWithFailure = false;
+	fk< GameplayAbility > ability = "";
+	fk< AIActionCooldown >[] initCooldowns = [];
+	fk< AIActionCooldown >[] cooldowns = [];
+	CName[] commands = [];
+	fk< AITicketType >[] tickets = [];
+	float ticketAcknowledgeTimeout = 2.f;
+	bool revokingTicketCompletesAction = true;
+	fk< AIActionPhase > startup = "";
+	fk< AIActionPhase > loop = "";
+	fk< AIActionPhase > recovery = "";
+	fk< AIActionOR > startupEndCondition = "";
+	fk< AIActionOR > startupRepeatCondition = "";
+	fk< AIActionOR > loopEndCondition = "";
+	fk< AIActionOR > loopRepeatCondition = "";
+	fk< AIActionOR > recoveryEndCondition = "";
+	fk< AIActionOR > recoveryRepeatCondition = "";
+	fk< AISubAction >[] subActions = [];
+	bool subActionsCanCompleteAction = false;
+	fk< AISubAction >[] startupSubActions = [];
+	fk< AISubAction >[] loopSubActions = [];
+	fk< AISubAction >[] recoverySubActions = [];
+	bool failIfAnimationNotStreamedIn = false;
+	bool waitForAnimationToLoad = false;
+	fk< AIActionAnimData > animData = "";
+	float allowBlendDuration = 0.2f;
+	float allowBlendPercCap = 0.5f;
+	fk< AIActionLookAtData >[] lookats = [];
+	CName[] animationWrapperOverrides = [];
+}
+
+AIActionAnimData
+{
+	CName animFeature = "";
+	int animVariation = 0;
+	int weaponOverride = 0;
+	fk< AISubAction > animVariationSubAction = "";
+	fk< AIActionAnimSlot > animSlot = "";
+	fk< AIActionAnimDirection > direction = "";
+	bool ragdollOnDeath = false;
+	bool updateMovePolicy = false;
+	float marginToPlayer = 0.05f;
+}
+
+AIActionLookAtData
+{
+	fk< AIActionCondition > activationCondition = "";
+	fk< LookAtPreset > preset = "";
+	fk< AIActionTarget > target = "";
+	float timeDelay = 0.0f;
+	Vector3 offset = ( 0.0f, 0.0f, 0.0f );
+}
+
+AIActionAnimSlot
+{
+	bool useRootMotion = true;
+	bool usePoseMatching = false;
+	bool useDynamicObjectsCheck = true;
+	bool resetRagdollOnStart = false;
+	fk< AIActionSlideData > startupSlide = "";
+	fk< AIActionSlideData > loopSlide = "";
+	fk< AIActionSlideData > recoverySlide = "";
+}
+
+AIActionSlideData
+{
+	fk< AIActionTarget > target = "";
+	bool overrideOffsetToTargetFromWeapon = false;
+	bool disablePositionSlideAgainstNpc = false;
+	float duration = 0.f;
+	float distance = 0.f;
+	float directionAngle = 0.f;
+	float finalRotationAngle = 0.f;
+	float offsetToTarget = 1.f;
+	float offsetAroundTarget = 0.f;
+	float positionSpeed = 5.f;
+	float rotationSpeed = 180.f;
+	float slideStartDelay = 0.f;
+	bool usePositionSlide = true;
+	bool useRotationSlide = true;
+	float positionPredictionTime = 0.f;
+	float zAlignmentCollisionThreshold = -1.0f;
+}
+
+AIActionAnimDirection
+{
+	fk< AIActionTarget > target = "";
+	float directionAngle = 0.f;
+}
+
+AIActionCooldown
+{
+	float duration = -1.f;
+	CName name = "";
+	fk< AIActionCondition >[] activationCondition = [];
+}
+
+AICommand
+{
+	CName[] hasCommands = [];
+	CName[] hasNewOrOverridenCommands = [];
+}
+
+AIActionPhase
+{
+	float duration = -1.f;
+	float maxDuration = -1.f;
+	float animationDuration = -1.f;
+	int repeat = -1;
+	bool useDurationFromAnimSlot = true;
+	fk< MovementPolicy > movePolicy = "";
+	fk< AIActionChangeNPCState > changeNPCState = "";
+	fk< AISubAction > dynamicDuration = "";
+	fk< AIActionCondition >[] toNextPhaseCondition = [];
+	fk< AIActionCondition >[] notRepeatPhaseCondition = [];
+	float toNextPhaseConditionCheckInterval = 0.f;
+	float conditionSuccessDuration = 0.f;
+	bool completeActionWithFailureOnCondition = false;
+}
+
+AIActionChangeNPCState
+{
+	CName hitReactionMode = "";
+	CName defenseMode = "";
+	CName locomotionMode = "";
+	CName highLevelState = "";
+	CName upperBodyState = "";
+	CName stanceState = "";
+}
+
+AISubAction
+{
+}
+
+AISubActionCallReinforcements : AISubAction
+{
+	float duration = 5.f;
+	float delay = 0.f;
+}
+
+AISubActionPlayVoiceOver : AISubAction
+{
+	CName name = "";
+	float delay = 0.f;
+	fk< AIActionCondition > condition = "";
+	bool sendEventToSquadmates = false;
+	bool setSelfAsAnsweringEntity = false;
+	fk< AIActionCooldown > cooldown = "";
+	bool repeat = false;
+}
+
+AISubActionAddFact : AISubAction
+{
+	CName name = "";
+	bool resetValue = false;
+	float delay = 0.f;
+}
+
+AISubActionQueueCommunicationEvent : AISubAction
+{
+	fk< AIActionTarget > targetListener = "";
+	CName name = "";
+	float delay = 0.f;
+}
+
+AISubActionQueueAIEvent : AISubAction
+{
+	CName name = "";
+	float delay = 0.f;
+}
+
+AISubActionSpawnFX : AISubAction
+{
+	fk< AttachmentSlot > attachmentSlot = "";
+	CName name = "";
+	float delay = 0.f;
+}
+
+AISubActionPlaySound : AISubAction
+{
+	fk< AttachmentSlot > attachmentSlot = "";
+	CName name = "";
+	float delay = 0.f;
+}
+
+AISubActionConditionalFailure : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionCondition >[] condition = [];
+	fk< AIActionCooldown >[] cooldowns = [];
+}
+
+AISubActionForceEquip : AISubAction
+{
+	fk< AttachmentSlot > attachmentSlot = "";
+	bool equipDespiteInterruption = false;
+	float delay = 0.f;
+	fk< AIActionTarget > itemObject = "";
+	fk< Item > itemID = "";
+	CName itemTag = "";
+	fk< ItemCategory > itemCategory = "";
+	fk< ItemType > itemType = "";
+	float animationTime = 0.f;
+}
+
+AISubActionForceUnequip : AISubAction
+{
+	fk< AttachmentSlot > attachmentSlot = "";
+	bool unequipDespiteInterruption = false;
+	float delay = 0.f;
+	bool dropItem = false;
+	bool generateLootAfterDrop = false;
+	float animationTime = 0.f;
+}
+
+AISubActionDisableAimAssist : AISubAction
+{
+	CName reason = "timeDilation";
+	float delay = 0.f;
+	float duration = -1.f;
+}
+
+AISubActionCharacterRecordEquip : AISubAction
+{
+	float animationTime = 0.f;
+}
+
+AISubActionSetEquipPrimaryWeapons : AISubActionCharacterRecordEquip
+{
+}
+
+AISubActionSetEquipSecondaryWeapons : AISubActionCharacterRecordEquip
+{
+}
+
+AISubActionEquipOnBody : AISubActionCharacterRecordEquip
+{
+}
+
+AISubActionEquipOnSlot : AISubActionCharacterRecordEquip
+{
+	bool useItemSpawnDelayFromWeapon = true;
+}
+
+AISubActionCharacterRecordUnequip : AISubAction
+{
+	float animationTime = 0.f;
+	bool dropItem = false;
+}
+
+AISubActionSetUnequipPrimaryWeapons : AISubActionCharacterRecordUnequip
+{
+}
+
+AISubActionSetUnequipSecondaryWeapons : AISubActionCharacterRecordUnequip
+{
+}
+
+AISubActionUnequipOnSlot : AISubActionCharacterRecordUnequip
+{
+	bool useItemSpawnDelayFromWeapon = true;
+}
+
+AISubActionApplyTimeDilation : AISubAction
+{
+	CName reason = "";
+	float multiplier = 1.f;
+	float duration = -1.f;
+	CName easeIn = "";
+	CName easeOut = "KereznikovDodgeEaseOut";
+	float overrideMultiplerWhenPlayerInTimeDilation = -1.f;
+}
+
+AISubActionModifyStatPool : AISubAction
+{
+	float delay = 0.f;
+	fk< StatPool > statPool = "";
+	float amount = 0.f;
+	bool perc = false;
+}
+
+AISubActionChangeCoverSelectionPreset : AISubAction
+{
+	CName preset = "";
+	CName initialPreset = "";
+	float changeThreshold = 0.15f;
+	fk< AIActionTarget > gatheringObjectCenter = "";
+	float coverDisablingDuration = 0.0f;
+	bool fallbackToLastSelectedPreset = false;
+}
+
+AISubActionForceDeath : AISubAction
+{
+	float delay = 0.f;
+	int hitIntensity = -1;
+	int hitSource = -1;
+	int hitBodyPart = -1;
+	int hitDirection = -1;
+}
+
+AISubActionStatusEffect : AISubAction
+{
+	fk< StatusEffect >[] statusEffects = [];
+	float delay = 0.f;
+	bool apply = true;
+	bool remove = true;
+	fk< AIActionTarget > target = "AIActionTarget.Owner";
+}
+
+AISubActionCustomEffectors : AISubAction
+{
+	fk< AIActionTarget > target = "AIActionTarget.Owner";
+	fk< Effector >[] effectors = [];
+	bool apply = true;
+	bool remove = true;
+	float delay = 0.f;
+}
+
+AISubActionGameplayLogicPackage : AISubAction
+{
+	fk< GameplayLogicPackage >[] packages = [];
+}
+
+AISubActionSetInt : AISubAction
+{
+	float delay = 0.f;
+	CName name = "";
+	int value = 0;
+}
+
+AISubActionReloadWeapon : AISubAction
+{
+	fk< AttachmentSlot > weaponSlot = "";
+	float duration = -1.f;
+}
+
+AISubActionTriggerStim : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionTarget > stimSource = "";
+	fk< StimType > stimType = "";
+	float radius = 0.f;
+	bool direct = false;
+	fk< AIActionTarget > target = "";
+}
+
+AISubActionChangeAttitude : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionTarget > target = "";
+	CName attitude = "";
+}
+
+AISubActionCreateGameEffect : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionTarget > rotationObj = "AIActionTarget.Owner";
+	fk< AIActionTarget > positionObj = "AIActionTarget.Owner";
+	fk< AIActionTarget > targetPositionObj = "";
+	fk< AIActionTarget > target = "";
+	CName effectName = "";
+	CName effectTag = "";
+	float range = 0.f;
+	float duration = 0.f;
+	Vector3 colliderBoxSize = ( 0.5f, 0.3f, 1.5f );
+}
+
+AISubActionThrowItem : AISubAction
+{
+	float delay = 0.f;
+	fk< AttachmentSlot > attachmentSlot = "";
+	fk< AIActionTarget > target = "";
+	float positionPredictionTime = 0.f;
+	bool dropItemOnInterruption = false;
+	CName throwType = "";
+	float throwAngle = 0;
+	float trajectoryGravity = -9.8f;
+	bool checkThrowQuery = true;
+}
+
+AISubActionTriggerItemActivation : AISubAction
+{
+	float delay = 0.f;
+	fk< AttachmentSlot > attachmentSlot = "";
+	fk< AIActionTarget > instigator = "AIActionTarget.Owner";
+}
+
+AISubActionAttackWithWeapon : AISubAction
+{
+	fk< AttachmentSlot >[] weaponSlots = [];
+	fk< Attack > attack = "";
+	float attackTime = 0.f;
+	float attackDuration = 0.f;
+	float attackRange = -1.f;
+	Vector3 colliderBoxSize = ( 0.5f, 0.3f, 1.5f );
+	CName attackName = "";
+}
+
+AISubActionRegisterActionName : AISubAction
+{
+	CName actionName = "";
+}
+
+AISubActionMeleeAttackManager : AISubAction
+{
+	bool spawnTrail = false;
+	float trailDelay = -1.f;
+	float trailDuration = -1.f;
+	bool spawnWeaponFX = false;
+	CName name = "";
+	float fxDelay = -1.f;
+	bool sendFriendlyFireWarning = false;
+	float warningDelay = -1.f;
+}
+
+AISubActionShootWithWeapon : AISubAction
+{
+	float delay = 0.35f;
+	fk< AttachmentSlot >[] weaponSlots = [];
+	fk< AIActionTarget > target = "";
+	fk< AIActionTarget > instigator = "AIActionTarget.Owner";
+	float predictionTime = 0.f;
+	Vector3 targetOffset = ( 0.0f, 0.0f, 0.0f );
+	fk< RangedAttack > rangedAttack = "";
+	fk< TriggerMode > triggerMode = "";
+	float aimingDelay = 0.0f;
+	float tbhCoefficient = 1.0f;
+	fk< AIActionCondition >[] pauseCondition = [];
+	float pauseConditionCheckInterval = 0.2f;
+	fk< AIPatternsPackage >[] shootingPatternPackages = [];
+	CName dualWieldShootingStyle = "Sequence";
+	int numberOfShots = -1;
+	int maxNumberOfShots = -1;
+}
+
+AISubActionShootToPoint : AISubActionShootWithWeapon
+{
+	fk< AIActionTarget > rotationObj = "AIActionTarget.Owner";
+	fk< AIActionTarget > positionObj = "AIActionTarget.Owner";
+	fk< AIActionTarget > targetPositionObj = "";
+	CName[] waypointTag = [];
+	Vector3[] pointPosition = [];
+}
+
+AISubActionMissileRainGrid : AISubActionShootWithWeapon
+{
+	Vector3[] missileOffsets = [];
+}
+
+AISubActionMissileRainCircular : AISubActionShootWithWeapon
+{
+	float minRadius = 0.f;
+	float maxRadius = 0.f;
+	int missilesPerLaunch = 1;
+}
+
+AISubActionActivateStrongArmsFX : AISubAction
+{
+	float delay = 0.f;
+}
+
+AISubActionQuickHack : AISubAction
+{
+	fk< AIActionTarget > target = "";
+	fk< ObjectAction > actionResult = "";
+	bool establishContactOnly = true;
+}
+
+AISubActionForceHitReaction : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionTarget > target = "AIActionTarget.Owner";
+	int hitDirection = 0.f;
+	int hitIntensity = 0.f;
+	int hitType = 0.f;
+	int hitBodyPart = 0.f;
+	int stance = 0.f;
+	int animVariation = 0.f;
+	int hitSource = 0.f;
+}
+
+AISubActionSetInfluenceMap : AISubAction
+{
+	float delay = 0.f;
+	bool threat = false;
+	float radius = 0.f;
+	fk< AIActionTarget > positionObj = "";
+	Vector2 lerp = ( -1.f, -1.f );
+}
+
+AISubActionSetStimSource : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionTarget > stimTarget = "";
+	bool useInvestigateData = false;
+}
+
+AISubActionWorkspot : AISubAction
+{
+	fk< AIActionTarget > workspotObject = "";
+}
+
+AISubActionSetTargetByTag : AISubAction
+{
+	float delay = 0.f;
+	fk< AIActionTarget > target = "";
+	fk< AIActionTarget > rangeObj = "";
+	CName tag = "";
+	bool avoidSelectingSameTarget = false;
+	int avoidSelectingSameTargetMethod = 0;
+	Vector2 rangeFromOwner = ( -1.f, -1.f );
+	Vector2 rangeFromObj = ( -1.f, -1.f );
+	CName selectionMethod = "Random";
+	fk< AIActionTarget > lineOfSightTarget = "";
+	CName[] allowedOffMeshTags = [];
+}
+
+AISubActionSetItemAsTarget : AISubActionSetTargetByTag
+{
+	fk< AIActionTarget > target = "AIActionTarget.TargetItem";
+	fk< ItemCategory > itemCategory = "";
+	fk< ItemType > itemType = "";
+}
+
+AISubActionSetWaypointByTag : AISubActionSetTargetByTag
+{
+}
+
+AISubActionDisableCollider : AISubAction
+{
+	bool disable = true;
+	bool enableOnDeactivate = true;
+	float delay = 0.f;
+}
+
+AISubActionSquadSync : AISubAction
+{
+	fk< AISquadType > squadType = "AISquadType.Community";
+	bool pull = false;
+}
+
+AISubActionSecuritySystemNotification : AISubAction
+{
+	fk< AIActionTarget > threat = "";
+	fk< AIActionSecurityNotificationType > notificationType = "";
+}
+
+AISubActionCallSquadSearchBackUp : AISubAction
+{
+	fk< AIActionTarget > target = "AIActionTarget.StimTarget";
+	float numberOfTargets = -1;
+	float callInLevel = -1;
+}
+
+AISubActionStartCooldown : AISubAction
+{
+	float delay = 0.f;
+	float minActionDuration = -1.f;
+	fk< AIActionCooldown >[] cooldowns = [];
+}
+
+AISubActionMountVehicle : AISubAction
+{
+	fk< AIActionTarget > vehicle = "AIActionTarget.AssignedVehicle";
+	fk< VehicleSeat > slot = "";
+	bool mountInstantly = false;
+}
+
+AISubActionUseSensePreset : AISubAction
+{
+	fk< SensePreset > sensePreset = "";
+	float delay = 0.f;
+}
+
+AISubActionCompleteCommand : AISubAction
+{
+	fk< AIActionTarget > target = "AIActionTarget.Owner";
+	float delay = 0.f;
+	bool checkOneTimeExecutionFlag = false;
+	CName[] commands = [];
+}
+
+AISubActionLeaveCover : AISubAction
+{
+	float delay = 0.f;
+	int checkExposure = -1;
+}
+
+AISubActionActivateLightPreset : AISubAction
+{
+	fk< LightPreset > lightPreset = "";
+	float delay = 0.f;
+}
+
+AISubActionFailIfFriendlyFire : AISubAction
+{
+	bool checkOnlyFirstFrame = false;
+	fk< AIActionTarget > target = "AIActionTarget.CombatTarget";
+}
+
+AISubActionUpdateFriendlyFireParams : AISubAction
+{
+	bool updateOnDeactivate = false;
+}
+
+AISubActionSendSignal : AISubAction
+{
+	CName name = "";
+	float duration = -1.f;
+	float delay = 0.f;
+}
+
+AISubActionFastExitWorkspot : AISubAction
+{
+	fk< AIActionTarget > target = "AIActionTarget.Owner";
+	fk< AIActionTarget > destinationObj = "";
+	bool stayInWorkspotIfFailed = false;
+	bool playSlowExitIfFailed = false;
+	float delay = 0.f;
+}
+
+AISubActionMeleeAttackAttemptEvent : AISubAction
+{
+	fk< AIActionTarget > target = "";
+	bool isWindUp = false;
+}
+
+AISubActionSetTopThreatPersistance : AISubAction
+{
+	fk< AIThreatPersistenceSource > source = "AIThreatPersistenceSource.Default";
+}
+
+AISubActionSetWorldPosition : AISubAction
+{
+	fk< AIActionTarget > referenceTarget = "AIActionTarget.Owner";
+	fk< AIActionTarget > customPositionTarget = "AIActionTarget.CustomWorldPosition";
+	bool useLocalSpace = true;
+	bool randomizePoint = true;
+	Vector3 minOffsetFromTarget = ( 0.0f, 0.0f, 0.0f );
+	Vector3 maxOffsetFromTarget = ( 0.0f, 0.0f, 0.0f );
+	bool checkForNavmesh = true;
+}
+
+AISubActionInAir : AISubAction
+{
+	float delay = 0.f;
+}
+
+AISubActionCover : AISubAction
+{
+	fk< AIActionTarget > target = "";
+	int setDesiredCover = -1;
+	bool setCurrentCover = false;
+	bool setCoverExposureAnim = false;
+	float clearLOSDistanceTolerance = 3.f;
+	bool setInitialCoverData = false;
+	int exposedInCover = -1;
+	float delayExposedInCoverReset = 0.f;
+	CName[] coverExposureMethods = [];
+	bool useLastAvailableExposureMethodsIfNoneAvailable = false;
+	bool useGrenadeThrowMethods = false;
+	float prioritizeBlindFireAfterHit = -1.f;
+	fk< AIExposureMethodType >[] exposureMethodPriority = [];
+	fk< AIActionCooldown > insideCoverReselectionCooldown = "";
+	fk< AIActionCondition >[] commandCoverConditions = [];
+}
+
+AISubActionHitData : AISubAction
+{
+	bool overrideHitDirection = false;
+	fk< AIActionTarget > directionObj = "AIActionTarget.CombatTarget";
+}
+
+AISubActionBlockData : AISubAction
+{
+}
+
+AISubActionInitialReaction : AISubAction
+{
+	fk< AIActionTarget > directionObj = "AIActionTarget.StimTarget";
+}
+
+AISubActionRandomize : AISubAction
+{
+	int[] animVariationRandomize = [];
+}
+
+AISubActionGeneratePointOfInterestTarget : AISubAction
+{
+	Vector2 randomPointDurationRange = ( 2.0f, 7.0f );
+	Vector2 squadMateDurationRange = ( 2.0f, 7.0f );
+	Vector2 friendlyTargetDurationRange = ( 2.0f, 7.0f );
+	Vector2 closestThreatDurationRange = ( 5.0f, 7.0f );
+	float choosingRandomPointChanceWeight = 1.0f;
+	float choosingSquadMateChanceWeight = 0.0f;
+	float choosingFriendlyTargetChanceWeight = 0.0f;
+	float choosingClosestThreatChanceWeight = 0.0f;
+	float squadMateWatchingMaxAngle = 180.0f;
+	float friendlyTargetWatchingMaxAngle = 180.0f;
+	float closestThreatWatchingMaxAngle = 180.0f;
+	Vector2 randomPointZRotationAngleRange = ( -180.0f, 180.0f );
+	Vector2 randomPointYRotationAngleRange = ( -180.0f, 180.0f );
+}
+
+AISubActionFail : AISubAction
+{
+}
+
+AISubActionScaleDurationWithDistance : AISubAction
+{
+	fk< AIActionTarget > source = "AIActionTarget.Owner";
+	fk< AIActionTarget > target = "AIActionTarget.CombatTarget";
+	Vector2 distanceRange = ( 0.f, 0.f );
+	Vector2 scaleDistanceToTime = ( 0.f, 0.f );
+}
+
+AISubActionDroneModifyAltitude : AISubAction
+{
+	float delay = 0.f;
+	float altitudeOffset = 0.f;
+}
+

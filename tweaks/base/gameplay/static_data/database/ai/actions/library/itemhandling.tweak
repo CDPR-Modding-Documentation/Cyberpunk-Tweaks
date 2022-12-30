@@ -1,0 +1,2887 @@
+package ItemHandling
+using RTDB, AttachmentSlots, ItemCategory, ItemType, AIActionTarget, VehicleActions, CoverActions
+
+CrowdSimpleWeaponHandlingCompositeDecorator : SimpleWeaponHandlingCompositeDecorator
+{
+	repeat = 0;
+	nodes = 
+	[
+		"GenericArchetype.SimpleReloadSelector", "ShootActions.CrowdSimpleShoot", "GenericArchetype.Success"
+	];
+}
+
+SimpleWeaponHandlingCompositeDecorator : SimpleWeaponHandlingComposite
+{
+	repeat = 0;
+}
+
+SimpleWeaponHandlingComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.SimpleReloadSelector", "GenericArchetype.SimpleWoundedShootLeg", "ShootActions.SimpleWoundedShoot", "GenericArchetype.SimpleShoot", "GenericArchetype.Success"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.5f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AnimationsLoaded", "Condition.GracefulCombatInterruption"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+PreloadWeaponHandlingCompositeDecorator : PreloadWeaponHandlingComposite
+{
+	repeat = 0;
+}
+
+PreloadWeaponHandlingComposite : SimpleWeaponHandlingComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceSimpleWoundedShootLeg", "GenericArchetype.SimpleWoundedShootLeg", "ShootActions.CommandForceSimpleWoundedShoot", "ShootActions.SimpleWoundedShoot", "GenericArchetype.CommandForceSimpleShoot", "GenericArchetype.SimpleShoot", "GenericArchetype.Success"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.1f;
+}
+
+WeaponHandlingCompositeDecorator : WeaponHandlingComposite
+{
+	repeat = 0;
+}
+
+WeaponHandlingComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "CoverActions.RegularCoverActivationCheckSuccess", "ItemHandling.CommandThrowGrenadeSelector", "ItemHandling.ThrowGrenadeSelector", "MeleeActions.PushAttackWithRangedWeapon01Definition", "MeleeActions.QuickMelee", "SpecialActions.UseCombatStimConsumable", "GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector", "GenericArchetype.Success"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.4f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotTicketGrenadeThrow", {
+						OR = 
+						[
+							"Condition.AIUseWorkspotCommand", "Condition.TicketEquip", "Condition.GracefulCombatInterruptionCompound"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+WeaponHandlingWhileMovingComposite : WeaponHandlingComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "MeleeActions.QuickMelee", "SpecialActions.UseCombatStimConsumable", "GenericArchetype.ReloadSelector", "GenericArchetype.ShootSelector", "GenericArchetype.Success"
+	];
+}
+
+CommandWeaponHandlingCompositeDecorator : CommandWeaponHandlingComposite
+{
+	repeat = 0;
+}
+
+CommandWeaponHandlingComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "ItemHandling.CommandThrowGrenadeSelector", "ItemHandling.ThrowGrenadeSelector", "MeleeActions.QuickMelee", "GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector", "GenericArchetype.Success"
+	];
+	gracefulInterruptionConditionCheckInterval = 0.4f;
+	gracefulInterruptionCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotTicketGrenadeThrow", {
+						OR = 
+						[
+							"Condition.NotAIMoveCommand", "Condition.GracefulCombatInterruptionCompound"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+SimpleShootingSpotBehaviorComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MovementActions.RotateInShootingSpot", "SpecialActions.TauntHiddenPlayer", "GenericArchetype.Wait0dot2Second"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+ShootingSpotBehaviorComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"MovementActions.RotateInShootingSpot", "SpecialActions.TauntHiddenPlayer", "ItemHandling.ExitShootingSpot", "CoverActions.Success"
+	];
+	type = "AISmartCompositeType.Sequence";
+}
+
+ExitShootingSpot : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CoverDeactivationCondition"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "MovePolicy";
+					duration = 0.f;
+				}, 
+				{
+					name = "PreciseShoot";
+					duration = 0.2f;
+				}
+			];
+		} : AISubActionStartCooldown, 
+		{
+			delay = -1.f;
+		} : AISubActionLeaveCover
+	];
+}
+
+SuccessIfEquipping : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+SuccessIfSprinting : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Sprint", "Condition.IsMoving"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+InitThrowGrenadeCooldown : AIActionCooldown
+{
+	name = "InitThrowGrenadeCooldown";
+	duration = 5.f;
+}
+
+ThrowGrenadeSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ItemHandling.ThrowGrenadeNearFrag", "ItemHandling.ThrowGrenadeNearFlash", "ItemHandling.ThrowGrenadeNearEMP", "ItemHandling.ThrowGrenadeNearBiohazard", "ItemHandling.ThrowGrenadeNearIncendiary", "ItemHandling.ThrowGrenadeNear", "ItemHandling.ThrowGrenadeFrag", "ItemHandling.ThrowGrenadeFlash", "ItemHandling.ThrowGrenadeEMP", "ItemHandling.ThrowGrenadeBiohazard", "ItemHandling.ThrowGrenadeIncendiary", "ItemHandling.ThrowGrenade"
+	];
+}
+
+CommandThrowGrenadeSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIThrowGrenadeCommand", "Condition.BaseThrowGrenadeSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ItemHandling.CommandThrowGrenadeNearFrag", "ItemHandling.CommandThrowGrenadeNearFlash", "ItemHandling.CommandThrowGrenadeNearEMP", "ItemHandling.CommandThrowGrenadeNearBiohazard", "ItemHandling.CommandThrowGrenadeNearIncendiary", "ItemHandling.CommandThrowGrenadeNear", "ItemHandling.CommandThrowGrenadeFrag", "ItemHandling.CommandThrowGrenadeFlash", "ItemHandling.CommandThrowGrenadeEMP", "ItemHandling.CommandThrowGrenadeBiohazard", "ItemHandling.CommandThrowGrenadeIncendiary", "ItemHandling.CommandThrowGrenade"
+	];
+}
+
+UnequipCooldown : AIActionCooldown
+{
+	name = "UnequipCooldown";
+	duration = 0.5f;
+}
+
+CommandEquipPrimaryWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AISwitchToPrimaryWeaponCommand", "Condition.NotInStatesShoot", "Condition.NotIsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+CommandEquipPrimaryWeaponComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfPrimaryWeaponEquipped", "ItemHandling.EquipPrimaryWeaponSequence"
+	];
+}
+
+SuccessIfPrimaryWeaponEquipped : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasPrimaryEquipmentEquipped"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+EquipPrimaryWeaponSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.CommandUnequipAnyWeapon", "ItemHandling.SetEquipPrimary", "ItemHandling.EquipItemOnSlot"
+	];
+}
+
+CommandEquipSecondaryWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AISwitchToSecondaryWeaponCommand", "Condition.NotInStatesShoot", "Condition.NotIsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+CommandEquipSecondaryWeaponComposite : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.SuccessIfSecondaryWeaponEquipped", "ItemHandling.EquipSecondaryWeaponSequence"
+	];
+}
+
+SuccessIfSecondaryWeaponEquipped : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasSecondaryEquipmentEquipped"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+}
+
+EquipSecondaryWeaponSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.CommandUnequipAnyWeapon", "ItemHandling.SetEquipSecondary", "ItemHandling.EquipItemOnSlot"
+	];
+}
+
+WaitBeforeRemovingUnhandledWeapon : AIAction
+{
+	startup = 
+	{
+		duration = 10.f;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotTicketEquip", "Condition.NotTicketReload", "Condition.NotTicketGrenadeThrow", "Condition.NotTicketTakeCover", "Condition.NotMeleeStatesConditions", "Condition.NotInCover", "Condition.NotIsEnteringCover", "Condition.NotIsInWorkspot", "Condition.NotIsUsingOffMeshLink", "Condition.NotWoundedArms", "Condition.NotIsNPCUnderWeaponMalfunctionQuickhack"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+WaitForWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.HasAnyWeapon", "Condition.NotTicketEquip"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+WaitForEquipToFinish : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotTicketEquip"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+EquipAnyWeapon : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			animationTime = 1.5f;
+			delay = 0.3f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipAnyRangedWeapon : EquipAnyWeapon
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon", "Condition.NotIsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			itemTag = "RangedWeapon";
+			animationTime = 1.2f;
+			delay = 0.3f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipSelector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.EquipPrimarySequence", "ItemHandling.EquipSecondarySequence"
+	];
+}
+
+EquipSelectorNoSpawnDelay : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.EquipPrimarySequenceNoSpawnDelay", "ItemHandling.EquipSecondarySequenceNoSpawnDelay"
+	];
+}
+
+WoundedEquipSelector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.WoundedLeftArmEquipSequence", "ItemHandling.WoundedRightArmEquipSequence"
+	];
+}
+
+EquipSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.EquipItemOnSlot", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+EquipSequenceNoSpawnDelay : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.EquipItemOnSlotNoSpawnDelay", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+EquipPrimarySequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.SetEquipPrimary", "ItemHandling.EquipItemOnSlot", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+EquipPrimarySequenceNoSpawnDelay : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.SetEquipPrimary", "ItemHandling.EquipItemOnSlotNoSpawnDelay", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+EquipSecondarySequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.SetEquipSecondary", "ItemHandling.EquipItemOnSlot", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+EquipSecondarySequenceNoSpawnDelay : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.SetEquipSecondary", "ItemHandling.EquipItemOnSlotNoSpawnDelay", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+WoundedLeftArmEquipSequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedArmLeft"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ItemHandling.WoundedLeftArmEquipWeapon", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+WoundedRightArmEquipSequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedArmRight"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ItemHandling.WoundedRightArmEquipWeapon", "ItemHandling.SetDataAfterEquip"
+	];
+}
+
+HasAnyWeaponEquipped : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+HasAnyItemSpawningFailsafe : HasAnyItemSpawning
+{
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 5.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 5.f;
+		} : AISubActionForceUnequip
+	];
+}
+
+HasAnyItemSpawning : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyItemSpawning"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotHasAnyItemSpawning"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+SetEquipPrimary : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasPrimaryEquipmentEquipped"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			animationTime = 1.f;
+		} : AISubActionSetEquipPrimaryWeapons
+	];
+}
+
+SetEquipSecondary : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasSecondaryEquipmentEquipped"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			animationTime = 0.8f;
+		} : AISubActionSetEquipSecondaryWeapons
+	];
+}
+
+EquipItemOnSlot : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+		} : AISubActionEquipOnSlot, 
+		{
+			delay = 0.13f;
+			name = "NewWeaponEquipped";
+		} : AISubActionQueueAIEvent
+	];
+	allowBlendDuration = 0.f;
+}
+
+EquipItemOnSlotNoSpawnDelay : ItemHandling.EquipItemOnSlot
+{
+	loopSubActions = 
+	[
+		{
+		} : AISubActionEquipOnSlot, 
+		{
+			delay = 0.13f;
+			name = "NewWeaponEquipped";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+SetDataAfterEquip : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+		} : AISubActionUpdateFriendlyFireParams
+	];
+}
+
+EquipOnBody : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+		} : AISubActionEquipOnBody
+	];
+}
+
+CommandEquipAnyWeapon : EquipAnyWeapon
+{
+}
+
+WoundedLeftArmEquipWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedArmLeft"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Right_Arm_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+WoundedRightArmEquipWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedArmRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.3f;
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Handgun_Left_Arm_LootAt";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+UnequipSelector : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"ItemHandling.UnequipPrimarySequence", "ItemHandling.UnequipSecondarySequence"
+	];
+}
+
+UnequipPrimarySequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.SetUnequipPrimary", "ItemHandling.UnequipItemOnSlot"
+	];
+}
+
+UnequipSecondarySequence : AIActionSequence
+{
+	actions = 
+	[
+		"ItemHandling.SetUnequipSecondary", "ItemHandling.UnequipItemOnSlot"
+	];
+}
+
+SetUnequipPrimary : AIAction
+{
+	loop = 
+	{
+		duration = 0.000001f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			animationTime = 1.0f;
+			dropItem = false;
+		} : AISubActionSetUnequipPrimaryWeapons
+	];
+}
+
+SetUnequipSecondary : AIAction
+{
+	loop = 
+	{
+		duration = 0.000001f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			animationTime = 0.8f;
+			dropItem = false;
+		} : AISubActionSetUnequipSecondaryWeapons
+	];
+}
+
+UnequipItemOnSlotNoTicket : UnequipItemOnSlot
+{
+	tickets = [];
+}
+
+UnequipItemOnSlot : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+		} : AISubActionUnequipOnSlot
+	];
+	allowBlendDuration = 0.f;
+}
+
+UnequipAnyWeapon : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyItem"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip
+	];
+}
+
+UnequipItemProp : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyItem"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 0.5f;
+			delay = -1.f;
+			unequipDespiteInterruption = true;
+			dropItem = true;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 0.5f;
+			delay = -1.f;
+			unequipDespiteInterruption = true;
+			dropItem = true;
+		} : AISubActionForceUnequip
+	];
+}
+
+EquipTicketAction : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	loop = 
+	{
+	};
+}
+
+WaitToUnequipNoTicket : WaitToUnequip
+{
+	tickets = [];
+}
+
+WaitToUnequip : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyItem"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotHasAnyItem", "Condition.HasMeleeWeapon", "Condition.NotTicketShoot"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotTicketReload", "Condition.NotMeleeStatesExceptTauntConditions", "Condition.NotInRegularCover", "Condition.NotIsEnteringCover", "Condition.NotIsInWorkspot", "Condition.NotIsUsingOffMeshLink", "Condition.NotWounded", "Condition.NotIsNPCUnderWeaponMalfunctionQuickhack"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "InterruptTaunts";
+			duration = 1.f;
+			delay = -1.f;
+		} : AISubActionSendSignal
+	];
+}
+
+DelayToUnequipMelee : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasMeleeWeapon", "Condition.TargetBelow5m", {
+					OR = 
+					[
+						"Condition.InStatesAttack", "Condition.TicketMelee"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.1f;
+		conditionSuccessDuration = 0.39f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.HasRangedWeapon", "Condition.NotTicketMelee", "Condition.TargetAbove5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CommandUnequipAnyWeapon : UnequipAnyWeapon
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyItem", "Condition.NotIsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+CommandUnequipAnyWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AISwitchToPrimaryWeaponCommand", "Condition.NotInStatesShoot", "Condition.NotTicketGrenadeThrow", "Condition.NotIsInWorkspot"
+			];
+		} : AIActionAND;
+	};
+}
+
+ReloadCooldown : AIActionCooldown
+{
+	name = "Reload";
+	duration = 0.5f;
+}
+
+SimpleReloadSelector : ItemHandling.ReloadSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInRegularCover", "Condition.NotIsUsingOffMeshLink", "Condition.AmmoCountBelowHalf"
+			];
+		} : AIActionAND;
+	};
+}
+
+ReloadSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ReloadSelectorCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ItemHandling.InstantReloadSprint", "GenericArchetype.ReloadAssaultRifle", "GenericArchetype.ReloadHandgun", "GenericArchetype.ReloadLightMachineGun", "GenericArchetype.ReloadHeavyMachineGun", "GenericArchetype.ReloadPrecisionRifle", "GenericArchetype.ReloadRevolver", "GenericArchetype.ReloadShotgun", "GenericArchetype.ReloadShotgunDual", "GenericArchetype.ReloadSniperRifle", "GenericArchetype.ReloadSubmachineGun"
+	];
+	defaultAction = "GenericArchetype.ReloadDefault";
+}
+
+SandevistanDashReloadSelector : ItemHandling.ReloadSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsMoving", "Condition.ReloadSelectorCondition", "Condition.NotGracefulCombatInterruption"
+			];
+		} : AIActionAND;
+	};
+}
+
+SimpleCoverReloadSelector : ItemHandling.CoverReloadSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AmmoCountBelowHalf", "Condition.InCover", "Condition.SimpleCoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CoverReloadSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon", "Condition.AmmoCountBelowHalf", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotTicketEquip", "Condition.NotIsUsingOffMeshLink", "Condition.InCover", "Condition.CoverActivationCondition"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"GenericArchetype.CoverReloadAssaultRifle", "GenericArchetype.CoverReloadHandgun", "GenericArchetype.CoverReloadRevolver", "GenericArchetype.CoverReloadSubmachineGun", "GenericArchetype.CoverReloadPrecisionRifle", "GenericArchetype.CoverReloadSniperRifle"
+	];
+	defaultAction = "GenericArchetype.CoverReloadDefault";
+}
+
+ReloadDefault : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Reload"
+	];
+	startup = "ItemHandling.ReloadDefaultStartup";
+	loop = "ItemHandling.ReloadDefaultLoop";
+	recovery = "ItemHandling.ReloadDefaultRecovery";
+	startupSubActions = 
+	[
+		{
+			name = "reloading";
+			condition = 
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NearestSquadmateBelow15m"
+					];
+				} : AIActionAND;
+			};
+		} : AISubActionPlayVoiceOver
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+			duration = 0.3f;
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+			duration = 0.3f;
+		} : AISubActionReloadWeapon
+	];
+	animData = 
+	{
+		animFeature = "ReloadAction";
+	};
+	allowBlendDuration = 0.1f;
+}
+
+InstantReloadSprint : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Reload"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Sprint"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		repeat = 0;
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCountFull"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+}
+
+CoverReloadFailureSubAction : AISubActionConditionalFailure
+{
+	condition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.CoverDeactivationCondition"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+CoverReloadDefault : ReloadDefault
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadDefaultStartup : AIActionPhase
+{
+	duration = 0.32f;
+	changeNPCState = 
+	{
+		upperBodyState = "Reload";
+		hitReactionMode = "StaggerMin";
+	};
+}
+
+ReloadDefaultLoop : AIActionPhase
+{
+	duration = 0.4f;
+	repeat = 0;
+	changeNPCState = 
+	{
+		upperBodyState = "Reload";
+		hitReactionMode = "StaggerMin";
+	};
+	notRepeatPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.AmmoCountFull"
+				];
+			} : AIActionOR;
+		}
+	];
+	toNextPhaseConditionCheckInterval = 0.25f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.IsEnteringCover", "Condition.IsUsingOffMeshLink", "Condition.TicketEquip", "Condition.Sprint"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
+ReloadDefaultRecovery : AIActionPhase
+{
+	duration = 0.8f;
+	changeNPCState = 
+	{
+		upperBodyState = "Reload";
+		hitReactionMode = "StaggerMin";
+	};
+}
+
+ReloadAssaultRifleCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_AssaultRifle";
+			} : AISlotCond, 
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_Rifle";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadAssaultRifle : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadAssaultRifleCondition";
+}
+
+CoverReloadAssaultRifle : ReloadAssaultRifle
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadHandgunCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_Handgun";
+			} : AISlotCond, 
+			{
+				slot = "AttachmentSlots.WeaponLeft";
+				itemType = "ItemType.Wea_Handgun";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadHandgun : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadHandgunCondition";
+	startup = 
+	{
+		duration = 0.333f;
+	} : ItemHandling.ReloadDefaultStartup;
+	loop = 
+	{
+		duration = 0.533f;
+	} : ItemHandling.ReloadDefaultLoop;
+	recovery = 
+	{
+		duration = 1.f;
+	} : ItemHandling.ReloadDefaultRecovery;
+}
+
+CoverReloadHandgun : ReloadHandgun
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadLightMachineGunCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_LightMachineGun";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadLightMachineGun : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadLightMachineGunCondition";
+	startup = 
+	{
+		duration = 0.833f;
+	} : ItemHandling.ReloadDefaultStartup;
+	loop = 
+	{
+		duration = 1.333f;
+	} : ItemHandling.ReloadDefaultLoop;
+	recovery = 
+	{
+		duration = 0.666f;
+	} : ItemHandling.ReloadDefaultRecovery;
+}
+
+CoverReloadLightMachineGun : ReloadLightMachineGun
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadHeavyMachineGunCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_HeavyMachineGun";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadHeavyMachineGun : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadHeavyMachineGunCondition";
+	startup = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	} : ItemHandling.ReloadDefaultStartup;
+	loop = 
+	{
+		duration = 2.08f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	} : ItemHandling.ReloadDefaultLoop;
+	recovery = 
+	{
+		duration = 1.8f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	} : ItemHandling.ReloadDefaultRecovery;
+}
+
+CoverReloadHeavyMachineGun : ReloadHeavyMachineGun
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadPrecisionRifleCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_PrecisionRifle";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadPrecisionRifle : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadPrecisionRifleCondition";
+	startup = 
+	{
+		duration = 0.5f;
+	} : ItemHandling.ReloadDefaultStartup;
+	loop = 
+	{
+		duration = 0.7f;
+	} : ItemHandling.ReloadDefaultLoop;
+	recovery = 
+	{
+		duration = 1.3f;
+	} : ItemHandling.ReloadDefaultRecovery;
+}
+
+CoverReloadPrecisionRifle : ReloadPrecisionRifle
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadRevolverCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_Revolver";
+			} : AISlotCond, 
+			{
+				slot = "AttachmentSlots.WeaponLeft";
+				itemType = "ItemType.Wea_Revolver";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadRevolver : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadRevolverCondition";
+	startup = 
+	{
+		duration = 0.333f;
+	} : ItemHandling.ReloadDefaultStartup;
+	loop = 
+	{
+		duration = 0.6f;
+	} : ItemHandling.ReloadDefaultLoop;
+	recovery = 
+	{
+		duration = 1.f;
+	} : ItemHandling.ReloadDefaultRecovery;
+}
+
+CoverReloadRevolver : ReloadRevolver
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadRifleCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_Rifle";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadShotgunCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_Shotgun";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadShotgun : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadShotgunCondition";
+	recovery = 
+	{
+		duration = 1.1f;
+	} : ItemHandling.ReloadDefaultRecovery;
+}
+
+CoverReloadShotgun : ReloadShotgun
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadShotgunDualCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_ShotgunDual";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadShotgunDual : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadShotgunDualCondition";
+}
+
+CoverReloadShotgunDual : ReloadShotgunDual
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadSniperRifleCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_SniperRifle";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadSniperRifle : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadSniperRifleCondition";
+}
+
+CoverReloadSniperRifle : ReloadSniperRifle
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ReloadSubmachineGunCondition : AIActionCondition
+{
+	condition = 
+	{
+		OR = 
+		[
+			{
+				slot = "AttachmentSlots.WeaponRight";
+				itemType = "ItemType.Wea_SubmachineGun";
+			} : AISlotCond
+		];
+	} : AIActionOR;
+}
+
+ReloadSubmachineGun : ReloadDefault
+{
+	activationCondition = "ItemHandling.ReloadSubmachineGunCondition";
+}
+
+CoverReloadSubmachineGun : ReloadSubmachineGun
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+		} : AISubActionReloadWeapon, 
+		{
+			weaponSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionReloadWeapon
+	];
+	subActions = 
+	[
+		"ItemHandling.CoverReloadFailureSubAction"
+	];
+}
+
+ThrowGrenade : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.GrenadeThrow"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.29f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "ThrowGrenade";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ThrowGrenadeFrag : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFragGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeFlash : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFlashbangGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeEMP : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseEMPGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeBiohazard : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseBiohazardGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeIncendiary : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseIncendiaryGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeRecon : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseReconGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeReconRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCutting : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCuttingGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeCuttingRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNear : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.GrenadeThrow"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.667f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ThrowGrenadeNearFrag : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFragGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNearFlash : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFlashbangGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNearEMP : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseEMPGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNearBiohazard : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseBiohazardGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNearIncendiary : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseIncendiaryGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNearRecon : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseReconGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeReconRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeNearCutting : ItemHandling.ThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCuttingGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeCuttingRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenade : ThrowGrenade
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CommandThrowGrenadeFrag : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFragGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeFlash : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFlashbangGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeEMP : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseEMPGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeBiohazard : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseBiohazardGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeIncendiary : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseIncendiaryGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeRecon : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseReconGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeReconRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeCutting : ItemHandling.CommandThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCuttingGrenades", "Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeCuttingRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNear : ThrowGrenadeNear
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade";
+			duration = 3.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+}
+
+CommandThrowGrenadeNearFrag : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFragGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNearFlash : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseFlashbangGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNearEMP : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseEMPGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNearBiohazard : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseBiohazardGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNearIncendiary : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseIncendiaryGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNearRecon : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseReconGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeReconRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+CommandThrowGrenadeNearCutting : ItemHandling.CommandThrowGrenadeNear
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseCuttingGrenades", "Condition.ThrowGrenadeNearCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeCuttingRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+NoWeaponEquipped : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Fists";
+		} : AISubActionForceEquip
+	];
+}
+
+NoWeaponEquippedInDangerousArea : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon", "Condition.InsideDangerousArea"
+			];
+		} : AIActionAND;
+	};
+}
+
+CombatForceUnequipWeapon : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.LadderOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip
+	];
+}
+
+CombatBlockSwappingWeapons : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotAbilityCanSwitchWeapon", "Condition.StatusEffectNPCForceEquipPrimaryWeapon", "Condition.StatusEffectNPCForceEquipSecondaryWeapon"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 0.1f;
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanSwitchWeapon", "Condition.NotStatusEffectNPCForceEquipPrimaryWeapon", "Condition.NotStatusEffectNPCForceEquipSecondaryWeapon"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+CombatCanEquipWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WaitForItemSpawnCooldown", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotInRegularCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotWoundedArms"
+			];
+		} : AIActionAND;
+	};
+}
+
+CombatCanEquipWoundedWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.WoundedArms"
+			];
+		} : AIActionAND;
+	};
+}
+
+CombatCanSwapWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotTicketEquip", "Condition.NotTicketReload", "Condition.NotMeleeStatesExceptTauntConditions", "Condition.NotInRegularCover", "Condition.NotIsEnteringCover", "Condition.NotIsInWorkspot", "Condition.NotIsUsingOffMeshLink", "Condition.NotWoundedArms", "Condition.NotIsNPCUnderWeaponMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+}
+
+NotIsMeleeNPC : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasPrimaryEquipmentMeleeInInventory"
+			];
+		} : AIActionAND;
+	};
+}
+
+IsMeleeNPC : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasPrimaryEquipmentMeleeInInventory"
+			];
+		} : AIActionAND;
+	};
+}
+
+IsPatrolling : AIAction
+{
+}
+

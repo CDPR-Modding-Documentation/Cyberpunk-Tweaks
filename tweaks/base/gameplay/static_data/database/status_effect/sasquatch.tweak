@@ -1,0 +1,190 @@
+package Sasquatch
+using RTDB, BaseStatusEffect, BaseStats, Effectors, QuickHack, Prereqs
+
+SasquatchStatus : StatusEffect
+{
+	gameplayTags += 
+	[
+		"Sasquatch"
+	];
+}
+
+OverloadWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "Sasquatch.Broken";
+			} : StatusEffectAbsentPrereq, 
+			"BaseStatusEffect.OverloadAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "Sasquatch.SasquatchOverload";
+	removeWithEffector = false;
+}
+
+SasquatchOverload : BaseQuickHackStatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Jam";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"Debuff", "JamWeapon", "Overload"
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "DestroyWeakspotEffector";
+					int weakSpotIndex = -1;
+				} : Effector, 
+				{
+					statusEffect = "Sasquatch.Broken";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Broken : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+NoTakedown : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Dodge : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Loop1 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Loop2 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Loop3 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Phase1 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Phase2 : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Regenerate : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"Regenerate"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				"Sasquatch.RegenerateEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+RegenerateEffector : ModifyStatPoolModifierEffector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ModifyStatPoolModifierEffector";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 100;
+		float startDelay = 1.5;
+		float valuePerSec = 1.25;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+	string statPoolType = "Health";
+	string modificationType = "Regeneration";
+}
+

@@ -1,0 +1,459 @@
+package VehicleActions
+using RTDB, DeviceAction, Prereqs
+
+VehicleMount : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "VehicleMount";
+	interactionLayer = "none";
+	instigatorPrereqs = 
+	[
+		"VehicleActions.GeneralStateChecks", "VehicleActions.IsPlayerInAcceptableGroundLocomotionState", "VehicleActions.GameplayRestrictions"
+	];
+	rewards = [];
+}
+
+GameplayRestrictions : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statusEffect = "GameplayRestriction.NoWorldInteractions";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.Braindance";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+IsPlayerInAcceptableGroundLocomotionState : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Stand";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Sprint";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Crouch";
+		} : Prereqs.DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "AimWalk";
+		} : Prereqs.DetailedLocomotionPSMPrereq
+	];
+}
+
+GeneralStateChecks : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Swimming";
+			isInState = false;
+		} : Prereqs.HighLevelPSMPrereq, 
+		{
+			stateName = "EnteringGrapple";
+			isInState = false;
+		} : Prereqs.TakedownPSMPrereq, 
+		{
+			stateName = "Grapple";
+			isInState = false;
+		} : Prereqs.TakedownPSMPrereq, 
+		{
+			stateName = "Takedown";
+			isInState = false;
+		} : Prereqs.TakedownPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : Prereqs.BodyCarryingPSMPrereq, 
+		{
+			isInState = false;
+		} : Prereqs.BodyDisposalPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : Prereqs.VehiclePSMPrereq
+	];
+}
+
+VehicleMountFrontLeft : VehicleMount
+{
+	interactionLayer = "seat_front_left";
+	fk< InteractionBase > objectActionUI = "Interactions.seat_front_left";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontLeft", "VehicleActions.IsNpcNotMountedInSlotFrontLeft", "VehicleActions.IsVehicleDoorNotLockedFrontLeft", "VehicleActions.IsVehicleDoorNotQuestLockedFrontLeft", "VehicleActions.CanPlayerNotHijackMountedNpcFrontRight"
+	];
+}
+
+VehicleMountFrontRight : VehicleMount
+{
+	interactionLayer = "seat_front_right";
+	fk< InteractionBase > objectActionUI = "Interactions.seat_front_right";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontRight", "VehicleActions.IsNpcNotMountedInSlotFrontRight", "VehicleActions.IsVehicleDoorNotLockedFrontRight", "VehicleActions.IsVehicleDoorNotQuestLockedFrontRight", "VehicleActions.CanPlayerNotHijackMountedNpcFrontLeft"
+	];
+}
+
+VehicleMountBackLeft : VehicleMount
+{
+	interactionLayer = "seat_back_left";
+	fk< InteractionBase > objectActionUI = "Interactions.seat_back_left";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontLeft", "VehicleActions.IsNpcNotMountedInSlotBackLeft", "VehicleActions.IsVehicleDoorNotLockedBackLeft", "VehicleActions.IsVehicleDoorNotQuestLockedBackLeft"
+	];
+}
+
+VehicleMountBackRight : VehicleMount
+{
+	interactionLayer = "seat_back_right";
+	fk< InteractionBase > objectActionUI = "Interactions.seat_back_right";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationBackRight", "VehicleActions.IsNpcNotMountedInSlotBackRight", "VehicleActions.IsVehicleDoorNotLockedBackRight", "VehicleActions.IsVehicleDoorNotQuestLockedBackRight"
+	];
+}
+
+VehicleMotorcycleMountFrontLeft : VehicleMountFrontLeft
+{
+	fk< InteractionBase > objectActionUI = "Interactions.seat_front_left_motorcycle";
+}
+
+PanzerVehicleMountFrontLeft : VehicleMount
+{
+	interactionLayer = "seat_front_left";
+	fk< InteractionBase > objectActionUI = "Interactions.seat_front_left";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotMountedInSlotFrontLeft", "VehicleActions.IsVehicleDoorNotQuestLockedFrontLeft"
+	];
+}
+
+PanzerVehicleMountFrontRight : VehicleMount
+{
+	interactionLayer = "seat_front_right";
+	fk< InteractionBase > objectActionUI = "Interactions.seat_front_right";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontRight", "VehicleActions.IsNpcNotMountedInSlotFrontRight", "VehicleActions.IsVehicleDoorNotQuestLockedFrontRight"
+	];
+}
+
+VehicleHijack : ActionDemolition
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "VehicleHijack";
+	interactionLayer = "none";
+	instigatorPrereqs = 
+	[
+		"VehicleActions.GeneralStateChecks", "Takedown.IsPlayerInExploration", "VehicleActions.IsPlayerInAcceptableGroundLocomotionState", "Takedown.PlayerNotInSafeZone", "VehicleActions.GameplayRestrictions"
+	];
+	rewards = [];
+}
+
+VehicleHijackFrontLeft : VehicleHijack
+{
+	interactionLayer = "seat_front_left";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontLeft", "VehicleActions.IsNpcMountedInSlotFrontLeftOrRight", "VehicleActions.CanPlayerHijackLeftOrRight", "VehicleActions.IsVehicleDoorNotQuestLockedFrontLeft"
+	];
+}
+
+VehicleHijackFrontRight : VehicleHijack
+{
+	interactionLayer = "seat_front_right";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontRight", "VehicleActions.IsNpcMountedInSlotFrontLeftOrRight", "VehicleActions.CanPlayerHijackLeftOrRight", "VehicleActions.IsVehicleDoorNotQuestLockedFrontRight"
+	];
+}
+
+VehicleCrackLock : ActionEngineering
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "VehicleCrackLock";
+	interactionLayer = "none";
+	instigatorPrereqs = 
+	[
+		"VehicleActions.GeneralStateChecks", "Takedown.IsPlayerInExploration", "VehicleActions.IsPlayerInAcceptableGroundLocomotionState", "Takedown.PlayerNotInSafeZone", "VehicleActions.GameplayRestrictions"
+	];
+	rewards = [];
+}
+
+VehicleCrackLockFrontLeft : VehicleCrackLock
+{
+	interactionLayer = "seat_front_left";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontLeft", "VehicleActions.IsNpcNotMountedInSlotFrontLeft", "VehicleActions.IsVehicleDoorLockedFrontLeft"
+	];
+}
+
+VehicleCrackLockFrontRight : VehicleCrackLock
+{
+	interactionLayer = "seat_front_right";
+	targetPrereqs += 
+	[
+		"VehicleActions.IsNpcNotPlayingMountingAnimationFrontRight", "VehicleActions.IsNpcNotMountedInSlotFrontRight", "VehicleActions.IsVehicleDoorLockedFrontRight"
+	];
+}
+
+IsNpcMountedInSlot : IPrereq
+{
+	prereqClassName = "IsNpcMountedInSlotPrereq";
+	CName slotname = "";
+	bool isCheckInverted = false;
+}
+
+IsNpcMountedInSlotFrontLeft : IsNpcMountedInSlot
+{
+	CName slotname = "seat_front_left";
+}
+
+IsNpcMountedInSlotBackLeft : IsNpcMountedInSlot
+{
+	CName slotname = "seat_back_left";
+}
+
+IsNpcMountedInSlotFrontRight : IsNpcMountedInSlot
+{
+	CName slotname = "seat_front_right";
+}
+
+IsNpcMountedInSlotBackRight : IsNpcMountedInSlot
+{
+	CName slotname = "seat_back_right";
+}
+
+IsNpcMountedInSlotFrontLeftOrRight : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"VehicleActions.IsNpcMountedInSlotFrontLeft", "VehicleActions.IsNpcMountedInSlotFrontRight"
+	];
+}
+
+IsNpcNotMountedInSlotFrontLeft : IsNpcMountedInSlotFrontLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcNotMountedInSlotFrontRight : IsNpcMountedInSlotFrontRight
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcNotMountedInSlotBackLeft : IsNpcMountedInSlotBackLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcNotMountedInSlotBackRight : IsNpcMountedInSlotBackRight
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcPlayingMountingAnimation : IPrereq
+{
+	prereqClassName = "IsNpcPlayingMountingAnimationPrereq";
+	CName slotname = "";
+	bool isCheckInverted = false;
+}
+
+IsNpcPlayingMountingAnimationFrontLeft : IsNpcPlayingMountingAnimation
+{
+	CName slotname = "seat_front_left";
+}
+
+IsNpcPlayingMountingAnimationFrontRight : IsNpcPlayingMountingAnimation
+{
+	CName slotname = "seat_front_right";
+}
+
+IsNpcPlayingMountingAnimationBackLeft : IsNpcPlayingMountingAnimation
+{
+	CName slotname = "seat_back_left";
+}
+
+IsNpcPlayingMountingAnimationBackRight : IsNpcPlayingMountingAnimation
+{
+	CName slotname = "seat_back_right";
+}
+
+IsNpcNotPlayingMountingAnimationFrontLeft : IsNpcPlayingMountingAnimationFrontLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcNotPlayingMountingAnimationFrontRight : IsNpcPlayingMountingAnimationFrontRight
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcNotPlayingMountingAnimationBackLeft : IsNpcPlayingMountingAnimationBackLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsNpcNotPlayingMountingAnimationBackRight : IsNpcPlayingMountingAnimationBackRight
+{
+	bool isCheckInverted = true;
+}
+
+CanPlayerHijackMountedNpc : IPrereq
+{
+	prereqClassName = "CanPlayerHijackMountedNpcPrereq";
+	CName slotname = "";
+	bool isCheckInverted = false;
+}
+
+CanPlayerHijackMountedNpcFrontLeft : CanPlayerHijackMountedNpc
+{
+	CName slotname = "seat_front_left";
+}
+
+CanPlayerHijackMountedNpcFrontRight : CanPlayerHijackMountedNpc
+{
+	CName slotname = "seat_front_right";
+}
+
+CanPlayerHijackLeftOrRight : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "OR";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"VehicleActions.CanPlayerHijackMountedNpcFrontLeft", "VehicleActions.CanPlayerHijackMountedNpcFrontRight"
+	];
+}
+
+CanPlayerHijackMountedNpcBackLeft : CanPlayerHijackMountedNpc
+{
+	CName slotname = "seat_back_left";
+}
+
+CanPlayerHijackMountedNpcBackRight : CanPlayerHijackMountedNpc
+{
+	CName slotname = "seat_back_right";
+}
+
+CanPlayerNotHijackMountedNpcFrontLeft : CanPlayerHijackMountedNpc
+{
+	CName slotname = "seat_front_left";
+	bool isCheckInverted = true;
+}
+
+CanPlayerNotHijackMountedNpcFrontRight : CanPlayerHijackMountedNpc
+{
+	CName slotname = "seat_front_right";
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorLocked : IPrereq
+{
+	prereqClassName = "IsVehicleDoorLocked";
+	CName slotname = "";
+	bool isCheckInverted = false;
+}
+
+IsVehicleDoorLockedFrontLeft : IsVehicleDoorLocked
+{
+	CName slotname = "seat_front_left";
+}
+
+IsVehicleDoorLockedFrontRight : IsVehicleDoorLocked
+{
+	CName slotname = "seat_front_right";
+}
+
+IsVehicleDoorLockedBackLeft : IsVehicleDoorLocked
+{
+	CName slotname = "seat_back_left";
+}
+
+IsVehicleDoorLockedBackRight : IsVehicleDoorLocked
+{
+	CName slotname = "seat_back_right";
+}
+
+IsVehicleDoorNotLockedFrontLeft : IsVehicleDoorLockedFrontLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorNotLockedFrontRight : IsVehicleDoorLockedFrontRight
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorNotLockedBackLeft : IsVehicleDoorLockedBackLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorNotLockedBackRight : IsVehicleDoorLockedBackRight
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorQuestLocked : IPrereq
+{
+	prereqClassName = "IsVehicleDoorQuestLocked";
+	CName slotname = "";
+	bool isCheckInverted = false;
+}
+
+IsVehicleDoorQuestLockedFrontLeft : IsVehicleDoorQuestLocked
+{
+	CName slotname = "seat_front_left";
+}
+
+IsVehicleDoorQuestLockedFrontRight : IsVehicleDoorQuestLocked
+{
+	CName slotname = "seat_front_right";
+}
+
+IsVehicleDoorQuestLockedBackLeft : IsVehicleDoorQuestLocked
+{
+	CName slotname = "seat_back_left";
+}
+
+IsVehicleDoorQuestLockedBackRight : IsVehicleDoorQuestLocked
+{
+	CName slotname = "seat_back_right";
+}
+
+IsVehicleDoorNotQuestLockedFrontLeft : IsVehicleDoorQuestLockedFrontLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorNotQuestLockedFrontRight : IsVehicleDoorQuestLockedFrontRight
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorNotQuestLockedBackLeft : IsVehicleDoorQuestLockedBackLeft
+{
+	bool isCheckInverted = true;
+}
+
+IsVehicleDoorNotQuestLockedBackRight : IsVehicleDoorQuestLockedBackRight
+{
+	bool isCheckInverted = true;
+}
+

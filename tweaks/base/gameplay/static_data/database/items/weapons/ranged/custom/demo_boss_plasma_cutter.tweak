@@ -1,0 +1,268 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage
+
+[ notQueryable ]
+plasma_cutter : Base_Weapon
+{
+	string friendlyName = "plasma_cutter";
+	CName audioName = "wea_set_special_plasma_cutter";
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.WeaponRight"
+	];
+	CName[] tags += 
+	[
+		"Preload", "Weapon", "Core", "Attack_Projectile", "TriggerMode_SemiAuto"
+	];
+	CName entityName = "plasma_cutter_weapon";
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto", "TriggerMode.Charge"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.SemiAuto";
+	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Corporation";
+	fk< WeaponEvolution > evolution = "WeaponEvolution.Tech";
+	fk< ItemCategory > itemCategory = "ItemCategory.Weapon";
+	fk< ItemType > itemType = "ItemType.Wea_Rifle";
+	stateMachineName = "Weapon";
+	fk< WeaponFxPackage > fxPackage = "Items.PlasmaFxPackage";
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.PlasmaProjectilePackage";
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ShieldSlam", "Attacks.PlasmaBeam", "NPCAttacks.QuickAttack", "NPCAttacks.QuickAttackStagger", "NPCAttacks.QuickAttackBleeding", "NPCAttacks.StrongAttack", "NPCAttacks.StrongAttackStagger", "NPCAttacks.StrongAttackKnockdown", "NPCAttacks.StompAttackStagger", "NPCAttacks.StompAttackKnockdown", "Attacks.PlasmaProjectile", "Attacks.PlasmaProjectileWeak", "Attacks.PlasmaProjectileSplash", "Attacks.RoyceLaserSight", "NPCAttacks.RoyceStrongAttackKnockdown"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		"BaseStats.EquipDurationModifier", "BaseStats.UnequipDurationModifier"
+	];
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Items.plasma_cutter_StatModifierGroup_WeaponStats"
+	];
+}
+
+plasma_cutter_StatModifierGroup_WeaponStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			float value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			float value = 0.2f;
+		} : CycleTimeModifier, 
+		{
+			float value = 0.0f;
+		} : DPSModifier, 
+		{
+			float value = -1.f;
+		} : MagazineCapacityModifier, 
+		{
+			float value = 5.f;
+		} : ReloadTimeModifier, 
+		{
+			float value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			float value = 1.5f;
+		} : ChargeTimeModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_rifles_RPG_stats";
+			column = "power_level_to_DPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Additive";
+			value = 40.0f;
+		} : ConstantStatModifier
+	];
+}
+
+PlasmaFxPackage : WeaponFxPackage.WeaponBase
+{
+	fk< MaterialFx > vfx_impact_default = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxDefault;
+	fk< MaterialFx > vfx_impact_metal = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxMetal;
+	fk< MaterialFx > vfx_impact_stone = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = 
+		[
+			""
+		];
+	} : MaterialFxStone;
+	fk< MaterialFx > vfx_impact_concrete = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxConcrete;
+	fk< MaterialFx > vfx_impact_plaster = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxPlaster;
+	fk< MaterialFx > vfx_impact_tiles = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxTiles;
+	fk< MaterialFx > vfx_impact_wood = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_main_effect = [];
+		impact_reflected_effect = [];
+	} : MaterialFxWood;
+	fk< MaterialFx > vfx_impact_meatbag = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxMeatbag;
+	fk< MaterialFx > vfx_impact_metal_pipe_steam = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxMetalPipeSteam;
+	fk< MaterialFx > vfx_impact_metal_pipe_water = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxMetalPipeWater;
+	fk< MaterialFx > vfx_impact_metal_catwalk = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxMetalCatwalk;
+	fk< MaterialFx > vfx_impact_linoleum = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxLinoleum;
+	fk< MaterialFx > vfx_impact_plastic = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxPlastic;
+	fk< MaterialFx > vfx_impact_plastic_road = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxPlasticRoad;
+	fk< MaterialFx > vfx_impact_trash = 
+	{
+		impact_decal = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_target_explode.effect"
+		];
+		impact_main_effect = 
+		[
+			"base\fx\quest\q003\boss_centaur\plazma_beam\plazma_impact_default.effect"
+		];
+		impact_reflected_effect = [];
+	} : MaterialFxTrash;
+	sfx_impact_context = "";
+}
+

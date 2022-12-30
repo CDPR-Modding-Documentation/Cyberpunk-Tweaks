@@ -1,0 +1,113 @@
+package GenericInteraction
+using RTDB, Prereqs
+
+Talk : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "GenericTalk";
+	interactionLayer = "GenericTalk";
+	instigatorPrereqs = 
+	[
+		"GenericInteraction.PlayerStateChecks", {
+			statusEffect = "GameplayRestriction.Braindance";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+	targetPrereqs = 
+	[
+		"GenericInteraction.TargetStatusEffectsChecks", {
+			stateName = "Fear";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			stateName = "Dead";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			invert = true;
+		} : NPCInScene
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.GenericTalk";
+	startEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.TalkCooldown";
+			recipient = "ObjectActionReference.Target";
+		}
+	];
+	cooldown = 
+	{
+		duration = 15.f;
+	} : Cooldown;
+}
+
+ReturnTalk : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "ReturnTalk";
+	interactionLayer = "ReturnTalk";
+	instigatorPrereqs = [];
+	fk< InteractionBase > objectActionUI = "Interactions.ReturnTalk";
+}
+
+PlayerStateChecks : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			prereqClassName = "CombatPSMPrereq";
+			string stateName = "InCombat";
+			bool isInState = false;
+		}, 
+		{
+			prereqClassName = "HighLevelPSMPrereq";
+			string stateName = "SceneTier3";
+			bool isInState = false;
+		}, 
+		{
+			prereqClassName = "HighLevelPSMPrereq";
+			string stateName = "SceneTier4";
+			bool isInState = false;
+		}, 
+		{
+			prereqClassName = "HighLevelPSMPrereq";
+			string stateName = "SceneTier5";
+			bool isInState = false;
+		}
+	];
+}
+
+TargetStatusEffectsChecks : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.TalkCooldown";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.GenericTalkDisabled";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "WorkspotStatus.Braindance";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "WorkspotStatus.Sleep";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "WorkspotStatus.Drunk";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "WorkspotStatus.Death";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Defeated";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+

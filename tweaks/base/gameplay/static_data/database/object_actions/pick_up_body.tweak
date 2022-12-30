@@ -1,0 +1,70 @@
+package GenericInteraction
+using RTDB, Prereqs
+
+PickUpBody : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "PickUpBody";
+	interactionLayer = "Loot";
+	instigatorPrereqs = 
+	[
+		{
+			stateName = "Surface";
+			isInState = false;
+		} : SwimmingPSMPrereq, 
+		{
+			stateName = "Diving";
+			isInState = false;
+		} : SwimmingPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : TakedownPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : BodyCarryingPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : BodyDisposalPSMPrereq, 
+		{
+			stateName = "Default";
+			isInState = true;
+		} : VehiclePSMPrereq, 
+		{
+			statusEffect = "GameplayRestriction.BodyCarryingForceDrop";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		"GenericInteraction.IsPlayerInAcceptableGroundLocomotionState"
+	];
+	targetPrereqs = 
+	[
+		{
+			rarity = "Boss";
+			invert = true;
+		} : NPCRarityPrereq, 
+		{
+			visualTag = "Sumo";
+			hasTag = false;
+		} : NPCRecordHasVisualTag
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.PickUpBody";
+}
+
+IsPlayerInAcceptableGroundLocomotionState : MultiPrereq
+{
+	aggregationType = "OR";
+	nestedPrereqs = 
+	[
+		{
+			stateName = "Stand";
+		} : DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Sprint";
+		} : DetailedLocomotionPSMPrereq, 
+		{
+			stateName = "Crouch";
+		} : DetailedLocomotionPSMPrereq
+	];
+}
+

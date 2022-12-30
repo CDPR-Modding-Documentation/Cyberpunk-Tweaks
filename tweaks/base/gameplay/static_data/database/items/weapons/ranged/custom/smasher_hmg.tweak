@@ -1,0 +1,108 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage
+
+[ notQueryable ]
+Smasher_HMG : Preset_HMG_Default
+{
+	CName appearanceResourceName = "";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "";
+		}
+	];
+	rangedAttacks = "Attacks.SmasherMinigunBulletPackage";
+	CName entityName = "smasher_hmg";
+	CName audioName = "wea_set_smasher_hmg";
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.SemiAuto";
+	fk< Attack >[] attacks += 
+	[
+		"NPCAttacks.SmasherStrongAttackKnockdown", "NPCAttacks.SmasherStrongAttack", "NPCAttacks.SmasherStompAttackStagger", "NPCAttacks.SmasherStrongAttackStompKnockdown", "NPCAttacks.StrongAttackKnockdown", "NPCAttacks.StrongAttackStompKnockdown", "NPCAttacks.StrongAttackStagger", "Attacks.SmasherMinigunBulletEffect", "Attacks.SmasherMinigunBulletProjectile"
+	];
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.TechShotgun";
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups = 
+		[
+			"Items.Smasher_HMG_RPG_Stats", "Items.Base_HMG_Misc_Stats", "Items.Smasher_HMG_Technical_Stats"
+		];
+	} : Base_HMG_NPC_Data;
+	statModifierGroups = 
+	[
+		"Items.Smasher_HMG_Technical_Stats", "Items.Base_HMG_Handling_Stats", "Items.Base_HMG_Recoil_Stats", "Items.Base_HMG_Spread_Stats", "Items.Base_PlayerState_Spread_Stats", "Proficiencies.DemolitionHMGStats", "Items.Base_HMG_RPG_Stats"
+	];
+}
+
+Smasher_HMG_RPG_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			id = "item_rifles_RPG_stats";
+			column = "item_level_to_DPS";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier
+	];
+}
+
+Smasher_HMG_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.1f;
+		} : CycleTimeModifier, 
+		{
+			value = 300.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 300.0f;
+		} : ReloadAmountModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 100.f;
+		} : OverheatModifier, 
+		{
+			value = 50.f;
+		} : EffectiveRangeModifier, 
+		{
+			value = 30.f;
+		} : PhysicalImpulseModifier
+	];
+}
+

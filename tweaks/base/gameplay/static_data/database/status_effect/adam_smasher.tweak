@@ -1,0 +1,539 @@
+package AdamSmasher
+using RTDB, BaseStatusEffect, BaseStats, Effectors, QuickHack, Perks, Prereqs, Attacks
+
+AdamSmasherStatus : StatusEffect
+{
+	gameplayTags += 
+	[
+		"AdamSmasher"
+	];
+}
+
+SmasherArmor : AdamSmasherStatus
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
+	gameplayTags += 
+	[
+		"Armor"
+	];
+}
+
+SmasherAnimationActivator : AdamSmasherStatus
+{
+	gameplayTags += 
+	[
+		"SmasherAnimationActivator"
+	];
+}
+
+ArmorPhase1 : SmasherArmor
+{
+	gameplayTags += 
+	[
+		"ArmorPhase1"
+	];
+}
+
+ArmorPhase2 : SmasherArmor
+{
+	gameplayTags += 
+	[
+		"ArmorPhase2"
+	];
+}
+
+ArmorPhase3 : SmasherArmor
+{
+	gameplayTags += 
+	[
+		"ArmorPhase3"
+	];
+}
+
+NoTakeDown : SmasherArmor
+{
+	gameplayTags += 
+	[
+		"NoTakeDown"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+Smashed : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+Phase1 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+Phase2 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+Phase3 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+InAir : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+Emergency : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+Wounded : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "broken";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"wounded_smasher"
+			];
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+Invulnerable : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableLimited : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.MaxDuration";
+						modifierType = "Additive";
+						value = 3;
+					} : ConstantStatModifier
+				];
+			};
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableWithHeal1 : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				"AdamSmasher.Heal1"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableWithHeal2 : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				"AdamSmasher.Heal2"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableWithHeal3 : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				"AdamSmasher.Heal3"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Destroyed_Plate : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"SmasherCustomStatusEffect"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"AdamSmasher.Destroyed_Plate_Appearance_Effector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Destroyed_Stage1 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"AdamSmasher.Destroyed_Stage1_Appearance_Effector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Destroyed_Stage2 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"AdamSmasher.Destroyed_Stage2_Appearance_Effector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Heal1 : ModifyStatPoolModifierEffector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ModifyStatPoolModifierEffector";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 100;
+		float startDelay = 0;
+		float valuePerSec = 3;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+	string statPoolType = "Health";
+	string modificationType = "Regeneration";
+}
+
+Heal2 : Heal1
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 66;
+		float startDelay = 0;
+		float valuePerSec = 3;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+}
+
+Heal3 : Heal1
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 33;
+		float startDelay = 0;
+		float valuePerSec = 3;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+}
+
+Destroyed_Plate_Appearance_Effector : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ChangeAppearanceEffector";
+	bool resetAppearance = false;
+	CName appearanceName = "boss__adam_smasher_mb_bossfight_stage_02";
+}
+
+Destroyed_Stage1_Appearance_Effector : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ChangeAppearanceEffector";
+	bool resetAppearance = false;
+	CName appearanceName = "boss__adam_smasher_mb_bossfight_stage_03";
+}
+
+Destroyed_Stage2_Appearance_Effector : Effector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ChangeAppearanceEffector";
+	bool resetAppearance = false;
+	CName appearanceName = "boss__adam_smasher_mm_bossfight_stage_05";
+}
+
+OverloadWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				statusEffect = "AdamSmasher.AdamSmasherOverload";
+			} : StatusEffectAbsentPrereq, 
+			"BaseStatusEffect.OverloadOrMalfunctionAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "AdamSmasher.AdamSmasherOverload";
+	removeWithEffector = false;
+}
+
+AdamSmasherOverload : BaseQuickHackStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 180;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"Debuff", "SmasherCustomHack"
+	];
+	VFX = 
+	[
+		{
+			name = "hacks_cyberware_malfunction";
+		}
+	];
+	uiData = 
+	{
+		string displayName = "Cyberware Malfunction";
+		string iconPath = "cyberware_disabled_icon";
+	};
+}
+
+AdamSmasherTakedownOverload : BaseQuickHackStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"Debuff", "SmasherCustomHackTakedown"
+	];
+	uiData = 
+	{
+		string displayName = "Cyberware Malfunction";
+		string iconPath = "cyberware_disabled_icon";
+	};
+}
+
+AdamSmasherTakedownOverloadToBroken : BaseQuickHackStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"Debuff", "SmasherCustomHackTakedown"
+	];
+	uiData = 
+	{
+		string displayName = "Cyberware Malfunction";
+		string iconPath = "cyberware_disabled_icon";
+	};
+}
+
+AdamSmasherStealthDot : BaseQuickHackStatusEffect
+{
+	bool replicated = true;
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_electrocuted";
+		}
+	];
+	fk< StatusEffectFX >[] SFX = 
+	[
+		{
+			name = "";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.ElectrocutedParticleStatusSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 2.5f;
+					attackRecord = "AdamSmasher.AdamSmasherStealthDotDamage";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectUIData > uiData = 
+	{
+		string displayName = "Electrocuted";
+		string iconPath = "second_wind";
+	};
+}
+
+AdamSmasherStealthDotDamage : BaseDOTTick
+{
+	damageType = "DamageTypes.Electric";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 0.01;
+		} : ConstantStatModifier
+	];
+	attackTag = "Electric";
+	hitFlags += 
+	[
+		"DisableNPCHitReaction"
+	];
+}
+

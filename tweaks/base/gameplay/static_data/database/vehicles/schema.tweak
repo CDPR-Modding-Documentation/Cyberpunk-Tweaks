@@ -1,0 +1,786 @@
+package RTDB
+using Crowds
+
+VehiclePIDSettings
+{
+	float P = 0.0;
+	float I = 0.0;
+	float D = 0.0;
+	float outputSaturationLimit = 0.0;
+	float integratorClampingLimit = 0.0;
+}
+
+VehicleSteeringSettings
+{
+	float minTargetDistance = 0.f;
+	float maxTargetDistance = 0.f;
+	float speedForMinDistance = 0.f;
+	float speedForMaxDistance = 0.f;
+	float mildSteeringSpeed = 0.f;
+	float errorMagnitudeForMildSteering = 0.f;
+	float fullSteeringSpeed = 0.f;
+	float errorMagnitudeForFullSteering = 0.f;
+	float vehicleMinTurnSpeed = 100.f;
+	float vehicleMaxTurnSpeed = 10000.f;
+	bool increaseSteeringDistForAvoidance = false;
+}
+
+VehicleStoppingSettings
+{
+	float mildBrakingChangeSpeed = 0.f;
+	float errorMagnitudeForMildBrakingChange = 0.f;
+	float fullBrakingChangeSpeed = 0.f;
+	float errorMagnitudeForFullBrakingChange = 0.f;
+	float decreaseMul = 0.f;
+}
+
+VehicleAIBoostSettings
+{
+	float maxTorqueBoost = 0.f;
+	float maxLongTractionBoost = 0.f;
+	float maxLatTractionBoost = 0.f;
+}
+
+VehicleAIVisionSettings
+{
+	float minDistance = 1.f;
+	float maxDistance = 10.f;
+	float maxStraightPathExtension = 10.f;
+	int numSweeps = 30;
+	float sideOverlapLateralScale = 0.75;
+	float sideOverlapLongitudinalScale = 1.5;
+	float sideOverlapForwardOffset = 0.5f;
+	float offsetSmoothingFastChangeSpeed = 10.f;
+	float offsetSmoothingReturnToNeutralSpeed = 4.f;
+	bool useSpeedLimit = true;
+	float speedLimitSafetyMargin = 0.f;
+	float speedLimitDeceleration = 7.f;
+}
+
+VehicleAITractionEstimation
+{
+	float turningAccelFactor = 1.f;
+	float forwardAccelFactor = 1.f;
+	float brakingAccelFactor = 1.f;
+}
+
+VehicleAIPanicDrivingSettings
+{
+	float boostMinSpeed = 5.f;
+	float boostMaxSpeed = 15.f;
+	float topSpeed = 33.f;
+	float curvatureLookupRange = 25.f;
+	float basePanicSpeedIncrease = 10.f;
+	float perLaneSpeedIncrease = 3.f;
+}
+
+BaseDrivingParameters
+{
+	fk< VehicleSteeringSettings > steering = "";
+	fk< VehicleSteeringSettings > steeringReverse = "";
+	fk< VehicleStoppingSettings > stopping = "";
+	fk< VehiclePIDSettings > accel = "";
+	fk< VehiclePIDSettings > brake = "";
+	fk< VehicleAIBoostSettings > boostStats = "";
+	fk< VehicleAIVisionSettings > vision = "";
+	fk< VehicleAITractionEstimation > traction = "";
+	fk< VehicleAIPanicDrivingSettings > panic = "";
+}
+
+WeightedCharacter
+{
+	fk< Character > character = "";
+	float weight = 1.0;
+}
+
+RandomPassengerEntry
+{
+	CName role = "";
+	CName[] validSlotNames = [];
+	float probability = 1.0;
+	fk< WeightedCharacter >[] characterRecords = [];
+}
+
+Vehicle : SpawnableObject
+{
+	statModifierGroups = 
+	[
+		"VehicleStatPreset.BaseCar"
+	];
+	fk< VehicleType > type = "";
+	fk< VehicleModel > model = "";
+	fk< VehicleManufacturer > manufacturer = "";
+	fk< RandomPassengerEntry >[] randomPassengers = [];
+	fk< Character >[] preventionPassengers = [];
+	fk< AttachmentSlot >[] attachmentSlots = [];
+	fk< VehicleDefaultState > vehDefaultState = "Vehicle.Veh4WDefaultState";
+	bool enableDestruction = false;
+	fk< VehicleDestruction > destruction = "";
+	fk< VehicleDataPackage > vehDataPackage = "";
+	fk< VehicleBehaviorData > vehBehaviorData = "";
+	fk< VehicleDriveModelData > vehDriveModelData = "";
+	fk< VehicleWheelDimensionsSetup > vehWheelDimensionsSetup = "";
+	fk< VehicleAirControl > vehAirControl = "";
+	fk< VehicleFPPCameraParams > vehDriver_FPPCameraParams = "";
+	fk< VehicleFPPCameraParams > vehPassR_FPPCameraParams = "";
+	fk< VehicleFPPCameraParams > vehPassL_FPPCameraParams = "";
+	fk< VehicleFPPCameraParams > vehDriverCombat_FPPCameraParams = "";
+	fk< VehicleFPPCameraParams > vehPassCombatR_FPPCameraParams = "";
+	fk< VehicleFPPCameraParams > vehPassCombatL_FPPCameraParams = "";
+	fk< VehicleProceduralFPPCameraParams > vehDriver_ProceduralFPPCameraParams = "Camera.VehicleProceduralFPPCamera_DefaultParams";
+	fk< VehicleProceduralFPPCameraParams > vehPassR_ProceduralFPPCameraParams = "Camera.VehicleProceduralFPPCamera_DefaultParams";
+	fk< VehicleProceduralFPPCameraParams > vehPassL_ProceduralFPPCameraParams = "Camera.VehicleProceduralFPPCamera_DefaultParams";
+	fk< VehicleProceduralFPPCameraParams > vehDriverCombat_ProceduralFPPCameraParams = "Camera.VehicleProceduralFPPCamera_DefaultCombatParams";
+	fk< VehicleProceduralFPPCameraParams > vehPassCombatR_ProceduralFPPCameraParams = "Camera.VehicleProceduralFPPCamera_DefaultCombatParams";
+	fk< VehicleProceduralFPPCameraParams > vehPassCombatL_ProceduralFPPCameraParams = "Camera.VehicleProceduralFPPCamera_DefaultCombatParams";
+	fk< VehicleFxCollision > fxCollision = "";
+	fk< VehicleFxWheelsParticles > fxWheelsParticles = "";
+	fk< VehicleFxWheelsDecals > fxWheelsDecals = "";
+	fk< VehicleFxWheelsDecals > fxWheelsDecalsFrontOverride = "";
+	fk< VehicleVisualDestruction > visualDestruction = "";
+	fk< VehicleUIData > vehicleUIData = "";
+	fk< VehicleDriveModelData > vehDriveModelDataAI = "";
+	fk< VehicleAirControl > vehAirControlAI = "";
+	fk< BaseDrivingParameters > drivingParamsGeneric = "";
+	fk< BaseDrivingParameters > drivingParamsRace = "";
+	fk< BaseDrivingParameters > drivingParamsPanic = "";
+	fk< BaseDrivingParameters > driving = "";
+	CName archetypeName = "";
+	fk< Affiliation > affiliation = "Factions.Unaffiliated";
+	CName audioResourceName = "";
+	fk< VehicleTPPCameraParams > tppCameraParams = "Camera.VehicleTPP_DefaultParams";
+	fk< VehicleTPPCameraPresetParams >[] tppCameraPresets = 
+	[
+		"Camera.VehicleTPP_Default_Preset_Low_Close", "Camera.VehicleTPP_Default_Preset_High_Close", "Camera.VehicleTPP_Default_Preset_Low_Far", "Camera.VehicleTPP_Default_Preset_High_Far"
+	];
+	fk< VehicleCameraManager > cameraManagerParams = "Camera.VehicleCameraManager_Default";
+	fk< VehicleEngineData > vehEngineData = "";
+	ResRef curvesPath = "";
+	string player_audio_resource = "";
+	string traffic_audio_resource = "";
+	fk< CrowdSettingsPackageBase > crowdMemberSettings = "Crowds.DefaultCarPackage";
+	fk< VehicleWeapon >[] weapons = [];
+	CName destroyedAppearance = "";
+	ResRef widgetStyleSheetPath = "";
+	Vector3 unmountOffsetPosition = ( 1.65, 5.0, 2.5 );
+	LocKey displayName = "";
+	fk< UIIcon > icon = "UIIcon.ItemIcon";
+	int[] headlightColor = [];
+	int[] brakelightColor = [];
+	int[] leftBlinkerlightColor = [];
+	int[] rightBLinkerlightColor = [];
+	int[] reverselightColor = [];
+	int[] interiorColor = [];
+	int[] utilityLightColor = [];
+	int[] interiorDamageColor = [];
+	float rightFrontCamber = 0.0f;
+	float leftFrontCamber = 0.0f;
+	float rightBackCamber = 0.0f;
+	float leftBackCamber = 0.0f;
+	Vector3 rightFrontCamberOffset = ( 0, 0, 0 );
+	Vector3 leftFrontCamberOffset = ( 0, 0, 0 );
+	Vector3 rightBackCamberOffset = ( 0, 0, 0 );
+	Vector3 leftBackCamberOffset = ( 0, 0, 0 );
+	fk< VehicleImpactTraffic > vehImpactTraffic = "Driving.VehicleImpactTraffic_DefaultParams";
+	fk< VehicleTrafficSuspension > trafficSuspension = "";
+	CName[] queryOnlyExceptions = [];
+}
+
+VehicleType
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
+VehicleModel
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
+VehicleManufacturer
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
+VehicleDefaultState
+{
+	bool DisableAllInteractions = false;
+	bool LockAll = false;
+	bool OpenAll = false;
+	bool CloseAll = false;
+	bool QuestLockAll = false;
+	bool SirenLight = false;
+	bool SirenSounds = false;
+	bool Thrusters = true;
+	bool SpawnDestroyed = false;
+	fk< SeatState > seat_front_left = "";
+	fk< SeatState > seat_front_right = "";
+	fk< SeatState > seat_back_left = "";
+	fk< SeatState > seat_back_right = "";
+	fk< SeatState > trunk = "";
+	fk< SeatState > hood = "";
+}
+
+SeatState
+{
+	bool enableInteraction = false;
+	bool disableInteraction = false;
+	bool forceOpen = false;
+	bool forceClose = false;
+	bool forceLock = false;
+	bool forceUnlock = false;
+	bool questLock = false;
+}
+
+VehicleDestruction
+{
+	ResRef detachedPartExplosionEffect = "";
+	Vector3 gridDimensions = ( 1.0f, 3.0f, 0.35f );
+	Vector3 gridLocalOffset = ( 0.0f, 0.0f, 0.7f );
+	Vector3 vehicleDimensions = ( 1.0f, 3.0f, 0.35f );
+	float damageThreshold = 0.0f;
+	float damageExponent = 1.0f;
+	float velocityValueMinDamage = 3.0f;
+	float velocityValueMaxDamage = 90.0f;
+	bool enableOnHit = false;
+	float onHitVelocity = 36.0f;
+	float forcePropagationFalloff = 0.65f;
+	fk< VehicleDetachablePart >[] detachableParts = [];
+	fk< VehicleDestructibleGlass >[] glass = [];
+	fk< VehicleDestructibleWheel >[] wheels = [];
+	fk< VehicleDestructibleLight >[] lights = [];
+	fk< VehicleDeformablePart >[] deformableParts = [];
+	fk< VehicleDestructionPointDamper >[] pointDampers = [];
+}
+
+VehicleDestructionPointDamper
+{
+	int pointIndex = 0;
+	float dampValue = 1.f;
+	float pointFragility = 1.0f;
+}
+
+VehicleDeformableZone
+{
+	int[] shapes = [];
+	int[] gridCells = [];
+}
+
+VehicleDeformablePart
+{
+	CName component = "";
+	fk< VehicleDeformableZone >[] zones = [];
+}
+
+VehicleDetachablePart
+{
+	CName name = "";
+	CName[] components = [];
+	int[] gridCells = [];
+	float threshold = 1.0f;
+	bool spawnsExplosionEffect = true;
+}
+
+VehicleDestructibleWheel
+{
+	CName name = "";
+	CName intact = "";
+	CName flat = "";
+}
+
+VehicleDestructibleLight
+{
+	CName component = "";
+	int[] gridCells = [];
+	float threshold = 1.0f;
+}
+
+VehicleDestructibleGlass
+{
+	CName component = "";
+	CName broken = "";
+	CName effect = "";
+	bool isWindshield = false;
+	int[] gridCells = [];
+	float threshold = 1.0f;
+}
+
+VehicleVisualDestruction
+{
+	bool setVisualDestruction = false;
+	float frontLeft = 0.0f;
+	float frontRight = 0.0f;
+	float front = 0.0f;
+	float right = 0.0f;
+	float left = 0.0f;
+	float backLeft = 0.0f;
+	float backRight = 0.0f;
+	float back = 0.0f;
+	float roof = 0.0f;
+}
+
+VehicleUIData
+{
+	string productionYear = "";
+	string driveLayout = "";
+	float horsepower = 0.0f;
+	float mass = 0.0f;
+	string info = "";
+}
+
+VehicleDataPackage
+{
+	CName[] boneNames = [];
+	CName[] animVars = [];
+	CName seatingTemplateOverride = "";
+	CName fppCameraOverride = "";
+	CName[] additionalAnimFeatures = [];
+	bool supportsCombat = true;
+	bool interactiveTrunk = false;
+	bool interactiveHood = false;
+	bool canStoreBody = false;
+	bool hasSpoiler = false;
+	float spoilerSpeedToDeploy = 20.0f;
+	float spoilerSpeedToRetract = 10.0f;
+	bool hasTurboCharger = false;
+	bool hasSiren = false;
+	float speedToClose = 2.0f;
+	bool slidingRearDoors = false;
+	bool barnDoorsTailgate = false;
+	float knockOffForce = 13.0f;
+	float parkingAngle = 0.0f;
+	fk< VehicleSeatSet > vehSeatSet = "";
+	float entering = 1.0f;
+	float stealing = 1.0f;
+	float toCombat = 1.0f;
+	float fromCombat = 1.0f;
+	float slideDuration = 1.0f;
+	float exitDelay = 0.0f;
+	float switchSeats = 1.9f;
+	float normal_open = 1.5f;
+	float stealing_open = 3.0f;
+	float open_close_duration = 1.0f;
+	float immediate_open_close_duration = 0.0001f;
+	float body_dump_close_trunk_delay = 2.5f;
+	bool disableSwitchSeats = false;
+}
+
+VehicleSeatSet
+{
+	fk< VehicleSeat >[] vehSeats = [];
+}
+
+VehicleSeat
+{
+	CName seatName = "";
+}
+
+VehicleBehaviorData
+{
+	float readyToParkDistance = 2.0f;
+}
+
+VehicleAirControl
+{
+	float massReference = 1000;
+	float[] velocityPID = [];
+	float[] anglePID = [];
+	float[] flippedOverRecoveryPID = [];
+	fk< VehicleAirControlAxis > pitch = "";
+	fk< VehicleAirControlAxis > yaw = "";
+	fk< VehicleAirControlAxis > roll = "";
+}
+
+VehicleWater
+{
+	bool disableEngine = true;
+	bool disableAirControl = true;
+	float submergedThreshold = 1.f;
+	float buoyancyCoef = 1.f;
+	float linearDampingCoef = 0.f;
+	float angularDampingCoef = 0.f;
+	float minSpeedToApplyImpulses = 0.5f;
+	float minDistanceBetweenImpulses = 0.1f;
+	float impulseRadius = 1.5f;
+	float impulseStrength = -0.0001f;
+	float impulseOverhangDistance = 0.2f;
+	float maxVehicleSpeed = 40.f;
+	float impulseStrengthFallMultiplierMin = 5.f;
+	float impulseStrengthFallMultiplierMax = 10.f;
+	float verticalVelocityThresholdForFallFx = -2.f;
+	float depthThresholdForFallFx = 0.2f;
+	float minDistanceBetweenFx = 0.4f;
+	ResRef vfx_impact_water = "";
+	CName paramVehicleSpeed = "";
+}
+
+VehicleAirControlAxis
+{
+	CName controlAxis = "";
+	float multiplier = 1.0f;
+	float brakeMultiplierWhenNoInput = 0.0f;
+	bool stabilizeAxis = false;
+	float velocityDampingThresholdMin = 0.5f;
+	float velocityDampingThresholdMax = 6.f;
+	float velocityDampingFactorMin = 0.f;
+	float velocityDampingFactorMax = 0.f;
+	float angleCorrectionThresholdMin = 10.f;
+	float angleCorrectionThresholdMax = 60.f;
+	float angleCorrectionFactorMin = 0.f;
+	float angleCorrectionFactorMax = 0.f;
+	float maxVelocityCompensation = 100.f;
+	float maxAngleCompensation = 100.f;
+	float zeroAngleThreshold = 15.f;
+	float maxAngleToCompensateThreshold = 100.f;
+}
+
+VehicleBurnOut
+{
+	float maxSpeedToInitiateBurnOut = 15.f;
+	float lateralForceMaxAcceleration = 0.5f;
+	float lateralForceMaxSpeed = 6.3f;
+	float lateralAccelForwardSpeedMaxDecimation = 0.4f;
+	float maxDriveWheelSlipRatio = 20.0f;
+	float lateralSlipRatioInfluence = 0.5f;
+	float maxLateralAccelSlipRatioMultipler = 0.6f;
+	float maxLongFrictionSlipRatioMultipler = 0.8f;
+	float minLongFrictionSlipRatioScaled = 0.1f;
+	float minLongFrictionCoeff = 0.5f;
+	float burnOutGripBonus = 6.0f;
+	float gripBonusMaxSpeedMultiplier = 1.7f;
+	float gripBonusMaxLaunchSpeed = 9.75f;
+	float minBrakeForceModifier = 0.05f;
+	float maxBrakeForceModifier = 1.0f;
+}
+
+VehicleDriveModelData
+{
+	float total_mass = 1000.0f;
+	float chassis_mass = 1000.f;
+	Vector3 center_of_mass_offset = ( 0.0f, 0.0f, 0.0f );
+	float bodyFriction = 0.6f;
+	fk< VehicleWater > waterParams = "";
+	fk< DriveHelper >[] driveHelpers = [];
+	float bankBodyFBTanMultiplier = 0.f;
+	float bankBodyLRTanMultiplier = 0.f;
+	float antiSwaybarDampingScalor = 1.0f;
+	float[] bikeTiltPID = [];
+	float bikeTiltSpeed = 0.f;
+	float bikeTiltReturnSpeed = 0.f;
+	float bikeTiltCustomSpeed = 0.f;
+	float bikeMaxTilt = 0.f;
+	ResRef bikeCurvesPath = "";
+	Vector3 momentOfInertiaScale = ( 1.0f, 1.0f, 1.0f );
+	Vector3 momentOfInertia = ( 0.0f, 0.0f, 0.0f );
+	float turningRollFactor = 1.0f;
+	float turningRollFactorWeakContactMul = 1.0f;
+	float turningRollFactorWeakContactThresholdMin = 0.9f;
+	float turningRollFactorWeakContactThresholdMax = 0.6f;
+	float maxWheelTurnDeg = 30.f;
+	float wheelTurnMaxAddPerSecond = 90.f;
+	float wheelTurnMaxSubPerSecond = 90.f;
+	bool useAlternativeTurnUpdate = false;
+	float turnUpdateBaseSpeedThreshold = 10.f;
+	float turnUpdateMaxSpeedThreshold = 30.f;
+	float turnUpdateMaxSpeedTurnMul = 0.23f;
+	float turnUpdateMaxSpeedTurnChangeMul = 1.5f;
+	float turnUpdateInputDiffForSlowChange = 0.0f;
+	float turnUpdateInputDiffForFastChange = 1.0f;
+	float turnUpdateInputSlowChangeSpeed = 0.1f;
+	float turnUpdateInputFastChangeSpeed = 1.0f;
+	float turnUpdateInputDiffProgressionPow = 0.8f;
+	float perfectSteeringFactor = 1.0f;
+	float handbrakeBrakingTorque = 2500.0f;
+	float forwardWeightTransferFactor = 0.8f;
+	float sideWeightTransferFactor = 0.5f;
+	float slopeTractionReductionBegin = 12.f;
+	float slopeTractionReductionMax = 30.f;
+	float slopeTractionReductionFactor = 1.5f;
+	float smoothWheelContactIncreseTime = 0.0f;
+	float smoothWheelContactDecreaseTime = 0.0f;
+	float lowVelStoppingDeceleration = 0.8f;
+	float airResistanceFactor = 0.35f;
+	float brakingFrictionFactor = 1.4f;
+	float differentialOvershootFactor = 0.0f;
+	float slipAngleMinSpeedThreshold = -1.f;
+	float slipAngleCurveScale = 1.f;
+	float slipRatioMinSpeedThreshold = -1.f;
+	float slipRatioCurveScale = 1.f;
+	float burnOutRotationModifier = 0.0f;
+	float brakingEstimationMagicFactor = 0.5f;
+	fk< VehicleWheelDrivingSetup > wheelSetup = "";
+	fk< VehicleWheelsFrictionMap > wheelsFrictionMap = "";
+	fk< VehicleBurnOut > burnOut = "";
+	Vector2[] tankSpringsLocalPositions = [];
+	float tankSpringStiffness = 50000;
+	float tankSpringDamping = 5000;
+	float tankSpringVerticalOffset = 0.8f;
+	float tankSpringRadius = 0.5f;
+	float tankSpringDistance = 0.6f;
+	float tankAcceleration = 3.0f;
+	float tankDeceleration = 1.0f;
+	float tankTurningSpeed = 100.0f;
+	float tankMaxSpeed = 20.0f;
+	float tankGravityMul = 1.0f;
+	float tankCTOP = 1.0f;
+	float tankCTOI = 0.0f;
+	float tankCTOD = 0.0f;
+}
+
+VehicleWheelDimensionsPreset
+{
+	float tireRadius = 0.0f;
+	float rimRadius = 0.0f;
+	float tireWidth = 0.0f;
+	float wheelOffset = 0.0f;
+}
+
+VehicleWheelDrivingPreset
+{
+	float tireFrictionCoef = 0.0f;
+	float tireRollingResistanceCoef = 0.0f;
+	float frictionMulLongitudinal = 1.0f;
+	float frictionMulLateral = 1.0f;
+	float tireLateralSlipEffectsMul = 1.0f;
+	float tireLongitudinalSlipEffectsMul = 1.0f;
+	float maxBrakingTorque = 1000.0f;
+	float mass = 10.0f;
+	float springStiffness = 20.0f;
+	float swaybarStiffness = 0.0f;
+	float swaybarDisplacementLimit = 0.3f;
+	float swaybarLengthScalar = 1.0f;
+	float springDamping = 5000;
+	float springReboundDamping = 0.0f;
+	float springBoundDampingLowRate = 0.0f;
+	float springReboundDampingLowRate = 0.0f;
+	float springDampingLowRateCompression = 0.10f;
+	float springDampingHighRateCompression = 0.30f;
+	float extremeCompressionEventScalor = 0.6f;
+	float visualSuspensionDroop = 0.1f;
+	float logicalSuspensionCompressionLength = 0.0f;
+	float visualSuspensionCompressionLength = 0.0f;
+	float wheelsVerticalOffset = 0.0f;
+}
+
+VehicleWheelRole
+{
+	bool isDrive = true;
+	bool isMainBrake = false;
+	bool isHandBrake = false;
+}
+
+VehicleWheelDimensionsSetup
+{
+	fk< VehicleWheelDimensionsPreset > frontPreset = "";
+	fk< VehicleWheelDimensionsPreset > backPreset = "";
+}
+
+VehicleWheelDrivingSetup
+{
+	fk< VehicleWheelDrivingPreset > frontPreset = "";
+	fk< VehicleWheelDrivingPreset > backPreset = "";
+}
+
+VehicleWheelDrivingSetup_4 : VehicleWheelDrivingSetup
+{
+	fk< VehicleWheelRole > LF = "";
+	fk< VehicleWheelRole > RF = "";
+	fk< VehicleWheelRole > RB = "";
+	fk< VehicleWheelRole > LB = "";
+}
+
+VehicleWheelDrivingSetup_2 : VehicleWheelDrivingSetup
+{
+	fk< VehicleWheelRole > F = "";
+	fk< VehicleWheelRole > B = "";
+}
+
+VehicleEngineData
+{
+	fk< VehicleGear >[] gears = [];
+	float engineMaxTorque = 0.f;
+	ResRef gearCurvesPath = "";
+	float minRPM = 0.f;
+	float maxRPM = 0.f;
+	float gearChangeTime = 0.f;
+	float gearChangeCooldown = 0.f;
+	float resistanceTorque = 0.f;
+	float flyWheelMomentOfInertia = 0.f;
+	float wheelsResistanceRatio = 0.f;
+	float reverseDirDelay = 0.3f;
+	bool fastR1GearChange = true;
+	bool forceReverseRPMToMin = false;
+}
+
+VehicleGear
+{
+	float minSpeed = 0.f;
+	float maxSpeed = 0.f;
+	float minEngineRPM = 0.f;
+	float maxEngineRPM = 0.f;
+	float torqueMultiplier = 1.f;
+}
+
+DriveHelperType
+{
+	CName enumName = "";
+}
+
+DriveHelper
+{
+	fk< DriveHelperType > type = "";
+}
+
+VehicleWeapon
+{
+	fk< AttachmentSlot > slot = "";
+	fk< Item > item = "";
+	float minYaw = 0.0f;
+	float maxYaw = 0.0f;
+	float maxPitch = 0.0f;
+	float minPitch = 0.0f;
+	CName weaponShootAnimEvent = "";
+	float cycleTime = 1.0f;
+	int singleShotProjectiles = 1;
+	int wholeBurstProjectiles = 1;
+	float singleProjectileCycleTime = 1.0f;
+	float attackRange = 15.f;
+	bool genericTick = true;
+	bool genericShoot = true;
+	bool canFiendlyFire = true;
+}
+
+VehicleFPPCameraParams
+{
+	float lookat_pitch_forward_offset = 0.2f;
+	float lookat_pitch_forward_down_ratio = 1.0f;
+	float lookat_yaw_left_offset = 0.0f;
+	float lookat_yaw_left_up_offset = 0.0f;
+	float lookat_yaw_right_offset = 0.0f;
+	float lookat_yaw_right_up_offset = 0.0f;
+	float lookat_yaw_offset_active_angle = 45.0f;
+	float is_paralax = 0.0f;
+	float paralax_radius = 0.1f;
+	float paralax_forward_offset = 0.1f;
+	float lookat_offset_vertical = 0.0f;
+	float is_forward_offset = 0.0f;
+	float forward_offset_value = 0.0f;
+	float upperbody_pitch_weight = 0.0f;
+	float upperbody_yaw_weight = 0.0f;
+	float is_pitch_off = 0.0f;
+	float is_yaw_off = 0.0f;
+}
+
+VehicleTPPCameraPresetParams
+{
+	CName distance = "";
+	CName height = "";
+	Vector3 lookAtOffset = ( 0, 0, 0.3 );
+	float defaultRotationPitch = 10;
+	float boomLength = 7.0f;
+	float airFlowDistortionSpeedMin = 10.0f;
+	float airFlowDistortionSpeedMax = 35.0f;
+	float airFlowDistortionSizeHorizontal = 0.01f;
+	float airFlowDistortionSizeVertical = 0.01f;
+}
+
+VehicleTPPCameraParams
+{
+	float fov = 69.0f;
+	float autoCenterStartTimeGamepad = 0.5f;
+	float autoCenterStartTimeMouse = 2.0f;
+	float autoCenterMaxSpeedThreshold = 20.0f;
+	float autoCenterSpeed = 5.0f;
+	float cameraMinPitch = -35.0f;
+	float cameraMaxPitch = 80.0f;
+	float cameraSphereRadius = 1.0f;
+	float cameraBoomExtensionSpeed = 3.0f;
+	float slopeCorrectionOnGroundStrength = 4.f;
+	float slopeCorrectionOnGroundPitchMin = -30.0f;
+	float slopeCorrectionOnGroundPitchMax = 30.0f;
+	float slopeCorrectionInAirPitchMin = -30.0f;
+	float slopeCorrectionInAirPitchMax = 30.0f;
+	float slopeCorrectionInAirSpeedMax = 10.0f;
+	float slopeCorrectionInAirStrength = 20.0f;
+	float slopeCorrectionInAirFallCoef = 2.0f;
+	float slopeCorrectionInAirRaiseCoef = 0.5f;
+	float slopeCorrectionInAirDampFactor = 0.1f;
+	float drivingDirectionCompensationSpeedMin = 4.0f;
+	float drivingDirectionCompensationSpeedMax = 120.0f;
+	float drivingDirectionCompensationSpeedCoef = 1.0f;
+	float drivingDirectionCompensationAngle = 100.0f;
+	float drivingDirectionCompensationAngleSmooth = 70.0f;
+	float drivingDirectionCompensationAngularVelocityMin = 150.0f;
+	float elasticBoomForwardAccelerationCoef = 10.0f;
+	float elasticBoomAccelerationExpansionLength = 0.5f;
+	float elasticBoomSpeedExpansionSpeedMin = 10.0f;
+	float elasticBoomSpeedExpansionSpeedMax = 20.0f;
+	float elasticBoomSpeedExpansionLength = 0.5f;
+	float headLookAtMaxYaw = 70.0f;
+	float headLookAtCenterYawThreshold = 100.0f;
+	float headLookAtMaxPitchUp = 0.0f;
+	float headLookAtMaxPitchDown = 40.0f;
+	float headLookAtRotationSpeed = 0.8f;
+	bool collisionDetection = true;
+	bool elasticBoomVelocity = true;
+	bool elasticBoomAcceleration = true;
+	bool drivingDirectionCompensation = true;
+	bool slopeAdjustement = true;
+	bool airFlowDistortion = true;
+	bool lockedCamera = false;
+}
+
+VehicleProceduralFPPCameraParams
+{
+	float maxDisplacementLeft = -0.03f;
+	float maxDisplacementRight = 0.03f;
+	float maxDisplacementForward = 0.2f;
+	float maxDisplacementBackward = -0.1f;
+	float maxDisplacementUp = 0.03f;
+	float maxDisplacementDown = -0.01f;
+	float displacementThresholdForward = 0.01f;
+	float sideDampFactor = 0.8f;
+	float forwardDampFactor = 0.5f;
+	float heightDampFactor = 0.3f;
+	float steeringDampFactor = 0.6f;
+	float steeringAngleLeft = 10.0f;
+	float steeringAngleRight = 10.0f;
+	float smoothSpeedDampFactor = 0.1f;
+	float directionFollowMaxVelocity = 40.0f;
+	float maxAccelerationTiltAngle = 6.0f;
+	float maxSlowdownTiltAngle = -4.0f;
+	float impactDamperDampFactor = 0.4f;
+	float impactThreshold = 2.0f;
+	float impactBlendSpeed = 10.0f;
+	float impactStrengthCoef = 0.002f;
+	float maxRollCorrection = 30.0f;
+	float maxPitchCorrectionUP = 5.0f;
+	float maxPitchCorrectionDown = -5.0f;
+	float rollCorrectionDampFactor = 0.15f;
+	float pitchCorrectionDampFactor = 0.15f;
+}
+
+VehicleCameraManager
+{
+	Vector3 camCollisionOBBIncrease = ( 0.0, 0.0, 0.0 );
+	float cameraBlendTime = 0.45f;
+	bool allowCameraReset = true;
+}
+
+VehicleImpactTraffic
+{
+	float minThreshold = 7.0f;
+	float maxThreshold = 70.0f;
+	float maxTimerStunned = 2.5f;
+}
+
+VehicleTrafficSuspension
+{
+	float longDampingRatio = 1.0f;
+	float longPeriod = 1.0f;
+	float latDampingRatio = 1.0f;
+	float latPeriod = 1.0f;
+}
+

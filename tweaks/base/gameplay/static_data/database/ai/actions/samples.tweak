@@ -1,0 +1,922 @@
+package ActionSamples
+using RTDB, AttachmentSlots, ItemCategory, ItemType, AIActionTarget, LookatPreset, AnimalsBoss_Hammer, AnimalsBoss_Fists
+
+CompositeTest : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"ActionSamples.EquipSmartRifle"
+	];
+}
+
+FindHammer : AIAction
+{
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.TargetItem";
+			tag = "ThrowableHammer";
+		} : AISubActionSetTargetByTag
+	];
+}
+
+GoToWeapon : AnimalsBoss_Fists.GoToWeapon
+{
+	cooldowns = [];
+}
+
+SingleMeleeAttackCharge01RecoverMiss : AnimalsBoss_Hammer.SingleMeleeAttackCharge01RecoverMiss
+{
+	cooldowns = [];
+}
+
+SingleMeleeAttackCharge01 : AnimalsBoss_Hammer.SingleMeleeAttackCharge01
+{
+	cooldowns = [];
+}
+
+SelectorTest : AIActionSelector
+{
+	actions = 
+	[
+		"ActionSamples.EquipShotgun", "ActionSamples.Shoot"
+	];
+}
+
+ShootSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ActionSamples.EquipShotgun", "ActionSamples.Shoot"
+	];
+}
+
+GrabSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ActionSamples.EquipHammer", "ActionSamples.RotateToThreat", "ActionSamples.ThrowHammer", "ActionSamples.Grab", "ActionSamples.RunToWeapon", "ActionSamples.PickUpHammer"
+	];
+}
+
+ThrowHammerSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ActionSamples.EquipHammer", "ActionSamples.RotateToThreat", "ActionSamples.ThrowHammer"
+	];
+}
+
+MeleeSequence : AIActionSequence
+{
+	actions = 
+	[
+		"ActionSamples.EquipFists", "ActionSamples.MeleeMoveToAttackRangeDefinition", "MeleeActions.Combo01MeleeAttackLight01Definition", "MeleeActions.Combo01MeleeAttackLight02Definition", "MeleeActions.Combo01MeleeAttackLight03Definition", "MeleeActions.Combo01MeleeAttackLight04Definition", "MeleeActions.Combo01MeleeAttackLight04RecoverMissDefinition"
+	];
+}
+
+RaiseCovers : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+	};
+	loopSubActions = 
+	[
+		{
+			effectName = "npc_netrunner";
+			effectTag = "raise_covers";
+			duration = 1.f;
+			range = 20.f;
+		} : AISubActionCreateGameEffect
+	];
+}
+
+LowerCovers : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+	};
+	loopSubActions = 
+	[
+		{
+			effectName = "npc_netrunner";
+			effectTag = "lower_covers";
+			duration = 1.f;
+			range = 20.f;
+		} : AISubActionCreateGameEffect
+	];
+}
+
+ToggleCovers : AIAction
+{
+	loop = 
+	{
+		duration = 1.2f;
+	};
+	loopSubActions = 
+	[
+		{
+			effectName = "npc_netrunner";
+			effectTag = "toggle_covers";
+			range = 5.f;
+		} : AISubActionCreateGameEffect
+	];
+}
+
+EquipAnyWeapon : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			animationTime = 1.2f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipFists : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasFistsWeaponEquipped"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Fists";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipHammer : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasHammer"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.50f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Hammer";
+			animationTime = 1.2f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipShotgun : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasShotgun"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.50f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Shotgun";
+			animationTime = 1.2f;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipSmartRifle : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Equip"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRifle"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.50f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Rifle";
+			animationTime = 1.2f;
+		} : AISubActionForceEquip
+	];
+}
+
+Shoot : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon", "Condition.AmmoCountMin1"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			distance = 9.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCount0"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHeadWithBodyAttached";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+ReloadSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon", "Condition.AmmoCountBelowHalf"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ActionSamples.ReloadShotgun"
+	];
+	defaultAction = "ActionSamples.Reload";
+}
+
+ReloadShotgun : Reload
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasShotgun", "Condition.AmmoCountBelowHalf"
+			];
+		} : AIActionAND;
+	};
+}
+
+Reload : AIAction
+{
+	startup = 
+	{
+		duration = 0.75f;
+		changeNPCState = 
+		{
+			upperBodyState = "Reload";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		repeat = 0;
+		changeNPCState = 
+		{
+			upperBodyState = "Reload";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.AmmoCountFull"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.75f;
+		changeNPCState = 
+		{
+			upperBodyState = "Reload";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlot = "AttachmentSlots.WeaponRight";
+			duration = 0.5f;
+		} : AISubActionReloadWeapon
+	];
+	animData = 
+	{
+		animFeature = "ReloadAction";
+	};
+}
+
+ThrowGrenade : AIAction
+{
+	disableAction = true;
+	tickets = 
+	[
+		"AITicketType.GrenadeThrow"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.29f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenade";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ThrowHammer : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove5m", "Condition.HasHammer", "Condition.CanThrowAtTarget"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		duration = 0.833;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		"AnimalsBoss.LowerCovers", "AnimalsBoss.RaiseCoversBehindPlayer", {
+			name = "ThrowHammer";
+		} : AISubActionPlayVoiceOver
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.7f;
+			target = "AIActionTarget.CombatTarget";
+			positionPredictionTime = 0.31f;
+			throwAngle = 1.f;
+			trajectoryGravity = -40.f;
+		} : AISubActionThrowItem, 
+		{
+			effectName = "npc_netrunner";
+			effectTag = "lower_covers_box";
+			colliderBoxSize = ( 5.f, 0.3f, 3.0f );
+			duration = 0.5f;
+			range = 30.f;
+		} : AISubActionCreateGameEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			itemType = "ItemType.Wea_Fists";
+		} : AISubActionForceEquip
+	];
+	animData = 
+	{
+		animFeature = "ThrowWeapon";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			preset = "LookatPreset.HammerThrow";
+		}
+	];
+}
+
+ThrowHammerLookatTest : ThrowHammer
+{
+	loop = 
+	{
+		duration = 9999999999;
+	};
+	loopSubActions = [];
+	recoverySubActions = [];
+}
+
+Grab : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasFistsWeaponEquipped", "Condition.CalculatePathToTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+		};
+	};
+	subActions = 
+	[
+		{
+			effectName = "npc_netrunner";
+			effectTag = "raise_covers";
+			colliderBoxSize = ( 10.f, 0.3f, 3.0f );
+			duration = 1.f;
+			range = 20.f;
+		} : AISubActionCreateGameEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackTime = 0.f;
+			attackDuration = 0.3f;
+			attack = "NPCAttacks.GrabAttack";
+			attackRange = 4.f;
+		} : AISubActionAttackWithWeapon
+	];
+}
+
+ChaseTargetTest : AIAction
+{
+	loop = 
+	{
+		duration = -1.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+		};
+	};
+}
+
+RotateTest : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+	};
+}
+
+RotateToThreat : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove90deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow10deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RunToWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasHammer"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 5.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.TargetItem";
+			movementType = "Sprint";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ItemBelow1m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+PickUpHammer : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasHammer"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 0.5f;
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemObject = "AIActionTarget.TargetItem";
+		} : AISubActionForceEquip
+	];
+}
+
+MeleeMoveToAttackRangeDefinition : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			dontUseStop = true;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+Reload_Sample : AIAction
+{
+	cooldowns = 
+	[
+		"ActionSamples.ReloadCooldown"
+	];
+	activationCondition = "ActionSamples.ReloadCondition";
+	startup = 
+	{
+		duration = 0.20f;
+	} : ReloadPhase;
+	loop = 
+	{
+		duration = 1.40f;
+	} : ReloadPhase;
+	recovery = 
+	{
+		duration = 0.23f;
+	} : ReloadPhase;
+	subActions = 
+	[
+		"ActionSamples.ReloadRightWeapon", "ActionSamples.ReloadLeftWeapon"
+	];
+	animData = 
+	{
+		animFeature = "ReloadAction";
+	};
+}
+
+ReloadCooldown : AIActionCooldown
+{
+	name = "Reload";
+	duration = 15.f;
+}
+
+ReloadInCover_Sample : Reload_Sample
+{
+	animData = 
+	{
+		animFeature = "ReloadAction";
+		animVariation = 1;
+	};
+}
+
+ReloadRightWeapon : AISubActionReloadWeapon
+{
+	weaponSlot = "AttachmentSlots.WeaponRight";
+	duration = 1.f;
+}
+
+ReloadLeftWeapon : AISubActionReloadWeapon
+{
+	weaponSlot = "AttachmentSlots.WeaponLeft";
+	duration = 1.f;
+}
+
+ReloadPhase : AIActionPhase
+{
+	changeNPCState = 
+	{
+		upperBodyState = "Reload";
+	};
+}
+
+ReloadCondition : AIActionCondition
+{
+	condition = 
+	{
+		AND = 
+		[
+			"Condition.TargetAbove1dot5m", "Condition.HasAnyWeapon", "Condition.AmmoCountBelowHalf"
+		];
+	} : AIActionAND;
+}
+
+WeaponInRightHand : AISlotCond
+{
+	slot = "AttachmentSlots.WeaponRight";
+	itemCategory = "ItemCategory.Weapon";
+}
+
+WeaponInLeftHand : AISlotCond
+{
+	slot = "AttachmentSlots.WeaponLeft";
+	itemCategory = "ItemCategory.Weapon";
+}
+

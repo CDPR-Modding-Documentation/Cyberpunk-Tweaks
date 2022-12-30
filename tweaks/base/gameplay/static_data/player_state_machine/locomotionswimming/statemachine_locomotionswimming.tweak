@@ -1,0 +1,231 @@
+package playerStateMachineLocomotionSwimming
+using playerStateMachineBaseLocomotionSwimming
+
+swimmingForceFreeze : baseLocomotionSwimming
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	string[] transitionTo = 
+	[
+		"surface"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	float upwardsGravity = 0;
+	float downwardsGravity = 0;
+}
+
+surface : baseLocomotionSwimming
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze", "transition", "surfaceFastSwimming", "swimmingLadder", "swimmingClimb"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", ""
+	];
+	string scriptedDecisionsClassName = "SwimmingSurfaceDecisions";
+	string scriptedEventsClassName = "SwimmingSurfaceEvents";
+	string stateBodyClassName = "LocomotionSwimmingSurface";
+	float timeBetweenSurfaceSwimmingStroke = 1.6;
+	float surfaceSwimmingStrokeImpulseForce = 0.55;
+	float buoyancyLineFraction = 0.72;
+	float dragCoefficient = 5.42f;
+	float minSpeedForMovementImpulses = 0.3f;
+	float timeBetweenIdleImpulses = 1.6f;
+	float timeBetweenMovementImpulses = 0.1f;
+	float idleImpulseRadius = 0.1f;
+	float idleImpulseStrength = 0.0007f;
+	float movementImpulseRadius = 0.3f;
+	float movementImpulseStrength = 0.0005f;
+	float movementImpulseOffset = 0.2f;
+}
+
+surfaceFastSwimming : baseLocomotionSwimming
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze", "transition", "surface", "swimmingLadder", "swimmingClimb"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", ""
+	];
+	string scriptedDecisionsClassName = "SwimmingSurfaceFastDecisions";
+	string scriptedEventsClassName = "SwimmingSurfaceFastEvents";
+	string stateBodyClassName = "LocomotionSwimmingSurface";
+	float buoyancyLineFraction = 0.70;
+	float dragCoefficient = 7.42f;
+	float timeBetweenSwimmingStroke = 1.28;
+	float swimmingStrokeImpulseForce = 1.12;
+	float timeBetweenMovementImpulses = 0.1f;
+	float movementImpulseRadius = 0.3f;
+	float movementImpulseStrength = 0.0007f;
+	float movementImpulseOffset = 0.2f;
+}
+
+transition : baseLocomotionSwimming
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze", "diving", "fastDiving"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+	string scriptedDecisionsClassName = "SwimmingTransitionDecisions";
+	string scriptedEventsClassName = "SwimmingTransitionEvents";
+	string stateBodyClassName = "LocomotionSimple";
+	int swimmingType = 2;
+	float downwardsImpulseStrength = -2.25f;
+	float stateDuration = 0.2;
+	float maxDownwardVerticalSpeed = 7.0f;
+	float minDownwardVerticalSpeed = 5.0f;
+	float upwardsImpulseStrength = 3.0f;
+}
+
+diving : baseLocomotionSwimming
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze", "surface", "fastDiving", "swimmingLadder"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", ""
+	];
+	string scriptedDecisionsClassName = "SwimmingDivingDecisions";
+	string scriptedEventsClassName = "SwimmingDivingEvents";
+	string stateBodyClassName = "LocomotionSwimmingDiving";
+	int swimmingType = 3;
+	float upwardsGravity = -0.25;
+	float downwardsGravity = -0.25;
+	float defaultGravity = -0.25;
+	float divingUpwardsImpulseStrength = 0.15f;
+	float divingDownwardsImpulseStrength = -0.15f;
+	float timeBetweenDivingStroke = 1.4;
+	float divingStrokeImpulseForce = 0.25;
+}
+
+fastDiving : baseLocomotionSwimming
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze", "surface", "surfaceFastSwimming", "diving", "swimmingLadder"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", ""
+	];
+	string scriptedDecisionsClassName = "SwimmingFastDivingDecisions";
+	string scriptedEventsClassName = "SwimmingFastDivingEvents";
+	string stateBodyClassName = "LocomotionSwimmingDiving";
+	int swimmingType = 3;
+	float upwardsGravity = 0;
+	float downwardsGravity = 0;
+	float defaultGravity = 0;
+	float timeBetweenFastDivingStroke = 1.25;
+	float fastDivingStrokeImpulseForce = 1.1;
+}
+
+swimmingLadder : baseLocomotionSwimming
+{
+	string stateBodyClassName = "LocomotionLadder";
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnTick = true;
+	float tickRate = 0.1;
+	CName affinity = "ladder";
+	bool hotSwapOnRemove = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze", "surface", "diving"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", ""
+	];
+	string animationStateName = "ladder";
+	CName onEnterCameraParamsName = "Ladder";
+	int swimmingType = 0;
+	float enterDurationTop = 1.0f;
+	float exitDurationTop = 1.0f;
+	float verticalStepDurationTop = 1.2f;
+	float enterDurationBottom = 0.2f;
+	float exitDurationBottom = 0.4f;
+	float verticalStepDurationBottom = 0.2f;
+	float enterDurationJump = 0.2f;
+	float verticalStepDurationJump = 0.2f;
+	float enterAngleThreshold = 35.f;
+	float exitToStandPushMagnitude = 3.f;
+}
+
+swimmingClimb : baseLocomotionSwimming
+{
+	CName onEnterCameraParamsName = "Climb";
+	string animationStateName = "climb";
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	string stateBodyClassName = "Climb";
+	CName affinity = "climb";
+	bool hotSwapOnRemove = true;
+	string[] transitionTo = 
+	[
+		"swimmingForceFreeze"
+	];
+	string[] transitionCondition = 
+	[
+		""
+	];
+	int swimmingType = 0;
+	float capsuleHeight = 1.0;
+	float minHeight = 0.8;
+	float maxHeight = 2.0;
+	float detectionRange = 1.0;
+	float minExtent = 0.1;
+	float forwardStep = 0.3;
+	float highThreshold = 1.6;
+	float midThreshold = 1.2;
+	float verticalDurationHigh = 1.0;
+	float horizontalDurationHigh = 0.3;
+	float verticalDurationMid = 0.6;
+	float horizontalDurationMid = 0.2;
+	float verticalDurationLow = 0.3;
+	float horizontalDurationLow = 0.1;
+	bool requireForwardEnterAngleToClimb = true;
+	float obstacleEnterAngleThreshold = 40.;
+	bool requireDirectionalInputToClimb = false;
+	float inputAngleThreshold = 30.;
+	bool requireMinCameraPitchAngleToClimb = true;
+	float cameraPitchThreshold = -70.;
+	CName animationNameApproach = "climb_entity_vertical";
+}
+

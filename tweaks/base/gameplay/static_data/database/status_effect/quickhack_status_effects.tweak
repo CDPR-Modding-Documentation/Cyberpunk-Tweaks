@@ -1,0 +1,2599 @@
+package BaseStatusEffect
+using RTDB, Effectors, Prereqs, Perks, Attacks
+
+BaseDurationMod : ConstantStatModifier
+{
+	statType = "BaseStats.MaxDuration";
+	modifierType = "Additive";
+}
+
+BaseQuickHackDuration : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Instigator";
+			refStat = "BaseStats.DurationBonusQuickhack";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier
+	];
+}
+
+BaseQuickHackDurationBlind : BaseQuickHackDuration
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Self";
+			refStat = "BaseStats.BlindResistance";
+			opSymbol = "*";
+			value = -1.f;
+		} : CombinedStatModifier
+	];
+}
+
+BaseOverheatDuration : BaseQuickHackDuration
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Instigator";
+			refStat = "BaseStats.DurationBonusBurning";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier
+	];
+}
+
+BaseContagionPoisonDuration : BaseQuickHackDuration
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.MaxDuration";
+			modifierType = "Additive";
+			refObject = "Instigator";
+			refStat = "BaseStats.DurationBonusPoisoned";
+			opSymbol = "*";
+			value = 1;
+		} : CombinedStatModifier
+	];
+}
+
+QuickHackUploaded : DebuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 0.1f;
+			} : BaseDurationMod
+		];
+	};
+}
+
+WasQuickHacked : DebuffStatusEffect
+{
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.WasQuickHacked";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BaseQuickHackStatusEffect : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Quickhack";
+	gameplayTags += 
+	[
+		"Quickhack"
+	];
+	AIData = 
+	{
+		float priority = 1.0f;
+	};
+}
+
+UltimateQuickHackStatusEffect : BaseQuickHackStatusEffect
+{
+	gameplayTags += 
+	[
+		"Blind", "Deaf"
+	];
+}
+
+SystemCollapse : UltimateQuickHackStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.82f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	statusEffectType = "BaseStatusEffectTypes.SystemCollapse";
+	gameplayTags += 
+	[
+		"Unconscious", "SkipDefeatedStartup", "SystemCollapse", "Stealth"
+	];
+	SFX = 
+	[
+		{
+			name = "quickhack_system_reset";
+		} : StatusEffectFX
+	];
+	AIData = 
+	{
+		float priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+HeartAttack : UltimateQuickHackStatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"HeartAttack"
+	];
+	statusEffectType = "BaseStatusEffectTypes.Kill";
+	AIData = 
+	{
+		float priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40973";
+		string iconPath = "heart_attack";
+		priority = 10.0f;
+	};
+}
+
+SuicideWithWeapon : UltimateQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.SuicideHack";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 15.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"SuicideWithWeapon"
+	];
+	AIData = 
+	{
+		float priority = 7.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Stoppable";
+	};
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Accuracy";
+					modifierType = "Multiplier";
+					value = 1000f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SuicideWithGrenade : UltimateQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.SuicideHack";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 15.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"SuicideWithGrenade"
+	];
+	AIData = 
+	{
+		float priority = 7.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Stoppable";
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40975";
+		string iconPath = "Quickhack_Grenade";
+		priority = 9.0f;
+	};
+}
+
+ReduceUltimateHackCost : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = -1.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags = 
+	[
+		"CostReductionOfNextHack"
+	];
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 4;
+			} : ConstantStatModifier
+		];
+	};
+	uiData = 
+	{
+		iconPath = "agony";
+		displayName = "LocKey#845";
+		description = "LocKey#77889";
+		priority = -10.0f;
+		intValues = 
+		[
+			1
+		];
+	};
+}
+
+ReduceUltimateHackCostBy2 : ReduceUltimateHackCost
+{
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.UltimateMemoryCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier
+			];
+			stackable = true;
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		iconPath = "agony";
+		displayName = "LocKey#845";
+		description = "LocKey#77889";
+		priority = -10.0f;
+		intValues = 
+		[
+			2
+		];
+	};
+}
+
+ReduceNextHackCost : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = -1f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags = 
+	[
+		"CostReductionOfNextHack"
+	];
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 6;
+			} : ConstantStatModifier
+		];
+	};
+	uiData = 
+	{
+		iconPath = "agony";
+		displayName = "LocKey#27964";
+		description = "LocKey#77885";
+		priority = -10.0f;
+		intValues = 
+		[
+			1
+		];
+	};
+}
+
+ReduceNextHackCostBy1 : ReduceNextHackCost
+{
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MemoryCostReduction";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+			stackable = true;
+		} : GameplayLogicPackage
+	];
+}
+
+WeaponMalfunction : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Jam";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 30.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"JamWeapon"
+	];
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Accuracy";
+					modifierType = "Multiplier";
+					value = 0.01f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.SmartGunHitProbabilityMultiplier";
+					modifierType = "Additive";
+					value = -0.9f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						aggregationType = "OR";
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "AdamSmasher.Phase2";
+							} : StatusEffectPrereq, 
+							{
+								statusEffect = "AdamSmasher.Phase3";
+							} : StatusEffectPrereq
+						];
+					} : MultiPrereq;
+					effectorClassName = "PlayVFXEffector";
+					vfxName = "hacks_weapon_malfunction_weapon_l";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "AdamSmasher.Phase2";
+							} : StatusEffectAbsentPrereq, 
+							{
+								statusEffect = "AdamSmasher.Phase3";
+							} : StatusEffectAbsentPrereq
+						];
+					} : MultiPrereq;
+					effectorClassName = "PlayVFXEffector";
+					vfxName = "hacks_weapon_malfunction";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human", "NPCType.Drone", "NPCType.Android"
+				];
+			} : NPCTypePrereq
+		];
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Basic";
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_weapon_malfunction";
+		} : StatusEffectFX
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+}
+
+WeaponMalfunctionLvl2 : WeaponMalfunction
+{
+}
+
+WeaponMalfunctionLvl3 : WeaponMalfunctionLvl2
+{
+}
+
+WeaponMalfunctionLvl4 : WeaponMalfunctionLvl3
+{
+}
+
+JamWeaponUI : StatusEffectUIData
+{
+	string displayName = "LocKey#40976";
+	string iconPath = "jamweapon_icon";
+	priority = -5.0f;
+}
+
+ForceShoot : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.ForceShoot";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 5f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	AIData = 
+	{
+		float priority = 6.f;
+	};
+	VFX = 
+	[
+		{
+			name = "hacks_weapon_malfunction";
+		}
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+}
+
+LocomotionMalfunction : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.QuickHackStaggerLocomotion";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"LocomotionMalfunction"
+	];
+	packages = 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"woundedLocomotion_l_leg"
+			];
+			stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasSandevistanTier1";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasKerenzikov";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseLegs";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		priority = 6.f;
+	};
+	VFX = 
+	[
+		{
+			name = "hacks_locomotion_malfunction";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "quickhack_locomotion_malfunction";
+		} : StatusEffectFX
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40977";
+		string iconPath = "stagger";
+		priority = -9.0f;
+	};
+}
+
+LocomotionMalfunctionLevel2 : LocomotionMalfunction
+{
+}
+
+LocomotionMalfunctionLevel3 : LocomotionMalfunction
+{
+	statusEffectType = "BaseStatusEffectTypes.QuickHackFreezeLocomotion";
+}
+
+LocomotionMalfunctionLevel4 : LocomotionMalfunction
+{
+	statusEffectType = "BaseStatusEffectTypes.QuickHackFreezeLocomotion";
+}
+
+LocomotionMalfunctionLevel4Passive : BaseQuickHackStatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CyberwareMalfunction : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.QuickHackStaggerCyberware";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 30.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"CyberwareMalfunction", "HackInterrupt"
+	];
+	packages += 
+	[
+		"GLP.DeactivateCyberware", "GLP.DeactivateCyberwareStatusEffects"
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+		shouldProcessAIDataOnReapplication = true;
+	};
+	VFX = 
+	[
+		{
+			name = "hacks_cyberware_malfunction";
+			shouldReapply = true;
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "quickhack_cyberware_malfunction";
+			shouldReapply = true;
+		} : StatusEffectFX
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40978";
+		string iconPath = "agony";
+		priority = -1.0f;
+	};
+}
+
+CyberwareMalfunctionLvl2 : CyberwareMalfunction
+{
+	gameplayTags += 
+	[
+		"HackInterrupt"
+	];
+}
+
+CyberwareMalfunctionLvl3 : CyberwareMalfunction
+{
+	gameplayTags += 
+	[
+		"HackInterrupt"
+	];
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					statusEffect = "BaseStatusEffect.CyberwareMalfunctionDismemberment";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CyberwareMalfunctionFromOverheat : CyberwareMalfunction
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 20.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	uiData = 
+	{
+	};
+}
+
+CyberwareShutdown : CyberwareMalfunction
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+CyberwareMalfunctionDismemberment : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.CyberwareMalfunctionAttackEffector", {
+					vfxName = "hacks_cyberware_malfunction";
+				} : PlayVFXEffector, 
+				{
+					activationSFXName = "quickhack_cyberware_malfunction";
+				} : PlaySFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BaseOverload : BaseQuickHackStatusEffect
+{
+	gameplayTags += 
+	[
+		"Quickhack", "Overload"
+	];
+	statusEffectType = "BaseStatusEffectTypes.Overload";
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "status_electrocuted";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					activationSFXName = "quickhack_shortcircuit_mech";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					activationSFXName = "quickhack_shortcircuit";
+				} : PlaySFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		activationPrereqs = 
+		[
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq
+		];
+		priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+OverloadAppliedPereq : Prereqs.ORPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Overload";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel2";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel3";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel4";
+		} : StatusEffectPrereq
+	];
+}
+
+OverloadOrMalfunctionAppliedPereq : Prereqs.ORPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Overload";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel2";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel3";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel4";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl3";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl4";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.CyberwareMalfunctionLvl3";
+		} : StatusEffectPrereq
+	];
+}
+
+OverloadAndMalfunctionAbsentPereq : Prereqs.ANDPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Overload";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel2";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel3";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverloadLevel4";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl3";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.WeaponMalfunctionLvl4";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.CyberwareMalfunctionLvl3";
+		} : StatusEffectAbsentPrereq
+	];
+}
+
+Overload : BaseOverload
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 0.1f;
+			} : BaseDurationMod
+		];
+	};
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.OverloadQuickHackAttackLevel1";
+					bool playerAsInstigator = true;
+					CName attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OverloadWithEMP : BaseStatusEffect.EmpVeryLowDamageQuickhack
+{
+	gameplayTags += 
+	[
+		"Overload", "Quickhack"
+	];
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "status_electrocuted";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					activationSFXName = "quickhack_shortcircuit_mech";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					activationSFXName = "quickhack_shortcircuit";
+				} : PlaySFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 4.f;
+			} : ConstantStatModifier
+		];
+	} : BaseQuickHackDuration;
+	AIData = 
+	{
+		float priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+OverloadLevel2 : OverloadWithEMP
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.OverloadQuickHackAttackLevel2";
+					bool playerAsInstigator = true;
+					CName attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OverloadLevel3 : OverloadWithEMP
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.OverloadQuickHackAttackLevel3";
+					bool playerAsInstigator = true;
+					CName attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_locomotion_malfunction";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_cyberware_malfunction";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OverloadLevel4 : OverloadWithEMP
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.OverloadQuickHackAttackLevel4";
+					bool playerAsInstigator = true;
+					CName attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_locomotion_malfunction";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_cyberware_malfunction";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BaseBrainMelt : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.BrainMelt";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 5.f;
+			} : BaseDurationMod
+		];
+	};
+	gameplayTags += 
+	[
+		"BrainMelt"
+	];
+	AIData = 
+	{
+		activationPrereqs = 
+		[
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq
+		];
+		priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_synapse_burnout";
+		} : StatusEffectFX
+	];
+}
+
+BrainMeltLevel2 : BaseBrainMelt
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					attackRecord = "Attacks.BrainMeltHackAttackLevel2";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					attackRecord = "Attacks.BrainMeltHackAttackMechanicals";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+				} : DismemberHeadEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+					statusEffect = "BaseStatusEffect.AndroidHeadRemovedBlind";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_brain_bolt";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BrainMeltLevel3 : BrainMeltLevel2
+{
+	gameplayTags += 
+	[
+		"BrainMeltDeathAnimation"
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					attackRecord = "Attacks.BrainMeltHackAttackLevel3";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					attackRecord = "Attacks.BrainMeltHackAttackMechanicals";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+				} : DismemberHeadEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+					statusEffect = "BaseStatusEffect.AndroidHeadRemovedBlind";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						stateName = "Dead";
+						isInState = true;
+					} : Prereqs.HighLevelNPCStatePrereq;
+					CName vfxName = "hacks_brain_bolt_kill";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_brain_bolt";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BrainMeltLevel4 : BrainMeltLevel3
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					attackRecord = "Attacks.BrainMeltHackAttackLevel4";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					attackRecord = "Attacks.BrainMeltHackAttackMechanicals";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+				} : DismemberHeadEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+					statusEffect = "BaseStatusEffect.AndroidHeadRemovedBlind";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						stateName = "Dead";
+						isInState = true;
+					} : Prereqs.HighLevelNPCStatePrereq;
+					CName vfxName = "hacks_brain_bolt_kill";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_brain_bolt";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BrainMeltQuestForceKill : BrainMeltLevel4
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.BrainMeltHackAttackQuestForceKill";
+					CName attackPositionSlotName = "Head";
+					bool playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						stateName = "Dead";
+						isInState = true;
+					} : Prereqs.HighLevelNPCStatePrereq;
+					CName vfxName = "hacks_brain_bolt_kill";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "hacks_brain_bolt";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OverheatAppliedPereq : Prereqs.ORPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel1";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel2";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel3";
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.OverheatLevel4";
+		} : StatusEffectPrereq
+	];
+}
+
+BaseOverheat : Burning
+{
+	gameplayTags += 
+	[
+		"Quickhack", "Overheat"
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#27962";
+		string iconPath = "burning_icon";
+		priority = -3.0f;
+	};
+	packages = [];
+	VFX = 
+	[
+		{
+			name = "hacks_overheat_lvl2";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "quickhack_overheat";
+		} : StatusEffectFX
+	];
+}
+
+OverheatLevel1 : BaseOverheat
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 5.f;
+			} : BaseDurationMod
+		];
+	} : BaseOverheatDuration;
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.OverheatQuickHackAttackLevel1";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+	VFX = 
+	[
+		{
+			name = "hacks_overheat_lvl1";
+		}
+	];
+}
+
+OverheatLevel2 : BaseOverheat
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 5.f;
+			} : BaseDurationMod
+		];
+	} : BaseOverheatDuration;
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.OverheatQuickHackAttackLevel2";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+	AIData = 
+	{
+		priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				statType = "HasBurningBuffs";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human"
+				];
+			} : NPCTypePrereq, 
+			{
+				statType = "IsMechanical";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq
+		];
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 9;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+OverheatLevel3 : BaseOverheat
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 7.5f;
+			} : BaseDurationMod
+		];
+	} : BaseOverheatDuration;
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.OverheatQuickHackAttackLevel3";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+	AIData = 
+	{
+		priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				statType = "HasBurningBuffs";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human"
+				];
+			} : NPCTypePrereq, 
+			{
+				statType = "IsMechanical";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq
+		];
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 9;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+OverheatLevel4 : BaseOverheat
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 7.5f;
+			} : BaseDurationMod
+		];
+	} : BaseOverheatDuration;
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						CName aggregationType = "OR";
+						fk< IPrereq >[] nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", "Prereqs.NPCIsAndroid"
+						];
+					} : MultiPrereq;
+					statusEffect = "BaseStatusEffect.CyberwareMalfunctionFromOverheat";
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.OverheatQuickHackAttackLevel4";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+	AIData = 
+	{
+		priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				statType = "HasBurningBuffs";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human"
+				];
+			} : NPCTypePrereq, 
+			{
+				statType = "IsMechanical";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq
+		];
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+		behaviorSignalResendDelay = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 9;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+BaseContagion : BaseQuickHackStatusEffect
+{
+	gameplayTags += 
+	[
+		"Contagion"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 0.1f;
+			} : BaseDurationMod
+		];
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_contagion";
+		} : StatusEffectFX
+	];
+}
+
+BaseContagionPoison : BaseStatusEffect.Poisoned
+{
+	gameplayTags += 
+	[
+		"ContagionPoison"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 2.5f;
+			} : BaseDurationMod
+		];
+	} : BaseContagionPoisonDuration;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_contagion";
+		} : StatusEffectFX
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttack";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+	VFX = 
+	[
+		{
+			name = "hacks_contagion";
+		}
+	];
+}
+
+ContagionShortPoison : BaseContagionPoison
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 4f;
+			} : BaseDurationMod
+		];
+	} : BaseContagionPoisonDuration;
+}
+
+ContagionPoison : BaseContagionPoison
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 6.f;
+			} : BaseDurationMod
+		];
+	} : BaseContagionPoisonDuration;
+}
+
+ContagionPoisonBounce2 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce2";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce3 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce3";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce4 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce4";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce5 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce5";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce6 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce6";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce7 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce7";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce8 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce8";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+ContagionPoisonBounce9 : ContagionPoison
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.25f;
+					attackRecord = "Attacks.ContagionPoisonAttackBounce9";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+Contagion : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce2 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce2"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce3 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce3"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce4 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce4"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce5 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce5"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce6 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce6"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce7 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce7"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce8 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce8"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionBounce9 : BaseContagion
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				"Effectors.ContagionEffectorBounce9"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ContagionMechanical : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Poisoned";
+	bool replicated = true;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.ContagionAttackLevel1";
+					bool playerAsInstigator = true;
+					CName attackPositionSlotName = "Head";
+				} : Effectors.TriggerAttackOnOwnerEffect
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				statType = "HasPoisonHeal";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq, 
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq, 
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human"
+				];
+			} : NPCTypePrereq, 
+			{
+				statType = "IsMechanical";
+				valueToCheck = 0;
+				comparisonType = "LessOrEqual";
+			} : StatPrereq
+		];
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	VFX = 
+	[
+		{
+			name = "hacks_contagion";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "quickhack_contagion";
+		} : StatusEffectFX
+	];
+}
+
+Ping : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 20.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"Ping", "Stealth"
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "PingSquadEffector";
+					float level = 1.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40980";
+		string iconPath = "knockdown_icon";
+		priority = 0.0f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_ping";
+		} : StatusEffectFX
+	];
+	AIData = 
+	{
+	};
+}
+
+PingLevel2 : BaseStatusEffect.Ping
+{
+	gameplayTags += 
+	[
+		"Ping2"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 30.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "PingSquadEffector";
+					float level = 2.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+PingLevel3 : BaseStatusEffect.Ping
+{
+	gameplayTags += 
+	[
+		"Ping3"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 40.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "PingSquadEffector";
+					float level = 3.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+PingLevel4 : BaseStatusEffect.Ping
+{
+	gameplayTags += 
+	[
+		"Ping4"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 40.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "PingSquadEffector";
+					float level = 4.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+AutoJam : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"Stealth"
+	];
+	uiData = 
+	{
+		string displayName = "AutoJam";
+		string iconPath = "decreased_stats_icon";
+		priority = -8f;
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						stateName = "Shoot";
+					} : UpperBodyNPCStatePrereq;
+					CName effectorClassName = "ApplyObjectActionEffector";
+					string actionID = "QuickHack.WeaponMalfunctionLvl4Hack";
+					float probability = 1f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+AutoBlind : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"Stealth"
+	];
+	uiData = 
+	{
+		string displayName = "AutoBlind";
+		string iconPath = "decreased_stats_icon";
+		priority = -7f;
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						percentage = 10f;
+					} : NPCDetectingPlayerPrereq;
+					CName effectorClassName = "ApplyObjectActionEffector";
+					string actionID = "QuickHack.BlindHack";
+					float probability = 1f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+AutoLocomotion : BaseQuickHackStatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	uiData = 
+	{
+		string displayName = "AutoLocomotion";
+		string iconPath = "decreased_stats_icon";
+		priority = -9f;
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+					} : DeviceDetectingPlayerPrereqState;
+					CName effectorClassName = "ApplyObjectActionEffector";
+					string actionID = "DeviceAction.ToggleStateClassHack";
+					float probability = 1f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BaseCommsNoise : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.CommsNoise";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 30.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"Deaf", "CommsNoise", "Stealth"
+	];
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanCallReinforcements";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Detection";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					CName vfxName = "hacks_comms_noise";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+					CName vfxName = "hacks_comms_noise_android";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40981";
+		string iconPath = "forced_command";
+		priority = -9.0f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_sonic_shock";
+		} : StatusEffectFX
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+	};
+}
+
+CommsNoise : BaseCommsNoise
+{
+}
+
+CommsNoiseLevel2 : CommsNoise
+{
+	gameplayTags += 
+	[
+		"CommsNoiseJam", "ResetSquadSync"
+	];
+}
+
+CommsNoiseLevel3 : CommsNoiseLevel2
+{
+	gameplayTags += 
+	[
+		"CommsNoiseIgnore"
+	];
+}
+
+CommsNoiseLevel4 : CommsNoiseLevel3
+{
+	gameplayTags += 
+	[
+		"CommsNoisePassive"
+	];
+}
+
+CommsNoisePassiveEffect : BaseQuickHackStatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"CommsNoiseJam", "ResetSquadSync"
+	];
+}
+
+CommsCallIn : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.CommsCall";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 10.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"CommsCallIn", "Stealth"
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+		shouldProcessAIDataOnReapplication = true;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40982";
+		string iconPath = "forced_command";
+		priority = -9.0f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_request_backup";
+		} : StatusEffectFX
+	];
+}
+
+CommsCallInLevel3 : CommsCallIn
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "ForceMoveInCombatCallInEffector";
+					float duration = 30.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Whistle : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.CommsCall";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 10.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"Whistle", "Stealth"
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+		shouldProcessAIDataOnReapplication = true;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#51291";
+		string iconPath = "forced_command";
+		priority = -9.0f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_request_backup";
+		} : StatusEffectFX
+	];
+}
+
+WhistleLvl2 : Whistle
+{
+}
+
+WhistleLvl3 : Whistle
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "ForceMoveInCombatEffector";
+					float duration = 30.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CommsCallOut : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.CommsCall";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 20.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"CommsCallOut"
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40983";
+		string iconPath = "forced_command";
+		priority = -9.0f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_request_backup";
+		} : StatusEffectFX
+	];
+}
+
+CommsCallOutLevel3 : CommsCallOut
+{
+}
+
+CommsCallOutLevel4 : CommsCallOut
+{
+}
+
+MemoryWipe : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Blind";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 8.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	gameplayTags += 
+	[
+		"MemoryWipe", "Blind", "Stealth", "ClearThreats"
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_memory_wipe";
+		} : StatusEffectFX
+	];
+}
+
+MemoryWipeLevel2 : MemoryWipe
+{
+}
+
+MemoryWipeLevel3 : MemoryWipe
+{
+	gameplayTags += 
+	[
+		"SquadMemoryWipe"
+	];
+}
+
+MemoryWipeImmunity : StatusEffect
+{
+	gameplayTags += 
+	[
+		"MemoryWipeImmunity"
+	];
+}
+
+SetFriendly : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.SetFriendly";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 30.f;
+			} : BaseDurationMod
+		];
+	} : BaseQuickHackDuration;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "SetFriendlyEffector";
+					float duration = 30.f;
+				} : Effector, 
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					statusEffect = "BaseStatusEffect.SystemCollapse";
+					inverted = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						CName prereqClassName = "gameMultiPrereq";
+						CName aggregationType = "AND";
+						nestedPrereqs = 
+						[
+							{
+								duration = 10.0f;
+							} : Prereqs.DurationPrereq, 
+							{
+								stateName = "Combat";
+								isInState = false;
+							} : Prereqs.HighLevelNPCStatePrereq, 
+							{
+								duration = 3.f;
+								randRange = 1.f;
+							} : Prereqs.DurationPrereq
+						];
+					} : MultiPrereq;
+					statusEffect = "BaseStatusEffect.SystemCollapse";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		priority = 9.f;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40984";
+		string iconPath = "set_friendly";
+		priority = -8.0f;
+	};
+	SFX = 
+	[
+		{
+			name = "quickhack_cyberpsychosis_mech";
+		} : StatusEffectFX
+	];
+}
+
+TerminateAfterFriendly : Effector
+{
+	prereqRecord = 
+	{
+		duration = 4.f;
+		randRange = 1.f;
+	} : Prereqs.DurationPrereq;
+	CName effectorClassName = "ApplyStatusEffectEffector";
+	string statusEffect = "BaseStatusEffect.ForceKill";
+}
+
+AndroidTurnOn : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.AndroidTurnOn";
+	duration = "BaseStats.InfiniteDuration";
+	bool replicated = false;
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "AndroidTurnOnEffector";
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		float priority = 10.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsForcedBehavior";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#40985";
+		string iconPath = "set_friendly";
+		priority = -8.0f;
+	};
+}
+
+AndroidTurnOff : BaseQuickHackStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.AndroidTurnOff";
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "AndroidTurnOffEffector";
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		float priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsForcedBehavior";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	uiData = 
+	{
+		string displayName = "Deactivate Android";
+		string iconPath = "unconscious";
+		priority = -8.0f;
+	};
+}
+
+ReducedDetection : BaseQuickHackStatusEffect
+{
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Detection";
+					modifierType = "Multiplier";
+					value = 0.25f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+

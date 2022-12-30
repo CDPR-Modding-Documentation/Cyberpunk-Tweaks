@@ -1,0 +1,82 @@
+package GrenadeThrowTest
+using RTDB, AttachmentSlots, ItemCategory, ItemType, AIActionTarget
+
+WeaponTestsComposite : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"GrenadeThrowTest.Delay", "GrenadeThrowTest.ThrowGrenade", "GenericArchetype.Success"
+	];
+}
+
+Delay : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+	};
+}
+
+ThrowGrenade : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.29f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenade";
+		animSlot = 
+		{
+		};
+	};
+}
+

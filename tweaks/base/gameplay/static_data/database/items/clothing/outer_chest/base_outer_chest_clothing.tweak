@@ -1,0 +1,492 @@
+package Items
+using RTDB, Prereqs
+
+[ notQueryable ]
+OuterChestClothingBase : ChestClothing
+{
+	fk< ItemBlueprint > blueprint = "Items.OuterChestClothingBlueprint";
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.Torso"
+	];
+	fk< EquipmentArea > equipArea = "EquipmentArea.ChestArmor";
+	CName[] tags += 
+	[
+		"ChestArmor"
+	];
+	CName entityName = "player_outer_torso_item";
+	fk< ItemType > itemType = "ItemType.Clo_OuterChest";
+	fk< ItemsFactoryAppearanceSuffixBase >[] appearanceSuffixes = 
+	[
+		"itemsFactoryAppearanceSuffix.Gender", "itemsFactoryAppearanceSuffix.Camera"
+	];
+	bool[] appearanceSuffixesOwnerOverride = 
+	[
+		true, false
+	];
+	quality = "Quality.Random";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			min = 0f;
+			max = 0.95f;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.PowerLevel";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "Additive";
+			id = "item_clothing_RPG_stats";
+			column = "outer_chest_clothing_power_level_to_armor";
+			refStat = "BaseStats.ItemLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ItemLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 10f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Additive";
+			refStat = "BaseStats.WasItemUpgraded";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Additive";
+			refStat = "BaseStats.CraftingBonusArmorValue2";
+			opSymbol = "*";
+			value = 1f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CraftingBonusArmorValue2";
+			modifierType = "Multiplier";
+			refStat = "BaseStats.IsItemCrafted";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.OuterChestClothing"
+	];
+	sellPrice += 
+	[
+		"Price.OuterChestClothing"
+	];
+}
+
+[ notQueryable ]
+GenericOuterChestClothing : OuterChestClothingBase
+{
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem", {
+			slot = "AttachmentSlots.OuterChestFabricEnhancer1";
+		} : OuterTorsoClothingSlotBaseItemList, 
+		{
+			slot = "AttachmentSlots.OuterChestFabricEnhancer2";
+		} : OuterTorsoClothingSlotEpicItemList
+	];
+}
+
+[ notQueryable ]
+EmptySlotsOuterChestClothing : OuterChestClothingBase
+{
+	tags += 
+	[
+		"EmptySlots"
+	];
+	fk< SlotItemPartListElement >[] slotPartList = 
+	[
+		"Items.GenericRootSlotItem"
+	];
+}
+
+OuterChestClothingBlueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.GenericItemRoot";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.OuterChestFabricEnhancer1";
+				prereqID = 
+				{
+					valueToCheck = 0;
+				} : ItemQualityPrereq;
+			}, 
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.OuterChestFabricEnhancer2";
+				prereqID = 
+				{
+					valueToCheck = 3;
+				} : ItemQualityPrereq;
+			}
+		];
+	};
+}
+
+DLC_OuterChestClothingBlueprint : ItemBlueprint
+{
+	fk< ItemBlueprintElement > rootElement = 
+	{
+		fk< AttachmentSlot > slot = "AttachmentSlots.GenericItemRoot";
+		fk< ItemBlueprintElement >[] childElements = 
+		[
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.OuterChestFabricEnhancer1";
+				prereqID = 
+				{
+					valueToCheck = 0;
+				} : ItemQualityPrereq;
+			}, 
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.OuterChestFabricEnhancer2";
+				prereqID = 
+				{
+					valueToCheck = 3;
+				} : ItemQualityPrereq;
+			}, 
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.OuterChestFabricEnhancer4";
+			}
+		];
+	};
+}
+
+[ notQueryable ]
+Vest : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 2.3f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Vest"
+	];
+	sellPrice += 
+	[
+		"Price.Vest"
+	];
+}
+
+[ notQueryable ]
+Jacket : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 2.5f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Jacket"
+	];
+	sellPrice += 
+	[
+		"Price.Jacket"
+	];
+}
+
+[ notQueryable ]
+Coat : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Coat"
+	];
+	sellPrice += 
+	[
+		"Price.Coat"
+	];
+}
+
+[ notQueryable ]
+Dress : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.3f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Dress"
+	];
+	sellPrice += 
+	[
+		"Price.Dress"
+	];
+}
+
+[ notQueryable ]
+FormalJacket : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.FormalJacket"
+	];
+	sellPrice += 
+	[
+		"Price.FormalJacket"
+	];
+}
+
+[ notQueryable ]
+LooseShirt : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.1f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.LooseShirt"
+	];
+	sellPrice += 
+	[
+		"Price.LooseShirt"
+	];
+}
+
+[ notQueryable ]
+Jumpsuit : GenericOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.1f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Jumpsuit"
+	];
+	sellPrice += 
+	[
+		"Price.Jumpsuit"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsVest : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 2.3f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Vest"
+	];
+	sellPrice += 
+	[
+		"Price.Vest"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsJacket : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 2.5f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Jacket"
+	];
+	sellPrice += 
+	[
+		"Price.Jacket"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsCoat : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Coat"
+	];
+	sellPrice += 
+	[
+		"Price.Coat"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsDress : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.3f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Dress"
+	];
+	sellPrice += 
+	[
+		"Price.Dress"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsFormalJacket : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.9f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.FormalJacket"
+	];
+	sellPrice += 
+	[
+		"Price.FormalJacket"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsLooseShirt : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.1f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.LooseShirt"
+	];
+	sellPrice += 
+	[
+		"Price.LooseShirt"
+	];
+}
+
+[ notQueryable ]
+EmptySlotsJumpsuit : EmptySlotsOuterChestClothing
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 1.1f;
+		} : ConstantStatModifier
+	];
+	buyPrice += 
+	[
+		"Price.Jumpsuit"
+	];
+	sellPrice += 
+	[
+		"Price.Jumpsuit"
+	];
+}
+

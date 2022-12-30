@@ -1,0 +1,108 @@
+package playerStateMachineQuickSlots
+
+quickSlotsReady : quickSlotsBase
+{
+	string[] transitionTo = 
+	[
+		"quickSlotsDisabled", "onlyVehicle", "CycleObjective", "WeaponWheel", "VehicleWheel", "VehicleInsideWheel"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", ""
+	];
+	float timeToWheel = 0.4f;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+}
+
+onlyVehicle : quickSlotsReady
+{
+	string[] transitionTo = 
+	[
+		"quickSlotsDisabled", "quickSlotsReady", "VehicleWheel"
+	];
+	string[] transitionCondition = 
+	[
+		"", "=", ""
+	];
+	bool hasEnterCondition = true;
+}
+
+quickSlotsBusy : quickSlotsBase
+{
+	string[] transitionTo = 
+	[
+		"quickSlotsDisabled", "quickSlotsReady"
+	];
+	string[] transitionCondition = 
+	[
+		"", "="
+	];
+	bool hasOnEnter = true;
+	float busyDuration = 0.2f;
+}
+
+quickSlotsDisabled : quickSlotsBase
+{
+	string[] transitionTo = 
+	[
+		"quickSlotsReady", "CycleObjective"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "="
+	];
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	int minBlockedSceneTier = 3;
+}
+
+quickSlotsTap : quickSlotsBase
+{
+	string[] transitionTo = 
+	[
+		"quickSlotsDisabled", "quickSlotsReady", "quickSlotsBusy"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToQuickSlotsReady", "ToQuickSlotsBusy"
+	];
+	bool hasOnEnter = true;
+	float singleTapStayTime = 0.5f;
+}
+
+CycleObjective : quickSlotsTap
+{
+	bool hasEnterCondition = true;
+}
+
+quickSlotsHold : quickSlotsBase
+{
+	string[] transitionTo = 
+	[
+		"quickSlotsDisabled", "quickSlotsReady", "quickSlotsBusy"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToQuickSlotsReady", "ToQuickSlotsBusy"
+	];
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
+	bool hasOnEnter = true;
+	bool hasEnterCondition = true;
+	float deadZone = 0.4f;
+}
+
+WeaponWheel : quickSlotsHold
+{
+}
+
+VehicleWheel : quickSlotsHold
+{
+}
+
+VehicleInsideWheel : quickSlotsHold
+{
+}
+

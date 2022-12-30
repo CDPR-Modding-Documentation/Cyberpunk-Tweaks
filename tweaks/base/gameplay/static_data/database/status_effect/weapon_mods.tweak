@@ -1,0 +1,384 @@
+package BaseStatusEffect
+using RTDB, Prereqs, Effectors, Perks
+
+PowerWeaponMod01Debuff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = -10;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SimpleWeaponMod13Debuff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Accuracy";
+					modifierType = "AdditiveMultiplier";
+					value = -0.1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Liberty_Padre_BurningChanceBuff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.Liberty_Padre_BurningApplicationRate";
+					modifierType = "Additive";
+					value = 10;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+IconicPunkKnifeTag : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"IconicPunkKnifeTag"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								bodyPart = "Head";
+							} : BodyPartHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitReceived;
+					value = 2.5f;
+				} : MultiplyDamage, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								bodyPart = "Head";
+							} : BodyPartHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitReceived;
+					statusEffects = 
+					[
+						"BaseStatusEffect.IconicPunkKnifeTag"
+					];
+				} : RemoveStatusEffectsEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								bodyPart = "Head";
+							} : BodyPartHitPrereqCondition, 
+							{
+								instigatorType = "Player";
+							} : InstigatorTypeHitPrereqCondition
+						];
+					} : Prereqs.ProcessHitReceived;
+					statusEffect = "BaseStatusEffect.IconicPunkKnifeRemoveCooldownsSE";
+					applicationTarget = "DamageSource";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Butchers_Cleaver_Bloodlust_Buff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	bool removeAllStacksWhenDurationEnds = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.AttackSpeed";
+								modifierType = "AdditiveMultiplier";
+								value = 0.13f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.StaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.4;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Grad_Buck_Demolition_Buff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	bool removeAllStacksWhenDurationEnds = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ReloadTimeBonus";
+								modifierType = "Additive";
+								value = -0.10f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.EmptyReloadTime";
+								modifierType = "AdditiveMultiplier";
+								value = -0.10f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CritChance";
+								modifierType = "Additive";
+								value = 16.66f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Carnage_Edgerunners_Buff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	bool removeAllStacksWhenDurationEnds = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ReloadTimeBonus";
+								modifierType = "AdditiveMultiplier";
+								value = -0.066f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.EmptyReloadTime";
+								modifierType = "AdditiveMultiplier";
+								value = -0.066f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CritChance";
+								modifierType = "Additive";
+								value = 10.0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CycleTimeBonus";
+								modifierType = "Additive";
+								value = -0.066f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.DamagePerHit";
+								modifierType = "Multiplier";
+								value = 1.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadDefaultX";
+								modifierType = "Multiplier";
+								value = 1.18f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxX";
+								modifierType = "Multiplier";
+								value = 1.18f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadChangePerShot";
+								modifierType = "Multiplier";
+								value = 1.18f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
