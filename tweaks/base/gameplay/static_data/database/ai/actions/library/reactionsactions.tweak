@@ -5789,7 +5789,7 @@ QuickLookAtGrenade : AIAction
 {
 	activationCondition = 
 	{
-		condition = "Condition.StimTargetFront180deg";
+		condition = "Condition.StimTargetFront120deg";
 	};
 	startup = 
 	{
@@ -5802,6 +5802,20 @@ QuickLookAtGrenade : AIAction
 	recovery = 
 	{
 		duration = 0.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+LookAtGrenadeDecorator : AIAction
+{
+	loop = 
+	{
 	};
 	lookats = 
 	[
@@ -6883,7 +6897,7 @@ WalkAwayFromStimThreatNoStartUp : WalkAwayFromStimThreat
 	};
 }
 
-RunAwayFromGrenade : AIAction
+RunAwayFromGrenadeSelector : AIActionSelector
 {
 	activationCondition = 
 	{
@@ -6891,10 +6905,48 @@ RunAwayFromGrenade : AIAction
 		{
 			AND = 
 			[
-				"Condition.IsGrenadeLandedStimType", "Condition.NotWounded"
+				"Condition.IsGrenadeLandedStimType", "Condition.NotWounded", "Condition.AbilityCanSprint", "Condition.StimTarget"
 			];
 		} : AIActionAND;
 	};
+	actions = 
+	[
+		"ReactionsActions.SandevistanRunAwayFromGrenade", "ReactionsActions.RunAwayFromGrenade", "GenericArchetype.ImmediateSuccess"
+	];
+}
+
+SandevistanRunAwayFromGrenade : RunAwayFromGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityHasSandevistan"
+			];
+		} : AIActionAND;
+	};
+	subActions += 
+	[
+		{
+			multiplier = 5.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+}
+
+RunAwayFromGrenade : AIAction
+{
 	loop = 
 	{
 		movePolicy = 
@@ -6902,10 +6954,9 @@ RunAwayFromGrenade : AIAction
 			avoidThreat = true;
 			target = "AIActionTarget.StimTarget";
 			distance = 10.f;
-			tolerance = 5.f;
 			movementType = "Sprint";
 		};
-		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseConditionCheckInterval = 0.2f;
 		toNextPhaseCondition = 
 		[
 			{
@@ -6913,7 +6964,17 @@ RunAwayFromGrenade : AIAction
 				{
 					OR = 
 					[
-						"Condition.EvaluatedReachedDestination0dot5", "Condition.NotStimTarget", "Condition.PathFindingFailed"
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.PathFindingFailed", "Condition.NotStimTarget", {
+							AND = 
+							[
+								"Condition.StimTargetAbove6m", {
+									OR = 
+									[
+										"Condition.MinAccuracyValue1", "Condition.NotIsInCameraFrustrum"
+									];
+								} : AIActionOR
+							];
+						} : AIActionAND
 					];
 				} : AIActionOR;
 			}
@@ -7364,7 +7425,7 @@ AgileNPCGrenadeDodge : AIAction
 		{
 			AND = 
 			[
-				"Condition.IsGrenadeLandedStimType", "Condition.AbilityHasKerenzikov", "Condition.StimTargetFront180deg", "Condition.GrenadeDodgeCooldown"
+				"Condition.IsGrenadeLandedStimType", "Condition.AbilityHasKerenzikov", "Condition.StimTargetFront260deg", "Condition.GrenadeDodgeCooldown"
 			];
 		} : AIActionAND;
 	};
@@ -7636,6 +7697,19 @@ CallOffTicket : AIAction
 	};
 }
 
+ResetGracefulCombatInterruption : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "GracefulCombatInterruption";
+		} : AISubActionSendSignal
+	];
+}
+
 CombatShoutCompositeDecorator : AIActionSmartComposite
 {
 	nodes = 
@@ -7705,7 +7779,7 @@ GrenadeVO : AIAction
 {
 	loop = 
 	{
-		duration = 0.35f;
+		duration = 0.f;
 	};
 	subActions = 
 	[

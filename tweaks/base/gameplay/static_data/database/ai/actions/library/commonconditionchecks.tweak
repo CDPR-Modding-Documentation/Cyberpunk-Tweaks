@@ -300,7 +300,7 @@ SimpleCoverActivationCondition : AIActionAND
 		{
 			OR = 
 			[
-				"Condition.CurrentCoverToTargetAbove4mPrediction", "Condition.NotMinAccuracySharedValue0dot85"
+				"Condition.CurrentCoverToTargetAbove4mPrediction", "Condition.TargetStatusEffectOpticalCamo"
 			];
 		} : AIActionOR, 
 		"Condition.AbilityCanUseCovers", "Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotDesiredCoverChanged", "Condition.NotGracefulCombatInterruption"
@@ -326,7 +326,7 @@ CoverActivationCondition : AIActionAND
 						"Condition.AbilityHasSandevistan", "Condition.CurrentCoverToTargetAbove9mPrediction"
 					];
 				} : AIActionAND, 
-				"Condition.NotMinAccuracySharedValue0dot85"
+				"Condition.TargetStatusEffectOpticalCamo"
 			];
 		} : AIActionOR, 
 		"Condition.AbilityCanUseCovers", "Condition.NotCatchUpFromCoverCondition", "Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotDesiredCoverChanged", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption", "Condition.NotCompanionAway"
@@ -340,7 +340,7 @@ SimpleCoverDeactivationCondition : AIActionOR
 		{
 			AND = 
 			[
-				"Condition.CurrentCoverToTargetBelow4mPrediction", "Condition.MinAccuracySharedValue0dot85"
+				"Condition.CurrentCoverToTargetBelow4mPrediction", "Condition.NotTargetStatusEffectOpticalCamo"
 			];
 		} : AIActionAND, 
 		"Condition.NotCoverIsProtectingHorizontallyAgainstTarget", "Condition.DesiredCoverChanged", "Condition.GracefulCombatInterruption"
@@ -374,7 +374,7 @@ CoverDeactivationCondition : AIActionAND
 								} : AIActionAND
 							];
 						} : AIActionOR, 
-						"Condition.MinAccuracySharedValue0dot85"
+						"Condition.NotTargetStatusEffectOpticalCamo"
 					];
 				} : AIActionAND, 
 				"Condition.NotCoverIsProtectingHorizontallyAgainstTarget", "Condition.CatchUpFromCoverCondition", "Condition.DesiredCoverChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruption", "Condition.CompanionAway"
@@ -394,7 +394,7 @@ CommandCoverDeactivationCondition : AIActionAND
 				{
 					AND = 
 					[
-						"Condition.CurrentCoverToTargetBelow4mPrediction", "Condition.MinAccuracySharedValue0dot85"
+						"Condition.CurrentCoverToTargetBelow4mPrediction", "Condition.NotTargetStatusEffectOpticalCamo"
 					];
 				} : AIActionAND, 
 				"Condition.NotCoverIsProtectingHorizontallyAgainstTarget", "Condition.DesiredCoverChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruption"
@@ -1218,7 +1218,7 @@ GracefulCombatInterruptionCompound : AIActionAND
 {
 	AND = 
 	[
-		"Condition.GracefulCombatInterruption", "Condition.NotIsMoving"
+		"Condition.GracefulCombatInterruption", "Condition.NotSprint"
 	];
 }
 
@@ -3314,6 +3314,12 @@ Sprint : AIActionAND
 EvaluatedReachedDestination0dot5 : AIMovementCond
 {
 	distanceToDestination = ( -1.f, 0.5f );
+	isEvaluated = 1;
+}
+
+EvaluatedReachedDestination4m : AIMovementCond
+{
+	distanceToDestination = ( -1.f, 4.f );
 	isEvaluated = 1;
 }
 
@@ -7530,6 +7536,36 @@ HasFullAutoWeapon : AIActionOR
 			];
 		} : AISlotCond, 
 		{
+			slot = "AttachmentSlots.WeaponLeft";
+			itemCategory = "ItemCategory.Weapon";
+			triggerModes = 
+			[
+				"TriggerMode.FullAuto"
+			];
+		} : AISlotCond
+	];
+}
+
+NotTargetHasFullAutoWeapon : TargetHasFullAutoWeapon
+{
+	invert = true;
+}
+
+TargetHasFullAutoWeapon : AIActionOR
+{
+	OR = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			slot = "AttachmentSlots.WeaponRight";
+			itemCategory = "ItemCategory.Weapon";
+			triggerModes = 
+			[
+				"TriggerMode.FullAuto"
+			];
+		} : AISlotCond, 
+		{
+			target = "AIActionTarget.CombatTarget";
 			slot = "AttachmentSlots.WeaponLeft";
 			itemCategory = "ItemCategory.Weapon";
 			triggerModes = 
@@ -12729,21 +12765,47 @@ StatusEffectStealthMode : AIStatusEffectCond
 	statusEffect = "Oda.StealthMode";
 }
 
-NotStatusEffectOpticalCamo : AIStatusEffectCond
+NotStatusEffectOpticalCamo : StatusEffectOpticalCamo
 {
 	invert = true;
-	statusEffect = "BaseStatusEffect.Cloaked";
 }
 
-StatusEffectOpticalCamo : AIStatusEffectCond
+StatusEffectOpticalCamo : AIActionOR
 {
-	statusEffect = "BaseStatusEffect.Cloaked";
+	OR = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Cloaked";
+		} : AIStatusEffectCond, 
+		{
+			gameplayTag = "Cloak";
+		} : AIStatusEffectCond
+	];
 }
 
-NotStatusEffectKnockdownInfinite : AIStatusEffectCond
+NotTargetStatusEffectOpticalCamo : TargetStatusEffectOpticalCamo
 {
 	invert = true;
-	statusEffect = "BaseStatusEffect.KnockdownInfinite";
+}
+
+TargetStatusEffectOpticalCamo : AIActionOR
+{
+	OR = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			statusEffect = "BaseStatusEffect.Cloaked";
+		} : AIStatusEffectCond, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			gameplayTag = "Cloak";
+		} : AIStatusEffectCond
+	];
+}
+
+NotStatusEffectKnockdownInfinite : StatusEffectKnockdownInfinite
+{
+	invert = true;
 }
 
 StatusEffectKnockdownInfinite : AIStatusEffectCond
@@ -14194,6 +14256,11 @@ IsSelectedCoverInCameraFrustrum0dot1mRadius : AIIsInActiveCameraCond
 {
 	radius = 0.1f;
 	target = "AIActionTarget.SelectedCover";
+}
+
+MaxDodgeCount1 : AIDodgeCountCond
+{
+	maxDodgeCount = 1;
 }
 
 MaxDodgeCount2 : AIDodgeCountCond
