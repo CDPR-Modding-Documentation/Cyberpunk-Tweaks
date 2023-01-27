@@ -1,0 +1,25 @@
+var _baton_attacks_8cs =
+[
+    [ "BatonAttacks.BatonComboAttackAbstract", "class_baton_attacks_1_1_baton_combo_attack_abstract.html", null ],
+    [ "BatonAttacks.BatonComboAttack1", "class_baton_attacks_1_1_baton_combo_attack1.html", null ],
+    [ "BatonAttacks.BatonComboAttack2", "class_baton_attacks_1_1_baton_combo_attack2.html", null ],
+    [ "BatonAttacks.BatonComboAttack3", "class_baton_attacks_1_1_baton_combo_attack3.html", null ],
+    [ "BatonAttacks.BatonComboAttack4", "class_baton_attacks_1_1_baton_combo_attack4.html", null ],
+    [ "BatonAttacks.BatonComboAttack5", "class_baton_attacks_1_1_baton_combo_attack5.html", null ],
+    [ "BatonAttacks.BatonFinalAttackAbstract", "class_baton_attacks_1_1_baton_final_attack_abstract.html", null ],
+    [ "BatonAttacks.BatonFinalAttack1", "class_baton_attacks_1_1_baton_final_attack1.html", null ],
+    [ "BatonAttacks.BatonFinalAttack2", "class_baton_attacks_1_1_baton_final_attack2.html", null ],
+    [ "BatonAttacks.BatonFinalAttack3", "class_baton_attacks_1_1_baton_final_attack3.html", null ],
+    [ "BatonAttacks.BatonFinalAttack4", "class_baton_attacks_1_1_baton_final_attack4.html", null ],
+    [ "BatonAttacks.BatonFinalAttack5", "class_baton_attacks_1_1_baton_final_attack5.html", null ],
+    [ "BatonAttacks.BatonStrongAttackAbstract", "class_baton_attacks_1_1_baton_strong_attack_abstract.html", null ],
+    [ "BatonAttacks.BatonStrongAttack1", "class_baton_attacks_1_1_baton_strong_attack1.html", null ],
+    [ "BatonAttacks.BatonStrongAttack2", "class_baton_attacks_1_1_baton_strong_attack2.html", null ],
+    [ "BatonAttacks.BatonStrongAttack3", "class_baton_attacks_1_1_baton_strong_attack3.html", null ],
+    [ "BatonAttacks.BatonBlockAttack", "class_baton_attacks_1_1_baton_block_attack.html", null ],
+    [ "BatonAttacks.BatonSafeAttack", "class_baton_attacks_1_1_baton_safe_attack.html", null ],
+    [ "BatonAttacks.BatonSprintAttack", "class_baton_attacks_1_1_baton_sprint_attack.html", null ],
+    [ "BatonAttacks.BatonJumpAttack", "class_baton_attacks_1_1_baton_jump_attack.html", null ],
+    [ "BatonAttacks.BatonCrouchAttack", "class_baton_attacks_1_1_baton_crouch_attack.html", null ],
+    [ "BatonAttacks.BatonDeflectAttack", "class_baton_attacks_1_1_baton_deflect_attack.html", null ]
+];

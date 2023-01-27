@@ -1,0 +1,27 @@
+var namespace_attack_type =
+[
+    [ "BlockAttack", "class_attack_type_1_1_block_attack.html", null ],
+    [ "ChargedWhipAttack", "class_attack_type_1_1_charged_whip_attack.html", null ],
+    [ "ComboAttack", "class_attack_type_1_1_combo_attack.html", null ],
+    [ "CrouchAttack", "class_attack_type_1_1_crouch_attack.html", null ],
+    [ "DeflectAttack", "class_attack_type_1_1_deflect_attack.html", null ],
+    [ "Direct", "class_attack_type_1_1_direct.html", null ],
+    [ "Effect", "class_attack_type_1_1_effect.html", null ],
+    [ "EquipAttack", "class_attack_type_1_1_equip_attack.html", null ],
+    [ "Explosion", "class_attack_type_1_1_explosion.html", null ],
+    [ "FinalAttack", "class_attack_type_1_1_final_attack.html", null ],
+    [ "GuardBreak", "class_attack_type_1_1_guard_break.html", null ],
+    [ "Hack", "class_attack_type_1_1_hack.html", null ],
+    [ "JumpAttack", "class_attack_type_1_1_jump_attack.html", null ],
+    [ "Melee", "class_attack_type_1_1_melee.html", null ],
+    [ "PressureWave", "class_attack_type_1_1_pressure_wave.html", null ],
+    [ "QuickMelee", "class_attack_type_1_1_quick_melee.html", null ],
+    [ "Ranged", "class_attack_type_1_1_ranged.html", null ],
+    [ "Reflect", "class_attack_type_1_1_reflect.html", null ],
+    [ "SafeAttack", "class_attack_type_1_1_safe_attack.html", null ],
+    [ "SprintAttack", "class_attack_type_1_1_sprint_attack.html", null ],
+    [ "StrongMelee", "class_attack_type_1_1_strong_melee.html", null ],
+    [ "ThrowAttack", "class_attack_type_1_1_throw_attack.html", null ],
+    [ "Thrown", "class_attack_type_1_1_thrown.html", null ],
+    [ "WhipAttack", "class_attack_type_1_1_whip_attack.html", null ]
+];

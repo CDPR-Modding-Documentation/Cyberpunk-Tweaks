@@ -1,0 +1,28 @@
+var namespace_reaction_presets =
+[
+    [ "Child", "class_reaction_presets_1_1_child.html", null ],
+    [ "Civilian_Guard", "class_reaction_presets_1_1_civilian___guard.html", null ],
+    [ "Civilian_Neutral", "class_reaction_presets_1_1_civilian___neutral.html", null ],
+    [ "Civilian_Passive", "class_reaction_presets_1_1_civilian___passive.html", null ],
+    [ "Corpo_Aggressive", "class_reaction_presets_1_1_corpo___aggressive.html", null ],
+    [ "Corpo_Passive", "class_reaction_presets_1_1_corpo___passive.html", null ],
+    [ "Follower", "class_reaction_presets_1_1_follower.html", null ],
+    [ "Ganger_Aggressive", "class_reaction_presets_1_1_ganger___aggressive.html", null ],
+    [ "Ganger_Passive", "class_reaction_presets_1_1_ganger___passive.html", null ],
+    [ "InVehicle_Aggressive", "class_reaction_presets_1_1_in_vehicle___aggressive.html", null ],
+    [ "InVehicle_Aggressive_Police", "class_reaction_presets_1_1_in_vehicle___aggressive___police.html", null ],
+    [ "InVehicle_Civilian", "class_reaction_presets_1_1_in_vehicle___civilian.html", null ],
+    [ "InVehicle_Passive", "class_reaction_presets_1_1_in_vehicle___passive.html", null ],
+    [ "Lore_Aggressive", "class_reaction_presets_1_1_lore___aggressive.html", null ],
+    [ "Lore_Civilian", "class_reaction_presets_1_1_lore___civilian.html", null ],
+    [ "Lore_Passive", "class_reaction_presets_1_1_lore___passive.html", null ],
+    [ "Mechanical_Aggressive", "class_reaction_presets_1_1_mechanical___aggressive.html", null ],
+    [ "Mechanical_NonCombat", "class_reaction_presets_1_1_mechanical___non_combat.html", null ],
+    [ "Mechanical_Passive", "class_reaction_presets_1_1_mechanical___passive.html", null ],
+    [ "NoReaction", "class_reaction_presets_1_1_no_reaction.html", null ],
+    [ "Police_Aggressive", "class_reaction_presets_1_1_police___aggressive.html", null ],
+    [ "Police_Passive", "class_reaction_presets_1_1_police___passive.html", null ],
+    [ "Sleep_Aggressive", "class_reaction_presets_1_1_sleep___aggressive.html", null ],
+    [ "Sleep_Civilian", "class_reaction_presets_1_1_sleep___civilian.html", null ],
+    [ "Sleep_Passive", "class_reaction_presets_1_1_sleep___passive.html", null ]
+];

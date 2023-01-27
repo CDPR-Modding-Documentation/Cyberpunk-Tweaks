@@ -1,0 +1,26 @@
+var namespace_trainer_reward =
+[
+    [ "AssaultTraining", "class_trainer_reward_1_1_assault_training.html", null ],
+    [ "AthleticsTraining", "class_trainer_reward_1_1_athletics_training.html", null ],
+    [ "bls_ina_se5_melee_01_training", "class_trainer_reward_1_1bls__ina__se5__melee__01__training.html", null ],
+    [ "BrawlingTraining", "class_trainer_reward_1_1_brawling_training.html", null ],
+    [ "ColdBloodTraining", "class_trainer_reward_1_1_cold_blood_training.html", null ],
+    [ "CombatHackingTraining", "class_trainer_reward_1_1_combat_hacking_training.html", null ],
+    [ "CraftingTraining", "class_trainer_reward_1_1_crafting_training.html", null ],
+    [ "DemolitionTraining", "class_trainer_reward_1_1_demolition_training.html", null ],
+    [ "EngineeringTraining", "class_trainer_reward_1_1_engineering_training.html", null ],
+    [ "GunslingerTraining", "class_trainer_reward_1_1_gunslinger_training.html", null ],
+    [ "HackingTraining", "class_trainer_reward_1_1_hacking_training.html", null ],
+    [ "hey_rey_netrunner_01_training", "class_trainer_reward_1_1hey__rey__netrunner__01__training.html", null ],
+    [ "KenjutsuTraining", "class_trainer_reward_1_1_kenjutsu_training.html", null ],
+    [ "pac_cvi_melee_01_training", "class_trainer_reward_1_1pac__cvi__melee__01__training.html", null ],
+    [ "pac_wwd_melee_01_training", "class_trainer_reward_1_1pac__wwd__melee__01__training.html", null ],
+    [ "std_arr_melee_01_training", "class_trainer_reward_1_1std__arr__melee__01__training.html", null ],
+    [ "StealthTraining", "class_trainer_reward_1_1_stealth_training.html", null ],
+    [ "wat_kab_netrunner_01_training", "class_trainer_reward_1_1wat__kab__netrunner__01__training.html", null ],
+    [ "wat_lch_melee_01_training", "class_trainer_reward_1_1wat__lch__melee__01__training.html", null ],
+    [ "wat_lch_melee_02_training", "class_trainer_reward_1_1wat__lch__melee__02__training.html", null ],
+    [ "wbr_jpn_melee_01_training", "class_trainer_reward_1_1wbr__jpn__melee__01__training.html", null ],
+    [ "wbr_jpn_netrunner_01_training", "class_trainer_reward_1_1wbr__jpn__netrunner__01__training.html", null ],
+    [ "wbr_jpn_netrunner_02_training", "class_trainer_reward_1_1wbr__jpn__netrunner__02__training.html", null ]
+];

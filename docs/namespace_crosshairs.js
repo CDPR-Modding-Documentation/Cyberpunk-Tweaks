@@ -1,0 +1,28 @@
+var namespace_crosshairs =
+[
+    [ "Basic", "class_crosshairs_1_1_basic.html", null ],
+    [ "Custom_HMG", "class_crosshairs_1_1_custom___h_m_g.html", null ],
+    [ "Cyberware_Mantis_Blades", "class_crosshairs_1_1_cyberware___mantis___blades.html", null ],
+    [ "Cyberware_Projectile_Launcher", "class_crosshairs_1_1_cyberware___projectile___launcher.html", null ],
+    [ "Jailbreak_power", "class_crosshairs_1_1_jailbreak__power.html", null ],
+    [ "Jailbreak_smart", "class_crosshairs_1_1_jailbreak__smart.html", null ],
+    [ "Jailbreak_tech", "class_crosshairs_1_1_jailbreak__tech.html", null ],
+    [ "Melee", "class_crosshairs_1_1_melee.html", null ],
+    [ "Melee_Bottle", "class_crosshairs_1_1_melee___bottle.html", null ],
+    [ "Melee_Hammer", "class_crosshairs_1_1_melee___hammer.html", null ],
+    [ "Melee_Knife", "class_crosshairs_1_1_melee___knife.html", null ],
+    [ "Melee_Nano_Wire", "class_crosshairs_1_1_melee___nano___wire.html", null ],
+    [ "Melee_Strong_Arms", "class_crosshairs_1_1_melee___strong___arms.html", null ],
+    [ "None", "class_crosshairs_1_1_none.html", null ],
+    [ "NoWeapon", "class_crosshairs_1_1_no_weapon.html", null ],
+    [ "Pistol", "class_crosshairs_1_1_pistol.html", null ],
+    [ "Power_Defender", "class_crosshairs_1_1_power___defender.html", null ],
+    [ "Power_Overture", "class_crosshairs_1_1_power___overture.html", null ],
+    [ "Power_Saratoga", "class_crosshairs_1_1_power___saratoga.html", null ],
+    [ "Power_Tactician", "class_crosshairs_1_1_power___tactician.html", null ],
+    [ "Simple", "class_crosshairs_1_1_simple.html", null ],
+    [ "SmartGun", "class_crosshairs_1_1_smart_gun.html", null ],
+    [ "Tech_Hex", "class_crosshairs_1_1_tech___hex.html", null ],
+    [ "Tech_Omaha", "class_crosshairs_1_1_tech___omaha.html", null ],
+    [ "Tech_Round", "class_crosshairs_1_1_tech___round.html", null ]
+];

@@ -1,0 +1,27 @@
+var namespace_squads =
+[
+    [ "AlphaLegion", "class_squads_1_1_alpha_legion.html", null ],
+    [ "Backyard", "class_squads_1_1_backyard.html", null ],
+    [ "CombatPlayerSquad", "class_squads_1_1_combat_player_squad.html", null ],
+    [ "DefaultSquad", "class_squads_1_1_default_squad.html", null ],
+    [ "DefensiveFence", "class_squads_1_1_defensive_fence.html", null ],
+    [ "demo_Squad_A", "class_squads_1_1demo___squad___a.html", null ],
+    [ "demo_Squad_B", "class_squads_1_1demo___squad___b.html", null ],
+    [ "demo_Squad_C", "class_squads_1_1demo___squad___c.html", null ],
+    [ "demo_Squad_D", "class_squads_1_1demo___squad___d.html", null ],
+    [ "GlobalDefault", "class_squads_1_1_global_default.html", null ],
+    [ "OffensiveFence", "class_squads_1_1_offensive_fence.html", null ],
+    [ "PlayerSquad", "class_squads_1_1_player_squad.html", null ],
+    [ "Q114BasementSquad1", "class_squads_1_1_q114_basement_squad1.html", null ],
+    [ "Q114BasementSquad2", "class_squads_1_1_q114_basement_squad2.html", null ],
+    [ "Q114BasementSquad3", "class_squads_1_1_q114_basement_squad3.html", null ],
+    [ "Squad_Alpha", "class_squads_1_1_squad___alpha.html", null ],
+    [ "Squad_Basic", "class_squads_1_1_squad___basic.html", null ],
+    [ "Squad_Beta", "class_squads_1_1_squad___beta.html", null ],
+    [ "Squad_CombatBasic", "class_squads_1_1_squad___combat_basic.html", null ],
+    [ "Squad_Delta", "class_squads_1_1_squad___delta.html", null ],
+    [ "Squad_Gamma", "class_squads_1_1_squad___gamma.html", null ],
+    [ "Squad_Player", "class_squads_1_1_squad___player.html", null ],
+    [ "VoodooBoys", "class_squads_1_1_voodoo_boys.html", null ],
+    [ "WorldEatersLegion", "class_squads_1_1_world_eaters_legion.html", null ]
+];

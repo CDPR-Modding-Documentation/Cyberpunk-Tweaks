@@ -1,0 +1,25 @@
+var namespace_device_icons =
+[
+    [ "CameraDeviceBackground", "class_device_icons_1_1_camera_device_background.html", null ],
+    [ "CameraDeviceIcon", "class_device_icons_1_1_camera_device_icon.html", null ],
+    [ "DoorDeviceBackground", "class_device_icons_1_1_door_device_background.html", null ],
+    [ "DoorDeviceIcon", "class_device_icons_1_1_door_device_icon.html", null ],
+    [ "ExplosionDeviceBackground", "class_device_icons_1_1_explosion_device_background.html", null ],
+    [ "ExplosionDeviceIcon", "class_device_icons_1_1_explosion_device_icon.html", null ],
+    [ "GenenericDeviceBackground", "class_device_icons_1_1_geneneric_device_background.html", null ],
+    [ "GenenericDeviceIcon", "class_device_icons_1_1_geneneric_device_icon.html", null ],
+    [ "GeneratorDeviceBackground", "class_device_icons_1_1_generator_device_background.html", null ],
+    [ "GeneratorDeviceIcon", "class_device_icons_1_1_generator_device_icon.html", null ],
+    [ "LightDeviceBackground", "class_device_icons_1_1_light_device_background.html", null ],
+    [ "LightDeviceIcon", "class_device_icons_1_1_light_device_icon.html", null ],
+    [ "LokcedIcon", "class_device_icons_1_1_lokced_icon.html", null ],
+    [ "RadioDeviceBackground", "class_device_icons_1_1_radio_device_background.html", null ],
+    [ "RadioDeviceIcon", "class_device_icons_1_1_radio_device_icon.html", null ],
+    [ "ScreenDeviceBackground", "class_device_icons_1_1_screen_device_background.html", null ],
+    [ "ScreenDeviceIcon", "class_device_icons_1_1_screen_device_icon.html", null ],
+    [ "SecuritySystemDeviceBackground", "class_device_icons_1_1_security_system_device_background.html", null ],
+    [ "SecuritySystemDeviceIcon", "class_device_icons_1_1_security_system_device_icon.html", null ],
+    [ "TurretDeviceIcon", "class_device_icons_1_1_turret_device_icon.html", null ],
+    [ "VentilationDeviceBackground", "class_device_icons_1_1_ventilation_device_background.html", null ],
+    [ "VentilationDeviceIcon", "class_device_icons_1_1_ventilation_device_icon.html", null ]
+];

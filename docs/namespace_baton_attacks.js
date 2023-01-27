@@ -1,0 +1,25 @@
+var namespace_baton_attacks =
+[
+    [ "BatonBlockAttack", "class_baton_attacks_1_1_baton_block_attack.html", null ],
+    [ "BatonComboAttack1", "class_baton_attacks_1_1_baton_combo_attack1.html", null ],
+    [ "BatonComboAttack2", "class_baton_attacks_1_1_baton_combo_attack2.html", null ],
+    [ "BatonComboAttack3", "class_baton_attacks_1_1_baton_combo_attack3.html", null ],
+    [ "BatonComboAttack4", "class_baton_attacks_1_1_baton_combo_attack4.html", null ],
+    [ "BatonComboAttack5", "class_baton_attacks_1_1_baton_combo_attack5.html", null ],
+    [ "BatonComboAttackAbstract", "class_baton_attacks_1_1_baton_combo_attack_abstract.html", null ],
+    [ "BatonCrouchAttack", "class_baton_attacks_1_1_baton_crouch_attack.html", null ],
+    [ "BatonDeflectAttack", "class_baton_attacks_1_1_baton_deflect_attack.html", null ],
+    [ "BatonFinalAttack1", "class_baton_attacks_1_1_baton_final_attack1.html", null ],
+    [ "BatonFinalAttack2", "class_baton_attacks_1_1_baton_final_attack2.html", null ],
+    [ "BatonFinalAttack3", "class_baton_attacks_1_1_baton_final_attack3.html", null ],
+    [ "BatonFinalAttack4", "class_baton_attacks_1_1_baton_final_attack4.html", null ],
+    [ "BatonFinalAttack5", "class_baton_attacks_1_1_baton_final_attack5.html", null ],
+    [ "BatonFinalAttackAbstract", "class_baton_attacks_1_1_baton_final_attack_abstract.html", null ],
+    [ "BatonJumpAttack", "class_baton_attacks_1_1_baton_jump_attack.html", null ],
+    [ "BatonSafeAttack", "class_baton_attacks_1_1_baton_safe_attack.html", null ],
+    [ "BatonSprintAttack", "class_baton_attacks_1_1_baton_sprint_attack.html", null ],
+    [ "BatonStrongAttack1", "class_baton_attacks_1_1_baton_strong_attack1.html", null ],
+    [ "BatonStrongAttack2", "class_baton_attacks_1_1_baton_strong_attack2.html", null ],
+    [ "BatonStrongAttack3", "class_baton_attacks_1_1_baton_strong_attack3.html", null ],
+    [ "BatonStrongAttackAbstract", "class_baton_attacks_1_1_baton_strong_attack_abstract.html", null ]
+];

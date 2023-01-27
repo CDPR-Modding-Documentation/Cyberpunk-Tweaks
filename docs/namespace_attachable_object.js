@@ -1,0 +1,28 @@
+var namespace_attachable_object =
+[
+    [ "apartmentScreen", "class_attachable_object_1_1apartment_screen.html", null ],
+    [ "disposable_dumpster", "class_attachable_object_1_1disposable__dumpster.html", null ],
+    [ "drone_camera", "class_attachable_object_1_1drone__camera.html", null ],
+    [ "elevatorTV1", "class_attachable_object_1_1elevator_t_v1.html", null ],
+    [ "q000_corpo_elevator_screens", "class_attachable_object_1_1q000__corpo__elevator__screens.html", null ],
+    [ "q005_delamain_cab_turret", "class_attachable_object_1_1q005__delamain__cab__turret.html", null ],
+    [ "q108_arasaka_helicopter_turret", "class_attachable_object_1_1q108__arasaka__helicopter__turret.html", null ],
+    [ "q108_helicopter_camera_spotlight", "class_attachable_object_1_1q108__helicopter__camera__spotlight.html", null ],
+    [ "q112_fish_blue_large", "class_attachable_object_1_1q112__fish__blue__large.html", null ],
+    [ "q112_fish_blue_small", "class_attachable_object_1_1q112__fish__blue__small.html", null ],
+    [ "q112_fish_orange_large", "class_attachable_object_1_1q112__fish__orange__large.html", null ],
+    [ "q112_fish_orange_small", "class_attachable_object_1_1q112__fish__orange__small.html", null ],
+    [ "q112_flying_dragon", "class_attachable_object_1_1q112__flying__dragon.html", null ],
+    [ "q112_monk_01", "class_attachable_object_1_1q112__monk__01.html", null ],
+    [ "q112_moveable_trigger", "class_attachable_object_1_1q112__moveable__trigger.html", null ],
+    [ "q112_moveable_trigger_small", "class_attachable_object_1_1q112__moveable__trigger__small.html", null ],
+    [ "q112_phoenix", "class_attachable_object_1_1q112__phoenix.html", null ],
+    [ "q114_drone_camera", "class_attachable_object_1_1q114__drone__camera.html", null ],
+    [ "q114_turret_portable_vehicle_launcher", "class_attachable_object_1_1q114__turret__portable__vehicle__launcher.html", null ],
+    [ "q114_vehicle_chaingun_turret", "class_attachable_object_1_1q114__vehicle__chaingun__turret.html", null ],
+    [ "q114_vehicle_rocket_turret", "class_attachable_object_1_1q114__vehicle__rocket__turret.html", null ],
+    [ "sq027_train_coupler", "class_attachable_object_1_1sq027__train__coupler.html", null ],
+    [ "valgus_av_hmg_turret", "class_attachable_object_1_1valgus__av__hmg__turret.html", null ],
+    [ "vehicle_hmg_turret", "class_attachable_object_1_1vehicle__hmg__turret.html", null ],
+    [ "vehicle_missile_invisible_turret", "class_attachable_object_1_1vehicle__missile__invisible__turret.html", null ]
+];

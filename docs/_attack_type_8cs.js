@@ -1,0 +1,27 @@
+var _attack_type_8cs =
+[
+    [ "AttackType.ComboAttack", "class_attack_type_1_1_combo_attack.html", null ],
+    [ "AttackType.FinalAttack", "class_attack_type_1_1_final_attack.html", null ],
+    [ "AttackType.SafeAttack", "class_attack_type_1_1_safe_attack.html", null ],
+    [ "AttackType.BlockAttack", "class_attack_type_1_1_block_attack.html", null ],
+    [ "AttackType.SprintAttack", "class_attack_type_1_1_sprint_attack.html", null ],
+    [ "AttackType.CrouchAttack", "class_attack_type_1_1_crouch_attack.html", null ],
+    [ "AttackType.JumpAttack", "class_attack_type_1_1_jump_attack.html", null ],
+    [ "AttackType.ThrowAttack", "class_attack_type_1_1_throw_attack.html", null ],
+    [ "AttackType.DeflectAttack", "class_attack_type_1_1_deflect_attack.html", null ],
+    [ "AttackType.EquipAttack", "class_attack_type_1_1_equip_attack.html", null ],
+    [ "AttackType.Melee", "class_attack_type_1_1_melee.html", null ],
+    [ "AttackType.StrongMelee", "class_attack_type_1_1_strong_melee.html", null ],
+    [ "AttackType.QuickMelee", "class_attack_type_1_1_quick_melee.html", null ],
+    [ "AttackType.GuardBreak", "class_attack_type_1_1_guard_break.html", null ],
+    [ "AttackType.Ranged", "class_attack_type_1_1_ranged.html", null ],
+    [ "AttackType.Direct", "class_attack_type_1_1_direct.html", null ],
+    [ "AttackType.Thrown", "class_attack_type_1_1_thrown.html", null ],
+    [ "AttackType.Explosion", "class_attack_type_1_1_explosion.html", null ],
+    [ "AttackType.PressureWave", "class_attack_type_1_1_pressure_wave.html", null ],
+    [ "AttackType.Effect", "class_attack_type_1_1_effect.html", null ],
+    [ "AttackType.Reflect", "class_attack_type_1_1_reflect.html", null ],
+    [ "AttackType.Hack", "class_attack_type_1_1_hack.html", null ],
+    [ "AttackType.WhipAttack", "class_attack_type_1_1_whip_attack.html", null ],
+    [ "AttackType.ChargedWhipAttack", "class_attack_type_1_1_charged_whip_attack.html", null ]
+];

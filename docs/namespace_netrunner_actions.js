@@ -1,0 +1,26 @@
+var namespace_netrunner_actions =
+[
+    [ "CommandCoverHackSelector", "class_netrunner_actions_1_1_command_cover_hack_selector.html", null ],
+    [ "CoverHackAction", "class_netrunner_actions_1_1_cover_hack_action.html", null ],
+    [ "CoverHackAlly", "class_netrunner_actions_1_1_cover_hack_ally.html", null ],
+    [ "CoverHackBuffCamo", "class_netrunner_actions_1_1_cover_hack_buff_camo.html", null ],
+    [ "CoverHackBuffSturdiness", "class_netrunner_actions_1_1_cover_hack_buff_sturdiness.html", null ],
+    [ "CoverHackDeath", "class_netrunner_actions_1_1_cover_hack_death.html", null ],
+    [ "CoverHackLocomotion", "class_netrunner_actions_1_1_cover_hack_locomotion.html", null ],
+    [ "CoverHackOverheat", "class_netrunner_actions_1_1_cover_hack_overheat.html", null ],
+    [ "CoverHackOverload", "class_netrunner_actions_1_1_cover_hack_overload.html", null ],
+    [ "CoverHackSelector", "class_netrunner_actions_1_1_cover_hack_selector.html", null ],
+    [ "CoverHackWeaponMalfunction", "class_netrunner_actions_1_1_cover_hack_weapon_malfunction.html", null ],
+    [ "HackAction", "class_netrunner_actions_1_1_hack_action.html", null ],
+    [ "HackActionSelector", "class_netrunner_actions_1_1_hack_action_selector.html", null ],
+    [ "HackAllyAction", "class_netrunner_actions_1_1_hack_ally_action.html", null ],
+    [ "HackAppliedCooldown", "class_netrunner_actions_1_1_hack_applied_cooldown.html", null ],
+    [ "HackBuffCamo", "class_netrunner_actions_1_1_hack_buff_camo.html", null ],
+    [ "HackBuffSelector", "class_netrunner_actions_1_1_hack_buff_selector.html", null ],
+    [ "HackBuffSturdiness", "class_netrunner_actions_1_1_hack_buff_sturdiness.html", null ],
+    [ "HackDeath", "class_netrunner_actions_1_1_hack_death.html", null ],
+    [ "HackLocomotion", "class_netrunner_actions_1_1_hack_locomotion.html", null ],
+    [ "HackOverheat", "class_netrunner_actions_1_1_hack_overheat.html", null ],
+    [ "HackOverload", "class_netrunner_actions_1_1_hack_overload.html", null ],
+    [ "HackWeaponMalfunction", "class_netrunner_actions_1_1_hack_weapon_malfunction.html", null ]
+];

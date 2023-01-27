@@ -1,0 +1,28 @@
+var _crosshairs_8cs =
+[
+    [ "Crosshairs.None", "class_crosshairs_1_1_none.html", null ],
+    [ "Crosshairs.NoWeapon", "class_crosshairs_1_1_no_weapon.html", null ],
+    [ "Crosshairs.Simple", "class_crosshairs_1_1_simple.html", null ],
+    [ "Crosshairs.Basic", "class_crosshairs_1_1_basic.html", null ],
+    [ "Crosshairs.Pistol", "class_crosshairs_1_1_pistol.html", null ],
+    [ "Crosshairs.SmartGun", "class_crosshairs_1_1_smart_gun.html", null ],
+    [ "Crosshairs.Tech_Round", "class_crosshairs_1_1_tech___round.html", null ],
+    [ "Crosshairs.Tech_Hex", "class_crosshairs_1_1_tech___hex.html", null ],
+    [ "Crosshairs.Melee", "class_crosshairs_1_1_melee.html", null ],
+    [ "Crosshairs.Melee_Bottle", "class_crosshairs_1_1_melee___bottle.html", null ],
+    [ "Crosshairs.Melee_Hammer", "class_crosshairs_1_1_melee___hammer.html", null ],
+    [ "Crosshairs.Melee_Knife", "class_crosshairs_1_1_melee___knife.html", null ],
+    [ "Crosshairs.Melee_Nano_Wire", "class_crosshairs_1_1_melee___nano___wire.html", null ],
+    [ "Crosshairs.Melee_Strong_Arms", "class_crosshairs_1_1_melee___strong___arms.html", null ],
+    [ "Crosshairs.Cyberware_Projectile_Launcher", "class_crosshairs_1_1_cyberware___projectile___launcher.html", null ],
+    [ "Crosshairs.Cyberware_Mantis_Blades", "class_crosshairs_1_1_cyberware___mantis___blades.html", null ],
+    [ "Crosshairs.Tech_Omaha", "class_crosshairs_1_1_tech___omaha.html", null ],
+    [ "Crosshairs.Power_Saratoga", "class_crosshairs_1_1_power___saratoga.html", null ],
+    [ "Crosshairs.Power_Tactician", "class_crosshairs_1_1_power___tactician.html", null ],
+    [ "Crosshairs.Power_Overture", "class_crosshairs_1_1_power___overture.html", null ],
+    [ "Crosshairs.Power_Defender", "class_crosshairs_1_1_power___defender.html", null ],
+    [ "Crosshairs.Custom_HMG", "class_crosshairs_1_1_custom___h_m_g.html", null ],
+    [ "Crosshairs.Jailbreak_power", "class_crosshairs_1_1_jailbreak__power.html", null ],
+    [ "Crosshairs.Jailbreak_smart", "class_crosshairs_1_1_jailbreak__smart.html", null ],
+    [ "Crosshairs.Jailbreak_tech", "class_crosshairs_1_1_jailbreak__tech.html", null ]
+];
