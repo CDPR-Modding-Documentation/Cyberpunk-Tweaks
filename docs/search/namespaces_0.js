@@ -46,10 +46,9 @@ var searchData=
   ['attachmentslots_43',['AttachmentSlots',['../namespace_attachment_slots.html',1,'']]],
   ['attackdirections_44',['AttackDirections',['../namespace_attack_directions.html',1,'']]],
   ['attackmodifier_45',['AttackModifier',['../namespace_attack_modifier.html',1,'']]],
-  ['attacks_46',['Attacks',['../namespace_attacks.html',1,'']]],
-  ['attacks_47',['attacks',['../namespaceattacks.html',1,'']]],
-  ['attacktype_48',['AttackType',['../namespace_attack_type.html',1,'']]],
-  ['attitudes_49',['Attitudes',['../namespace_attitudes.html',1,'']]],
-  ['attribute_50',['Attribute',['../namespace_attribute.html',1,'']]],
-  ['axeattacks_51',['AxeAttacks',['../namespace_axe_attacks.html',1,'']]]
+  ['attacks_46',['attacks',['../namespaceattacks.html',1,'']]],
+  ['attacktype_47',['AttackType',['../namespace_attack_type.html',1,'']]],
+  ['attitudes_48',['Attitudes',['../namespace_attitudes.html',1,'']]],
+  ['attribute_49',['Attribute',['../namespace_attribute.html',1,'']]],
+  ['axeattacks_50',['AxeAttacks',['../namespace_axe_attacks.html',1,'']]]
 ];

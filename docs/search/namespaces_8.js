@@ -11,9 +11,8 @@ var searchData=
   ['itemfactory_8',['ItemFactory',['../namespace_item_factory.html',1,'']]],
   ['itemhandling_9',['ItemHandling',['../namespace_item_handling.html',1,'']]],
   ['items_10',['Items',['../namespace_items.html',1,'']]],
-  ['items_11',['items',['../namespaceitems.html',1,'']]],
-  ['items_5fglp_12',['Items_glp',['../namespace_items__glp.html',1,'']]],
-  ['itemsfactoryappearancesuffix_13',['itemsFactoryAppearanceSuffix',['../namespaceitems_factory_appearance_suffix.html',1,'']]],
-  ['itemstructure_14',['ItemStructure',['../namespace_item_structure.html',1,'']]],
-  ['itemtype_15',['ItemType',['../namespace_item_type.html',1,'']]]
+  ['items_5fglp_11',['Items_glp',['../namespace_items__glp.html',1,'']]],
+  ['itemsfactoryappearancesuffix_12',['itemsFactoryAppearanceSuffix',['../namespaceitems_factory_appearance_suffix.html',1,'']]],
+  ['itemstructure_13',['ItemStructure',['../namespace_item_structure.html',1,'']]],
+  ['itemtype_14',['ItemType',['../namespace_item_type.html',1,'']]]
 ];
