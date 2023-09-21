@@ -639,7 +639,7 @@ DodgeCondition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.DodgeCooldown", "Condition.AbilityHasDodge", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.NotStatusEffectWhistleLvl3", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.CanMoveInRegardsToShooting", {
+		"Condition.DodgeCooldown", "Condition.AbilityHasDodge", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.NotStatusEffectCombatWhistle", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.CanMoveInRegardsToShooting", {
 			OR = 
 			[
 				"Condition.CalculatePathStraightFullCheckLeft1dot5m", "Condition.CalculatePathStraightFullCheckRight1dot5m"
@@ -2238,11 +2238,11 @@ CombatWhistle : AIAction
 	{
 		condition = 
 		{
-			OR = 
+			AND = 
 			[
-				"Condition.StatusEffectWhistleLvl3"
+				"Condition.StatusEffectCombatWhistle", "Condition.InStatesCombat"
 			];
-		} : AIActionOR;
+		} : AIActionAND;
 	};
 	loop = 
 	{
@@ -2267,7 +2267,7 @@ CombatWhistle : AIAction
 				{
 					OR = 
 					[
-						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.CustomWorldPositionBelow4m", {
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.CustomWorldPositionBelow4m", "Condition.NotStatusEffectCombatWhistle", {
 							AND = 
 							[
 								"Condition.TargetIsVisible", "Condition.TargetBelow4m"
@@ -2319,15 +2319,7 @@ CombatWhistle : AIAction
 			lightPreset = "MechanicalLightPreset.Combat";
 			delay = -1.f;
 		} : AISubActionActivateLightPreset, 
-		{
-			statusEffects = 
-			[
-				"BaseStatusEffect.WhistleLvl3"
-			];
-			apply = false;
-			remove = true;
-			delay = 0.f;
-		} : AISubActionStatusEffect
+		"ReactionsActions.RemoveCombatWhistleHackSubaction"
 	];
 }
 
@@ -2504,7 +2496,7 @@ StrafeSelectorActivationCondition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.NotStatusEffectWhistleLvl3", "Condition.NotIsUsingOffMeshLink", "Condition.NotFollower", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.CanMoveInRegardsToShooting", "Condition.NotTargetInVehicle"
+		"Condition.NotStatusEffectCombatWhistle", "Condition.NotIsUsingOffMeshLink", "Condition.NotFollower", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack", "Condition.CanMoveInRegardsToShooting", "Condition.NotTargetInVehicle"
 	];
 }
 
@@ -4022,5 +4014,767 @@ LookAroundForIntruder : AIAction
 		{
 		};
 	};
+}
+
+We_Ep1_17_Drone_MoveToMovementDestinationCondition : Q302_Akebono_Drone_MoveToMovementDestinationCondition
+{
+}
+
+We_Ep1_17_FindStandPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "we_ep1_17_drone_waypoint";
+			rangeFromOwner = ( 0.f, 999.f );
+			rangeFromObj = ( 0.f, 15.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+We_Ep1_17_FindShootPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "we_ep1_17_drone_waypoint";
+			rangeFromOwner = ( 0.f, 30.f );
+			rangeFromObj = ( 10.f, 30.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.CombatTarget";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+We_Ep1_17_RelocateCondition : ShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotTargetIsVisible", "Condition.TargetAbove30m"
+			];
+		} : AIActionOR;
+	};
+}
+
+Q302_Akebono_Custom_Shoot : ShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.TargetIsVisible", "Condition.IsNPCBlinded"
+					];
+				} : AIActionOR, 
+				"Condition.NotFriendlyFire"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		conditionSuccessDuration = 1.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotTargetIsVisible", "Condition.NotAIForceShootCommand", "Condition.NotIsNPCBlinded"
+							];
+						} : AIActionAND, 
+						"Condition.CombatTargetChanged", "Condition.TargetAbove90deg", "Condition.FriendlyFire"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.Player";
+			numberOfShots = 100;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherHMGCoverShootingPackage"
+			];
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							{
+								AND = 
+								[
+									"Condition.NotTargetIsVisible", "Condition.NotAIForceShootCommand", "Condition.NotIsNPCBlinded"
+								];
+							} : AIActionAND, 
+							"Condition.DontShootCombatTarget", "Condition.FriendlyFire"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.Player";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.Player";
+		}
+	];
+}
+
+Q302_Akebono_FindVerticalStandPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "Q302_akebono_drone_spots_top";
+			rangeFromOwner = ( 0.f, 15.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_FindStandPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "Q302_akebono_drone_spots";
+			rangeFromOwner = ( 0.f, 15.f );
+			rangeFromObj = ( 0.f, 30.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.Player";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_FindShootPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "Q302_akebono_drone_spots";
+			rangeFromOwner = ( 0.f, 999.f );
+			rangeFromObj = ( 0.f, 5.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.Player";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_FindShootPositionBackup : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "Q302_akebono_drone_spots";
+			rangeFromOwner = ( 0.f, 999.f );
+			rangeFromObj = ( 0.f, 12.5f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.Player";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_FindShootPositionBackup02 : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "Q302_akebono_drone_spots";
+			rangeFromOwner = ( 0.f, 999.f );
+			rangeFromObj = ( 0.f, 20.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.Player";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_FindShootPositionBackup03 : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "Q302_akebono_drone_spots";
+			rangeFromOwner = ( 0.f, 999.f );
+			rangeFromObj = ( 0.f, 50.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.Player";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_FindStandPositionBackup01 : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "Q302_akebono_drone_spots";
+			rangeFromOwner = ( 0.f, 999.f );
+			rangeFromObj = ( 0.f, 30.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+			lineOfSightTarget = "AIActionTarget.Player";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+Q302_Akebono_RelocateCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.TargetAbove30m"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.NotTargetIsVisible", "Condition.TargetBelow15m"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+}
+
+Q302_Akebono_Relocate_VerticalCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.TargetAbove3mZDiff"
+			];
+		} : AIActionOR;
+	};
+}
+
+Q302_Akebono_Custom_Lookat : AIAction
+{
+	loop = 
+	{
+		duration = -1;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.Player";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.Player";
+		}
+	];
+}
+
+Q302_Akebono_Drone_MoveToMovementDestinationCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionAND;
+	};
+}
+
+Q302_Akebono_Drone_MoveToMovementDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "DroneActions.Q302_Akebono_Drone_MoveToMovementDestinationLoopPhase";
+}
+
+Q302_Akebono_Drone_MoveToMovementDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Walk";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+		ignoreNavigation = false;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.1f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					{
+						OR = 
+						[
+							"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4", "Condition.MovementDestinationBelow0Dot1m", "Condition.PathFindingFailed"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+Q302_Akebono_Drone_MoveToMovementDestination_Ignore_Navigation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "DroneActions.Q302_Akebono_Drone_MoveToMovementDestination_Ignore_Navigation_LoopPhase";
+}
+
+Q302_Akebono_Drone_MoveToMovementDestination_Ignore_Navigation_LoopPhase : AIActionPhase
+{
+	duration = 7.5f;
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Walk";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+		ignoreNavigation = true;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.1f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					{
+						OR = 
+						[
+							"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4", "Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+Q302_Akebono_Drone_MoveToTargetSight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = [];
+		} : AIActionAND;
+	};
+	loop = "DroneActions.Q302_Akebono_Drone_MoveToTargetSightLoopPhase";
+}
+
+Q302_Akebono_Drone_MoveToTargetSightLoopPhase : AIActionPhase
+{
+	duration = -1.f;
+	movePolicy = 
+	{
+		target = "AIActionTarget.Player";
+		movementType = "Walk";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+		ignoreNavigation = false;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.1f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					{
+						OR = 
+						[
+							{
+								target = "AIActionTarget.Player";
+								distance = ( 0.f, 5.f );
+							} : AISpatialCond, 
+							"Condition.PathFindingFailed"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+Q302_Akebono_Drone_Custom_Idle_Pause : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		conditionSuccessDuration = 1.5f;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotTargetIsVisible"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.Player";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.Player";
+		}
+	];
+}
+
+MoveToMovementDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "DroneActions.MoveToMovementDestinationLoopPhase";
+}
+
+MoveToMovementDestinationLoopPhase : AIActionPhase
+{
+	duration = 7.5f;
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Walk";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+		ignoreNavigation = true;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.1f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					{
+						OR = 
+						[
+							"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4", "Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+We_Ep1_17_Custom_Shoot : ShootDefault
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.TargetIsVisible", "Condition.IsNPCBlinded"
+					];
+				} : AIActionOR, 
+				"Condition.NotFriendlyFire"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		conditionSuccessDuration = 1.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.NotTargetIsVisible", "Condition.NotAIForceShootCommand", "Condition.NotIsNPCBlinded"
+							];
+						} : AIActionAND, 
+						"Condition.CombatTargetChanged", "Condition.TargetAbove90deg", "Condition.FriendlyFire"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 100;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherHMGCoverShootingPackage"
+			];
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							{
+								AND = 
+								[
+									"Condition.NotTargetIsVisible", "Condition.NotAIForceShootCommand", "Condition.NotIsNPCBlinded"
+								];
+							} : AIActionAND, 
+							"Condition.DontShootCombatTarget", "Condition.FriendlyFire"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+We_Ep1_17_Custom_Lookat : AIAction
+{
+	loop = 
+	{
+		duration = -1;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+We_Ep1_17_Custom_Idle_Pause : AIAction
+{
+	loop = 
+	{
+		duration = 5.f;
+		conditionSuccessDuration = 2.5f;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotTargetIsVisible"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.CombatTarget";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
 }
 

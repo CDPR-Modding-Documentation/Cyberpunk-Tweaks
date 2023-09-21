@@ -12,7 +12,7 @@ Base_Chao : Base_Smart_Handgun
 	[
 		"Price.KangTao", "Price.TopManufactureQuality"
 	];
-	fk< ItemBlueprint > blueprint = "Items.Base_Chao_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Smart_Handgun_NoAttachments_Blueprint";
 	displayName = "LocKey#3581";
 	string friendlyName = "w_handgun_kangtao_chao";
 	localizedDescription = "LocKey#3582";
@@ -20,7 +20,7 @@ Base_Chao : Base_Smart_Handgun
 	CName audioName = "wea_set_chao";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "WeaponAttachment", "HasFirstEquip", "Handgun"
+		"Preload", "Weapon", "WeaponAttachment", "HasFirstEquip", "Handgun", "T3_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -77,23 +77,16 @@ Base_Chao : Base_Smart_Handgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Chao_Technical_Stats", "Items.Base_Chao_SmartGun_Projectile_Stats"
 		];
-	} : Base_Smart_Handgun_NPC_Data;
+	} : Base_Chao_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Chao_Technical_Stats", "Items.Base_Chao_Handling_Stats", "Items.Base_Chao_Recoil_Stats", "Items.Base_Chao_SmartGun_Stats", "Items.Base_Chao_SmartGun_SmartLink_Stats", "Items.Base_Chao_SmartGun_Projectile_Stats", "Items.Base_Chao_Flags", "Items.Base_Chao_Aim_Stats", "Items.Base_Chao_StatModifierGroup_SpreadStats", "Items.Base_Chao_Constant_Stats"
+		"Items.Base_Chao_Technical_Stats", "Items.Base_Chao_Handling_Stats", "Items.Base_Chao_Recoil_Stats", "Items.Base_Chao_SmartGun_Stats", "Items.Base_Chao_SmartGun_SmartLink_Stats", "Items.Base_Chao_SmartGun_Projectile_Stats", "Items.Base_Chao_Flags", "Items.Base_Chao_Aim_Stats", "Items.Base_Chao_StatModifierGroup_SpreadStats", "Items.Base_Chao_Constant_Stats", "Items.Base_Chao_Damage_Stats"
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 15;
-			}
-		];
-	};
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay", "Items.SmartWeaponTargetsPriorityQueues"
+	];
 	fk< ConstantStatModifier > price = 
 	{
 		statType = "BaseStats.Price";
@@ -103,10 +96,10 @@ Base_Chao : Base_Smart_Handgun
 	bool useNewSpawnMethod = true;
 	bool isSingleInstance = false;
 	bool IsIKEnabled = false;
-	baseReloadTime = 2.3f;
-	baseEmptyReloadTime = 2.3f;
-	uninterruptibleReloadStart = 1.5f;
-	uninterruptibleEmptyReloadStart = 1.5f;
+	baseReloadTime = 1.4f;
+	baseEmptyReloadTime = 1.4f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 10.0f;
 	float weaponFarPlane = 22.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -123,24 +116,12 @@ Base_Chao : Base_Smart_Handgun
 	float weaponBlurIntensity_aim = 1.f;
 }
 
-Base_Chao_Blueprint : ItemBlueprint
+Base_Chao_NPC_Data : Base_Smart_Handgun_NPC_Data
 {
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.SmartModRareElement", "Items.SmartModEpicElement", "Items.SmartModLegendaryElement", "Items.IconicWeaponModElement", {
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-			}
-		];
-	};
+	statModifierGroups += 
+	[
+		"Items.Base_Chao_Technical_Stats", "Items.Base_Chao_SmartGun_Projectile_Stats", "Items.Base_Chao_NPC_Damage_Stats"
+	];
 }
 
 Base_Chao_Technical_Stats : StatModifierGroup
@@ -151,10 +132,10 @@ Base_Chao_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 5.f;
+			value = 2.5f;
 		} : AccuracyModifier, 
 		{
-			value = 0.3f;
+			value = 0.4f;
 		} : CycleTimeModifier, 
 		{
 			value = 0.1f;
@@ -163,7 +144,7 @@ Base_Chao_Technical_Stats : StatModifierGroup
 			value = 3.f;
 		} : NumShotsInBurstModifier, 
 		{
-			value = 18.f;
+			value = 21.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 0.8f;
@@ -175,16 +156,46 @@ Base_Chao_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Chao_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 25f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Chao_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Chao_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.3f;
+			value = 1.4f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.3f;
+			value = 1.4f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.9f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 0.9f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.5f;
 		} : ZoomLevelModifier, 
@@ -245,43 +256,49 @@ Base_Chao_SmartGun_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 0.f;
-		} : SmartGunTrackAllBodypartsModifier, 
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
 		{
-			value = 2.5f;
+			value = 0.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.15f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
 		} : SmartGunHipLockingAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunHipLockingAngleYawModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAngleYawModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAngleYawModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAngleYawModifier, 
 		{
-			value = 1.f;
+			value = 3.f;
 		} : SmartGunHipMaxLockedTargetsModifier, 
 		{
 			value = 1.f;
 		} : SmartGunAdsMaxLockedTargetsModifier, 
 		{
-			value = 0.4f;
+			value = 1.25f;
 		} : SmartGunHipTimeToLockModifier, 
 		{
-			value = 0.4f;
+			value = 1.25f;
 		} : SmartGunAdsTimeToLockModifier, 
 		{
 			value = 0.f;
@@ -302,11 +319,8 @@ Base_Chao_SmartGun_Stats : StatModifierGroup
 			value = 0.2f;
 		} : SmartGunStartingAccuracyModifier, 
 		{
-			value = 0.1f;
+			value = 5.0f;
 		} : SmartGunSpreadMultiplierModifier, 
-		{
-			value = 30.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
 		{
 			value = 30.f;
 		} : SmartGunPlayerProjectileVelocityModifier, 
@@ -321,35 +335,35 @@ Base_Chao_SmartGun_SmartLink_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunHipLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 2.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunHipLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 2.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 2.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 7.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
@@ -361,15 +375,15 @@ Base_Chao_SmartGun_SmartLink_Stats : StatModifierGroup
 			statType = "BaseStats.SmartGunAdsTimeToLock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.f;
+			value = 1.75f;
 			statType = "BaseStats.SmartGunHipTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.f;
+			value = 1.75f;
 			statType = "BaseStats.SmartGunAdsTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.f;
+			value = 1.75f;
 			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
 		} : SmartLinkDependentStatModifier, 
 		{
@@ -379,10 +393,6 @@ Base_Chao_SmartGun_SmartLink_Stats : StatModifierGroup
 		{
 			value = 40.f;
 			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 30.f;
-			statType = "BaseStats.SmartGunTargetAcquisitionRange";
 		} : SmartLinkDependentStatModifier
 	];
 }
@@ -426,37 +436,37 @@ Base_Chao_StatModifierGroup_SpreadStats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			float value = 0.2f;
+			float value = 1.0f;
 		} : SpreadMinXModifier, 
 		{
-			float value = 0.125f;
+			float value = 1.0f;
 		} : SpreadMinYModifier, 
 		{
-			float value = 0.3f;
+			float value = 0.0f;
 		} : SpreadAdsDefaultXModifier, 
 		{
-			float value = 0.25f;
+			float value = 0.0f;
 		} : SpreadAdsDefaultYModifier, 
 		{
-			float value = 0.f;
+			float value = 1.f;
 		} : SpreadAdsMinXModifier, 
 		{
-			float value = 0.f;
+			float value = 1.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			float value = 0.6f;
+			float value = 0.0f;
 		} : SpreadAdsMaxXModifier, 
 		{
-			float value = 0.375f;
+			float value = 0.0f;
 		} : SpreadAdsMaxYModifier, 
 		{
 			float value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			float value = 3.f;
+			float value = 1.75f;
 		} : SpreadResetSpeedModifier, 
 		{
-			float value = 0.1f;
+			float value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			float value = 0.f;
@@ -504,7 +514,7 @@ Base_Chao_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
@@ -514,32 +524,37 @@ Base_Chao_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 5.0f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 2.0f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.05f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.05f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.2f;
+			value = 0.16f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.24f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 3.5f;
 		} : ConstantStatModifier
 	];
 }

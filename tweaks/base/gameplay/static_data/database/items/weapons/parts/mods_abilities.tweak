@@ -17,215 +17,6 @@ SmartWeaponModAbilityBase : WeaponModAbilityBase
 {
 }
 
-PowerWeaponModAbility01 : PowerWeaponModAbilityBase
-{
-	effectors = 
-	[
-		{
-			prereqRecord = "Prereqs.ProcessHitTriggered";
-			statusEffect = "BaseStatusEffect.PowerWeaponMod01Debuff";
-			bool isRandom = false;
-		} : AddStatusEffectToAttackEffector
-	];
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40272";
-		intValues = 
-		[
-			10, 10
-		];
-	};
-}
-
-PowerWeaponModAbility02 : PowerWeaponModAbilityBase
-{
-	effectors = 
-	[
-		{
-			prereqRecord = "Prereqs.PowerWeaponHeldPrereq";
-			fk< StatModifierGroup > statGroup = 
-			{
-				statModifiers = 
-				[
-					{
-						statType = "BaseStats.SpreadChangePerShot";
-						modifierType = "AdditiveMultiplier";
-						value = -0.8f;
-					} : ConstantStatModifier
-				];
-			} : StatModifierGroup;
-		} : ApplyStatGroupOnWeapon
-	];
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40273";
-		intValues = 
-		[
-			80
-		];
-	};
-}
-
-PowerWeaponModAbility03 : PowerWeaponModAbilityBase
-{
-	effectors = 
-	[
-		{
-			prereqRecord = "Perks.PlayerIsAiming";
-			statGroup = 
-			{
-				statModifiers = 
-				[
-					{
-						statType = "BaseStats.RecoilEnableLinearY";
-						modifierType = "Multiplier";
-						value = 0f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.RecoilEnableCycleY";
-						modifierType = "Multiplier";
-						value = 0f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.RecoilEnableScaleY";
-						modifierType = "Multiplier";
-						value = 0f;
-					} : ConstantStatModifier
-				];
-			};
-		} : ApplyStatGroupOnWeapon
-	];
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#45295";
-	};
-}
-
-PowerWeaponModAbility04 : PowerWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40275";
-		intValues = 
-		[
-			6
-		];
-	};
-}
-
-PowerWeaponModAbility05 : PowerWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40276";
-		intValues = 
-		[
-			50
-		];
-	};
-}
-
-PowerWeaponModAbility06 : PowerWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedName = "LocKey#50275";
-		localizedDescription = "LocKey#40277";
-		intValues = 
-		[
-			20
-		];
-	};
-}
-
-TechWeaponModAbility01 : TechWeaponModAbilityBase
-{
-	effectors = 
-	[
-		{
-			prereqRecord = 
-			{
-				conditions = 
-				[
-					{
-						hitFlag = "WeaponFullyCharged";
-					} : HitFlagHitPrereqCondition, 
-					{
-						float valueToCheck = 0f;
-						CName objectToCheck = "Target";
-						string statPoolToCompare = "Health";
-						string comparisonType = "NotEqual";
-					} : StatPoolHitPrereqCondition
-				];
-			} : ProcessHitTriggered;
-			value = 1.1f;
-		} : MultiplyDamage
-	];
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40284";
-		intValues = 
-		[
-			10
-		];
-	};
-}
-
-TechWeaponModAbility02 : TechWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40285";
-	};
-}
-
-TechWeaponModAbility03 : TechWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40286";
-		floatValues = 
-		[
-			50
-		];
-	};
-}
-
-TechWeaponModAbility04 : TechWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40287";
-		intValues = 
-		[
-			50
-		];
-	};
-}
-
-TechWeaponModAbility05 : TechWeaponModAbilityBase
-{
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40288";
-		intValues = 
-		[
-			50
-		];
-	};
-}
-
 BuryaWeaponModAbility : TechWeaponModAbilityBase
 {
 	effectors = 
@@ -247,69 +38,673 @@ BuryaWeaponModAbility : TechWeaponModAbilityBase
 	];
 }
 
-SmartWeaponModAbility01 : SmartWeaponModAbilityBase
+TechWeaponChargedBurstAbility : GameplayLogicPackage
 {
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40278";
-		intValues = 
-		[
-			50
-		];
-	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statPoolType = "WeaponCharge";
+				valueToCheck = 
+				[
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						value = 49.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						refObject = "Player";
+						refStat = "BaseStats.CanFullyChargeWeapon";
+						opSymbol = "*";
+						value = 25.0f;
+					} : CombinedStatModifier, 
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						refObject = "Player";
+						refStat = "BaseStats.CanOverchargeWeapon";
+						opSymbol = "*";
+						value = 25.0f;
+					} : CombinedStatModifier
+				];
+				comparisonType = "Greater";
+				objectToCheck = "Weapon";
+			} : StatPoolPrereq;
+			statusEffect = "BaseStatusEffect.TechWeaponChargedBurst_Trigger";
+			bool removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
 }
 
-SmartWeaponModAbility02 : SmartWeaponModAbilityBase
+KenshinWeaponChargedBurstAbility : GameplayLogicPackage
 {
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40279";
-		intValues = 
-		[
-			2
-		];
-	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statPoolType = "WeaponCharge";
+				valueToCheck = 
+				[
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						value = 49.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						refObject = "Player";
+						refStat = "BaseStats.CanFullyChargeWeapon";
+						opSymbol = "*";
+						value = 25.0f;
+					} : CombinedStatModifier, 
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						refObject = "Player";
+						refStat = "BaseStats.CanOverchargeWeapon";
+						opSymbol = "*";
+						value = 25.0f;
+					} : CombinedStatModifier
+				];
+				comparisonType = "Greater";
+				objectToCheck = "Weapon";
+			} : StatPoolPrereq;
+			statusEffect = "BaseStatusEffect.KenshinWeaponChargedBurst_Trigger";
+			bool removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
 }
 
-SmartWeaponModAbility03 : SmartWeaponModAbilityBase
+[ DisabledContent ]
+TiconWeaponModAbility : TechWeaponModAbilityBase
 {
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40280";
-		intValues = 
-		[
-			2, 2
-		];
-	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statPoolType = "WeaponCharge";
+				valueToCheck = 
+				[
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						value = 30.0f;
+					} : ConstantStatModifier
+				];
+				comparisonType = "GreaterOrEqual";
+				objectToCheck = "Weapon";
+			} : StatPoolPrereq;
+			statusEffect = "BaseStatusEffect.Ticon_Projectile_Pattern_Change_Ability";
+			bool removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
 }
 
-SmartWeaponModAbility04 : SmartWeaponModAbilityBase
+[ DisabledContent ]
+HerculesWeaponModAbility : SmartWeaponModAbilityBase
 {
-	UIData = 
-	{
-		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40281";
-		intValues = 
-		[
-			25
-		];
-	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.PlayerIsAiming";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.CycleTimeBonus";
+						modifierType = "Additive";
+						value = 0.75f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.ProjectilesPerShotBonus";
+						modifierType = "Additive";
+						value = 2f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.NumShotsToFire";
+						modifierType = "Additive";
+						value = 2f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadUseCircularSpread";
+						modifierType = "Additive";
+						value = -1f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadUseEvenDistribution";
+						modifierType = "Additive";
+						value = 1f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadEvenDistributionRowCount";
+						modifierType = "Additive";
+						value = 1f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadEvenDistributionJitterSize";
+						modifierType = "Additive";
+						value = 0.9f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsDefaultX";
+						modifierType = "Additive";
+						value = 6.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsMaxX";
+						modifierType = "Additive";
+						value = 3.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsMinX";
+						modifierType = "Additive";
+						value = 1.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.FirePower";
+						modifierType = "Multiplier";
+						value = 3f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.DamagePerHit";
+						modifierType = "Multiplier";
+						value = 1.33f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.ShouldIgnoreSmartUI";
+						modifierType = "Multiplier";
+						value = 0f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon
+	];
 }
 
-SmartWeaponModAbility05 : SmartWeaponModAbilityBase
+[ DisabledContent ]
+WardenWeaponModAbility : SmartWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsAttackRanged";
+			statusEffect = "BaseStatusEffect.Warden_Effect";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+BorisWardenUpgradeAbility : SmartWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsAttackRanged";
+			statusEffect = "BaseStatusEffect.BorisWardenUpgrade";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+OspreyWeaponModAbility : PowerWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.PlayerIsAiming";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.CycleTimeBonus";
+						modifierType = "Additive";
+						value = 0.9f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.DamagePerHit";
+						modifierType = "Multiplier";
+						value = 1.2f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon, 
+		{
+			prereqRecord = "Perks.IsTargetPlayer";
+			value = 5.0f;
+		} : MultiplyDamage
+	];
+}
+
+[ DisabledContent ]
+RasetsuWeaponModAbility : LegendaryWeaponModAbilityBase
 {
 	UIData = 
 	{
 		iconPath = "ability_offensive";
-		localizedDescription = "LocKey#40283";
-		intValues = 
-		[
-			50
-		];
+		localizedDescription = "LocKey#86809";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statPoolType = "WeaponCharge";
+				valueToCheck = 
+				[
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						value = 20.0f;
+					} : ConstantStatModifier
+				];
+				comparisonType = "GreaterOrEqual";
+				objectToCheck = "Weapon";
+			} : StatPoolPrereq;
+			statusEffect = "BaseStatusEffect.Rasetsu_Chain_1";
+			bool removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				statPoolType = "WeaponCharge";
+				valueToCheck = 
+				[
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						value = 40.0f;
+					} : ConstantStatModifier
+				];
+				comparisonType = "GreaterOrEqual";
+				objectToCheck = "Weapon";
+			} : StatPoolPrereq;
+			statusEffect = "BaseStatusEffect.Rasetsu_Chain_2";
+			bool removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+OspreyPrototypeWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#87083";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetKilled;
+			statusEffect = "BaseStatusEffect.Osprey_Multikill_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			statusEffect = "BaseStatusEffect.Osprey_Headshot_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+UnityAgentWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#88302";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				checkType = "CheckType.Tag";
+				tagToCheck = "CamoActiveOnPlayer";
+				invert = false;
+			} : StatusEffectPrereq;
+			fk< Effector > effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					string pipelineType = "All";
+				} : Perks.HitIsBodyPartHead;
+				critChance = 
+				[
+					{
+						statType = "BaseStats.CritChance";
+						modifierType = "Additive";
+						value = 1f;
+					} : ConstantStatModifier
+				];
+			} : ModifyAttackCritChanceEffector;
+		} : ApplyEffectorOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				checkType = "CheckType.Tag";
+				tagToCheck = "CamoActiveOnPlayer";
+				invert = false;
+			} : StatusEffectPrereq;
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.SpreadDefaultX";
+						modifierType = "Multiplier";
+						value = 0.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadMaxX";
+						modifierType = "Multiplier";
+						value = 0.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsMaxX";
+						modifierType = "Multiplier";
+						value = 0.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsDefaultX";
+						modifierType = "Multiplier";
+						value = 0.0f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon, 
+		{
+			prereqRecord = "Perks.HitIsBodyPartHead";
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.25f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+}
+
+[ DisabledContent ]
+KenshinSpyWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#88303";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BlindHack";
+			uploadChance = 0.15;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossBlindHack";
+			uploadChance = 0.015;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraBlindHack";
+			uploadChance = 0.015;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Blind";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						bodyPart = "Head";
+					} : BodyPartHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : PreProcessHitTriggered;
+			value = 1.25f;
+		} : MultiplyDamage
+	];
+}
+
+[ DisabledContent ]
+ChaoVooDooWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#88367";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.DismembermentTriggeredPrereq";
+			statusEffect = "BaseStatusEffect.Chao_Slaughter_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+KyubiMyersWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#89148";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						CName weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						bodyPart = "Head";
+					} : BodyPartHitPrereqCondition, 
+					{
+						statusEffect = "KyubiMyersTag";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.KyubiMyersTag";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector
+	];
+}
+
+SmartWeaponTargetsPriorityQueues : SmartWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.PlayerIsAiming";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						value = 6f;
+					} : SmartGunTrackBreachComponentsModifier, 
+					{
+						value = 5f;
+					} : SmartGunTrackWeakSpotComponentsModifier, 
+					{
+						value = 4f;
+					} : SmartGunTrackHeadComponentsModifier, 
+					{
+						statType = "BaseStats.SmartGunAdsTimeToUnlock";
+						modifierType = "Multiplier";
+						value = 1.25f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+						modifierType = "Multiplier";
+						value = 1.25f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SmartGunAdsTimeToLock";
+						modifierType = "Multiplier";
+						value = 1.1f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SmartGunSpreadMultiplier";
+						modifierType = "Multiplier";
+						value = 0.75f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.EffectiveRange";
+						modifierType = "AdditiveMultiplier";
+						value = 0.25;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon
+	];
+}
+
+KnifeWeaponStealthBonus : WeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				stateName = "ThrowAttack";
+				isInState = true;
+			} : MeleeWeaponPSMPrereq;
+			statusEffect = "BaseStatusEffect.KnifeWeaponStealthBuff";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+AxeWeaponStealthBonus : WeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				stateName = "ThrowAttack";
+				isInState = true;
+			} : MeleeWeaponPSMPrereq;
+			statusEffect = "BaseStatusEffect.AxeWeaponStealthBuff";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+YukimuraADSDamageReduction : SmartWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.PlayerIsAiming";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.DamagePerHit";
+						modifierType = "Multiplier";
+						value = 0.8f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon
+	];
 }
 
 IconicWeaponModAbilityBase : WeaponModAbilityBase
@@ -323,6 +718,67 @@ CassidyWeaponModAbility : IconicWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#50741";
 	};
+	effectors = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Cassidy_Swap_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.PlayerIsNotAiming";
+			statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.RecoilKickMin";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilKickMax";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilDriftRandomRangeMin";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilDriftRandomRangeMax";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilMagForFullDrift";
+						modifierType = "Multiplier";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadChangePerShot";
+						modifierType = "Multiplier";
+						value = 0.66f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadDefaultX";
+						modifierType = "Multiplier";
+						value = 0.66f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadMaxX";
+						modifierType = "Multiplier";
+						value = 0.66f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HeadshotDamageMultiplier";
+						modifierType = "Additive";
+						value = 0.5f;
+					} : ConstantStatModifier
+				];
+			};
+		} : ApplyStatGroupOnWeapon
+	];
 }
 
 RiverWeaponModAbility : IconicWeaponModAbilityBase
@@ -336,6 +792,24 @@ RiverWeaponModAbility : IconicWeaponModAbilityBase
 
 KerryWeaponModAbility : IconicWeaponModAbilityBase
 {
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Kerry_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -350,6 +824,77 @@ SaratogaMaelstromWeaponModAbility : IconicWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#43089";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Human";
+						invert = false;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.CyberwareMalfunctionHack";
+			uploadChance = 0.1;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossCyberwareMalfunctionHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraCyberwareMalfunctionHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector
+	];
 }
 
 YukimuraKijiWeaponModAbility : IconicWeaponModAbilityBase
@@ -377,6 +922,18 @@ WilsonWeaponModAbility : IconicWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#50743";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.ProcessHitTriggered";
+			percentMult = 0.25f;
+			unitThreshold = 10f;
+		} : MultiplyDamageWithVelocity, 
+		{
+			prereqRecord = "Perks.IsHitQuickMelee";
+			value = 1.5f;
+		} : MultiplyDamage
+	];
 }
 
 FrankWeaponModAbility : IconicWeaponModAbilityBase
@@ -401,12 +958,7 @@ FrankWeaponModAbility : IconicWeaponModAbilityBase
 						value = -0.15f;
 					} : ConstantStatModifier, 
 					{
-						statType = "BaseStats.EmptyReloadTime";
-						modifierType = "Multiplier";
-						value = 0.85f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.PhysicalDamage";
+						statType = "BaseStats.DamagePerHit";
 						modifierType = "Multiplier";
 						value = 1.5f;
 					} : ConstantStatModifier
@@ -427,15 +979,21 @@ DennysBatWeaponModAbility : IconicWeaponModAbilityBase
 	effectors = 
 	[
 		{
-			prereqRecord = "Perks.IsAttackMelee";
-			statusEffect = "BaseStatusEffect.Stun";
-			float applicationChance = 0.2f;
-		} : AddStatusEffectToAttackEffector, 
-		{
 			prereqRecord = "Perks.IsHitStrongAttack";
 			statusEffect = "BaseStatusEffect.Stun";
-			float applicationChance = 0.25f;
-		} : AddStatusEffectToAttackEffector
+			applicationChance = 
+			[
+				{
+					value = 0.1f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = "Perks.IsWeaponMelee";
+			effectorClassName = "RemoveHitFlagFromAttackEffector";
+			string hitFlag = "Nonlethal";
+			CName reason = "PreAttack";
+		} : Effector
 	];
 	UIData = 
 	{
@@ -446,14 +1004,6 @@ DennysBatWeaponModAbility : IconicWeaponModAbilityBase
 
 FingersCaneWeaponModAbility : IconicWeaponModAbilityBase
 {
-	effectors = 
-	[
-		{
-			prereqRecord = "Perks.IsAttackMelee";
-			statusEffect = "BaseStatusEffect.Electrocuted";
-			float applicationChance = 0.15f;
-		} : AddStatusEffectToAttackEffector
-	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -526,7 +1076,11 @@ BuckWeaponModAbility : IconicWeaponModAbilityBase
 				];
 			} : IsHitTargetAlive;
 			statusEffect = "BaseStatusEffect.Grad_Buck_Demolition_Buff";
-		} : ApplyStatusEffectOnPlayer
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.IsTargetPlayer";
+			value = 2.5f;
+		} : MultiplyDamage
 	];
 }
 
@@ -562,10 +1116,66 @@ RogueLibertyWeaponModAbility : IconicWeaponModAbilityBase
 	effectors = 
 	[
 		{
-			prereqRecord = "Perks.IsAttackRanged";
-			statusEffect = "BaseStatusEffect.Stun";
-			float applicationChance = 0.05f;
-		} : AddStatusEffectToAttackEffector
+			prereqRecord = 
+			{
+				statusEffect = "BaseStatusEffect.Prejudice_Pass";
+			} : StatusEffectPrereq;
+			statusEffect = "BaseStatusEffect.Pride_Free_Ammo_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetKilled;
+			statusEffect = "BaseStatusEffect.Pride_Pass";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						ammoState = "None";
+						float ratioToCompare = 0.85f;
+						string comparisonType = "GreaterOrEqual";
+					} : AmmoStateHitPrereqCondition
+				];
+			} : ProcessHitTriggeredAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
+		{
+			prereqRecord = "Perks.IsPlayerInHighHealth";
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.HeadshotDamageMultiplier";
+						modifierType = "Additive";
+						value = 2.5f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector
 	];
 	UIData = 
 	{
@@ -576,6 +1186,80 @@ RogueLibertyWeaponModAbility : IconicWeaponModAbilityBase
 
 RogueMasamuneWeaponModAbility : IconicWeaponModAbilityBase
 {
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statusEffect = "BaseStatusEffect.Pride_Pass";
+			} : StatusEffectPrereq;
+			statusEffect = "BaseStatusEffect.Prejudice_Free_Ammo_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetKilled;
+			statusEffect = "BaseStatusEffect.Prejudice_Pass";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						ammoState = "None";
+						float ratioToCompare = 0.80f;
+						string comparisonType = "GreaterOrEqual";
+					} : AmmoStateHitPrereqCondition
+				];
+			} : ProcessHitTriggeredAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
+		{
+			prereqRecord = "Perks.IsPlayerInLowHealth";
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.CycleTimeBonus";
+						modifierType = "Additive";
+						value = -0.4f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilKickMin";
+						modifierType = "Multiplier";
+						value = 0.66f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.RecoilKickMax";
+						modifierType = "Multiplier";
+						value = 0.66f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector
+	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -589,11 +1273,170 @@ SaburoKatanaWeaponModAbility : IconicWeaponModAbilityBase
 	{
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#42986";
-		floatValues = 
-		[
-			5, 20
-		];
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Tanto_Saburo_Bleeding";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						hitFlag = "SaburoKatana";
+						invert = true;
+					} : HitFlagHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Saburo_Healing";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Tanto_Saburo_Bleeding";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						hitFlag = "SaburoKatana";
+						invert = true;
+					} : HitFlagHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Saburo_Hemorrhage";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackSubtype = "EquipAttack";
+					} : AttackSubtypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Katana_Saburo_Bleeding";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Melee";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						statusEffect = "Tanto_Saburo_Bleeding";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Katana_Saburo_Bleeding";
+			isRandom = true;
+			applicationChance = 
+			[
+				{
+					value = 0.4f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector
+	];
+}
+
+SaburoTantoWeaponModAbility : SaburoKatanaWeaponModAbility
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#86563";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						hitFlag = "SaburoTanto";
+						invert = true;
+					} : HitFlagHitPrereqCondition, 
+					{
+						statusEffect = "Katana_Saburo_Bleeding";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Saburo_Healing";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						hitFlag = "SaburoTanto";
+						invert = true;
+					} : HitFlagHitPrereqCondition, 
+					{
+						statusEffect = "Katana_Saburo_Bleeding";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Saburo_Hemorrhage";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Thrown";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Tanto_Saburo_Bleeding";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Melee";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						statusEffect = "Katana_Saburo_Bleeding";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Tanto_Saburo_Bleeding";
+			isRandom = true;
+			applicationChance = 
+			[
+				{
+					value = 0.4f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector
+	];
 }
 
 ScorpionKnifeWeaponModAbility : IconicWeaponModAbilityBase
@@ -630,7 +1473,7 @@ IconicPunkKnifeWeaponModAbility : IconicWeaponModAbilityBase
 		localizedDescription = "LocKey#81589";
 		intValues = 
 		[
-			250
+			200
 		];
 	};
 }
@@ -642,6 +1485,39 @@ MaikoNueWeaponModAbility : IconicWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#49714";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				comparisonType = "Greater";
+			} : IsPlayerInCritHealth;
+			effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					string stateName = "Shoot";
+				} : Prereqs.RangedWeaponPSMPrereq;
+				statPoolUpdates = 
+				[
+					{
+						statPoolType = "BaseStatPools.Health";
+						statPoolValue = -5;
+					} : StatPoolUpdate
+				];
+				bool usePercent = true;
+			} : ModifyStatPoolValueEffector;
+		} : ApplyEffectorOnPlayer, 
+		{
+			prereqRecord = "Perks.IsPlayerInLowHealth";
+			fk< Effector > effectorToApply = 
+			{
+				prereqRecord = "Perks.IsAttackRanged";
+				statusEffect = "BaseStatusEffect.HeavyPoision";
+				isRandom = false;
+			} : AddStatusEffectToAttackEffector;
+		} : ApplyEffectorOnPlayer
+	];
 }
 
 CyberspadeWeaponModAbility : IconicWeaponModAbilityBase
@@ -665,21 +1541,55 @@ CyberspadeWeaponModAbility : IconicWeaponModAbilityBase
 					} : StatusEffectPresentHitPrereqCondition
 				];
 			} : IsTargetKilled;
-			effectorClassName = "ModifyStatPoolValueEffector";
 			statPoolUpdates = 
 			[
 				{
 					statPoolType = "BaseStatPools.Health";
-					statPoolValue = 20;
+					statPoolValue = 12.5;
 				} : StatPoolUpdate
 			];
 			bool usePercent = true;
-		} : Effector
+		} : ModifyStatPoolValueEffector
 	];
 }
 
 MoxCarnageWeaponModAbility : IconicWeaponModAbilityBase
 {
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						float distanceRequired = 3f;
+						string comparisonType = "LessOrEqual";
+					} : Prereqs.DistanceCoveredHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			statusEffect = "BaseStatusEffect.Electrocuted";
+			applicationChance = 
+			[
+				{
+					value = 0.33f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						float distanceRequired = 3f;
+						string comparisonType = "LessOrEqual";
+					} : Prereqs.DistanceCoveredHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			statusEffect = "BaseStatusEffect.Mox_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -693,12 +1603,24 @@ DildoWeaponModAbility : IconicWeaponModAbilityBase
 	[
 		{
 			prereqRecord = "Perks.HitIsBodyPartHead";
-			value = 0.169f;
-		} : AddCritChance, 
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.69f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
 		{
 			prereqRecord = "Perks.IsHitStrongAttack";
 			statusEffect = "BaseStatusEffect.Stun";
-			float applicationChance = 0.069f;
+			applicationChance = 
+			[
+				{
+					value = 0.069f;
+				} : ApplicationChanceModifier
+			];
 		} : AddStatusEffectToAttackEffector
 	];
 	UIData = 
@@ -715,7 +1637,12 @@ TinkerBellWeaponModAbility : IconicWeaponModAbilityBase
 		{
 			prereqRecord = "Perks.IsHitStrongAttack";
 			statusEffect = "BaseStatusEffect.Unconscious";
-			float applicationChance = 0.2f;
+			applicationChance = 
+			[
+				{
+					value = 0.25f;
+				} : ApplicationChanceModifier
+			];
 		} : AddStatusEffectToAttackEffector
 	];
 	UIData = 
@@ -737,9 +1664,16 @@ SurgeonKatanaWeaponModAbility : IconicWeaponModAbilityBase
 			} : Prereqs.TimeDilationPSMPrereq;
 			fk< Effector > effectorToApply = 
 			{
-				prereqRecord = "Perks.IsAttackMelee";
-				value = 50f;
-			} : AddCritChance;
+				prereqRecord = "Perks.IsWeaponMelee";
+				critChance = 
+				[
+					{
+						statType = "BaseStats.CritChance";
+						modifierType = "Additive";
+						value = 0.5f;
+					} : ConstantStatModifier
+				];
+			} : ModifyAttackCritChanceEffector;
 		} : ApplyEffectorOnPlayer, 
 		{
 			prereqRecord = 
@@ -749,34 +1683,9 @@ SurgeonKatanaWeaponModAbility : IconicWeaponModAbilityBase
 			} : Prereqs.TimeDilationPSMPrereq;
 			fk< Effector > effectorToApply = 
 			{
-				prereqRecord = "Perks.IsHitStrongAttack";
-				value = 50f;
-			} : AddCritChance;
-		} : ApplyEffectorOnPlayer, 
-		{
-			prereqRecord = 
-			{
-				string stateName = "Sandevistan";
-				bool isInState = true;
-			} : Prereqs.TimeDilationPSMPrereq;
-			fk< Effector > effectorToApply = 
-			{
-				prereqRecord = "Perks.IsAttackMelee";
+				prereqRecord = "Perks.IsWeaponMelee";
 				statusEffect = "BaseStatusEffect.Bleeding";
-				float applicationChance = 1f;
-			} : AddStatusEffectToAttackEffector;
-		} : ApplyEffectorOnPlayer, 
-		{
-			prereqRecord = 
-			{
-				string stateName = "Sandevistan";
-				bool isInState = true;
-			} : Prereqs.TimeDilationPSMPrereq;
-			fk< Effector > effectorToApply = 
-			{
-				prereqRecord = "Perks.IsHitStrongAttack";
-				statusEffect = "BaseStatusEffect.Bleeding";
-				float applicationChance = 1f;
+				isRandom = false;
 			} : AddStatusEffectToAttackEffector;
 		} : ApplyEffectorOnPlayer
 	];
@@ -789,6 +1698,23 @@ SurgeonKatanaWeaponModAbility : IconicWeaponModAbilityBase
 
 CocktailStickWeaponModAbility : IconicWeaponModAbilityBase
 {
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				checkType = "CheckType.Tag";
+				tagToCheck = "CamoActiveOnPlayer";
+				invert = false;
+			} : StatusEffectPrereq;
+			fk< Effector > effectorToApply = 
+			{
+				prereqRecord = "Perks.IsWeaponMelee";
+				statusEffect = "BaseStatusEffect.CocktailBleeding";
+				isRandom = false;
+			} : AddStatusEffectToAttackEffector;
+		} : ApplyEffectorOnPlayer
+	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -840,29 +1766,27 @@ TakemuraKatanaWeaponModAbility : IconicWeaponModAbilityBase
 		{
 			prereqRecord = 
 			{
-				statusEffect = "BaseStatusEffect.KerenzikovPlayerBuff";
-				checkType = "CheckType.Record";
+				checkType = "CheckType.Tag";
+				tagToCheck = "CamoActiveOnPlayer";
+				invert = false;
 			} : StatusEffectPrereq;
-			effectorToApply = 
+			statusEffect = "BaseStatusEffect.Takemura_Katana_Optical_Camo_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
 			{
-				prereqRecord = 
+				string pipelineType = "All";
+			} : Perks.IsHitFinalAttack;
+			critChance = 
+			[
 				{
-					nestedPrereqs = 
-					[
-						"Perks.IsHitStrongAttack", "Perks.IsAttackMelee"
-					];
-				} : ORPrereq;
-				value = 100f;
-			} : AddCritChance;
-		} : ApplyEffectorOnPlayer, 
-		{
-			prereqRecord = "Perks.IsHitFinalAttack";
-			value = 2.0f;
-		} : MultiplyDamage, 
-		{
-			prereqRecord = "Perks.TargetHasMoreHealthThanInstigator";
-			value = 2.0f;
-		} : MultiplyDamage
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
 	];
 	UIData = 
 	{
@@ -876,10 +1800,39 @@ JackieNueWeaponModAbility : IconicWeaponModAbilityBase
 	effectors = 
 	[
 		{
-			prereqRecord = "Perks.IsAttackRanged";
-			statusEffect = "BaseStatusEffect.Stun";
-			float applicationChance = 0.05f;
-		} : AddStatusEffectToAttackEffector
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			statusEffect = "BaseStatusEffect.Chingada_Madre_Helper_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			statusEffect = "BaseStatusEffect.Chingada_Madre_Fire_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			statusEffect = "BaseStatusEffect.Chingada_Madre_Buff";
+		} : ApplyStatusEffectOnPlayer
 	];
 	UIData = 
 	{
@@ -904,7 +1857,7 @@ SidewinderDividedWeaponModAbility : IconicWeaponModAbilityBase
 		{
 			prereqRecord = "Perks.IsAttackRanged";
 			attackRecord = "Attacks.BiotechGrenadeV2";
-			bool isRandom = true;
+			isRandom = true;
 			applicationChance = 0.066f;
 		} : Effectors.TriggerAttackOnTargetEffect
 	];
@@ -960,7 +1913,8 @@ PadreLibertyWeaponModAbility : IconicWeaponModAbilityBase
 				conditions += 
 				[
 					{
-						attackType = "Ranged";
+						attackType = "QuickMelee";
+						invert = true;
 					} : AttackTypeHitPrereqCondition, 
 					{
 						weaponType = "Ranged";
@@ -981,7 +1935,8 @@ PadreLibertyWeaponModAbility : IconicWeaponModAbilityBase
 				conditions += 
 				[
 					{
-						attackType = "Ranged";
+						attackType = "QuickMelee";
+						invert = true;
 					} : AttackTypeHitPrereqCondition, 
 					{
 						weaponType = "Ranged";
@@ -1006,6 +1961,13 @@ TacticianDinoWeaponModAbility : IconicWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#81197";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.DismembermentTriggeredPrereq";
+			statusEffect = "BaseStatusEffect.Dino_Slaughter_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
 }
 
 WakakoKatanaWeaponModAbility : IconicWeaponModAbilityBase
@@ -1015,6 +1977,26 @@ WakakoKatanaWeaponModAbility : IconicWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#81198";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						weaponType = "Melee";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetKilled;
+			statusEffect = "BaseStatusEffect.Wakako_Tiger_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
 }
 
 ButchersKnifeWeaponModAbility : IconicWeaponModAbilityBase
@@ -1090,9 +2072,48 @@ TinyMikeWeaponModAbility : IconicWeaponModAbilityBase
 						ammoState = "LastBullet";
 					} : AmmoStateHitPrereqCondition
 				];
-			} : ProcessHitTriggered;
-			value = 100f;
-		} : AddCritChance
+			} : ProcessHitTriggeredAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						ammoState = "LastBullet";
+					} : AmmoStateHitPrereqCondition
+				];
+			} : ProcessHitTriggeredAllowProjection;
+			value = 1.5f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = "Perks.IsTargetPlayer";
+			value = 3.0f;
+		} : MultiplyDamage
+	];
+}
+
+Silverhand3516WeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#3590";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsHitQuickMelee";
+			value = 5.0f;
+		} : MultiplyDamage
 	];
 }
 
@@ -1125,6 +2146,773 @@ EdgerunnersCarnageWeaponModAbility : IconicWeaponModAbilityBase
 	];
 }
 
+GogKatanaWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#93348";
+	};
+}
+
+WitcherSwordWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "MultiKill_Counter";
+								valueToCheck = 2;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								statusEffect = "BaseStatusEffect.Witcher_Wounded_Buff";
+							} : StatusEffectPrereq
+						];
+					} : ORPrereq, 
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "Defeated";
+								checkType = "CheckType.Type";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition, 
+							{
+								weaponType = "Melee";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : IsTargetKilled, 
+					{
+						checkType = "CheckType.Tag";
+						tagToCheck = "TDEffect";
+					} : StatusEffectAbsentPrereq
+				];
+			} : ANDPrereq;
+			statusEffect = "BaseStatusEffect.SwordWitcherTDBuff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						weaponType = "Melee";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetKilled;
+			statusEffect = "BaseStatusEffect.Witcher_Multikill_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.IsPlayerInCritHealth";
+			statusEffect = "BaseStatusEffect.Witcher_Wounded_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#91108";
+	};
+}
+
+HitmanNovaWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statusEffect = "BaseStatusEffect.PlayerJustEnteredCombat";
+			} : StatusEffectPrereq;
+			statusEffect = "BaseStatusEffect.Hitman_Combat_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			statusEffect = "BaseStatusEffect.Poisoned";
+			applicationChance = 
+			[
+				{
+					value = 0.33f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#84845";
+	};
+}
+
+BorisWardenWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statusEffect = "BaseStatusEffect.PlayerJustEnteredCombat";
+			} : StatusEffectPrereq;
+			statusEffect = "BaseStatusEffect.Warden_Stealth_Multiplier_Helper";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.PlayerIsAiming";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.CycleTimeBonus";
+						modifierType = "Additive";
+						value = 0.5f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+		} : ApplyStatGroupOnWeapon
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#89147";
+	};
+}
+
+BrickSataraWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statPoolType = "WeaponCharge";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Charge";
+								modifierType = "Additive";
+								value = 65.0f;
+							} : ConstantStatModifier
+						];
+						comparisonType = "GreaterOrEqual";
+						objectToCheck = "Weapon";
+					} : StatPoolPrereq, 
+					{
+						conditions += 
+						[
+							{
+								attackType = "Ranged";
+								onlyOncePerShot = true;
+							} : AttackTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			attackRecord = "Attacks.EMPBrick";
+			isRandom = true;
+			playerAsInstigator = true;
+		} : Effectors.TriggerAttackOnTargetEffect
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#84936";
+		floatValues = 
+		[
+			66
+		];
+	};
+}
+
+UmbraBebeWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#84910";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				isSynchronous = true;
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			percentMult = 0.5f;
+			unitThreshold = 10f;
+		} : MultiplyDamageWithVelocity, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					"Perks.IsPlayerSprinting", "Perks.IsPlayerJumping", "Perks.IsPlayerSliding"
+				];
+			} : ORPrereq;
+			statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.BleedingApplicationRate";
+						modifierType = "Additive";
+						value = 15f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsDefaultX";
+						modifierType = "Multiplier";
+						value = 0.6f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadAdsMaxX";
+						modifierType = "Multiplier";
+						value = 0.6f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadDefaultX";
+						modifierType = "Multiplier";
+						value = 0.6f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadMaxX";
+						modifierType = "Multiplier";
+						value = 0.6f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadChangePerShot";
+						modifierType = "Multiplier";
+						value = 0.6f;
+					} : ConstantStatModifier
+				];
+			};
+		} : ApplyStatGroupOnWeapon, 
+		{
+			prereqRecord = "Perks.HitIsBodyPartLimb";
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.2f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+}
+
+[ DisabledContent ]
+ReedTiconWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#84849";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			statusEffect = "BaseStatusEffect.Ticon_Reeds_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+GwentTiconWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#91352";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statusEffect = "BaseStatusEffect.Ticon_Projectile_Pattern_Change_Ability";
+						checkType = "CheckType.Record";
+					} : StatusEffectPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								statusEffect = "Burning";
+								checkType = "CheckType.Type";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			effectorClassName = "CeaselessLeadAmmoEffector";
+			float percentToRefund = 0.16f;
+		} : Effector
+	];
+}
+
+[ DisabledContent ]
+MetelKurtWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						bodyPart = "LeftLeg";
+					} : BodyPartHitPrereqCondition, 
+					{
+						statusEffect = "Kurtz_Knife_CrippledLegLeft";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsWeaponRanged;
+			statusEffect = "BaseStatusEffect.Kurtz_Metel_DismemberedLegLeft";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						bodyPart = "RightLeg";
+					} : BodyPartHitPrereqCondition, 
+					{
+						statusEffect = "Kurtz_Knife_CrippledLegRight";
+						checkType = "CheckType.Record";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsWeaponRanged;
+			statusEffect = "BaseStatusEffect.Kurtz_Metel_DismemberedLegRight";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "QuickMelee";
+						invert = true;
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetMoving;
+			value = 1.33f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "QuickMelee";
+						invert = true;
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsTargetMoving;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.33f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
+		{
+			removeWithEffector = true;
+			statusEffect = "BaseStatusEffect.MetelKurtMod_Dismembers";
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#84852";
+	};
+}
+
+[ DisabledContent ]
+KnifeKurtWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						checkType = "CheckType.Tag";
+						tagToCheck = "Kurt_Knife_Cripple";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						invert = true;
+						rarity = "Boss";
+					} : TargetNPCRarityHitPrereqCondition, 
+					{
+						npcType = "Human";
+						invert = false;
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsAttackThrownType;
+			statusEffect = "BaseStatusEffect.Kurtz_Knife_CrippledLegLeft";
+			isRandom = true;
+			applicationChance = 
+			[
+				{
+					value = 0.5f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						checkType = "CheckType.Tag";
+						tagToCheck = "Kurt_Knife_Cripple";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						invert = true;
+						rarity = "Boss";
+					} : TargetNPCRarityHitPrereqCondition, 
+					{
+						npcType = "Human";
+						invert = false;
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsAttackThrownType;
+			statusEffect = "BaseStatusEffect.Kurtz_Knife_CrippledLegRight";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Thrown";
+						invert = true;
+					} : AttackTypeHitPrereqCondition, 
+					{
+						checkType = "CheckType.Tag";
+						tagToCheck = "Kurt_Knife_Cripple";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsWeaponMelee;
+			value = 1.33f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = "Perks.HitIsBodyPartLimb";
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.33f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#81429";
+	};
+}
+
+[ DisabledContent ]
+DefenderKurtWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#87706";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						ammoState = "LastBullet";
+					} : AmmoStateHitPrereqCondition, 
+					{
+						attackType = "QuickMelee";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			value = 2f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = 
+			{
+				bool isSynchronous = false;
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+						onlyOncePerShot = true;
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.WildBoar_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+}
+
+[ DisabledContent ]
+PrototypeHerculesWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "Defeated";
+								checkType = "CheckType.Type";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								npcType = "Human";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsTargetKilled, 
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "Hercules_Poison";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition, 
+							{
+								npcType = "Human";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsTargetKilled
+				];
+			} : ORPrereq;
+			attackRecord = "Attacks.BiotechHerculesPoison";
+			triggerHitReaction = true;
+			isRandom = true;
+			applicationChance = 1f;
+		} : Effectors.TriggerAttackOnAttackEffect, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						statusEffect = "Poisoned";
+						checkType = "CheckType.Type";
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						targetType = "Player";
+						invert = true;
+					} : TargetTypeHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.2f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#86510";
+	};
+}
+
+SasquatchHammerWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#80876";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsHitFastAttack";
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applicationChance = 
+			[
+				{
+					value = 0.3f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = "Perks.IsHitStrongAttack";
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applicationChance = 
+			[
+				{
+					value = 0.5f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector
+	];
+}
+
+VBAxeWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#86808";
+	};
+	effectors += 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Thrown";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.15f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						attackType = "Thrown";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						hitFlag = "CriticalHit";
+					} : HitFlagHitPrereqCondition, 
+					{
+						statusEffect = "Defeated";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						statusEffect = "Unconscious";
+						checkType = "CheckType.Type";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						float valueToCheck = 0f;
+						CName objectToCheck = "Target";
+						string statPoolToCompare = "Health";
+						string comparisonType = "NotEqual";
+					} : StatPoolHitPrereqCondition
+				];
+			} : PostProcessHitTriggered;
+			attackRecord = "Attacks.VBAxeEMP";
+			isRandom = true;
+			applicationChance = 1.0f;
+		} : TriggerAttackOnTargetEffect
+	];
+}
+
+BunkerCrowbarWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#87707";
+	};
+}
+
 LegendaryWeaponModAbilityBase : WeaponModAbilityBase
 {
 }
@@ -1139,24 +2927,101 @@ IglaSovereignWeaponModAbility : LegendaryWeaponModAbilityBase
 	effectors = 
 	[
 		{
-			prereqRecord = "Perks.PlayerIsAiming";
-			fk< StatModifierGroup > statGroup = 
+			prereqRecord = 
 			{
-				statModifiers = 
+				conditions = 
 				[
 					{
-						statType = "BaseStats.DamagePerHit";
-						modifierType = "Multiplier";
-						value = 0.6f;
-					} : ConstantStatModifier
+						float distanceRequired = 2.5f;
+						string comparisonType = "LessOrEqual";
+					} : Prereqs.DistanceCoveredHitPrereqCondition
 				];
-			} : StatModifierGroup;
-		} : ApplyStatGroupOnWeapon
+			} : ProcessHitTriggeredAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						bodyPart = "Torso";
+					} : BodyPartHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+						onlyOncePerShot = true;
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Sovereign_Reload_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						bodyPart = "Torso";
+					} : BodyPartHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+						onlyOncePerShot = true;
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Sovereign_Speed_Buff";
+		} : ApplyStatusEffectOnPlayer
 	];
 }
 
 ZhuoEightStarWeaponModAbility : LegendaryWeaponModAbilityBase
 {
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsTargetPlayer";
+			value = 0.55f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = "Perks.IsPlayerInLowHealth";
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.ReloadTimeBonus";
+						modifierType = "Additive";
+						value = -0.4f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.CritChance";
+						modifierType = "Additive";
+						value = 50f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.BurningApplicationRate";
+						modifierType = "Additive";
+						value = 20f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector
+	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -1171,6 +3036,30 @@ BuryaHammerWeaponModAbility : LegendaryWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#50906";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsHitQuickMelee";
+			value = 1.66f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "QuickMelee";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			effectorClassName = "CeaselessLeadAmmoEffector";
+			float percentToRefund = 1.0f;
+		} : Effector, 
+		{
+			prereqRecord = "Perks.IsTargetPlayer";
+			value = 3.0f;
+		} : MultiplyDamage
+	];
 }
 
 PulsarBuzzsawWeaponModAbility : LegendaryWeaponModAbilityBase
@@ -1180,6 +3069,13 @@ PulsarBuzzsawWeaponModAbility : LegendaryWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#50905";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.HitIsBodyPartLimb";
+			value = 1.4f;
+		} : MultiplyDamage
+	];
 }
 
 DianYinglongWeaponModAbility : LegendaryWeaponModAbilityBase
@@ -1188,9 +3084,9 @@ DianYinglongWeaponModAbility : LegendaryWeaponModAbilityBase
 	[
 		{
 			prereqRecord = "Perks.IsAttackRanged";
-			attackRecord = "Attacks.EMPGrenade";
-			bool isRandom = true;
-			applicationChance = 0.12f;
+			attackRecord = "Attacks.YinglongEMP";
+			isRandom = true;
+			applicationChance = 0.066f;
 		} : Effectors.TriggerAttackOnTargetEffect
 	];
 	UIData = 
@@ -1202,6 +3098,46 @@ DianYinglongWeaponModAbility : LegendaryWeaponModAbilityBase
 
 TacticianHeadsmanWeaponModAbility : LegendaryWeaponModAbilityBase
 {
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			statusEffect = "BaseStatusEffect.Headsman_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : HitIsBodyPartHead;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.25f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
 	UIData = 
 	{
 		iconPath = "ability_offensive";
@@ -1225,6 +3161,38 @@ AjaxMoronWeaponModAbility : LegendaryWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#50907";
 	};
+	effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.DismembermentTriggeredPrereq";
+			statusEffect = "BaseStatusEffect.Moron_Slaughter_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				bool isSynchronous = false;
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+						onlyOncePerShot = true;
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Moron_Slow_Down";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.PlayerIsNotAiming";
+			statusEffect = "BaseStatusEffect.Moron_Speed_Up";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.PlayerIsAiming";
+			statusEffect = "BaseStatusEffect.Moron_Slow_Down2";
+		} : ApplyStatusEffectOnPlayer
+	];
 }
 
 NekomataBreakthroughWeaponModAbility : LegendaryWeaponModAbilityBase
@@ -1234,5 +3202,2307 @@ NekomataBreakthroughWeaponModAbility : LegendaryWeaponModAbilityBase
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#50908";
 	};
+}
+
+Borg4aHauntedGunWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						invert = true;
+						rarity = "Boss";
+					} : TargetNPCRarityHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						float valueToCheck = 33f;
+						CName objectToCheck = "Target";
+						string statPoolToCompare = "Health";
+						string comparisonType = "LessOrEqual";
+					} : StatPoolHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.HauntedGunBlackwallUpload";
+			applicationChance = 
+			[
+				{
+					value = 1.0f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Human";
+						invert = false;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.CyberwareMalfunctionHack";
+			uploadChance = 0.05;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossCyberwareMalfunctionHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraCyberwareMalfunctionHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#85503";
+	};
+}
+
+KappaGeorgeWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Kappa_George_Swap_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.LocomotionMalfunctionHack";
+			uploadChance = 0.08;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossLocomotionMalfunctionHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraLocomotionMalfunctionHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						conditions += 
+						[
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								isMoving = false;
+								object = "Target";
+							} : AgentMovingHitPrereqCondition
+						];
+					} : IsHitTargetAlive, 
+					{
+						conditions += 
+						[
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								statusEffect = "LocomotionMalfunction";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ORPrereq;
+			statusEffect = "BaseStatusEffect.Kappa_George_Motionless_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#89268";
+	};
+}
+
+QuasarBaronWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverloadHack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverloadHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverloadHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverloadLvl1Hack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverloadLvl1Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverloadLvl1Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverloadLvl2Hack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverloadLvl2Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverloadLvl2Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverloadLvl3Hack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverloadLvl3Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverloadLvl3Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverloadLvl4Hack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverloadLvl4Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverloadLvl4Hack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverheatHack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverheatHack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverheatHack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverheatLvl1Hack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverheatLvl1Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 2;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverheatLvl1Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverheatLvl2Hack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverheatLvl2Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 4;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverheatLvl2Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverheatLvl3Hack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverheatLvl3Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "Less";
+					} : StatPrereq, 
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 6;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverheatLvl3Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.OverheatLvl4Hack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+								invert = true;
+							} : TargetNPCTypeHitPrereqCondition, 
+							{
+								statusEffect = "MainBossSE";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.BossOverheatLvl4Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statType = "EffectiveTier";
+						valueToCheck = 8;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								npcType = "Chimera";
+							} : TargetNPCTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive
+				];
+			} : ANDPrereq;
+			objectAction = "QuickHack.ChimeraOverheatLvl4Hack";
+			uploadChance = 0.0025;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BlindHack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossBlindHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraBlindHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Human";
+						invert = false;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.CyberwareMalfunctionHack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossCyberwareMalfunctionHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraCyberwareMalfunctionHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.WeaponMalfunctionHack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossWeaponMalfunctionHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraWeaponMalfunctionHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+						invert = true;
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.LocomotionMalfunctionHack";
+			uploadChance = 0.02;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+						invert = true;
+					} : TargetNPCTypeHitPrereqCondition, 
+					{
+						statusEffect = "MainBossSE";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.BossLocomotionMalfunctionHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						npcType = "Chimera";
+					} : TargetNPCTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.ChimeraLocomotionMalfunctionHack";
+			uploadChance = 0.005;
+		} : ApplyQuickhackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						rarity = "Boss";
+						invert = true;
+					} : TargetNPCRarityHitPrereqCondition, 
+					{
+						rarity = "MaxTac";
+						invert = true;
+					} : TargetNPCRarityHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			objectAction = "QuickHack.GrenadeLvl3Hack";
+			uploadChance = 0.01;
+		} : ApplyQuickhackEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#89266";
+	};
+}
+
+TesteraNicolasWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+						onlyOncePerShot = true;
+					} : AttackTypeHitPrereqCondition, 
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			attackRecord = "Attacks.TesteraExplosionAttack";
+			isRandom = true;
+			applicationChance = 1.0f;
+		} : TriggerAttackOnTargetEffect, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						conditions += 
+						[
+							{
+								attackType = "QuickMelee";
+								invert = true;
+							} : AttackTypeHitPrereqCondition, 
+							{
+								statusEffect = "Defeated";
+								checkType = "CheckType.Type";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : IsTargetKilled, 
+					{
+						comparisonType = "Greater";
+					} : IsPlayerInLowHealth
+				];
+			} : ANDPrereq;
+			statusEffect = "BaseStatusEffect.Testera_Nicolas_SelfBurning";
+			instigator = "Player";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.IsPlayerInLowHealth";
+			statusEffect = "BaseStatusEffect.Testera_Runner_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#89267";
+	};
+}
+
+BatonMurphyWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "Knockdown";
+								checkType = "CheckType.Type";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : BatonMurphyPrereq, 
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "Stagger";
+								checkType = "CheckType.Type";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : BatonMurphyPrereq, 
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "Stunned";
+								checkType = "CheckType.Type";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : BatonMurphyPrereq
+				];
+			} : ORPrereq;
+			statusEffect = "BaseStatusEffect.Baton_Murphy_Brutality_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.IsHitStrongAttack";
+			value = 1.1278f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = "Perks.IsHitStrongAttack";
+			statusEffect = "BaseStatusEffect.Stun";
+			applicationChance = 
+			[
+				{
+					value = 0.2f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = "Perks.IsWeaponMelee";
+			effectorClassName = "RemoveHitFlagFromAttackEffector";
+			string hitFlag = "Nonlethal";
+			CName reason = "PreAttack";
+		} : Effector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#89273";
+	};
+}
+
+GradScavWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statType = "TechnicalAbilitySkill";
+				valueToCheck = 55;
+				comparisonType = "Less";
+			} : StatPrereq;
+			effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					conditions += 
+					[
+						{
+							attackType = "Ranged";
+						} : AttackTypeHitPrereqCondition, 
+						{
+							weaponType = "Ranged";
+						} : WeaponTypeHitPrereqCondition, 
+						{
+							bodyPart = "Head";
+						} : BodyPartHitPrereqCondition
+					];
+				} : ProcessHitTriggered;
+				attackRecord = "Attacks.ScavChainLightning";
+				playVFXOnHitTargets = "electric_hit";
+				targetHowManyEnemies = 2;
+				targetMaxDistance = 7.0;
+				targetMinDistance = 0.3;
+			} : TriggerAttackOnNearbyEnemiesEffector;
+		} : ApplyEffectorOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				statType = "TechnicalAbilitySkill";
+				valueToCheck = 55;
+				comparisonType = "GreaterOrEqual";
+			} : StatPrereq;
+			effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					conditions += 
+					[
+						{
+							attackType = "Ranged";
+						} : AttackTypeHitPrereqCondition, 
+						{
+							weaponType = "Ranged";
+						} : WeaponTypeHitPrereqCondition, 
+						{
+							bodyPart = "Head";
+						} : BodyPartHitPrereqCondition
+					];
+				} : ProcessHitTriggered;
+				attackRecord = "Attacks.ScavChainLightningTech55";
+				playVFXOnHitTargets = "electric_hit";
+				targetHowManyEnemies = 2;
+				targetMaxDistance = 7.0;
+				targetMinDistance = 0.3;
+			} : TriggerAttackOnNearbyEnemiesEffector;
+		} : ApplyEffectorOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90836";
+	};
+}
+
+OvertureDodgerWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			fk< Effector > effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					conditions = 
+					[
+						{
+							statusEffect = "Knockdown";
+							checkType = "CheckType.Type";
+						} : StatusEffectPresentHitPrereqCondition, 
+						{
+							bodyPart = "Head";
+						} : BodyPartHitPrereqCondition
+					];
+					string pipelineType = "All";
+				} : OvertureDodgerPrereq;
+				critChance = 
+				[
+					{
+						statType = "BaseStats.CritChance";
+						modifierType = "Additive";
+						value = 1f;
+					} : ConstantStatModifier
+				];
+			} : ModifyAttackCritChanceEffector;
+		} : ApplyEffectorOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						statusEffect = "Knockdown";
+						checkType = "CheckType.Type";
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						bodyPart = "Head";
+					} : BodyPartHitPrereqCondition
+				];
+			} : OvertureDodgerPrereq;
+			value = 1.2f;
+		} : MultiplyDamage
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90846";
+	};
+}
+
+UnityAngelicaWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						float distanceRequired = 10f;
+						string comparisonType = "LessOrEqual";
+					} : Prereqs.DistanceCoveredHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			statusEffect = "BaseStatusEffect.Bleeding";
+			applicationChance = 
+			[
+				{
+					value = 0.3f;
+				} : ApplicationChanceModifier
+			];
+		} : AddStatusEffectToAttackEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions = 
+				[
+					{
+						float distanceRequired = 10f;
+						string comparisonType = "LessOrEqual";
+					} : Prereqs.DistanceCoveredHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			statusEffect = "BaseStatusEffect.Angelica_Buff";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.HitIsBodyPartTorso";
+			value = 1.225f;
+		} : MultiplyDamage
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90845";
+	};
+}
+
+SenkohPrototypeWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.HitIsBodyPartHead";
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 0.33f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90844";
+	};
+}
+
+OvertureDanteWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.HitIsBodyPartHead";
+			critChanceBonus = 1.0f;
+			minDistance = 0f;
+			maxDistance = 35f;
+		} : ModifyCritWithDistance, 
+		{
+			prereqRecord = "Perks.HitIsBodyPartHead";
+			percentMult = 1.2f;
+			minDistance = 0f;
+			maxDistance = 35f;
+		} : ModifyDamageWithDistance, 
+		{
+			statusEffect = "BaseStatusEffect.Dante_Long_Range_Buff";
+			removeWithEffector = true;
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90855";
+	};
+}
+
+NueBreeWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsPlayerInLowHealth";
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.SpreadDefaultX";
+						modifierType = "Multiplier";
+						value = 0.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.SpreadMaxX";
+						modifierType = "Multiplier";
+						value = 0.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HeadshotDamageMultiplier";
+						modifierType = "Additive";
+						value = 0.5f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.DamagePerHit";
+						modifierType = "Multiplier";
+						value = 1.1f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector, 
+		{
+			prereqRecord = "Perks.IsPlayerInCritHealth";
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.CritChance";
+						modifierType = "Additive";
+						value = 100.0f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90856";
+	};
+}
+
+MalinaBatWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.BatMalinaPrereq";
+			statusEffect = "BaseStatusEffect.Bat_Malina_Frenzy_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90857";
+	};
+}
+
+E3KatanaWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Burning";
+						checkType = "CheckType.Record";
+						objectToCheck = "Target";
+						invert = false;
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
+						weaponType = "Melee";
+					} : WeaponTypeHitPrereqCondition
+				];
+			} : IsHitTargetAliveAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#90960";
+	};
+}
+
+RookWeaponModAbility : LegendaryWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				processMiss = true;
+				conditions += 
+				[
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition, 
+					{
+						timeOut = 0.5f;
+						consecutiveHitsRequired = 2;
+						uniqueTarget = true;
+					} : ConsecutiveHitsPrereqCondition
+				];
+			} : IsHitTargetAlive;
+			statusEffect = "BaseStatusEffect.Definition_Of_Madness_Rook_Buff";
+		} : ApplyStatusEffectOnPlayer
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#91234";
+	};
+}
+
+CollectibleIconicWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#93510";
+	};
+}
+
+AirDropRangedWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#93420";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						statusEffect = "AirDrop_Burning";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAliveAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+}
+
+AirDropMeleeWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#93420";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						weaponType = "Melee";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						statusEffect = "AirDrop_Burning";
+						checkType = "CheckType.Record";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsHitTargetAliveAllowProjection;
+			critChance = 
+			[
+				{
+					statType = "BaseStats.CritChance";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : ModifyAttackCritChanceEffector
+	];
+}
+
+PowerOfThePackWeaponModAbility : IconicWeaponModAbilityBase
+{
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#94468";
+	};
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					"Prereqs.DismembermentTriggeredPrereq", {
+						conditions += 
+						[
+							{
+								statusEffect = "Defeated";
+								checkType = "CheckType.Type";
+								invert = true;
+							} : StatusEffectPresentHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+								onlyOncePerShot = true;
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : IsTargetKilled
+				];
+			} : ORPrereq;
+			statusEffect = "BaseStatusEffect.PowerOfThePackSE";
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				isSynchronous = true;
+				conditions += 
+				[
+					{
+						weaponType = "Ranged";
+					} : WeaponTypeHitPrereqCondition, 
+					{
+						attackType = "Ranged";
+					} : AttackTypeHitPrereqCondition
+				];
+			} : ProcessHitTriggered;
+			percentMult = 0.25f;
+			unitThreshold = 10f;
+		} : MultiplyDamageWithVelocity
+	];
+}
+
+KrausserIllegalModAbility : WeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			fk< StatModifierGroup > statGroup = "Items.KrausserBonusStats";
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector
+	];
+}
+
+KrausserBonusStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.CanWeaponIgnoreArmor";
+			modifierType = "Additive";
+			value = 0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.3333f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
+	];
+}
+
+CollectableBonusStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.RecoilDir";
+			modifierType = "Multiplier";
+			value = 0.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilAlternateDir";
+			modifierType = "Multiplier";
+			value = 0.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilAngle";
+			modifierType = "Multiplier";
+			value = 0.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilRecoveryTime";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilTime";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilHoldDuration";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadDefaultY";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxY";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultY";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxY";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier
+	];
 }
 

@@ -25,6 +25,7 @@ v_sport2_mizutani_shion : Vehicle_4w_Default
 		210, 210, 255, 255
 	];
 	destroyedAppearance = "mizutani_shion__basic_burnt_01";
+	fxWheelsDecalsFrontOverride = "Vehicle.FxWheels_Radial_M";
 	fxWheelsDecals = "Vehicle.FxWheels_Radial_L";
 	widgetStyleSheetPath = "base/gameplay/gui/widgets/vehicle/mizutani/mizutani_regular.inkstyle";
 	model = "Vehicle.Shion";
@@ -48,14 +49,14 @@ v_sport2_mizutani_shion : Vehicle_4w_Default
 		frontPreset = 
 		{
 			tireRadius = 0.385f;
-			rimRadius = 0.24f;
+			rimRadius = 0.31f;
 			tireWidth = 0.27f;
 			wheelOffset = 0.08f;
 		} : VehicleWheelDimensionsPreset;
 		backPreset = 
 		{
 			tireRadius = 0.385f;
-			rimRadius = 0.24f;
+			rimRadius = 0.32f;
 			tireWidth = 0.4f;
 			wheelOffset = 0.06f;
 		} : VehicleWheelDimensionsPreset;
@@ -64,24 +65,45 @@ v_sport2_mizutani_shion : Vehicle_4w_Default
 	vehEngineData = 
 	{
 		engineMaxTorque = 451.f;
+		finalGearTorqueDecimationScalor = 0.99f;
 	} : VehicleEngineData_4_Sport;
 	vehDriver_FPPCameraParams = 
 	{
 		lookat_offset_vertical = 0.05f;
+		rear_view_offset = ( 0.0000, -1.1224, 1.0965 );
+		enable_rear_view = true;
 	} : VehicleDriverFPPCameraParamsDefault;
+	vehDriverCombat_FPPCameraParams = 
+	{
+		lookat_offset_vertical = 0.05f;
+		is_forward_offset = 1.0f;
+		forward_offset_value = 0.0f;
+	} : VehicleDriverCombatFPPCameraParamsDefault;
 	tppCameraPresets = 
 	[
-		"Camera.VehicleTPP_4w_Shion_Low_Close", "Camera.VehicleTPP_4w_Shion_High_Close", "Camera.VehicleTPP_4w_Shion_Low_Far", "Camera.VehicleTPP_4w_Shion_High_Far"
+		"Camera.VehicleTPP_4w_Shion_High_Close", "Camera.VehicleTPP_4w_Shion_High_Medium", "Camera.VehicleTPP_4w_Shion_High_Far", "Camera.VehicleTPP_4w_Shion_High_DriverCombatClose", "Camera.VehicleTPP_4w_Shion_High_DriverCombatMedium", "Camera.VehicleTPP_4w_Shion_High_DriverCombatFar", "Camera.VehicleTPP_4w_Shion_Low_Close", "Camera.VehicleTPP_4w_Shion_Low_Medium", "Camera.VehicleTPP_4w_Shion_Low_Far", "Camera.VehicleTPP_4w_Shion_Low_DriverCombatClose", "Camera.VehicleTPP_4w_Shion_Low_DriverCombatMedium", "Camera.VehicleTPP_4w_Shion_Low_DriverCombatFar"
 	];
 	crowdMemberSettings = "Crowds.Sport_DrivingPackage";
 	drivingParamsPanic = "Driving.Panic_Sport";
 	trafficSuspension = "Vehicle.TrafficSuspension_Sport";
+	weaponSafeModeBounds = 
+	{
+		enableSafeModeBounds = true;
+		backBound = 
+		{
+			yawMin = -105.0f;
+			yawMax = 180.f;
+		};
+	} : WeaponSafeModeBounds;
 }
 
 VehicleDriveModelData_Shion : VehicleDriveModelData_Sport_RWD
 {
 	momentOfInertia = ( 3820.0f, 800.0f, 4080.0f );
 	turnUpdateInputSlowChangeSpeed = 0.10f;
+	turnUpdateMidSpeedThreshold = 23.f;
+	turnUpdateMidSpeedTurnMul = 0.52;
+	turnUpdateMidSpeedTurnChangeMul = 1.54f;
 	wheelSetup = 
 	{
 		frontPreset = 
@@ -95,23 +117,48 @@ VehicleDriveModelData_Shion : VehicleDriveModelData_Sport_RWD
 			visualSuspensionCompressionLength = 0.08f;
 		} : VehicleWheelDrivingPreset_4_RWD_Rear;
 	} : VehicleWheelDrivingSetup_4_RWD;
+	driveHelpers = 
+	[
+		{
+			type = "Vehicle.RotationLimiter_HelperType";
+		} : RotationLimiter_Sport, 
+		{
+			type = "Vehicle.DriveWheelsAccelerateNoise_HelperType";
+		} : DriveWheelsAccelerateNoise_Sport, 
+		{
+			type = "Vehicle.HandbrakeFrictionModifier_HelperType";
+			rearWheelsLatFrictionCoef = 0.72f;
+		} : HandbrakeFrictionModifier_Drift, 
+		{
+			type = "Vehicle.UphillDriveHelper_HelperType";
+		} : UphillDriveHelper_Standard, 
+		{
+			type = "Vehicle.DynamicDownforceHelper_HelperType";
+		} : DynamicDownforceHelper_Sport, 
+		{
+			type = "Vehicle.InAirGravityModifier_HelperType";
+		} : InAirGravityModifier, 
+		{
+			type = "Vehicle.RearWheelsFrictionModifier_HelperType";
+		} : RearWheelsFrictionModifier_Sport
+	];
 }
 
-VehicleDriveModelData_Shion_Sport : VehicleDriveModelData_Sport_RWD
+VehicleDriveModelData_Shion_Sport : VehicleDriveModelData_Shion
 {
-	momentOfInertia = ( 3820.0f, 800.0f, 4080.0f );
-	turnUpdateMaxSpeedThreshold = 40.f;
-	wheelTurnMaxAddPerSecond = 100.f;
 	wheelTurnMaxSubPerSecond = 135.f;
-	turnUpdateInputFastChangeSpeed = 0.9f;
-	turnUpdateInputSlowChangeSpeed = 0.09f;
-	turnUpdateMaxSpeedTurnChangeMul = 1.8f;
+	turnUpdateMaxSpeedThreshold = 41.f;
+	turnUpdateMaxSpeedTurnMul = 0.25f;
+	turnUpdateMaxSpeedTurnChangeMul = 2.0f;
+	turnUpdateMidSpeedThreshold = 25.f;
+	turnUpdateMidSpeedTurnMul = 0.46;
+	turnUpdateMidSpeedTurnChangeMul = 1.5f;
 	wheelSetup = 
 	{
 		frontPreset = 
 		{
 			maxBrakingTorque = 700.0f;
-			frictionMulLateral = 0.90f;
+			frictionMulLateral = 0.91f;
 			frictionMulLongitudinal = 0.91f;
 			wheelsVerticalOffset = 0.01f;
 			visualSuspensionCompressionLength = 0.06f;
@@ -119,7 +166,7 @@ VehicleDriveModelData_Shion_Sport : VehicleDriveModelData_Sport_RWD
 		backPreset = 
 		{
 			maxBrakingTorque = 600.0f;
-			frictionMulLateral = 0.90f;
+			frictionMulLateral = 0.91f;
 			frictionMulLongitudinal = 0.91f;
 			tireLateralSlipEffectsMul = 0.92f;
 			visualSuspensionCompressionLength = 0.08f;
@@ -129,8 +176,35 @@ VehicleDriveModelData_Shion_Sport : VehicleDriveModelData_Sport_RWD
 	{
 		lateralForceMaxAcceleration = 0.62f;
 		lateralForceMaxSpeed = 6.7f;
-		burnOutGripBonus = 7.0f;
+		burnOutGripBonus = 7.5f;
 	} : VehicleBurnOut_4w_RWD;
+	driveHelpers = 
+	[
+		{
+			type = "Vehicle.RotationLimiter_HelperType";
+		} : RotationLimiter_Sport, 
+		{
+			type = "Vehicle.DriveWheelsAccelerateNoise_HelperType";
+		} : DriveWheelsAccelerateNoise_Sport, 
+		{
+			type = "Vehicle.HandbrakeFrictionModifier_HelperType";
+			rearWheelsLatFrictionCoef = 0.77f;
+			rearWheelsLongFrictionCoef = 0.64f;
+			blendOutTime = 0.5f;
+		} : HandbrakeFrictionModifier_Drift, 
+		{
+			type = "Vehicle.UphillDriveHelper_HelperType";
+		} : UphillDriveHelper_Standard, 
+		{
+			type = "Vehicle.DynamicDownforceHelper_HelperType";
+		} : DynamicDownforceHelper_Sport, 
+		{
+			type = "Vehicle.InAirGravityModifier_HelperType";
+		} : InAirGravityModifier, 
+		{
+			type = "Vehicle.RearWheelsFrictionModifier_HelperType";
+		} : RearWheelsFrictionModifier_Sport
+	];
 }
 
 v_sport2_mizutani_shion_quest : v_sport2_mizutani_shion
@@ -159,15 +233,34 @@ v_sport2_mizutani_shion_targa : v_sport2_mizutani_shion
 		mass = 1476.0f;
 		horsepower = 482.0f;
 	} : VehicleMizutaniShionUIData;
+	vehWheelDimensionsSetup = 
+	{
+		frontPreset = 
+		{
+			tireRadius = 0.38f;
+			rimRadius = 0.30f;
+			tireWidth = 0.27f;
+			wheelOffset = 0.18f;
+		} : VehicleWheelDimensionsPreset;
+		backPreset = 
+		{
+			tireRadius = 0.38f;
+			rimRadius = 0.31f;
+			tireWidth = 0.4f;
+			wheelOffset = 0.18f;
+		} : VehicleWheelDimensionsPreset;
+	} : VehicleWheelDimensionsSetup;
 	vehDriveModelData = 
 	{
 		chassis_mass = 1556.0f;
 		total_mass = 1556.0f;
+		airResistanceFactor = 2.1f;
 	} : VehicleDriveModelData_Shion_Sport;
 	vehEngineData = 
 	{
+		gearCurvesPath = "base\gameplay\vehicles\curves\engine_torque\med_lowcomp_bigturbo.curveset";
 		engineMaxTorque = 600.f;
-	} : VehicleEngineData_4_Sport;
+	} : VehicleEngineData_4_SportPlus;
 	destroyedAppearance = "mizutani_shion__basic_burnt_targa_01";
 	headlightColor = 
 	[
@@ -187,6 +280,26 @@ v_sport2_mizutani_shion_targa : v_sport2_mizutani_shion
 	leftFrontCamberOffset = ( 0, 0, 0 );
 	rightBackCamberOffset = ( 0, 0, 0 );
 	leftBackCamberOffset = ( 0, 0, 0 );
+	vehDriver_FPPCameraParams = 
+	{
+		enable_rear_view = true;
+		rear_view_offset = ( 0.0000, -1.5892, 0.8628 );
+	} : VehicleDriverFPPCameraParamsDefault;
+	vehDriverCombat_FPPCameraParams = 
+	{
+		lookat_offset_vertical = 0.0f;
+		is_forward_offset = 1.0f;
+		forward_offset_value = 0.0f;
+	} : VehicleDriverCombatFPPCameraParamsDefault;
+	weaponSafeModeBounds = 
+	{
+		enableSafeModeBounds = true;
+		backBound = 
+		{
+			yawMin = -105.0f;
+			yawMax = 180.f;
+		};
+	} : WeaponSafeModeBounds;
 }
 
 v_sport2_mizutani_shion_poor : v_sport2_mizutani_shion
@@ -225,11 +338,64 @@ v_sport2_mizutani_shion_sport : v_sport2_mizutani_shion
 		horsepower = 482.0f;
 		info = "LocKey#78766";
 	} : VehicleMizutaniShionUIData;
+	destruction = 
+	{
+		wheels = 
+		[
+			{
+				name = "FrontLeft";
+				intact = "tire_standard_fl_01";
+				flat = "tire_flat_01_fl_a";
+			}, 
+			{
+				name = "FrontRight";
+				intact = "tire_standard_fr_01";
+				flat = "tire_flat_01_fr_a";
+			}, 
+			{
+				name = "BackRight";
+				intact = "tire_standard_br_01";
+				flat = "tire_flat_01_br_a";
+			}, 
+			{
+				name = "BackLeft";
+				intact = "tire_standard_bl_01";
+				flat = "tire_flat_01_bl_a";
+			}
+		];
+	} : VehicleDestructionParamsShion;
+	vehWheelDimensionsSetup = 
+	{
+		frontPreset = 
+		{
+			tireRadius = 0.385f;
+			rimRadius = 0.28f;
+			tireWidth = 0.27f;
+			wheelOffset = 0.08f;
+		} : VehicleWheelDimensionsPreset;
+		backPreset = 
+		{
+			tireRadius = 0.385f;
+			rimRadius = 0.28f;
+			tireWidth = 0.4f;
+			wheelOffset = 0.06f;
+		} : VehicleWheelDimensionsPreset;
+	} : VehicleWheelDimensionsSetup;
 	vehDriveModelData = "Vehicle.VehicleDriveModelData_Shion_Sport";
 	vehEngineData = 
 	{
+		gearCurvesPath = "base\gameplay\vehicles\curves\engine_torque\med_lowcomp_bigturbo.curveset";
 		engineMaxTorque = 600.f;
-	} : VehicleEngineData_4_Sport;
+	} : VehicleEngineData_4_SportPlus;
+}
+
+v_sport2_mizutani_shion_tdr : v_sport2_mizutani_shion_sport
+{
+	headlightColor = 
+	[
+		210, 210, 255, 255
+	];
+	appearanceName = "mizutani_shion__basic_player_01";
 }
 
 v_sport2_mizutani_shion_tyger : v_sport2_mizutani_shion
@@ -259,6 +425,7 @@ VehicleDestructionParamsShion : VehicleDestructionParamsDefault_4w
 {
 	gridDimensions = ( 1.9f, 4.6f, 0.2f );
 	gridLocalOffset = ( 0.0f, 0.0f, 0.75f );
+	chargePortCenter = ( -1.02123928f, 0.856536388f, 0.537057281f );
 	glass = 
 	[
 		{
@@ -405,23 +572,23 @@ VehicleDestructionParamsShion : VehicleDestructionParamsDefault_4w
 	[
 		{
 			name = "FrontLeft";
-			intact = "tire_01_fl";
-			flat = "tire_flat_01_fl";
+			intact = "tire_01_fl_a";
+			flat = "tire_flat_01_fl_a";
 		}, 
 		{
 			name = "FrontRight";
-			intact = "tire_01_fr";
-			flat = "tire_flat_01_fr";
-		}, 
-		{
-			name = "BackLeft";
-			intact = "tire_01_bl";
-			flat = "tire_flat_01_bl";
+			intact = "tire_01_fr_a";
+			flat = "tire_flat_01_fr_a";
 		}, 
 		{
 			name = "BackRight";
-			intact = "tire_01_br";
-			flat = "tire_flat_01_br";
+			intact = "tire_01_br_a";
+			flat = "tire_flat_01_br_a";
+		}, 
+		{
+			name = "BackLeft";
+			intact = "tire_01_bl_a";
+			flat = "tire_flat_01_bl_a";
 		}
 	];
 	lights = 
@@ -553,6 +720,38 @@ VehicleDestructionParamsShion : VehicleDestructionParamsDefault_4w
 					gridCells = 
 					[
 						0, 1
+					];
+				}
+			];
+		}, 
+		{
+			component = "bumper_b_01";
+			zones = 
+			[
+				{
+					shapes = 
+					[
+						0, 1, 2
+					];
+					gridCells = 
+					[
+						0, 1, 8, 9
+					];
+				}
+			];
+		}, 
+		{
+			component = "bumper_f_01";
+			zones = 
+			[
+				{
+					shapes = 
+					[
+						0, 1, 2
+					];
+					gridCells = 
+					[
+						6, 7, 14, 15
 					];
 				}
 			];

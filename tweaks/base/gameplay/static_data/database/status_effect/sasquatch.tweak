@@ -18,7 +18,7 @@ OverloadWeakspotEffector : ApplyStatusEffectEffector
 			{
 				statusEffect = "Sasquatch.Broken";
 			} : StatusEffectAbsentPrereq, 
-			"BaseStatusEffect.OverloadAppliedPereq"
+			"BaseStatusEffect.CyberwareMalfunctionWeakspotDestructionAppliedPereq"
 		];
 	} : Prereqs.ANDPrereq;
 	statusEffect = "Sasquatch.SasquatchOverload";
@@ -41,7 +41,7 @@ SasquatchOverload : BaseQuickHackStatusEffect
 	};
 	CName[] gameplayTags = 
 	[
-		"Debuff", "JamWeapon", "Overload"
+		"Debuff", "JamWeapon", "Overload", "WeakspotDestruction"
 	];
 	uiData = "BaseStatusEffect.JamWeaponUI";
 	fk< GameplayLogicPackage >[] packages = 
@@ -58,6 +58,41 @@ SasquatchOverload : BaseQuickHackStatusEffect
 					statusEffect = "Sasquatch.Broken";
 					removeWithEffector = false;
 				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+WeakSpotDestroyed : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statPoolValue = -5.f;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : ModifyStatPoolValueEffector
 			];
 		} : GameplayLogicPackage
 	];
@@ -180,11 +215,32 @@ RegenerateEffector : ModifyStatPoolModifierEffector
 		bool enabled = true;
 		float rangeBegin = 0;
 		float rangeEnd = 100;
-		float startDelay = 1.5;
-		float valuePerSec = 1.25;
+		float startDelay = 1.f;
+		float valuePerSec = 0.5;
 		bool delayOnChange = false;
 	} : PoolValueModifier;
 	string statPoolType = "Health";
 	string modificationType = "Regeneration";
+}
+
+BurningGrenade : StatusEffect
+{
+	bool canReapply = false;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+ForceStaggerSuicide : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
 }
 

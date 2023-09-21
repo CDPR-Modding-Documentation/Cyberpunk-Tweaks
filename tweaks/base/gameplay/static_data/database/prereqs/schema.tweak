@@ -18,7 +18,18 @@ StatPrereq : IPrereq
 	float valueToCheck = 0;
 	CName statType = "Invalid";
 	CName comparisonType = "";
+	CName objectToCheck = "Owner";
+	bool notifyOnAnyChange = false;
+	bool notifyOnlyOnStateFulfilled = false;
 	fk< StatModifier >[] statModifiers = [];
+}
+
+StatChangedPrereq : IPrereq
+{
+	CName prereqClassName = "StatChangedPrereq";
+	CName statType = "Invalid";
+	CName objectToCheck = "Owner";
+	CName changeType = "";
 }
 
 ItemCreationPrereq : StatPrereq
@@ -29,26 +40,13 @@ ItemCreationPrereq : StatPrereq
 StatPoolPrereq : IPrereq
 {
 	CName prereqClassName = "StatPoolPrereq";
-	float valueToCheck = 0;
+	fk< StatModifier >[] valueToCheck = [];
 	CName statPoolType = "Invalid";
 	CName comparisonType = "";
 	bool skipOnApply = false;
 	bool listenConstantly = false;
 	bool comparePercentage = true;
-	fk< ObjectToCheck > objectToCheck = "";
-}
-
-ObjectToCheck
-{
-}
-
-PlayerObjectToCheck : ObjectToCheck
-{
-}
-
-ItemObjectToCheck : ObjectToCheck
-{
-	fk< Item > item = "";
+	CName objectToCheck = "";
 }
 
 StatusEffectPrereq : IPrereq
@@ -58,6 +56,7 @@ StatusEffectPrereq : IPrereq
 	bool invert = false;
 	fk< CheckType > checkType = "";
 	CName tagToCheck = "";
+	CName objectToCheck = "";
 }
 
 NPCTypePrereq : IPrereq
@@ -93,6 +92,7 @@ ActionTargetInDistancePrereq : IPrereq
 	CName prereqClassName = "ActionTargetInDistancePrereq";
 	fk< AIActionTarget > target = "";
 	float distance = -1.f;
+	fk< Stat > distanceStat = "";
 	bool invert = false;
 }
 
@@ -106,9 +106,11 @@ HitPrereq : IPrereq
 {
 	CName prereqClassName = "";
 	string pipelineStage = "Process";
+	string pipelineType = "All";
 	string callbackType = "HitReceived";
 	bool isSynchronous = true;
 	fk< HitPrereqCondition >[] conditions = [];
+	bool ignoreSelfInflictedPressureWave = true;
 }
 
 HitPrereqCondition
@@ -128,6 +130,27 @@ PerkPrereq : IPrereq
 {
 	prereqClassName = "PerkPrereq";
 	string perk = "";
+}
+
+ConsumableChargesPrereq : StatPoolPrereq
+{
+	prereqClassName = "ConsumableChargesPrereq";
+	statPoolType = "HealingItemsCharges";
+	CName objectToCheck = "Player";
+}
+
+PlayerIsNewPerkBoughtPrereq : IPrereq
+{
+	CName prereqClassName = "PlayerIsNewPerkBoughtPrereq";
+	int level = 1;
+	bool invert = false;
+	string perkType = "";
+}
+
+DistrictPrereq : IPrereq
+{
+	prereqClassName = "DistrictPrereq";
+	fk< District > district = "";
 }
 
 Prereq

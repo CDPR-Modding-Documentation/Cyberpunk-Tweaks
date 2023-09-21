@@ -1,0 +1,302 @@
+package BaseStatusEffect
+using RTDB, Effectors, Perks, Prereqs
+
+Reflexes_20_Accuracy_Buff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SpreadDefaultX";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadDefaultY";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxX";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxY";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultY";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxX";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxY";
+								modifierType = "AdditiveMultiplier";
+								value = -0.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+TechAbility_60_EMP_Blast : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						duration = 0.01f;
+					} : DurationPrereq;
+					attackRecord = "Attacks.TechAbility_60_EMP_Boom";
+				} : TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						duration = 1.99f;
+					} : DurationPrereq;
+					attackRecord = "Attacks.TechAbility_60_EMP_Boom";
+				} : TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						duration = 3.97f;
+					} : DurationPrereq;
+					attackRecord = "Attacks.TechAbility_60_EMP_Boom";
+				} : TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						duration = 5.96f;
+					} : DurationPrereq;
+					attackRecord = "Attacks.TechAbility_60_EMP_Boom";
+				} : TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						duration = 7.95f;
+					} : DurationPrereq;
+					attackRecord = "Attacks.TechAbility_60_EMP_Boom";
+				} : TriggerAttackOnOwnerEffect
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Cool_55_ExtendedStealth_Buff : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.ExtendedStealthDuration";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"ExtendedStealth"
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Perks.IsWeaponRanged", "Perks.IsWeaponMelee"
+						];
+					} : ORPrereq;
+					hitFlag = "StealthHit";
+				} : AddHitFlagToAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Intelligence_60_Ping_Aura : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.AutoReveal";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						duration = 0.01f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 3f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 6f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 9f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 12f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 15f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 18f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 21f;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Intelligence_60_Ping";
+					range = 10.0f;
+				} : PropagateStatusEffectInAreaEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Intelligence_60_Ping : PingMarkStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 3.5f;
+			} : BaseDurationMod
+		];
+	} : BaseCovertQuickHackDuration;
+	gameplayTags += 
+	[
+		"Int60_Ping"
+	];
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.RevealNetrunnerWhenHacked";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+

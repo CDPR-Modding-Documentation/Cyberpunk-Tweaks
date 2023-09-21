@@ -1,5 +1,5 @@
 package Items
-using RTDB, Prereqs
+using RTDB, Prereqs, BaseStats
 
 [ notQueryable ]
 ProjectileLauncherPartBase : Fragment
@@ -8,6 +8,10 @@ ProjectileLauncherPartBase : Fragment
 	bool isPart = true;
 	fk< ParentAttachmentType > parentAttachmentType = "ParentAttachmentType.Slot";
 	iconPath = "launcher_rounds_explosive";
+	CName[] tags += 
+	[
+		"itemPart", "DummyPart", "SkipActivityLog", "HideInBackpackUI", "HideInUI", "HideAtVendor"
+	];
 	buyPrice += 
 	[
 		"Price.LauncherFragment"
@@ -60,8 +64,8 @@ ProjectileLauncherRoundBase : ProjectileLauncherPartBase
 	CName quickActionlaunchMode = "Tracking";
 	CName chargeActionlaunchMode = "Tracking";
 	CName launchTrajectory = "";
-	float quickActionChargeCost = 25.f;
-	float chargeActionChargeCost = 50.f;
+	float quickActionChargeCost = 0.f;
+	float chargeActionChargeCost = 100.f;
 	bool canTargetDevices = false;
 	bool canTargetVehicles = false;
 	float startVelocity = 10.f;
@@ -94,6 +98,7 @@ ProjectileLauncherRoundBase : ProjectileLauncherPartBase
 	CName onCollisionStimType = "";
 	string attack = "";
 	string secondaryAttack = "";
+	string relicAttack = "";
 	float deepWaterDepth = -0.5f;
 	float sinkingDetonationDelay = 1.5f;
 	float waterSurfaceImpactImpulseRadius = 0.05f;
@@ -142,6 +147,7 @@ ExplosiveDamageRound : ProjectileLauncherRoundBase
 	onCollisionStimType = "Explosion";
 	attack = "Attacks.MissileProjectile";
 	secondaryAttack = "Attacks.MissileProjectileCharged";
+	relicAttack = "Attacks.MissileProjectileGigaChadRelicCharged";
 	OnEquip = 
 	[
 		{
@@ -172,6 +178,7 @@ ElectricDamageRound : ProjectileLauncherRoundBase
 	onCollisionStimType = "Explosion";
 	attack = "Attacks.EMPProjectile";
 	secondaryAttack = "Attacks.EMPProjectileCharged";
+	relicAttack = "Attacks.EMPProjectileGigaChadRelicCharged";
 	OnEquip = 
 	[
 		{
@@ -197,6 +204,7 @@ ThermalDamageRound : ProjectileLauncherRoundBase
 	onCollisionStimType = "Explosion";
 	attack = "Attacks.ThermalProjectile";
 	secondaryAttack = "Attacks.ThermalProjectileCharged";
+	relicAttack = "Attacks.ThermalProjectileGigaChadRelicCharged";
 	OnAttach = 
 	[
 		{
@@ -214,7 +222,12 @@ ThermalDamageRound : ProjectileLauncherRoundBase
 						];
 					} : Prereqs.ProcessHitTriggered;
 					statusEffect = "BaseStatusEffect.Burning";
-					float applicationChance = 0.2f;
+					applicationChance = 
+					[
+						{
+							value = 0.2f;
+						} : ApplicationChanceModifier
+					];
 				} : AddStatusEffectToAttackEffector, 
 				{
 					prereqRecord = 
@@ -227,7 +240,12 @@ ThermalDamageRound : ProjectileLauncherRoundBase
 						];
 					} : Prereqs.ProcessHitTriggered;
 					statusEffect = "BaseStatusEffect.Burning";
-					float applicationChance = 0.5f;
+					applicationChance = 
+					[
+						{
+							value = 0.5f;
+						} : ApplicationChanceModifier
+					];
 				} : AddStatusEffectToAttackEffector
 			];
 		}
@@ -257,6 +275,7 @@ ChemicalDamageRound : ProjectileLauncherRoundBase
 	onCollisionStimType = "Explosion";
 	attack = "Attacks.ChemicalProjectile";
 	secondaryAttack = "Attacks.ChemicalProjectileCharged";
+	relicAttack = "Attacks.ChemicalProjectileGigaChadRelicCharged";
 	OnAttach = 
 	[
 		{
@@ -274,7 +293,12 @@ ChemicalDamageRound : ProjectileLauncherRoundBase
 						];
 					} : Prereqs.ProcessHitTriggered;
 					statusEffect = "BaseStatusEffect.Poisoned";
-					float applicationChance = 0.2f;
+					applicationChance = 
+					[
+						{
+							value = 0.2f;
+						} : ApplicationChanceModifier
+					];
 				} : AddStatusEffectToAttackEffector, 
 				{
 					prereqRecord = 
@@ -287,7 +311,12 @@ ChemicalDamageRound : ProjectileLauncherRoundBase
 						];
 					} : Prereqs.ProcessHitTriggered;
 					statusEffect = "BaseStatusEffect.Poisoned";
-					float applicationChance = 0.5f;
+					applicationChance = 
+					[
+						{
+							value = 0.5f;
+						} : ApplicationChanceModifier
+					];
 				} : AddStatusEffectToAttackEffector
 			];
 		}
@@ -322,6 +351,7 @@ TranquilizerRound : ProjectileLauncherRoundBase
 	detonationDelay = 0.1f;
 	attack = "Attacks.TranquilizerProjectile";
 	secondaryAttack = "Attacks.TranquilizerProjectileCharged";
+	relicAttack = "Attacks.TranquilizerProjectileRelicCharged";
 	OnEquip = 
 	[
 		"EquipmentGLP.NonLethal", {
@@ -329,6 +359,14 @@ TranquilizerRound : ProjectileLauncherRoundBase
 			{
 				localizedDescription = "LocKey#23240";
 			};
+			stats = 
+			[
+				{
+					statType = "BaseStats.ProjectileLauncherRechargeDuration";
+					modifierType = "AdditiveMultiplier";
+					value = 3;
+				} : ConstantStatModifier
+			];
 		}
 	];
 }
@@ -465,8 +503,8 @@ TitaniumPlating : ProjectileLauncherWiringBase
 			stats = 
 			[
 				{
-					statType = "BaseStats.Armor";
-					modifierType = "AdditiveMultiplier";
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
 					value = 0.07f;
 				} : ConstantStatModifier
 			];

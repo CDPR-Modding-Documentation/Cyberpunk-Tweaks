@@ -21,6 +21,7 @@ Base_Quasar : Base_Tech_Revolver
 		value = 35;
 	} : ConstantStatModifier;
 	localizedDescription = "LocKey#3598";
+	gameplayDescription = "LocKey#92672";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Quasar";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
@@ -76,31 +77,34 @@ Base_Quasar : Base_Tech_Revolver
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Street";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Tech";
 	fk< Item > ammo = "Ammo.HandgunAmmo";
-	fk< Crosshair > crosshair = "Crosshairs.Tech_Omaha";
+	fk< Crosshair > crosshair = "Crosshairs.Tech_Simple";
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Quasar_Technical_Stats"
 		];
-	} : Base_Tech_Revolver_NPC_Data;
+	} : Base_Quasar_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Quasar_Technical_Stats", "Items.Base_Quasar_Handling_Stats", "Items.Base_Quasar_Recoil_Stats", "Items.Base_Quasar_Spread_Stats", "Items.Base_Quasar_Aim_Stats", "Items.Base_Quasar_Constant_Stats"
+		"Items.Base_Quasar_Technical_Stats", "Items.Base_Quasar_Handling_Stats", "Items.Base_Quasar_Recoil_Stats", "Items.Base_Quasar_Spread_Stats", "Items.Base_Quasar_Aim_Stats", "Items.Base_Quasar_Constant_Stats", "Items.Base_Quasar_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.MediumStaminaDelay", "EquipmentGLP.MediumWeapon"
 	];
 	fk< StatPool >[] statPools = 
 	[
-		"BaseStatPools.WeaponCharge"
+		"BaseStatPools.FullAutoTechCharge"
 	];
 	CName audioSwitchName = "w_pistol_type";
 	CName audioSwitchValue = "w_pistol_power";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.TechRevolver";
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 2.07f;
-	baseEmptyReloadTime = 2.07f;
-	uninterruptibleReloadStart = 1.7f;
-	uninterruptibleEmptyReloadStart = 1.7f;
+	baseReloadTime = 1.4f;
+	baseEmptyReloadTime = 1.4f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 8.0f;
 	float weaponFarPlane = 22.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -117,6 +121,14 @@ Base_Quasar : Base_Tech_Revolver
 	float weaponBlurIntensity_aim = 1.f;
 }
 
+Base_Quasar_NPC_Data : Base_Tech_Revolver_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Quasar_NPC_Technical_Stats", "Items.Base_Quasar_NPC_Damage_Stats"
+	];
+}
+
 Base_Quasar_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -128,7 +140,7 @@ Base_Quasar_Technical_Stats : StatModifierGroup
 			value = 0.18f;
 		} : CycleTimeModifier, 
 		{
-			value = 20.f;
+			value = 16.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 1.f;
@@ -149,19 +161,93 @@ Base_Quasar_Technical_Stats : StatModifierGroup
 			value = 0.5f;
 		} : ChargeReadyPercentageModifier, 
 		{
-			value = 2.f;
+			value = 1.5f;
 		} : ChargeTimeModifier, 
 		{
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier, 
+			value = 1.f;
+		} : TechPierceEnabledModifier, 
 		{
-			value = 0.9f;
-		} : TechPierceChargeLevelModifier
+			value = 0.2f;
+		} : TechPierceChargeLevelModifier, 
+		{
+			value = -0.1f;
+		} : TechPierceDamageFactorModifier
+	];
+}
+
+Base_Quasar_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 48f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Quasar_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 36f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Quasar_NPC_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.18f;
+		} : CycleTimeModifier, 
+		{
+			value = 16.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.01f;
+		} : CycleTime_BurstMaxChargeModifier, 
+		{
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
+		{
+			value = 1.0f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.0f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 0.25f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			value = 0.f;
+		} : TechPierceEnabledModifier, 
+		{
+			value = 0.2f;
+		} : TechPierceChargeLevelModifier, 
+		{
+			value = -0.1f;
+		} : TechPierceDamageFactorModifier
 	];
 }
 
@@ -170,11 +256,17 @@ Base_Quasar_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.07f;
+			value = 1.4f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.07f;
+			value = 1.4f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.67f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 0.67f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -192,13 +284,13 @@ Base_Quasar_Recoil_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 0.f;
+			value = -5.f;
 		} : RecoilDirModifier, 
 		{
-			value = 160.f;
+			value = 30.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.15f;
+			value = 0.1f;
 		} : RecoilHoldDurationModifier, 
 		{
 			value = 0.03f;
@@ -244,10 +336,10 @@ Base_Quasar_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 3.f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.25f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -265,11 +357,11 @@ Base_Quasar_Spread_Stats : StatModifierGroup
 			value = 0.03f;
 		} : SpreadEvenDistributionJitterSizeModifier, 
 		{
-			value = -0.5f;
-		} : SpreadAdsChargeMultModifier, 
+			value = -0.25f;
+		} : SpreadChargeMultModifier, 
 		{
-			value = -0.f;
-		} : SpreadAdsFullChargeMultModifier
+			value = -0.25f;
+		} : SpreadAdsChargeMultModifier
 	];
 }
 
@@ -297,48 +389,64 @@ Base_Quasar_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 0.8f;
+			value = 1.33f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.f;
+			value = 0.25f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 5.0f;
+			value = 5.32f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 2.f;
+			value = 1.1f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 1.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.FullAutoOnFullCharge";
 			modifierType = "Additive";
 			value = 1.0f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.364f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 

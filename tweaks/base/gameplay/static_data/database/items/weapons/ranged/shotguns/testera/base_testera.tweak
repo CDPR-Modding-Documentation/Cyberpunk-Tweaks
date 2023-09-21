@@ -79,21 +79,25 @@ Base_Testera : Base_Power_Dual_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Testera_NPC_Technical_Stats"
 		];
-	} : Base_Power_Dual_Shotgun_NPC_Data;
+	} : Base_Testera_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Testera_Technical_Stats", "Items.Base_Testera_Handling_Stats", "Items.Base_Testera_Recoil_Stats", "Items.Base_Testera_Spread_Stats", "Items.Base_Testera_Aim_Stats", "Items.Base_Testera_Constant_Stats"
+		"Items.Base_Testera_Technical_Stats", "Items.Base_Testera_Handling_Stats", "Items.Base_Testera_Recoil_Stats", "Items.Base_Testera_Spread_Stats", "Items.Base_Testera_Aim_Stats", "Items.Base_Testera_Constant_Stats", "Items.Base_Testera_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", "EquipmentGLP.HeavyWeapon"
 	];
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "ricochet";
 	bool saveStatPools = true;
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerShotgun";
-	baseReloadTime = 2.1f;
-	baseEmptyReloadTime = 2.1f;
-	uninterruptibleReloadStart = 0.7f;
-	uninterruptibleEmptyReloadStart = 0.7f;
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
+	baseReloadTime = 0.85f;
+	baseEmptyReloadTime = 0.85f;
+	uninterruptibleReloadStart = 0.25f;
+	uninterruptibleEmptyReloadStart = 0.25f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -109,6 +113,14 @@ Base_Testera : Base_Power_Dual_Shotgun
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
 	Vector3 ikOffset = ( 0.0f, 0.0f, 0.015f );
+}
+
+Base_Testera_NPC_Data : Base_Power_Dual_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Testera_NPC_Technical_Stats", "Items.Base_Testera_NPC_Damage_Stats"
+	];
 }
 
 Base_Testera_Technical_Stats : StatModifierGroup
@@ -131,6 +143,30 @@ Base_Testera_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Testera_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 107f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Testera_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 85f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Testera_NPC_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -139,13 +175,13 @@ Base_Testera_NPC_Technical_Stats : StatModifierGroup
 			value = 2.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.5f;
+			value = 1.1f;
 		} : CycleTimeModifier, 
 		{
 			value = 2.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 6.f;
+			value = 7.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
@@ -156,11 +192,17 @@ Base_Testera_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 1.7f;
+			value = 0.688f;
 		} : ReloadTimeModifier, 
 		{
-			value = 1.7f;
+			value = 0.688f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.012f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.012f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.1f;
 		} : ZoomLevelModifier, 
@@ -224,10 +266,10 @@ Base_Testera_Spread_Stats : StatModifierGroup
 			value = 0.75f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.0f;
+			value = 1.25f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.5f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -271,27 +313,27 @@ Base_Testera_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 5.f;
+			value = 3.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadDefaultY";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 3.f;
+			value = 2.3f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultY";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 3.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxY";
@@ -301,32 +343,32 @@ Base_Testera_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 2.3f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxY";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 1.2f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 1.2f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 10.f;
+			value = 8.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 13.f;
+			value = 10.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilRecoveryTime";
@@ -334,15 +376,31 @@ Base_Testera_Constant_Stats : StatModifierGroup
 			value = 0.25f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			value = 1.75f;
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.EffectiveDPS";
 			modifierType = "Multiplier";
-			value = 0.58f;
-		} : ConstantStatModifier
+			value = 0.6857f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 2.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.870f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 

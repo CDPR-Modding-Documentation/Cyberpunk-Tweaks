@@ -1,8 +1,9 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Satara_Default : Base_Satara
 {
+	CName appearanceResourceName = "Preset_Satara_Default";
 	CName[] visualTags = 
 	[
 		"Default"
@@ -26,47 +27,21 @@ Preset_Satara_Default : Base_Satara
 			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__mag_stdr";
 		}, 
 		"Items.ShotgunScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericTechModList, 
+			slot = "AttachmentSlots.Tech_Shotgun_WeaponMod1";
+		} : Tech_Shotgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModRare";
-		} : RareDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModEpic";
-		} : EpicDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModLegendary";
-		} : LegendaryDedicatedTechModList
+			slot = "AttachmentSlots.Tech_Shotgun_WeaponMod2";
+		} : Tech_Shotgun_ModList_Slot2
 	];
-	CName appearanceResourceName = "Preset_Satara_Default";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 25;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 
 Preset_Satara_Pimp : Preset_Satara_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -78,11 +53,19 @@ Preset_Satara_Neon : Preset_Satara_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Satara_Military : Preset_Satara_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -118,45 +101,182 @@ Craftable_Common_Satara : Preset_Satara_Default
 Proficiency_Craftable_Uncommon_Satara : Craftable_Common_Satara
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Tech_Shotgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Satara : Craftable_Common_Satara
+Craftable_Rare_Satara : Proficiency_Craftable_Uncommon_Satara
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Satara : Craftable_Common_Satara
+Craftable_Epic_Satara : Proficiency_Craftable_Uncommon_Satara
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Satara : Craftable_Common_Satara
+Craftable_Legendary_Satara : Proficiency_Craftable_Uncommon_Satara
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Satara_Brick : Preset_Satara_Default
+{
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "satara_brick_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
+	displayName = "LocKey#84934";
+	visualTags = 
+	[
+		"Brick_Satara"
+	];
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	localizedDescription = "LocKey#84935";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Satara_NPC_Data;
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", "EquipmentGLP.BrickBorgWeaponStagger", {
+			animationWrapperOverrides = 
+			[
+				"w_base_shotgun"
+			];
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_satara__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.BrickSataraWeaponMod";
+		}
+	];
+	bool scaleToPlayer = true;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Satara_Brick_Technical_Stats", "Items.Satara_Brick_Tech_Stats", "Items.Base_Satara_Handling_Stats", "Items.Base_Satara_Recoil_Stats", "Items.Base_Satara_Spread_Stats", "Items.Base_Satara_Aim_Stats", "Items.Base_Satara_Constant_Stats", "Items.Base_Satara_Damage_Stats", "Items.Base_Tech_Shotgun_Mult_Stats", "Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Shotgun_Sway_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Dual_Shotgun_DeadReckoning_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
+	];
+}
+
+Satara_Brick_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 2.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.5f;
+		} : CycleTimeModifier, 
+		{
+			value = 2.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 14.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 1.f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 3.0f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			float value = 0.3f;
+		} : TechPierceChargeLevelModifier, 
+		{
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationHigh"
+	];
+}
+
+Satara_Brick_Tech_Stats : Base_Tech_Stats
+{
+	statModifiers += 
+	[
+		{
+			value = 10.f;
+		} : TechPierceScanAngleModifier, 
+		{
+			statType = "BaseStats.CanFullyChargeWeapon";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanOverchargeWeapon";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveChargeTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChargeTime";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
 	];
 }
 

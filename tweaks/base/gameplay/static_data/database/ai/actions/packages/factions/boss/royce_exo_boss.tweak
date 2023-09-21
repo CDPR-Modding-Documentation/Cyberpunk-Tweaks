@@ -84,6 +84,10 @@ Map : ActionMap
 				isOverriddenBy = "RoyceExo.SE_BrainMelt";
 			}, 
 			{
+				node = "StatusEffectActions.SE_QuickHackStaggerCyberware";
+				isOverriddenBy = "RoyceExo.SE_QuickHackStaggerCyberware";
+			}, 
+			{
 				node = "ReactionsActions.PanicSelector";
 				isOverriddenBy = "RoyceExo.PanicSelector";
 			}, 
@@ -126,6 +130,10 @@ Map : ActionMap
 			{
 				node = "ReactionsActions.LookAroundForIntruderUnarmed";
 				isOverriddenBy = "RoyceExo.LookAroundForIntruderUnarmed";
+			}, 
+			{
+				node = "ReactionsActions.LookAroundForWhistle";
+				isOverriddenBy = "RoyceExo.LookAroundForWhistle";
 			}, 
 			{
 				node = "ReactionsActions.BodyInvestigationSearchComposite";
@@ -178,6 +186,38 @@ Map : ActionMap
 			{
 				node = "ReactionsActions.DeviceInvestigationBossCustomSequence";
 				isOverriddenBy = "RoyceExo.BossInvestigateCustomComposite";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseAndroid";
+				isOverriddenBy = "RoyceExo.SE_SystemCollapseBossMitigated";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseMech";
+				isOverriddenBy = "RoyceExo.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBossMitigated";
+				isOverriddenBy = "RoyceExo.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBoss";
+				isOverriddenBy = "RoyceExo.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapse";
+				isOverriddenBy = "RoyceExo.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlackwallDamage";
+				isOverriddenBy = "RoyceExo.SE_BlackwallDamage";
+			}, 
+			{
+				node = "GenericArchetype.SE_Madness";
+				isOverriddenBy = "RoyceExo.SE_Madness";
+			}, 
+			{
+				node = "GenericArchetype.SE_WeaponJammed";
+				isOverriddenBy = "RoyceExo.SE_WeaponJammed";
 			}
 		];
 	};
@@ -240,6 +280,258 @@ ReevaluationBreak : AIAction
 	};
 }
 
+ApplyControlHackReactionImmunity : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossControlhackReactionImmunity"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SE_BlackwallDamage : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = [];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 7.7f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_Poisoned";
+		animSlot = 
+		{
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.BossBlackWallAttack"
+			];
+			float delay = 0.f;
+		} : AISubActionCustomEffectors
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim, 
+		{
+			name = "black_wall_activation";
+		} : AISubActionSpawnFX, 
+		{
+			name = "black_wall";
+		} : AISubActionSpawnFX
+	];
+}
+
+SE_MadnessCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeMadness"
+			];
+		} : AIActionOR;
+	};
+}
+
+SE_Madness : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeMadness"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossNoInterrupt"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_Pain";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SystemCollapse : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectBossSystemCollapse", "Condition.NotStatusEffectBossSystemCollapseHackReactionImmunity"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 8.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_Poisoned";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "death_sparks";
+		} : AISubActionSpawnFX, 
+		{
+			name = "status_electrocuted";
+		} : AISubActionSpawnFX, 
+		{
+			name = "status_emp";
+		} : AISubActionSpawnFX
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSystemCollapseHackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+			delay = 0.5f;
+		} : AISubActionStatusEffect
+	];
+}
+
+SE_SystemCollapseBossMitigated : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectBossSystemCollapse", "Condition.StatusEffectBossSystemCollapseHackReactionImmunity"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "death_sparks";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "StaggerFront";
+		animSlot = 
+		{
+		};
+	};
+}
+
 IsNotShootingCondition : AIAction
 {
 	activationCondition = 
@@ -251,6 +543,24 @@ IsNotShootingCondition : AIAction
 				"Condition.NotTargetInStatesShoot"
 			];
 		} : AIActionAND;
+	};
+}
+
+SE_QuickHackStaggerCyberware : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl1", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3", "Condition.StatusEffectCyberwareMalfunctionLvl4", "Condition.StatusEffectCyberwareMalfunctionLvl4PlusPlus"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.01f;
 	};
 }
 
@@ -370,7 +680,8 @@ LookAroundForIntruder : AIAction
 	};
 	loop = 
 	{
-		duration = 2.1f;
+		useDurationFromAnimSlot = false;
+		duration = 0.f;
 	};
 	recovery = 
 	{
@@ -387,6 +698,28 @@ LookAroundForIntruder : AIAction
 		{
 		};
 	};
+}
+
+LookAroundForWhistle : RoyceExo.LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = "Condition.StatusEffectWhistleTurnAway";
+	};
+	startup = 
+	{
+		duration = 1.1f;
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.f;
+	};
+	recovery = 
+	{
+		duration = 1.1f;
+	};
+	subActions = [];
 }
 
 LookAroundForIntruderUnarmed : AIAction
@@ -447,6 +780,10 @@ CallSquadTalk : ReactionsActions.CallSquadTalk
 {
 	animData = 
 	{
+		animFeature = "Investigation";
+		animSlot = 
+		{
+		};
 	};
 }
 
@@ -651,6 +988,24 @@ SE_WeaponJammed : AIQuickhackDefaultAction
 	{
 		duration = 3.333f;
 	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossControlhackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			CName name = "hacks_weapon_malfunction";
+		} : AISubActionSpawnFX, 
+		{
+			CName name = "weapon_overload";
+		} : AISubActionSpawnFX
+	];
 	animData = 
 	{
 		animFeature = "SE_WeaponJammed";
@@ -753,6 +1108,10 @@ SE_StunArmed : AIAction
 		{
 		};
 	};
+	loop = 
+	{
+		duration = 5.f;
+	};
 }
 
 SE_StunUnArmed : RoyceExo.SE_StunArmed
@@ -773,7 +1132,7 @@ EnragedCondition : AIAction
 	};
 	loop = 
 	{
-		duration = 0.00000001f;
+		duration = 0.01f;
 	};
 }
 
@@ -1728,6 +2087,20 @@ SprintToTargetCondition : AIAction
 	};
 }
 
+SprintToTargetSoftCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo2dot5mZDiff", "Condition.CalculatePathToTarget", "Condition.NotStatusEffectTypeLocomotionMalfunction"
+			];
+		} : AIActionAND;
+	};
+}
+
 SprintToTargetLosCondition : AIAction
 {
 	activationCondition = 
@@ -1770,6 +2143,67 @@ SprintToTarget : AIAction
 							OR = 
 							[
 								"Condition.TargetBelow5m", "Condition.TargetAbove1dot4mZDiff", "Condition.StatusEffectTypeLocomotionMalfunction"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.CentaurBody";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SprintToTarget_WithRMACheck : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToTarget", "Condition.TargetInRestrictedMovementArea"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+			locomotionMode = "Moving";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 10.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.TargetIsVisible", {
+							OR = 
+							[
+								"Condition.TargetBelow5m", "Condition.TargetAbove1dot4mZDiff", "Condition.StatusEffectTypeLocomotionMalfunction", "Condition.NotTargetInRestrictedMovementArea"
 							];
 						} : AIActionOR
 					];
@@ -2071,10 +2505,6 @@ DashSideCondition : AIAction
 
 DashBackwardAwayFromTarget : AIAction
 {
-	cooldowns = 
-	[
-		"RoyceExo.DashAwayCooldown", "RoyceExo.JumpAttackCooldown"
-	];
 	activationCondition = 
 	{
 		condition = 
@@ -2151,10 +2581,6 @@ DashBackwardAwayFromTarget : AIAction
 
 DashLeftAwayFromTarget : AIAction
 {
-	cooldowns = 
-	[
-		"RoyceExo.DashAwayCooldown", "RoyceExo.JumpAttackCooldown"
-	];
 	activationCondition = 
 	{
 		condition = 
@@ -2217,10 +2643,6 @@ DashLeftAwayFromTarget : AIAction
 
 DashRightAwayFromTarget : AIAction
 {
-	cooldowns = 
-	[
-		"RoyceExo.DashAwayCooldown"
-	];
 	activationCondition = 
 	{
 		condition = 
@@ -2525,7 +2947,7 @@ SingleMeleeAttackShield0 : AIAction
 	};
 	startup = 
 	{
-		duration = 0.6f;
+		duration = 0.75f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -2654,7 +3076,7 @@ SingleMeleeAttackShield180r : AIAction
 	};
 	startup = 
 	{
-		duration = 0.6f;
+		duration = 0.75f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -2749,7 +3171,7 @@ SingleMeleeAttackNoShield0 : AIAction
 	};
 	startup = 
 	{
-		duration = 0.6f;
+		duration = 0.75f;
 		useDurationFromAnimSlot = false;
 		changeNPCState = 
 		{
@@ -2878,7 +3300,7 @@ SingleMeleeAttackNoShield180r : AIAction
 	};
 	startup = 
 	{
-		duration = 0.6f;
+		duration = 0.75f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -2972,7 +3394,7 @@ SingleMeleeAttackStrong03 : AIAction
 	};
 	startup = 
 	{
-		duration = 0.6f;
+		duration = 0.75f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -3064,7 +3486,7 @@ SingleMeleeAttackStrong04 : AIAction
 	};
 	startup = 
 	{
-		duration = 0.6f;
+		duration = 0.75f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -3944,7 +4366,7 @@ AimAttackSplashLookatUpdate : AIAction
 {
 	loop = 
 	{
-		duration = 0.0001f;
+		duration = 0.01f;
 	};
 }
 
@@ -3952,7 +4374,7 @@ AimAttackLookatUpdate : AIAction
 {
 	loop = 
 	{
-		duration = 0.0001f;
+		duration = 0.01f;
 	};
 	lookats = 
 	[
@@ -4014,6 +4436,7 @@ AimAttackSplashLeft : AimAttackSplash
 			attack = "Attacks.RoyceLaserSight";
 			attackRange = 10.f;
 			attackName = "laser";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 	loopSubActions = 
@@ -4075,6 +4498,7 @@ AimAttackSplashRight : AimAttackSplash
 			attack = "Attacks.RoyceLaserSight";
 			attackRange = 10.f;
 			attackName = "laser";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 	loopSubActions = 
@@ -4787,6 +5211,7 @@ SwipeAttackUp : AIAction
 			attack = "Attacks.PlasmaBeam";
 			attackRange = 200.f;
 			attackName = "SwipedUp";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 	animData = 
@@ -4816,6 +5241,7 @@ SwipeAttackUp2 : SwipeAttackUp
 			attack = "Attacks.PlasmaBeam";
 			attackRange = 200.f;
 			attackName = "SwipedUp";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 	animData = 
@@ -4926,6 +5352,7 @@ SwipeAttackDown : AIAction
 			attack = "Attacks.PlasmaBeam";
 			attackRange = 200.f;
 			attackName = "SwipedDown";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 	animData = 
@@ -5000,6 +5427,14 @@ SpecialAttackSequence : AIActionSequence
 	];
 }
 
+SpecialAttackSequenceMadness : AIActionSequence
+{
+	actions = 
+	[
+		"RoyceExo.RotateToTarget", "RoyceExo.SpecialAttackShieldMadness", "RoyceExo.SpecialAttackNoWeakspotMadness", "RoyceExo.SetSpecialAttackCooldown", "GenericArchetype.Success"
+	];
+}
+
 SpecialAttackCondition : AIAction
 {
 	cooldowns = 
@@ -5012,7 +5447,7 @@ SpecialAttackCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.TargetAbove8m", "Condition.TargetBelow120deg", "Condition.NotLineOfSightFailed", "Condition.TargetIsVisible"
+				"Condition.TargetBelow120deg", "Condition.NotLineOfSightFailed", "Condition.TargetIsVisible"
 			];
 		} : AIActionAND;
 	};
@@ -5080,10 +5515,7 @@ SpecialAttackShield : AIAction
 			{
 				condition = 
 				{
-					OR = 
-					[
-						"Condition.TargetBelow4m", "Condition.TargetAbove140deg", "Condition.NotCalculatePathStraightForward4m", "Condition.NotTargetIsVisible"
-					];
+					OR = [];
 				} : AIActionOR;
 			}
 		];
@@ -5203,10 +5635,7 @@ SpecialAttackNoShield : AIAction
 			{
 				condition = 
 				{
-					OR = 
-					[
-						"Condition.TargetBelow4m", "Condition.TargetAbove120deg", "Condition.NotCalculatePathStraightForward4m", "Condition.NotTargetIsVisible"
-					];
+					OR = [];
 				} : AIActionOR;
 			}
 		];
@@ -5261,6 +5690,246 @@ SpecialAttackNoShield : AIAction
 	];
 	recoverySubActions = 
 	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.01f;
+			attack = "NPCAttacks.StrongAttackStagger";
+			attackRange = 0.00000001f;
+			attackName = "SpecialAttack";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "SpecialAttackNoShield";
+		animSlot = 
+		{
+			startupSlide = "RoyceExo.RotateSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.CentaurBody";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.CentaurWeapon";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+SpecialAttackShieldMadness : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasExoWeakspot"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_tpp_loop";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.CombatTarget;
+			rangedAttack = "Attacks.PlasmaShotTurtle";
+			predictionTime = 0.25f;
+			triggerMode = "TriggerMode.SemiAuto";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.PulseBarrageShootingPackage"
+			];
+			numberOfShots = 500;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.FriendlyFire"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSuicide"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.01f;
+			attack = "NPCAttacks.StrongAttackStagger";
+			attackRange = 0.00000001f;
+			attackName = "SpecialAttack";
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "SpecialAttack";
+		animSlot = 
+		{
+			startupSlide = "RoyceExo.RotateSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.CentaurBody";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SpecialAttackNoWeakspotMadness : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasExoWeakspot"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_tpp_loop";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = 
+			{
+				targetSlot = "Chest";
+			} : AIActionTarget.CombatTarget;
+			predictionTime = 0.25f;
+			rangedAttack = "Attacks.PlasmaShotTurtle";
+			triggerMode = "TriggerMode.SemiAuto";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.PulseBarrageShootingPackage"
+			];
+			numberOfShots = 500;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.FriendlyFire"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSuicide"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
 		{
 			weaponSlots = 
 			[
@@ -5619,53 +6288,6 @@ SE_QuickHackFreezeLocomotion : StatusEffectActions.SE_QuickHackFreezeLocomotion
 	};
 }
 
-SE_CommsCallIn : StatusEffectActions.SE_CommsCallIn
-{
-	loop = 
-	{
-		duration = 2.f;
-		toNextPhaseConditionCheckInterval = 0.25f;
-		toNextPhaseCondition = 
-		[
-			{
-				condition = 
-				{
-					OR = 
-					[
-						"Condition.CombatTarget"
-					];
-				} : AIActionOR;
-			}
-		];
-	};
-	recovery = 
-	{
-		duration = 0.f;
-	};
-	animData = 
-	{
-	};
-}
-
-SE_CommsCallInCombat : StatusEffectActions.SE_CommsCallInCombat
-{
-	startup = 
-	{
-		duration = 0.f;
-	};
-	loop = 
-	{
-		duration = 2.f;
-	};
-	recovery = 
-	{
-		duration = 0.f;
-	};
-	animData = 
-	{
-	};
-}
-
 SE_Whistle : StatusEffectActions.SE_Whistle
 {
 	startup = 
@@ -5679,13 +6301,7 @@ SE_Whistle : StatusEffectActions.SE_Whistle
 		toNextPhaseCondition = 
 		[
 			{
-				condition = 
-				{
-					OR = 
-					[
-						"Condition.CombatTarget"
-					];
-				} : AIActionOR;
+				condition = "Condition.InStatesCombat";
 			}
 		];
 	};
@@ -5695,6 +6311,10 @@ SE_Whistle : StatusEffectActions.SE_Whistle
 	};
 	animData = 
 	{
+		animFeature = "SE_CommsCall";
+		animSlot = 
+		{
+		};
 	};
 }
 
@@ -5714,6 +6334,10 @@ SE_CombatWhistle : StatusEffectActions.SE_CombatWhistle
 	};
 	animData = 
 	{
+		animFeature = "SE_CommsCall";
+		animSlot = 
+		{
+		};
 	};
 }
 
@@ -5912,13 +6536,13 @@ SetSwipeAttackCooldown : AIAction
 SwipeAttackCooldown : AIActionCooldown
 {
 	name = "SwipeAttackCooldown";
-	duration = 15.f;
+	duration = 12.5f;
 }
 
 SwipeAttackInitCooldown : AIActionCooldown
 {
 	name = "SwipeAttackCooldown";
-	duration = 15.f;
+	duration = 12.5f;
 }
 
 MeleeAttackCooldown : AIActionCooldown
@@ -6598,7 +7222,7 @@ MoveCloserToStimSource : AIAction
 		{
 			AND = 
 			[
-				"Condition.StimSource", "Condition.StimTargetInRestrictedMovementArea"
+				"Condition.NotWhistleStimType", "Condition.StimSource", "Condition.StimTargetInRestrictedMovementArea"
 			];
 		} : AIActionAND;
 	};
@@ -6692,5 +7316,85 @@ FindingPlayer : AIAction
 			name = "smasher_taunt_special";
 		} : AISubActionPlayVoiceOver
 	];
+}
+
+RoyceOwnerParryCounterCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AttackOwnerMaxParriesCount2"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+RoyceOwnerParryCounterSoftCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AttackOwnerMaxParriesCount1"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+ResetParryCount : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "ResetmyAttackParriedCount";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+ParryStaggerBack : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "death_sparks";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "StaggerFront";
+		animSlot = 
+		{
+		};
+	};
 }
 

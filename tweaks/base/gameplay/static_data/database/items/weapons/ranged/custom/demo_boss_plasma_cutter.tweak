@@ -35,10 +35,138 @@ plasma_cutter : Base_Weapon
 	[
 		"BaseStats.EquipDurationModifier", "BaseStats.UnequipDurationModifier"
 	];
-	fk< StatModifierGroup >[] statModifierGroups += 
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.plasma_cutter_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+chimera_cannon : plasma_cutter
+{
+	fk< AttachmentSlot >[] placementSlots += 
 	[
-		"Items.plasma_cutter_StatModifierGroup_WeaponStats"
+		"AttachmentSlots.Cannon"
 	];
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.ChimeraRocketProjectilePackage";
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ChimeraProjectileSplash"
+	];
+	quality = "Quality.Common";
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.cannon_rocket_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+chimera_plasma_cutter : plasma_cutter
+{
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.Laser"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ChimeraLaserBeam", "Attacks.ChimeraLaserBeamTop"
+	];
+	quality = "Quality.Common";
+	npcRPGData = 
+	{
+		statModifierGroups = 
+		[
+			"Items.NPCQualityRandomization", "Items.boss_plasma_cutter_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+[ notQueryable ]
+royce_plasma_cutter : plasma_cutter
+{
+	npcRPGData = 
+	{
+		statModifierGroups = 
+		[
+			"Items.NPCQualityRandomization", "Items.boss_plasma_cutter_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+chimera_plasma_cutter_cannon : plasma_cutter
+{
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.CannonLaser"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ChimeraLaserBeam", "Attacks.ChimeraLaserBeamTop"
+	];
+	quality = "Quality.Common";
+	npcRPGData = 
+	{
+		statModifierGroups = 
+		[
+			"Items.NPCQualityRandomization", "Items.boss_plasma_cutter_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+chimera_melee : w_melee_smasher__fists_a
+{
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ChimeraMelee"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ChimeraMeleeExplosion", "Attacks.ChimeraMeleeShockwave", "Attacks.ChimeraStrongAttack"
+	];
+	quality = "Quality.Common";
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.chimera_melee_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+chimera_gas_cloud : Base_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ChimeraGasCloud"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ChimeraGasCloud"
+	];
+	quality = "Quality.Common";
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.chimera_gas_cloud_StatModifierGroup_WeaponStats", "Items.Base_HMG_NPC_Damage_Stats"
+		];
+	} : Base_NPC_RPG_Data;
 }
 
 plasma_cutter_StatModifierGroup_WeaponStats : StatModifierGroup
@@ -67,17 +195,121 @@ plasma_cutter_StatModifierGroup_WeaponStats : StatModifierGroup
 			float value = 1.5f;
 		} : ChargeTimeModifier, 
 		{
-			statType = "BaseStats.DPS";
+			statType = "BaseStats.StaminaCostToBlock";
 			modifierType = "Additive";
-			id = "item_rifles_RPG_stats";
-			column = "power_level_to_DPS";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
+			value = 40.0f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
+}
+
+boss_plasma_cutter_StatModifierGroup_WeaponStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			float value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			float value = 0.2f;
+		} : CycleTimeModifier, 
+		{
+			float value = 0.0f;
+		} : DPSModifier, 
+		{
+			float value = -1.f;
+		} : MagazineCapacityModifier, 
+		{
+			float value = 5.f;
+		} : ReloadTimeModifier, 
+		{
+			float value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			float value = 1.5f;
+		} : ChargeTimeModifier, 
 		{
 			statType = "BaseStats.StaminaCostToBlock";
 			modifierType = "Additive";
 			value = 40.0f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationFull"
+	];
+}
+
+cannon_rocket_StatModifierGroup_WeaponStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			float value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			float value = 0.2f;
+		} : CycleTimeModifier, 
+		{
+			float value = 0.0f;
+		} : DPSModifier, 
+		{
+			float value = -1.f;
+		} : MagazineCapacityModifier, 
+		{
+			float value = 5.f;
+		} : ReloadTimeModifier, 
+		{
+			float value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			float value = 1.5f;
+		} : ChargeTimeModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Additive";
+			value = 40.0f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
+}
+
+chimera_melee_StatModifierGroup_WeaponStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			float value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			float value = 0.2f;
+		} : CycleTimeModifier, 
+		{
+			float value = 0.0f;
+		} : DPSModifier, 
+		{
+			float value = -1.f;
+		} : MagazineCapacityModifier, 
+		{
+			float value = 5.f;
+		} : ReloadTimeModifier, 
+		{
+			float value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			float value = 1.5f;
+		} : ChargeTimeModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Additive";
+			value = 40.0f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
+}
+
+chimera_gas_cloud_StatModifierGroup_WeaponStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		"AttackModifier.WeaponArmorPenetrationFull"
 	];
 }
 

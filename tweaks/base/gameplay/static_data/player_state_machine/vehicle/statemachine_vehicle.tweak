@@ -19,6 +19,7 @@ entering : baseVehicleState
 {
 	bool hasOnEnter = true;
 	bool hasExitCondition = true;
+	bool hasOnExit = true;
 	CName onEnterCameraParamsName = "VehicleTransitions";
 	string[] transitionTo = 
 	[
@@ -50,11 +51,11 @@ drive : abstractSlotState
 	CName onEnterCameraParamsNameSecondary = "Bike";
 	string[] transitionTo = 
 	[
-		"scene", "switchSeats", "driverCombat", "deathExiting", "collisionExiting", "exiting"
+		"scene", "switchSeats", "driverCombatFirearms", "driverCombatMountedWeapons", "deathExiting", "collisionExiting", "coolExiting", "slideExiting", "speedExiting", "combatExiting", "exiting"
 	];
 	string[] transitionCondition = 
 	[
-		"", "=", "=", "", "", ""
+		"", "=", "=", "=", "", "", "", "", "", "", ""
 	];
 }
 
@@ -130,11 +131,11 @@ scene : baseVehicleState
 	CName onEnterCameraParamsName = "";
 	string[] transitionTo = 
 	[
-		"sceneExiting", "combat", "driverCombat", "allSlotStates"
+		"sceneExiting", "combat", "driverCombatFirearms", "driverCombatMountedWeapons", "allSlotStates"
 	];
 	string[] transitionCondition = 
 	[
-		"", "=", "=", ""
+		"", "=", "=", "=", ""
 	];
 }
 
@@ -228,12 +229,20 @@ driverCombat : baseVehicleState
 	CName onEnterCameraParamsName = "DriverCombat";
 	string[] transitionTo = 
 	[
-		"drive", "deathExiting", "collisionExiting", "exiting"
+		"drive", "deathExiting", "collisionExiting", "coolExiting", "slideExiting", "speedExiting", "combatExiting", "exiting", "switchSeats"
 	];
 	string[] transitionCondition = 
 	[
-		"=", "", "", ""
+		"=", "", "", "", "", "=", "", "", "="
 	];
+}
+
+driverCombatFirearms : driverCombat
+{
+}
+
+driverCombatMountedWeapons : driverCombat
+{
 }
 
 exiting : baseVehicleState
@@ -253,6 +262,8 @@ exiting : baseVehicleState
 		""
 	];
 	float durationTime = 2.267f;
+	float highSpeedThreshold = 16.0f;
+	float brakingDelay = 0.0f;
 }
 
 collisionExiting : exiting
@@ -263,6 +274,49 @@ collisionExiting : exiting
 deathExiting : exiting
 {
 	bool hasOnUpdate = false;
+}
+
+combatExiting : exiting
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	float durationTime = 0.65f;
+}
+
+speedExiting : exiting
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	float durationTime = 1.0f;
+	float brakingDelay = 0.75f;
+}
+
+slideExiting : exiting
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	float durationTime = 0.65f;
+	float brakingDelay = 0.75f;
+}
+
+coolExiting : exiting
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	float durationTime = 1.0f;
+	float brakingDelay = 0.75f;
 }
 
 exit : baseVehicleState

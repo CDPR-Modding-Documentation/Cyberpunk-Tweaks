@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, Prereqs, Perks
+using RTDB, BaseStats, Prereqs, Perks, Effectors
 
 Preset_Tomahawk_Default : Base_Axe
 {
@@ -25,9 +25,31 @@ Preset_Tomahawk_Default : Base_Axe
 		{
 			slot = "AttachmentSlots.Grip";
 			fk< Item > itemPartPreset = "Items.w_tomahawk_common_grip";
-		}
+		}, 
+		{
+			slot = "AttachmentSlots.Throwable_WeaponMod1";
+		} : ThrowableModList_Slot1, 
+		{
+			slot = "AttachmentSlots.Throwable_WeaponMod2";
+		} : ThrowableModList_Slot2
 	];
 	audioWeaponConfiguration = "audio_melee_metadata_tomahawk";
+	statModifierGroups += 
+	[
+		"Items.Tomahawk_Default_Damage_Stats"
+	];
+}
+
+Tomahawk_Default_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 76f;
+		} : ConstantStatModifier
+	];
 }
 
 Preset_Fanged_Axe_Default : Base_Axe
@@ -38,28 +60,42 @@ Preset_Fanged_Axe_Default : Base_Axe
 	[
 		"Default"
 	];
+	CName projectileTemplateName = "fanged_axe";
 	CName appearanceResourceName = "Preset_Fanged_Axe_Default";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Fanged_Axe";
-	fk< GameplayLogicPackage >[] OnAttach += 
-	[
-		"GLP.HoldingBorgMelee", {
-			animationWrapperOverrides = 
-			[
-				"w_tomahawk"
-			];
-		} : GameplayLogicPackage
-	];
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
 			slot = "AttachmentSlots.Grip";
 			fk< Item > itemPartPreset = "Items.w_machete_common_grip";
-		}
+		}, 
+		{
+			slot = "AttachmentSlots.Throwable_WeaponMod1";
+		} : ThrowableModList_Slot1, 
+		{
+			slot = "AttachmentSlots.Throwable_WeaponMod2";
+		} : ThrowableModList_Slot2
+	];
+	OnAttach = 
+	[
+		"GLP.HoldingSlowMelee"
 	];
 	audioWeaponConfiguration = "audio_melee_metadata_tomahawk";
 	fk< StatModifierGroup >[] statModifierGroups += 
 	[
-		"Items.Borg_Axe_Stats"
+		"Items.Borg_Axe_Stats", "Items.Borg_Axe_Damage_Stats"
+	];
+}
+
+Borg_Axe_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 76f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -69,12 +105,35 @@ Preset_Fanged_Axe_Neon : Preset_Fanged_Axe_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+Preset_Fanged_Axe_Military : Preset_Fanged_Axe_Default
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
 [ notQueryable ]
 Craftable_Common_Tomahawk : Preset_Tomahawk_Default
 {
 	quality = "Quality.Common";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_tomahawk_common_grip";
+		}
+	];
 	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
 }
 
@@ -82,52 +141,48 @@ Craftable_Common_Tomahawk : Preset_Tomahawk_Default
 Craftable_Uncommon_Tomahawk : Craftable_Common_Tomahawk
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Throwable_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Tomahawk : Craftable_Common_Tomahawk
+Craftable_Rare_Tomahawk : Craftable_Uncommon_Tomahawk
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Tomahawk : Craftable_Common_Tomahawk
+Craftable_Epic_Tomahawk : Craftable_Uncommon_Tomahawk
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Tomahawk : Craftable_Common_Tomahawk
+Craftable_Legendary_Tomahawk : Craftable_Uncommon_Tomahawk
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Craftable_Common_Fanged_Axe : Preset_Fanged_Axe_Default
 {
 	quality = "Quality.Common";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_machete_common_grip";
+		}
+	];
 	CraftingData = "Items.Small_Common_Crafting_Materials_Weapon";
 }
 
@@ -135,45 +190,88 @@ Craftable_Common_Fanged_Axe : Preset_Fanged_Axe_Default
 Craftable_Uncommon_Fanged_Axe : Craftable_Common_Fanged_Axe
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Throwable_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Fanged_Axe : Craftable_Common_Fanged_Axe
+Craftable_Rare_Fanged_Axe : Craftable_Uncommon_Fanged_Axe
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Fanged_Axe : Craftable_Common_Fanged_Axe
+Craftable_Epic_Fanged_Axe : Craftable_Uncommon_Fanged_Axe
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Fanged_Axe : Craftable_Common_Fanged_Axe
+Craftable_Legendary_Fanged_Axe : Craftable_Uncommon_Fanged_Axe
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_VB_Axe : Preset_Tomahawk_Default
+{
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "vb_axe_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Melee_Blueprint";
+	displayName = "LocKey#86806";
+	localizedDescription = "LocKey#86807";
+	CName projectileTemplateName = "vb_axe";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	visualTags = 
+	[
+		"VooDoo_Melee"
+	];
+	quality = "Quality.Random";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Axe_NPC_Data;
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.IconicMeleeWeaponMod1";
+			itemPartPreset = "Items.VBAxeWeaponMod";
+		}
+	];
+	audioWeaponConfiguration = "audio_melee_metadata_vb_axe";
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Melee_Status_Effect_Application_Stats", "Items.Base_Axe_RPG_Stats", "Items.Base_Axe_Handling_Stats", "Items.Base_Axe_Misc_Stats", "Proficiencies.Weapon_CoolSkill_Passives", "Items.Base_Melee_Weapon_Damage_Type_Electric", "Items.Base_Melee_Weapon_Damage_Type_Electric_Min_Max", "Items.Tomahawk_Default_Damage_Stats"
 	];
 }
 

@@ -1,9 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Unity_Default_Left_Hand : Preset_Unity_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Unity_Default : Base_Unity
 {
@@ -31,49 +27,21 @@ Preset_Unity_Default : Base_Unity
 			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+		} : Power_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod2";
+		} : Power_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 5;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
-Preset_Unity_Pimp_Left_Hand : Preset_Unity_Pimp
+[ notQueryable ]
+Preset_Unity_Default_Unbreakable : Preset_Unity_Default
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Unity_Pimp : Preset_Unity_Default
@@ -82,10 +50,25 @@ Preset_Unity_Pimp : Preset_Unity_Default
 	[
 		"Pimp"
 	];
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
-Preset_Unity_Neon_Left_Hand : Preset_Unity_Neon
+[ notQueryable ]
+Preset_Unity_Pimp_Unbreakable : Preset_Unity_Pimp
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Pimp_Left_Hand_2 : Preset_Unity_Pimp_Left_Hand
+{
+	OnLooted = [];
 }
 
 Preset_Unity_Neon : Preset_Unity_Default
@@ -94,15 +77,246 @@ Preset_Unity_Neon : Preset_Unity_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
-Preset_Unity_Military_Left_Hand : Preset_Unity_Military
+[ notQueryable ]
+Preset_Unity_Neon_Unbreakable : Preset_Unity_Neon
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Unity_Military : Preset_Unity_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Military_Unbreakable : Preset_Unity_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Default_Left_Hand : Preset_Unity_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Unity_Technical_Stats"
+		];
+	} : Broken_Power_Handgun_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Unity_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Pimp_Left_Hand : Preset_Unity_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Unity_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Neon_Left_Hand : Preset_Unity_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Unity_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Military_Left_Hand : Preset_Unity_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Unity_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Default_Retrofix : Preset_Unity_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Pimp_Retrofix : Preset_Unity_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Neon_Retrofix : Preset_Unity_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Unity_Military_Retrofix : Preset_Unity_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -138,46 +352,35 @@ Craftable_Common_Unity : Preset_Unity_Default
 Craftable_Uncommon_Unity : Craftable_Common_Unity
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Unity : Craftable_Common_Unity
+Craftable_Rare_Unity : Craftable_Uncommon_Unity
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Unity : Craftable_Common_Unity
+Craftable_Epic_Unity : Craftable_Uncommon_Unity
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Unity : Craftable_Common_Unity
+Craftable_Legendary_Unity : Craftable_Uncommon_Unity
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
@@ -200,7 +403,32 @@ Preset_V_Unity_Cutscene : Preset_Unity_Default
 			modifierType = "Multiplier";
 			value = 0f;
 		} : ConstantStatModifier, 
-		"Character.ScaleToPlayerLevel"
+		"Character.ScaleToPlayerLevel", {
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "iconic_level_to_random_range_mult_new";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_stdr";
+		}
 	];
 }
 
@@ -231,24 +459,293 @@ Preset_V_Unity : Preset_Unity_Default
 			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_stdr";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+		} : Power_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod2";
+		} : Power_Handgun_ModList_Slot2
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Unity_Agent : Preset_Unity_Default
+{
+	OnLooted += 
+	[
 		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			effectors = 
+			[
+				{
+					fact = "unity_agent_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	audioName = "wea_set_unity_dex";
+	displayName = "LocKey#87363";
+	localizedDescription = "LocKey#87375";
+	CName[] visualTags = 
+	[
+		"Agent_Unity"
+	];
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon", "Silenced"
 	];
 	statModifiers += 
 	[
-		"Character.q001_base_power_level"
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Unity_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.UnityAgentWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Unity_Agent_Technical_Stats", "Items.Base_Unity_Handling_Stats", "Items.Base_Unity_Recoil_Stats", "Items.Base_Unity_Spread_Stats", "Items.Base_Unity_Aim_Stats", "Items.Base_Unity_Agent_Constant_Stats", "Items.Base_Unity_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+	bool scaleToPlayer = true;
+}
+
+Base_Unity_Agent_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.35f;
+		} : CycleTimeModifier, 
+		{
+			value = 10.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Unity_Agent_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 0.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 2.64f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.417f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Unity_Angelica : Preset_Unity_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "unity_angelica_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
+	displayName = "LocKey#87366";
+	localizedDescription = "LocKey#87376";
+	CName[] visualTags = 
+	[
+		"Angelica_Unity"
+	];
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Unity_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_unity__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.UnityAngelicaWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Unity_Angelica_Technical_Stats", "Items.Base_Unity_Handling_Stats", "Items.Base_Unity_Recoil_Stats", "Items.Base_Unity_Spread_Stats", "Items.Base_Unity_Aim_Stats", "Items.Base_Unity_Angelica_Constant_Stats", "Items.Base_Unity_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Unity_Angelica_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.275f;
+		} : CycleTimeModifier, 
+		{
+			value = 12.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Unity_Angelica_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 0.85f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.175f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 3.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 1.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 2.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.6f;
+		} : ConstantStatModifier
 	];
 }
 

@@ -12,7 +12,12 @@ Grapple : ObjectAction
 	];
 	targetPrereqs = 
 	[
-		"Takedown.IsTargetSusceptible", "Takedown.IsTargetEnemy"
+		"Takedown.IsTargetSusceptible", "Takedown.IsTargetEnemy", {
+			statusEffect = "BaseStatusEffect.BossNoTakeDown";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.BossNoTakeDownInfinite";
+		} : StatusEffectAbsentPrereq
 	];
 	fk< InteractionBase > objectActionUI = "Interactions.GrappleTarget";
 }
@@ -34,6 +39,9 @@ BossTakedown : ObjectAction
 		} : StatusEffectAbsentPrereq, 
 		{
 			statusEffect = "BaseStatusEffect.BossNoTakeDown";
+		} : StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.BossNoTakeDownInfinite";
 		} : StatusEffectAbsentPrereq
 	];
 	rewards = 
@@ -218,6 +226,190 @@ AerialTakedown : ObjectAction
 	[
 		"RPGActionRewards.Stealth"
 	];
+}
+
+NewPerkFinisher : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "NewPerkFinisher";
+	interactionLayer = "NewPerkFinisherLayer";
+	fk< InteractionBase > objectActionUI = "Interactions.NewPerkFinish";
+	instigatorPrereqs = 
+	[
+		"Takedown.GameplayRestrictions", {
+			nestedPrereqs = 
+			[
+				"Prereqs.CanPerformReflexFinisher", "Prereqs.CanPerformCoolFinisher", "Prereqs.CanPerformBluntFinisher", "Prereqs.CanPerformMonowireFinisher"
+			];
+		} : ORPrereq, 
+		{
+			inverted = true;
+		} : Prereqs.BluntWeaponHeldPrereq
+	];
+	targetPrereqs = 
+	[
+		"Takedown.IsTargetEnemy"
+	];
+}
+
+NewPerkFinisherBlunt : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "NewPerkFinisherBlunt";
+	interactionLayer = "NewPerkFinisherLayer";
+	fk< InteractionBase > objectActionUI = "Interactions.NewPerkFinisherBlunt";
+	instigatorPrereqs = 
+	[
+		"Takedown.GameplayRestrictions", "Prereqs.BluntWeaponHeldPrereq", "Prereqs.CanPerformBluntFinisher"
+	];
+	targetPrereqs = 
+	[
+		"Takedown.IsTargetEnemy"
+	];
+}
+
+NewPerkFinisherBluntHold : NewPerkFinisherBlunt
+{
+	actionName = "NewPerkFinisherBluntHold";
+	fk< InteractionBase > objectActionUI = "Interactions.NewPerkFinisherBluntHold";
+	targetPrereqs += 
+	[
+		{
+			perkType = "Body_Master_Perk_5";
+			level = 1;
+		} : PlayerIsNewPerkBoughtPrereq, 
+		{
+			visualTag = "Sumo";
+			hasTag = false;
+		} : NPCRecordHasVisualTag, 
+		{
+			visualTag = "ManMassive";
+			hasTag = false;
+		} : NPCRecordHasVisualTag, 
+		{
+			allowedTypes = 
+			[
+				"NPCType.Android", "NPCType.Drone", "NPCType.Mech"
+			];
+			invert = true;
+		} : NPCTypePrereq, 
+		{
+			statType = "HasMeleeHitReactionAndTakedownResistance";
+			valueToCheck = 1;
+			comparisonType = "Less";
+		} : StatPrereq, 
+		{
+			statType = "NPCThrowImmunity";
+			valueToCheck = 0;
+			comparisonType = "Equal";
+		} : StatPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.ThrownNPC";
+			invert = true;
+		} : StatusEffectPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.ImpactedThrownNPC";
+			invert = true;
+		} : StatusEffectPrereq, 
+		{
+			nestedPrereqs = 
+			[
+				{
+					rarity = "Boss";
+					invert = true;
+				} : NPCRarityPrereq, 
+				{
+					allowedTags = 
+					[
+						"MaxTac_Prevention"
+					];
+					invert = false;
+				} : GameplayTagsPrereq, 
+				{
+					allowedTags = 
+					[
+						"MaxTac_NotPrevention"
+					];
+					invert = false;
+				} : GameplayTagsPrereq, 
+				{
+					allowedTags = 
+					[
+						"allow_workspot_finishers"
+					];
+					invert = false;
+				} : GameplayTagsPrereq
+			];
+		} : ORPrereq, 
+		{
+			nestedPrereqs = 
+			[
+				{
+					allowedTags = 
+					[
+						"Cyberpsycho"
+					];
+					invert = true;
+				} : GameplayTagsPrereq, 
+				{
+					allowedTags = 
+					[
+						"MaxTac_Prevention"
+					];
+					invert = false;
+				} : GameplayTagsPrereq, 
+				{
+					allowedTags = 
+					[
+						"MaxTac_NotPrevention"
+					];
+					invert = false;
+				} : GameplayTagsPrereq, 
+				{
+					allowedTags = 
+					[
+						"allow_workspot_finishers"
+					];
+					invert = false;
+				} : GameplayTagsPrereq
+			];
+		} : ORPrereq, 
+		{
+			statPoolType = "Health";
+			comparisonType = "LessOrEqual";
+			valueToCheck = 
+			[
+				{
+					statType = "BaseStats.NewPerkFinisherBlunt_TargetHealthMax";
+					modifierType = "Additive";
+					refObject = "Player";
+					refStat = "BaseStats.NewPerkFinisherBlunt_TargetHealthMax";
+					opSymbol = "*";
+					value = 1.0f;
+				} : CombinedStatModifier
+			];
+		} : StatPoolPrereq
+	];
+}
+
+BlackwallTakedown : ObjectAction
+{
+	fk< ObjectActionType > objectActionType = "ObjectActionType.Direct";
+	actionName = "BlackwallTakedown";
+	interactionLayer = "RemoteTakedownLayer";
+	targetPrereqs = 
+	[
+		"Takedown.IsTargetEnemy", "Takedown.CanTargetWithBlackwall"
+	];
+	fk< IPrereq >[] instigatorPrereqs = 
+	[
+		{
+			statType = "Health";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.SomiTakedown";
 }
 
 IsTargetEnemy : ANDPrereq
@@ -586,6 +778,28 @@ GeneralStateChecks : MultiPrereq
 			stateName = "Workspot";
 			isInState = false;
 		} : Prereqs.IsInWorkspotPSMPrereq
+	];
+}
+
+CanTargetWithBlackwall : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			stateName = "Dead";
+			isInState = false;
+		} : Prereqs.HighLevelNPCStatePrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Unconscious";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Defeated";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.NonInteractable";
+		} : Prereqs.StatusEffectAbsentPrereq
 	];
 }
 

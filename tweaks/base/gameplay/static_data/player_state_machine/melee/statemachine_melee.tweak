@@ -12,15 +12,30 @@ abstractMeleeNotReadyState : baseMeleeState
 	bool hasExitCondition = true;
 }
 
+meleeEquipping : baseMeleeState
+{
+	bool hasOnEnter = true;
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	string[] transitionTo = 
+	[
+		"meleeNotReady", "meleeThrowReload", "meleeSafe", "meleeEquipAttack", "meleeBodySlamAttack", "allMeleeBlocks", "meleeDash", "meleeLeap", "allMeleeLocoAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeHold", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "=", "", "", "", "", "", "", "", "=", "="
+	];
+}
+
 meleeNotReady : abstractMeleeNotReadyState
 {
 	string[] transitionTo = 
 	[
-		"meleeThrowReload", "meleeSafe", "meleeEquipAttack", "meleeIdle"
+		"meleeThrowReload", "meleeSafe", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", ""
+		"", "", ""
 	];
 }
 
@@ -70,11 +85,11 @@ meleeIdle : baseMeleeState
 	float safeTransition = 7.f;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "meleeDash", "meleeLeap", "allMeleeLocoAttacks", "meleeComboAttack", "meleeHold", "meleePublicSafe"
+		"allMeleeNotReady", "meleeBodySlamAttack", "allMeleeBlocks", "meleeDash", "meleeLeap", "allMeleeLocoAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeHold", "meleePublicSafe"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "", "", "", "ToMeleeHold", "ToMeleePublicSafe"
+		"", "", "", "", "", "", "", "", "=", "="
 	];
 }
 
@@ -88,11 +103,11 @@ meleePublicSafe : baseMeleeState
 	float timeToUnequipMeleeware = 60.f;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "meleeSafeAttack", "allMeleeLocoAttacks", "meleeComboAttack", "meleeHold", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "meleeSafeAttack", "allMeleeLocoAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeHold", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "", "", "", "ToMeleeIdle"
+		"", "", "", "", "", "", "", "="
 	];
 }
 
@@ -101,6 +116,7 @@ meleeLeap : baseMeleeState
 	bool hasEnterCondition = true;
 	bool hasOnEnter = true;
 	bool hasOnExit = true;
+	bool hasOnUpdate = true;
 	string[] enterConstraintsStates = 
 	[
 		"Locomotion.slide", "Locomotion.slideAfterFall", "Locomotion.slideFall"
@@ -115,20 +131,26 @@ meleeLeap : baseMeleeState
 	];
 	string[] transitionCondition = 
 	[
-		"", "ToMeleeStrongAttack", "ToMeleeIdle"
+		"", "=", "="
 	];
 	float downwardsGravity = -28.f;
 	bool useSafetyDisplacement = true;
 	float safetyDisplacement = 1.f;
 	float leapMaxPitch = 35.f;
-	float minDistToTarget = 3.f;
+	float minDistToTarget = 2.f;
 	float maxDistToTarget = 15.f;
+	float maxDistToTargetMantisBladesRelic = 40.f;
 	float minAdjustmentDuration = 0.25f;
 	float maxAdjustmentDuration = 0.5f;
 	float attackStartupDuration = 0.3f;
+	float attackStartupDurationKnives = 0.1f;
 	bool canLeapWithoutTarget = false;
 	float noTargetLeapDistance = 5.f;
 	float noTargetMaxPitch = 35.f;
+	float distanceRadius = 0.f;
+	float distanceRadiusToTarget = 0.9f;
+	float distanceRadiusToBoss = 1.4f;
+	float rotationDuration = -1.f;
 }
 
 meleeDash : baseMeleeState
@@ -160,6 +182,17 @@ meleeDash : baseMeleeState
 	float minTargetDistanceToDash = 2.f;
 	float maxDistToAquireTarget = 8.f;
 	float noTargetDashDistance = 6.f;
+	float distanceRadius = 0.f;
+	float distanceRadiusToTarget = 0.9f;
+	float rotationDuration = -1.f;
+	float maxDistance = 5.f;
+	float maxExtent = 5.f;
+	float probingPrecision = 0.05f;
+	float probingMaxDistanceDiff = 5.f;
+	float[] primitiveDimensionArr = 
+	[
+		0.1f, 0.1f, 0.1f, 0.f
+	];
 }
 
 abstractMeleeHoldState : baseMeleeState
@@ -178,11 +211,11 @@ meleeHold : abstractMeleeHoldState
 {
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "meleeFinalAttack", "meleeComboAttack", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "meleeMountedFinalAttack", "meleeFinalAttack", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "ToMeleeChargedHold", "ToMeleeFinalAttack", "", ""
+		"", "", "", "ToMeleeChargedHold", "=", "=", "", "", ""
 	];
 }
 
@@ -190,11 +223,11 @@ meleeChargedHold : abstractMeleeHoldState
 {
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "meleeLeap", "meleeStrongAttack", "meleeFinalAttack"
+		"allMeleeNotReady", "allMeleeBlocks", "meleeLeap", "meleeMountedStrongAttack", "meleeStrongAttack"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "ToMeleeStrongAttack", "ToMeleeFinalAttack"
+		"", "", "", "=", "="
 	];
 }
 
@@ -229,11 +262,11 @@ meleeBlock : abstractMeleeBlockState
 	float cooldown = 0.3f;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "meleeBlockAttack", "meleeIdle"
+		"allMeleeNotReady", "meleeGroundSlamAttack", "meleeBodySlamAttack", "meleeBlockAttack", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", ""
+		"", "", "", "", ""
 	];
 }
 
@@ -245,11 +278,11 @@ meleeDeflect : abstractMeleeBlockState
 	float cooldown = 0.3f;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "meleeDeflectAttack", "meleeBlockAttack", "meleeBlock", "meleeHold", "meleeComboAttack", "meleeIdle"
+		"allMeleeNotReady", "meleeBodySlamAttack", "meleeDeflectAttack", "meleeBlockAttack", "meleeBlock", "meleeHold", "meleeGroundSlamAttack", "meleeComboAttack", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "ToMeleeDeflectAttack", "", "ToMeleeBlock", "ToMeleeHold", "ToMeleeComboAttack", ""
+		"", "", "ToMeleeDeflectAttack", "", "ToMeleeBlock", "ToMeleeHold", "", "ToMeleeComboAttack", ""
 	];
 }
 
@@ -260,48 +293,31 @@ meleeAttackAbstract : baseMeleeState
 	bool hasOnEnter = true;
 	bool hasOnExit = true;
 	bool hasOnUpdate = true;
-	float lowStaminaAttackSpeedMult = 0.55f;
+	float lowStaminaAttackSpeedMult = 0.65f;
 	bool adjustPlayerPositionToTarget = true;
 	float adjustmentDistanceIntoAttackRange = 0.5f;
 	float adjustmentTargetDistance = 2.0f;
+	float leapTargetWithinAngle = 10.f;
 	string rumbleStrength = "light_pulse";
 	float inAirImpulseMultiplier = 0.6f;
 	float inWaterImpulseMultiplier = 0.3f;
 	int maxBerserkASAttack = 6;
 	float maxBerserkAS = 1.25f;
+	float distanceRadiusToTarget = 0.9f;
+	float rotationDuration = -1.f;
+	float mountedMaxYaw = 25.0f;
+	float mountedMinYaw = -45.0f;
 }
 
 meleeComboAttack : meleeAttackAbstract
 {
+	alias = 
+	[
+		"allMeleeComboAttacks"
+	];
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeFinalAttack", "meleeComboAttack", "meleeChargedHold", "meleeIdle"
-	];
-	string[] transitionCondition = 
-	[
-		"", "", "", "", "", "", ""
-	];
-}
-
-meleeFinalAttack : meleeAttackAbstract
-{
-	string[] transitionTo = 
-	[
-		"allMeleeNotReady", "allMeleeBlocks", "meleeComboAttack", "meleeIdle"
-	];
-	string[] transitionCondition = 
-	[
-		"", "", "", ""
-	];
-	string rumbleStrength = "light_slow";
-}
-
-meleeStrongAttack : meleeAttackAbstract
-{
-	string rumbleStrength = "medium_fast";
-	string[] transitionTo = 
-	[
-		"allMeleeNotReady", "allMeleeBlocks", "meleeStrongAttack", "meleeFinalAttack", "meleeComboAttack", "allMeleeLocoAttacks", "allMeleeHolds", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "allMeleeFinalAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeChargedHold", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
@@ -309,15 +325,110 @@ meleeStrongAttack : meleeAttackAbstract
 	];
 }
 
+meleeFinalAttack : meleeAttackAbstract
+{
+	alias = 
+	[
+		"allMeleeFinalAttacks"
+	];
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "allMeleeBlocks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", ""
+	];
+	string rumbleStrength = "light_slow";
+}
+
+meleeStrongAttack : meleeAttackAbstract
+{
+	alias = 
+	[
+		"allMeleeStrongAttacks"
+	];
+	string rumbleStrength = "medium_fast";
+	float slowMoStart = 0.08f;
+	float slowDuration = 0.7f;
+	float slowMoAmount = 0.15f;
+	CName slowMoEaseIn = "MeleeHitEaseIn";
+	CName slowMoEaseOut = "MeleeHitEaseOut";
+	CName slowMoStartSound = "w_melee_finisher_dash";
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeStrongAttacks", "allMeleeFinalAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "allMeleeLocoAttacks", "allMeleeHolds", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", "", "", "", ""
+	];
+}
+
+meleeMountedAttackAbstract : meleeAttackAbstract
+{
+	adjustPlayerPositionToTarget = false;
+}
+
+meleeMountedComboAttack : meleeMountedAttackAbstract
+{
+	alias = 
+	[
+		"allMeleeComboAttacks"
+	];
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeFinalAttacks", "allMeleeComboAttacks", "meleeChargedHold", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", ""
+	];
+}
+
+meleeMountedFinalAttack : meleeMountedAttackAbstract
+{
+	alias = 
+	[
+		"allMeleeFinalAttacks"
+	];
+	string rumbleStrength = "light_slow";
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeComboAttacks", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", ""
+	];
+}
+
+meleeMountedStrongAttack : meleeMountedAttackAbstract
+{
+	alias = 
+	[
+		"allMeleeStrongAttacks"
+	];
+	string rumbleStrength = "medium_fast";
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeStrongAttacks", "allMeleeFinalAttacks", "allMeleeComboAttacks", "allMeleeHolds", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", "", ""
+	];
+}
+
 meleeSafeAttack : meleeAttackAbstract
 {
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "meleeComboAttack", "meleeIdle"
+		"allMeleeNotReady", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", ""
+		"", "", "", ""
 	];
 }
 
@@ -327,23 +438,24 @@ meleeBlockAttack : meleeAttackAbstract
 	float inAirImpulseMultiplier = 0.3f;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "meleeComboAttack", "allMeleeLocoAttacks", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "allMeleeLocoAttacks", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "", ""
+		"", "", "", "", "", ""
 	];
 }
 
 meleeEquipAttack : meleeAttackAbstract
 {
+	bool hasEnterCondition = false;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "meleeFinalAttack", "meleeComboAttack", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "allMeleeFinalAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "", "", "", ""
+		"", "", "", "", "", "", "", ""
 	];
 }
 
@@ -358,11 +470,35 @@ meleeDeflectAttack : meleeAttackAbstract
 	string rumbleOnStartStrength = "light_fast";
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "meleeFinalAttack", "meleeComboAttack", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "allMeleeFinalAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "", "", "", ""
+		"", "", "", "", "", "", "", ""
+	];
+}
+
+meleeBodySlamAttack : meleeAttackAbstract
+{
+	string rumbleStrength = "medium_pulse";
+	float timeToFullAttack = 0.75;
+	float initialSpeed = 5.0f;
+	float finalSpeed = 0.0f;
+	float timeToFinalSpeed = 4.0f;
+	float hitboxWidth = 1.0f;
+	float hitboxHeight = 1.0f;
+	float hitboxForwardOffset = 0.80f;
+	float maxAirTime = 2.0f;
+	float delayBetweenBumpSFX = 0.8f;
+	float range = 0.5f;
+	float staminaCostPerHit = 15.0f;
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "meleeGroundSlamAttack", "allMeleeBlocks", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", ""
 	];
 }
 
@@ -374,11 +510,11 @@ meleeLocoAttackAbstract : meleeAttackAbstract
 	];
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "meleeFinalAttack", "meleeComboAttack", "meleeIdle"
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "meleeChargedHold", "allMeleeFinalAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", "", "", "", ""
+		"", "", "", "", "", "", "", ""
 	];
 }
 
@@ -401,6 +537,23 @@ meleeCrouchAttack : meleeLocoAttackAbstract
 
 meleeJumpAttack : meleeLocoAttackAbstract
 {
+}
+
+meleeGroundSlamAttack : meleeAttackAbstract
+{
+	bool hasEnterCondition = true;
+	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"allMeleeNotReady", "allMeleeBlocks", "allMeleeLocoAttacks", "allMeleeFinalAttacks", "meleeGroundSlamAttack", "allMeleeComboAttacks", "meleeChargedHold", "meleeIdle"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "", "", "", ""
+	];
+	float capsuleHeight = 1.8;
+	float capsuleRadius = 0.4;
 }
 
 meleeThrowAttack : meleeAttackAbstract
@@ -428,11 +581,11 @@ meleeThrowReload : baseMeleeState
 	bool hasExitCondition = true;
 	string[] transitionTo = 
 	[
-		"allMeleeNotReady", "meleeIdle"
+		"allMeleeNotReady", "meleeLeap", "meleeIdle"
 	];
 	string[] transitionCondition = 
 	[
-		"", ""
+		"", "", ""
 	];
 }
 

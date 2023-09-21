@@ -4,7 +4,7 @@ using RTDB, BaseStats, WeaponFxPackage
 [ notQueryable ]
 Base_Slaughtomatic : Base_Power_Handgun
 {
-	fk< ItemBlueprint > blueprint = "Items.Base_Slaughtomatic_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Handgun_NoAttachments_Blueprint";
 	buyPrice = 
 	[
 		"Price.Slaughtomatic"
@@ -77,16 +77,19 @@ Base_Slaughtomatic : Base_Power_Handgun
 	stateMachineName = "HeavyWeapon";
 	fk< StatModifierGroup >[] statModifierGroups = 
 	[
-		"Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Proficiencies.GunslingerHandgunStats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Power_Handgun_RPG_Randomized_Stats", "Items.Base_Slaughtomatic_Technical_Stats", "Items.Base_Slaughtomatic_Handling_Stats", "Items.Base_Slaughtomatic_Recoil_Stats", "Items.Base_Slaughtomatic_Spread_Stats", "Items.Base_Slaughtomatic_Aim_Stats", "Items.Base_Slaughtomatic_Constant_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Slaughtomatic_Technical_Stats", "Items.Base_Slaughtomatic_Handling_Stats", "Items.Base_Slaughtomatic_Recoil_Stats", "Items.Base_Slaughtomatic_Spread_Stats", "Items.Base_Slaughtomatic_Aim_Stats", "Items.Base_Slaughtomatic_Constant_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Physical", "Items.Base_Slaughtomatic_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Slaughtomatic_Technical_Stats"
 		];
-	} : Base_Handgun_NPC_Data;
+	} : Base_Slaughtomatic_NPC_Data;
 	CName audioSwitchName = "";
 	CName audioSwitchValue = "";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerHandgun";
@@ -104,6 +107,14 @@ Base_Slaughtomatic : Base_Power_Handgun
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_Slaughtomatic_NPC_Data : Base_Handgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Slaughtomatic_Technical_Stats", "Items.Base_Slaughtomatic_NPC_Damage_Stats"
+	];
 }
 
 Base_Slaughtomatic_Technical_Stats : StatModifierGroup
@@ -132,12 +143,36 @@ Base_Slaughtomatic_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Slaughtomatic_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 66f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Slaughtomatic_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Slaughtomatic_Handling_Stats : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			float value = 1.2f;
+			float value = 1.1f;
 		} : ZoomLevelModifier, 
 		{
 			float value = 1.867f;
@@ -199,22 +234,22 @@ Base_Slaughtomatic_Spread_Stats : StatModifierGroup
 			float value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			float value = 2.f;
+			float value = 0.f;
 		} : SpreadAdsMaxXModifier, 
 		{
 			float value = 0.375f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			float value = 0.12f;
+			float value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			float value = 2.5f;
+			float value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
-			float value = 0.1f;
+			float value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
-			float value = 0.f;
+			float value = 1.f;
 		} : SpreadRandomizeOriginPointModifier, 
 		{
 			float value = 1.f;
@@ -246,43 +281,59 @@ Base_Slaughtomatic_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 3.f;
+			value = 1.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.2f;
+			value = 0.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 5.0f;
+			value = 4.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 2.0f;
+			value = 1.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.25f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.25f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 2.f;
-		} : ConstantStatModifier
+			value = 1.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.6667;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "Additive";
+			value = -10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponLowNegativeArmorPenetration"
 	];
 }
 

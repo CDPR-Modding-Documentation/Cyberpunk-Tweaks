@@ -4,17 +4,17 @@ using RTDB, Attacks, AttackDirections
 BatonComboAttackAbstract : Impact
 {
 	attackSubtype = "AttackType.ComboAttack";
-	float attackWindowOpen = 0.3f;
+	float attackWindowOpen = 0.2f;
 	float attackWindowClosed = 0.5f;
 	float idleTransitionTime = 1.0f;
 	float blockTransitionTime = 0.5f;
 	float cameraSpaceImpulse = 0.f;
 	float impulseDelay = 0.f;
-	float attackEffectDelay = 0.3f;
+	float attackEffectDelay = 0.26f;
 	float attackEffectDuration = 0.06f;
 	float startupDuration = 0.267f;
-	float activeDuration = 0.333f;
-	float recoverDuration = 0.6f;
+	float activeDuration = 0.367f;
+	float recoverDuration = 0.833f;
 	float trailStartDelay = 0.2f;
 	float trailStopDelay = 0.5f;
 	staminaCost = 
@@ -22,18 +22,20 @@ BatonComboAttackAbstract : Impact
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "Additive";
-			value = 10f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Player";
-			refStat = "BaseStats.StaminaCostReduction";
+			refStat = "BaseStats.BatonStaminaCostReduction";
 			opSymbol = "*";
-			value = 1f;
+			value = -1f;
 		} : CombinedStatModifier
 	];
-	weaponChargeCost = 8.f;
 	hitFlags = 
 	[
 		"Nonlethal"
@@ -42,7 +44,7 @@ BatonComboAttackAbstract : Impact
 	bool hasHitAnim = true;
 	audioTag = "light";
 	bool incrementsCombo = true;
-	hitReactionSeverityMin = 1;
+	hitReactionSeverityMin = 0;
 	hitReactionSeverityMax = 1;
 }
 
@@ -55,6 +57,48 @@ BatonComboAttack1 : BatonComboAttackAbstract
 BatonComboAttack2 : BatonComboAttackAbstract
 {
 	attackName = "MeleeComboAttack1";
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.27f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.BatonStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier
+	];
 	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
 }
 
@@ -76,20 +120,74 @@ BatonComboAttack5 : BatonComboAttackAbstract
 	fk< AttackDirection > attackDirection = "AttackDirections.LeftUpToRightDown";
 }
 
+BatonMountedComboAttackAbstract : BatonComboAttackAbstract
+{
+	float idleTransitionTime = 0.75f;
+	float attackEffectDelay = 0.125f;
+	float attackEffectDuration = 0.2f;
+	float startupDuration = -1.f;
+	float activeDuration = -1.f;
+	float recoverDuration = -1.f;
+	float trailStartDelay = 0.125f;
+	float trailStopDelay = 0.325f;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 3;
+}
+
+BatonMountedComboAttack1 : BatonMountedComboAttackAbstract
+{
+	attackName = "MeleeMountedComboAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
+BatonMountedComboAttack2 : BatonMountedComboAttackAbstract
+{
+	attackName = "MeleeMountedComboAttack1";
+	float attackEffectDelay = 0.075f;
+	float attackEffectDuration = 0.175f;
+	float trailStartDelay = 0.075f;
+	float trailStopDelay = 0.25f;
+	float idleTransitionTime = 0.6f;
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedLeftToRightWide";
+}
+
+BatonMountedComboAttack3 : BatonMountedComboAttackAbstract
+{
+	attackName = "MeleeMountedComboAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
+BatonMountedComboAttack4 : BatonMountedComboAttackAbstract
+{
+	attackName = "MeleeMountedComboAttack3";
+	float attackEffectDelay = 0.075f;
+	float attackEffectDuration = 0.175f;
+	float trailStartDelay = 0.075f;
+	float trailStopDelay = 0.25f;
+	float idleTransitionTime = 0.6f;
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedLeftToRightWide";
+}
+
+BatonMountedComboAttack5 : BatonMountedComboAttackAbstract
+{
+	attackName = "MeleeMountedComboAttack4";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
 BatonFinalAttackAbstract : Impact
 {
 	attackSubtype = "AttackType.FinalAttack";
-	float attackWindowOpen = 0.37f;
-	float attackWindowClosed = 1.133f;
-	float idleTransitionTime = 1.133f;
+	float attackWindowOpen = 0.2f;
+	float attackWindowClosed = 0.5f;
+	float idleTransitionTime = 1.1f;
 	float blockTransitionTime = 0.66f;
 	float cameraSpaceImpulse = 3.f;
 	float impulseDelay = 0.1f;
 	float attackEffectDelay = 0.22f;
 	float attackEffectDuration = 0.06f;
-	float startupDuration = 0.2f;
-	float activeDuration = 0.3f;
-	float recoverDuration = 0.833f;
+	float startupDuration = 0.267f;
+	float activeDuration = 0.367f;
+	float recoverDuration = 0.867f;
 	float trailStartDelay = 0.2f;
 	float trailStopDelay = 0.5f;
 	staminaCost = 
@@ -97,25 +195,50 @@ BatonFinalAttackAbstract : Impact
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "Additive";
-			value = 10f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.6f;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Player";
-			refStat = "BaseStats.StaminaCostReduction";
+			refStat = "BaseStats.BatonStaminaCostReduction";
 			opSymbol = "*";
-			value = 1f;
+			value = -1f;
 		} : CombinedStatModifier
 	];
-	weaponChargeCost = 10.f;
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier
+	];
 	hitFlags = 
 	[
 		"Nonlethal"
 	];
 	audioTag = "heavy";
 	bool incrementsCombo = true;
-	hitReactionSeverityMin = 2;
+	hitReactionSeverityMin = 0;
 	hitReactionSeverityMax = 2;
 }
 
@@ -149,7 +272,59 @@ BatonFinalAttack5 : BatonFinalAttackAbstract
 	fk< AttackDirection > attackDirection = "AttackDirections.RightDownToLeftUp";
 }
 
-BatonStrongAttackAbstract : StrongImpact
+BatonMountedFinalAttackAbstract : BatonFinalAttackAbstract
+{
+	float idleTransitionTime = 0.6f;
+	float attackEffectDelay = 0.1f;
+	float attackEffectDuration = 0.175f;
+	float startupDuration = -1.f;
+	float activeDuration = -1.f;
+	float recoverDuration = -1.f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.275f;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 3;
+}
+
+BatonMountedFinalAttack1 : BatonMountedFinalAttackAbstract
+{
+	attackName = "MeleeMountedFinalAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
+BatonMountedFinalAttack2 : BatonMountedFinalAttackAbstract
+{
+	attackName = "MeleeMountedFinalAttack1";
+	float attackEffectDelay = 0.104f;
+	float trailStartDelay = 0.104f;
+	float trailStopDelay = 0.215f;
+	float idleTransitionTime = 0.5f;
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedLeftToRightWide";
+}
+
+BatonMountedFinalAttack3 : BatonMountedFinalAttackAbstract
+{
+	attackName = "MeleeMountedFinalAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
+BatonMountedFinalAttack4 : BatonMountedFinalAttackAbstract
+{
+	attackName = "MeleeMountedFinalAttack3";
+	float attackEffectDelay = 0.104f;
+	float trailStartDelay = 0.104f;
+	float trailStopDelay = 0.215f;
+	float idleTransitionTime = 0.5f;
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedLeftToRightWide";
+}
+
+BatonMountedFinalAttack5 : BatonMountedFinalAttackAbstract
+{
+	attackName = "MeleeMountedFinalAttack4";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
+BatonStrongAttackAbstract : StrongLash
 {
 	float attackWindowOpen = 0.3f;
 	float attackWindowClosed = 0.7f;
@@ -160,6 +335,7 @@ BatonStrongAttackAbstract : StrongImpact
 	float attackEffectDelay = 0.31f;
 	float attackEffectDuration = 0.06f;
 	bool hasDeflectAnim = false;
+	bool hasHitAnim = true;
 	float startupDuration = 0.3f;
 	float activeDuration = 0.367f;
 	float recoverDuration = 1.f;
@@ -170,18 +346,21 @@ BatonStrongAttackAbstract : StrongImpact
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "Additive";
-			value = 25f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 2f;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Player";
-			refStat = "BaseStats.StaminaCostReduction";
+			refStat = "BaseStats.BatonStaminaCostReduction";
 			opSymbol = "*";
-			value = 1f;
+			value = -1f;
 		} : CombinedStatModifier
 	];
-	weaponChargeCost = 20.f;
+	weaponChargeCost = 100.f;
 	hitFlags = 
 	[
 		"Nonlethal"
@@ -189,15 +368,7 @@ BatonStrongAttackAbstract : StrongImpact
 	audioTag = "normal";
 	bool incrementsCombo = true;
 	bool enableMoveAssistOnLightAimAssist = true;
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.HitReactionDamageHealthFactor";
-			modifierType = "AdditiveMultiplier";
-			value = 1.5f;
-		} : ConstantStatModifier
-	];
-	hitReactionSeverityMin = 2;
+	hitReactionSeverityMin = 0;
 	hitReactionSeverityMax = 2;
 }
 
@@ -219,6 +390,44 @@ BatonStrongAttack3 : BatonStrongAttackAbstract
 	fk< AttackDirection > attackDirection = "AttackDirections.RightToLeft";
 }
 
+BatonMountedStrongAttackAbstract : BatonStrongAttackAbstract
+{
+	float idleTransitionTime = 0.6f;
+	float attackEffectDelay = 0.1f;
+	float attackEffectDuration = 0.15f;
+	float startupDuration = -1.f;
+	float activeDuration = -1.f;
+	float recoverDuration = -1.f;
+	float trailStartDelay = 0.1f;
+	float trailStopDelay = 0.25f;
+	weaponChargeCost = 100.f;
+	bool enableMoveAssistOnLightAimAssist = false;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 3;
+}
+
+BatonMountedStrongAttack1 : BatonMountedStrongAttackAbstract
+{
+	attackName = "MeleeMountedStrongAttack0";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
+BatonMountedStrongAttack2 : BatonMountedStrongAttackAbstract
+{
+	attackName = "MeleeMountedStrongAttack1";
+	float attackEffectDelay = 0.05f;
+	float trailStartDelay = 0.05f;
+	float trailStopDelay = 0.2f;
+	float idleTransitionTime = 0.5f;
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedLeftToRightWide";
+}
+
+BatonMountedStrongAttack3 : BatonMountedStrongAttackAbstract
+{
+	attackName = "MeleeMountedStrongAttack2";
+	fk< AttackDirection > attackDirection = "AttackDirections.MountedRightToLeftWide";
+}
+
 BatonBlockAttack : BatonComboAttackAbstract
 {
 	attackSubtype = "AttackType.BlockAttack";
@@ -229,38 +438,56 @@ BatonBlockAttack : BatonComboAttackAbstract
 	float blockTransitionTime = 0.7f;
 	float attackEffectDelay = 0.22f;
 	float attackEffectDuration = 0.06f;
-	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftUpToRightDown";
 	float cameraSpaceImpulse = 3.f;
 	float impulseDelay = 0.3f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.BatonStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
 			modifierType = "Multiplier";
-			value = 0.2f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ThermalDamage";
 			modifierType = "Multiplier";
-			value = 0.2f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ChemicalDamage";
 			modifierType = "Multiplier";
-			value = 0.2f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ElectricDamage";
 			modifierType = "Multiplier";
-			value = 0.2f;
+			value = 0.75f;
 		} : ConstantStatModifier
 	];
-	weaponChargeCost = 10.f;
-	hitReactionSeverityMin = 2;
-	hitReactionSeverityMax = 2;
-	float startupDuration = 0.3f;
-	float activeDuration = 0.2f;
-	float recoverDuration = 0.6f;
+	hitReactionSeverityMin = 0;
+	hitReactionSeverityMax = 1;
+	float startupDuration = 0.267f;
+	float activeDuration = 0.367f;
+	float recoverDuration = 0.867f;
 	hitFlags = 
 	[
 		"Nonlethal"
@@ -277,9 +504,9 @@ BatonSafeAttack : BatonComboAttackAbstract
 	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
 	float cameraSpaceImpulse = 2.f;
 	float impulseDelay = 0.3f;
-	float startupDuration = 0.3f;
-	float activeDuration = 0.233f;
-	float recoverDuration = 0.6f;
+	float startupDuration = 0.267f;
+	float activeDuration = 0.367f;
+	float recoverDuration = 1.f;
 	float trailStartDelay = 0.2f;
 	float trailStopDelay = 0.5f;
 	hitFlags = 
@@ -315,20 +542,22 @@ BatonSprintAttack : Impact
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "Additive";
-			value = 10f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Player";
-			refStat = "BaseStats.StaminaCostReduction";
+			refStat = "BaseStats.BatonStaminaCostReduction";
 			opSymbol = "*";
-			value = 1f;
+			value = -1f;
 		} : CombinedStatModifier
 	];
-	weaponChargeCost = 10.f;
 	bool incrementsCombo = true;
-	hitReactionSeverityMin = 1;
+	hitReactionSeverityMin = 0;
 	hitReactionSeverityMax = 1;
 }
 
@@ -336,21 +565,21 @@ BatonJumpAttack : Impact
 {
 	attackSubtype = "AttackType.JumpAttack";
 	attackName = "MeleeJumpAttack0";
-	float attackWindowOpen = 0.3f;
+	float attackWindowOpen = 0.2f;
 	float attackWindowClosed = 0.5f;
 	float idleTransitionTime = 1.0f;
 	float blockTransitionTime = 0.5f;
 	float cameraSpaceImpulse = 0.f;
 	float impulseDelay = 0.4f;
-	float startupDuration = 0.133f;
-	float activeDuration = 0.267f;
-	float recoverDuration = 0.767f;
+	float startupDuration = 0.267f;
+	float activeDuration = 0.367f;
+	float recoverDuration = 0.867f;
 	fk< AttackDirection > attackDirection = "AttackDirections.UpToDown";
 	hitFlags = 
 	[
 		"Nonlethal"
 	];
-	float attackEffectDelay = 0.17f;
+	float attackEffectDelay = 0.22f;
 	float attackEffectDuration = 0.06f;
 	float trailStartDelay = 0.2f;
 	float trailStopDelay = 0.5f;
@@ -359,42 +588,44 @@ BatonJumpAttack : Impact
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "Additive";
-			value = 10f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Player";
-			refStat = "BaseStats.StaminaCostReduction";
+			refStat = "BaseStats.BatonStaminaCostReduction";
 			opSymbol = "*";
-			value = 1f;
+			value = -1f;
 		} : CombinedStatModifier
 	];
-	weaponChargeCost = 10.f;
 	bool incrementsCombo = false;
-	hitReactionSeverityMin = 1;
-	hitReactionSeverityMax = 1;
+	hitReactionSeverityMin = 0;
+	hitReactionSeverityMax = 2;
 }
 
 BatonCrouchAttack : Impact
 {
 	attackSubtype = "AttackType.CrouchAttack";
 	attackName = "MeleeCrouchAttack0";
-	float attackWindowOpen = 0.25f;
+	float attackWindowOpen = 0.2f;
 	float attackWindowClosed = 1.0f;
 	float idleTransitionTime = 1.1f;
 	float blockTransitionTime = 0.8f;
 	float cameraSpaceImpulse = 3.f;
 	float impulseDelay = 0.2f;
-	float startupDuration = 0.133f;
-	float activeDuration = 0.2f;
-	float recoverDuration = 0.4f;
+	float startupDuration = 0.267f;
+	float activeDuration = 0.233f;
+	float recoverDuration = 1.2f;
 	fk< AttackDirection > attackDirection = "AttackDirections.DownToUp";
 	hitFlags = 
 	[
 		"Nonlethal"
 	];
-	float attackEffectDelay = 0.15f;
+	float attackEffectDelay = 0.25f;
 	float attackEffectDuration = 0.06f;
 	float trailStartDelay = 0.2f;
 	float trailStopDelay = 0.5f;
@@ -403,20 +634,22 @@ BatonCrouchAttack : Impact
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "Additive";
-			value = 10f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Stamina";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Player";
-			refStat = "BaseStats.StaminaCostReduction";
+			refStat = "BaseStats.BatonStaminaCostReduction";
 			opSymbol = "*";
-			value = 1f;
+			value = -1f;
 		} : CombinedStatModifier
 	];
-	weaponChargeCost = 10.f;
 	bool incrementsCombo = false;
-	hitReactionSeverityMin = 1;
+	hitReactionSeverityMin = 0;
 	hitReactionSeverityMax = 1;
 }
 
@@ -428,7 +661,7 @@ BatonDeflectAttack : Impact
 	float attackWindowClosed = 0.7f;
 	float idleTransitionTime = 0.7f;
 	float blockTransitionTime = 0.7f;
-	fk< AttackDirection > attackDirection = "AttackDirections.RightUpToLeftDown";
+	fk< AttackDirection > attackDirection = "AttackDirections.LeftToRight";
 	float cameraSpaceImpulse = 5.f;
 	float impulseDelay = 0.36f;
 	bool dontScaleWithAttackSpeed = true;
@@ -441,9 +674,100 @@ BatonDeflectAttack : Impact
 	float attackEffectDelay = 0.36f;
 	float trailStartDelay = 0.2f;
 	float trailStopDelay = 0.5f;
-	weaponChargeCost = 15.f;
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.BatonStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
 	bool incrementsCombo = true;
-	hitReactionSeverityMin = 1;
-	hitReactionSeverityMax = 1;
+	hitReactionSeverityMin = 2;
+	hitReactionSeverityMax = 2;
+}
+
+BatonBodySlamLevel1Attack : BodySlamAttackLevel1
+{
+}
+
+BatonBodySlamLevel2Attack : BodySlamAttackLevel2
+{
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.BatonStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+}
+
+BatonBodySlamLevel3Attack : BodySlamAttackLevel3
+{
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 1.33f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.BatonStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+}
+
+BatonGroundSlamAttack : GroundSlamAttack
+{
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.BaseMeleeAttackStaminaCost";
+			opSymbol = "*";
+			value = 3.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.BatonStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
 }
 

@@ -4,7 +4,7 @@ using RTDB, BaseStats
 [ notQueryable ]
 Base_Silverhand : Base_Handgun
 {
-	fk< ItemBlueprint > blueprint = "Items.Base_Handgun_NoScope_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	string friendlyName = "w_handgun_malorian_silverhand";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Malorian";
 	CName[] tags += 
@@ -74,31 +74,30 @@ Base_Silverhand : Base_Handgun
 	bool scaleToPlayer = true;
 	statModifierGroups = 
 	[
-		"Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Tech_Stats", "Items.Base_Silverhand_Handling_Stats", "Items.Base_Silverhand_Recoil_Stats", "Items.Base_Silverhand_Spread_Stats", "Items.Base_Silverhand_Constant_Stats", "Items.Base_Silverhand_Aim_Stats", "Items.Base_Silverhand_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats"
+		"Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Silverhand_Handling_Stats", "Items.Base_Silverhand_Recoil_Stats", "Items.Base_Silverhand_Spread_Stats", "Items.Base_Silverhand_Constant_Stats", "Items.Base_Silverhand_Aim_Stats", "Items.Base_Silverhand_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Silverhand_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Silverhand_Handling_Stats"
 		];
-	} : Base_Handgun_NPC_Data;
+	} : Base_Silverhand_NPC_Data;
 	fk< TriggerMode >[] triggerModes = 
 	[
-		"TriggerMode.SemiAuto", "TriggerMode.Charge"
+		"TriggerMode.SemiAuto"
 	];
 	fk< TriggerMode > primaryTriggerMode = "TriggerMode.SemiAuto";
-	fk< TriggerMode > secondaryTriggerMode = "TriggerMode.Charge";
-	fk< StatPool >[] statPools = 
-	[
-		"BaseStatPools.SilverhandWeaponCharge"
-	];
+	fk< TriggerMode > secondaryTriggerMode = "TriggerMode.SemiAuto";
 	CName audioName = "wea_set_silverhand";
 	previewEffectName = "weaponPreview";
-	previewEffectTag = "pierce";
+	previewEffectTag = "ricochet";
 	quality = "Quality.Legendary";
-	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerLargeCaliberPiercing";
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerLargeCaliber";
 	float weaponNearPlane = 12.0f;
 	float weaponFarPlane = 22.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -113,17 +112,17 @@ Base_Silverhand : Base_Handgun
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
-	baseReloadTime = 1.5f;
-	baseEmptyReloadTime = 2.5f;
-	uninterruptibleReloadStart = 1.3f;
-	uninterruptibleEmptyReloadStart = 1.3f;
+	baseReloadTime = 1.35f;
+	baseEmptyReloadTime = 1.35f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 }
 
 Base_Silverhand_NPC_Data : Base_Handgun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Silverhand_Handling_Stats"
+		"Items.Base_Silverhand_Handling_Stats", "Items.Base_Silverhand_NPC_Damage_Stats"
 	];
 }
 
@@ -141,6 +140,30 @@ Base_Silverhand_RPG_Stats : Base_Handgun_RPG_Stats
 	];
 }
 
+Base_Silverhand_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 53f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Silverhand_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Silverhand_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -155,11 +178,17 @@ Base_Silverhand_Handling_Stats : StatModifierGroup
 			value = 10.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 1.5f;
+			value = 1.35f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.5f;
+			value = 1.35f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.15f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.15f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -173,7 +202,7 @@ Base_Silverhand_Handling_Stats : StatModifierGroup
 			value = 1.f;
 		} : ProjectilesPerShotModifier, 
 		{
-			value = 1.f;
+			value = 10.f;
 		} : AmmoPerQuickMeleeModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
 			value = 3.f;
@@ -194,25 +223,10 @@ Base_Silverhand_Handling_Stats : StatModifierGroup
 			value = 75.f;
 		} : RicochetMaxAngleModifier, 
 		{
-			value = 0.f;
-		} : ChargeMaxTimeInChargedStateModifier, 
-		{
-			value = 0.f;
-		} : ChargeReadyPercentageModifier, 
-		{
-			value = 0.0001f;
-		} : ChargeTimeModifier, 
-		{
-			value = 100.0f;
-		} : ChargeModifier, 
-		{
 			statType = "BaseStats.TechPierceEnabled";
 			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier, 
-		{
-			value = 0.1f;
-		} : TechPierceChargeLevelModifier
+			value = 0f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -267,10 +281,10 @@ Base_Silverhand_Spread_Stats : StatModifierGroup
 			value = 0.0f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 4.f;
+			value = 1.75f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -294,37 +308,42 @@ Base_Silverhand_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.1f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 0.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 2.f;
+			value = 1.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			value = 1.f;
@@ -386,7 +405,13 @@ Base_Silverhand_Constant_Stats : StatModifierGroup
 			statType = "BaseStats.SpreadAnimation";
 			modifierType = "Additive";
 			value = 1.f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.515f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

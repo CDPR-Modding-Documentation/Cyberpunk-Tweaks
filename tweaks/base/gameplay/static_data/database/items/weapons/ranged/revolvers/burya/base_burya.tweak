@@ -4,7 +4,7 @@ using RTDB, BaseStats, WeaponFxPackage, EquipmentGLP, Prereqs, Effectors, Perks
 [ notQueryable ]
 Base_Burya : Base_Tech_Revolver
 {
-	fk< ItemBlueprint > blueprint = "Items.Base_Tech_Revolver_NoScope_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Tech_Handgun_NoAttachments_Blueprint";
 	buyPrice += 
 	[
 		"Price.Techtronika", "Price.MediumManufactureQuality"
@@ -65,7 +65,7 @@ Base_Burya : Base_Tech_Revolver
 	CName audioName = "wea_set_burya";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Revolver"
+		"Preload", "Weapon", "Revolver", "T2_Inject_Weapon", "Techtronika"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -76,18 +76,17 @@ Base_Burya : Base_Tech_Revolver
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Street";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Tech";
 	fk< Item > ammo = "Ammo.HandgunAmmo";
-	fk< Crosshair > crosshair = "Crosshairs.Tech_Omaha";
+	fk< Crosshair > crosshair = "Crosshairs.Tech_Simple";
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Burya_Technical_Stats"
 		];
-	} : Base_Tech_Revolver_NPC_Data;
-	statModifierGroups = 
+	} : Base_Burya_NPC_Data;
+	statModifierGroups += 
 	[
-		"Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Randomization", "Items.QualityRandomization", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats", "Items.Base_Revolver_RPG_Randomized_Stats", "Proficiencies.EngineeringWeaponPassives", "Items.Base_Burya_Technical_Stats", "Items.Base_Burya_Handling_Stats", "Items.Base_Burya_Recoil_Stats", "Items.Base_Burya_Spread_Stats", "Items.Base_Burya_Constant_Stats", "Items.Base_Burya_Aim_Stats"
+		"Items.Base_Burya_Technical_Stats", "Items.Base_Burya_Handling_Stats", "Items.Base_Burya_Recoil_Stats", "Items.Base_Burya_Spread_Stats", "Items.Base_Burya_Aim_Stats", "Items.Base_Burya_Constant_Stats", "Items.Base_Burya_Damage_Stats"
 	];
 	fk< StatPool >[] statPools = 
 	[
@@ -95,7 +94,7 @@ Base_Burya : Base_Tech_Revolver
 	];
 	fk< GameplayLogicPackage >[] OnAttach += 
 	[
-		"EquipmentGLP.BorgWeaponStagger", "Items.BuryaWeaponModAbility"
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.HeavyStaminaDelay", "EquipmentGLP.HeavyWeapon"
 	];
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "pierce";
@@ -103,10 +102,10 @@ Base_Burya : Base_Tech_Revolver
 	CName audioSwitchValue = "w_pistol_power";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.TechRevolver";
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 2.7f;
-	baseEmptyReloadTime = 2.7f;
-	uninterruptibleReloadStart = 1.5f;
-	uninterruptibleEmptyReloadStart = 1.5f;
+	baseReloadTime = 1.4f;
+	baseEmptyReloadTime = 1.4f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 16.0f;
 	float weaponFarPlane = 22.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -121,6 +120,14 @@ Base_Burya : Base_Tech_Revolver
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_Burya_NPC_Data : Base_Tech_Revolver_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Burya_NPC_Technical_Stats", "Items.Base_Burya_NPC_Damage_Stats"
+	];
 }
 
 Base_Burya_Technical_Stats : StatModifierGroup
@@ -140,23 +147,105 @@ Base_Burya_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier, 
+			value = 0.3f;
+		} : CycleTime_BurstMaxChargeModifier, 
 		{
-			statType = "BaseStats.Strength";
-			modifierType = "Additive";
-			value = 10.f;
-		} : ConstantStatModifier, 
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
 		{
-			statType = "BaseStats.Strength";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanUseStrongArms";
-			refObject = "Player";
-			opSymbol = "*";
-			value = -1f;
-		} : CombinedStatModifier, 
+			value = 1.25f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 0.33f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.0f;
+		} : ChargeModifier, 
+		{
+			value = 1.f;
+		} : TechPierceEnabledModifier, 
+		{
+			value = -0.1f;
+		} : TechPierceDamageFactorModifier, 
+		{
+			value = 0.9f;
+		} : TechPierceChargeLevelModifier
+	];
+}
+
+Base_Burya_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 38f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Burya_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 38f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Burya_NPC_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.6f;
+		} : CycleTimeModifier, 
+		{
+			value = 4.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.3f;
+		} : CycleTime_BurstMaxChargeModifier, 
+		{
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
+		{
+			value = 1.25f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 1.0f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.0f;
+		} : ChargeModifier, 
+		{
+			value = 0.f;
+		} : TechPierceEnabledModifier, 
+		{
+			value = -0.1f;
+		} : TechPierceDamageFactorModifier, 
 		{
 			value = 0.9f;
 		} : TechPierceChargeLevelModifier
@@ -168,11 +257,17 @@ Base_Burya_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.7f;
+			value = 1.4f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.7f;
+			value = 1.4f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.3f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.3f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -183,30 +278,10 @@ Base_Burya_Handling_Stats : StatModifierGroup
 			value = 0f;
 		} : CycleTriggerModeTimeModifier, 
 		{
-			statType = "BaseStats.HitReactionFactor";
-			modifierType = "Multiplier";
-			value = 0.3f;
-		} : ConstantStatModifier, 
-		{
 			statType = "BaseStats.HitWoundsFactor";
 			modifierType = "AdditiveMultiplier";
 			value = 1;
-		} : ConstantStatModifier, 
-		{
-			value = 0.f;
-		} : ChargeMaxTimeInChargedStateModifier, 
-		{
-			value = 0f;
-		} : ChargeReadyPercentageModifier, 
-		{
-			value = 0.0001f;
-		} : ChargeTimeModifier, 
-		{
-			value = 100.0f;
-		} : ChargeModifier, 
-		{
-			value = 1.0f;
-		} : ChargeShouldFireWhenReadyModifier
+		} : ConstantStatModifier
 	];
 }
 
@@ -264,17 +339,23 @@ Base_Burya_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 5.f;
+			value = 1.25f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.0f;
+			value = 0.25f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 1.f;
 		} : SpreadUseCircularSpreadModifier, 
 		{
 			value = 0.f;
-		} : SpreadZeroOnFirstShotModifier
+		} : SpreadZeroOnFirstShotModifier, 
+		{
+			value = -0.25f;
+		} : SpreadChargeMultModifier, 
+		{
+			value = -0.25f;
+		} : SpreadAdsChargeMultModifier
 	];
 }
 
@@ -302,53 +383,102 @@ Base_Burya_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 0.75f;
+			value = 1.33f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.15f;
+			value = 0.24f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 5.0f;
+			value = 5.32f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 0.96f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 3.0f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 2.0f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 8.f;
+			value = 6.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 9.f;
+			value = 7.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilDriftRandomRangeMin";
 			modifierType = "AdditiveMultiplier";
-			value = 1.f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilDriftRandomRangeMax";
 			modifierType = "AdditiveMultiplier";
-			value = 1.f;
-		} : ConstantStatModifier
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalImpulse";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.023f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier
 	];
 }
 

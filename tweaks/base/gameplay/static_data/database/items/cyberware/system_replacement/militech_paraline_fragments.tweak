@@ -1,5 +1,5 @@
 package Items
-using RTDB, QuickHack
+using RTDB, QuickHack, Effectors, Prereqs
 
 [ notQueryable ]
 CyberdeckProgram : Part
@@ -10,20 +10,20 @@ CyberdeckProgram : Part
 	];
 	CName shardType = "";
 	iconPath = "program_generic";
-	buyPrice += 
+	buyPrice = 
 	[
-		"Price.CyberdeckProgram"
+		"Price.BaseHackPrice", "Price.ItemQualityMultiplier", "Price.BuyPrice_StreetCred_Discount"
 	];
-	sellPrice += 
+	sellPrice = 
 	[
-		"Price.CyberdeckProgram"
+		"Price.BaseHackPrice", "Price.ItemQualityMultiplier", "Price.SellMultiplier"
 	];
 	placementSlots = 
 	[
 		"AttachmentSlots.CyberdeckProgram1", "AttachmentSlots.CyberdeckProgram2", "AttachmentSlots.CyberdeckProgram3", "AttachmentSlots.CyberdeckProgram4", "AttachmentSlots.CyberdeckProgram5", "AttachmentSlots.CyberdeckProgram6", "AttachmentSlots.CyberdeckProgram7", "AttachmentSlots.CyberdeckProgram8"
 	];
 	itemType = "ItemType.Prt_Program";
-	objectActions += 
+	objectActions = 
 	[
 		"ItemAction.ProgramDisassemble"
 	];
@@ -54,21 +54,57 @@ CombatQuickHackUnlock : QuickHackUnlock
 [ notQueryable ]
 DamageHack : QuickHackUnlock
 {
+	buyPrice += 
+	[
+		"Price.DamageHackMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.DamageHackMultiplier"
+	];
 }
 
 [ notQueryable ]
 UltimateHack : QuickHackUnlock
 {
+	buyPrice += 
+	[
+		"Price.UltimateHackMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.UltimateHackMultiplier"
+	];
 }
 
 [ notQueryable ]
 ControlHack : QuickHackUnlock
 {
+	placementSlots += 
+	[
+		"AttachmentSlots.NanoWiresQuickhackSlot"
+	];
+	buyPrice += 
+	[
+		"Price.ControlHackMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.ControlHackMultiplier"
+	];
 }
 
 [ notQueryable ]
 CovertHack : QuickHackUnlock
 {
+	buyPrice += 
+	[
+		"Price.CovertHackMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.CovertHackMultiplier"
+	];
 }
 
 MalfunctionProgram : GameplayLogicPackage
@@ -85,28 +121,20 @@ EMPOverloadProgram : Items.DamageHack
 {
 	tags += 
 	[
-		"Tier1Shard"
+		"Tier0Shard", "DisplayProgramDuration"
 	];
-	quality = "Quality.Uncommon";
+	quality = "Quality.Common";
 	shardType = "Overload";
-	buyPrice += 
-	[
-		"Price.VeryLow"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLow"
-	];
 	OnAttach += 
 	[
-		"EquipmentGLP.NonLethal", "EquipmentGLP.EMPOverloadProgramLvl1"
+		"EquipmentGLP.EMPOverloadProgram"
 	];
 	displayName = "LocKey#27968";
 	localizedDescription = "LocKey#27723";
 	iconPath = "quickhack_overload";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.OverloadHack"
+		"QuickHack.OverloadHack", "QuickHack.BossOverloadHack", "QuickHack.ChimeraOverloadHack"
 	];
 	statModifiers += 
 	[
@@ -116,28 +144,38 @@ EMPOverloadProgram : Items.DamageHack
 	CraftingData = "Items.EMPOverloadCraftingPackage";
 }
 
-EMPOverloadLvl2Program : EMPOverloadProgram
+EMPOverloadLvl1Program : EMPOverloadProgram
+{
+	tags += 
+	[
+		"Tier1Shard"
+	];
+	quality = "Quality.Uncommon";
+	OnAttach += 
+	[
+		"EquipmentGLP.EMPOverloadProgramLvl1"
+	];
+	objectActions += 
+	[
+		"QuickHack.OverloadLvl1Hack", "QuickHack.BossOverloadLvl1Hack"
+	];
+	CraftingData = "Items.EMPOverloadLvl1CraftingPackage";
+}
+
+EMPOverloadLvl2Program : EMPOverloadLvl1Program
 {
 	tags += 
 	[
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	buyPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
 	OnAttach += 
 	[
 		"EquipmentGLP.EMPOverloadProgramLvl2"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.OverloadLvl2Hack"
+		"QuickHack.OverloadLvl2Hack", "QuickHack.BossOverloadLvl2Hack", "QuickHack.ChimeraOverloadLvl2Hack"
 	];
 	CraftingData = "Items.EMPOverloadLvl2CraftingPackage";
 }
@@ -153,9 +191,9 @@ EMPOverloadLvl3Program : EMPOverloadLvl2Program
 	[
 		"EquipmentGLP.EMPOverloadProgramLvl3"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.OverloadLvl3Hack"
+		"QuickHack.OverloadLvl3Hack", "QuickHack.BossOverloadLvl3Hack", "QuickHack.ChimeraOverloadLvl3Hack"
 	];
 	CraftingData = "Items.EMPOverloadLvl3CraftingPackage";
 }
@@ -171,22 +209,40 @@ EMPOverloadLvl4Program : EMPOverloadLvl3Program
 	[
 		"EquipmentGLP.EMPOverloadProgramLvl4"
 	];
-	OnEquip += 
+	objectActions += 
 	[
-		"EquipmentGLP.EMPOverloadProgramLvl4Passive"
-	];
-	objectActions = 
-	[
-		"QuickHack.OverloadLvl4Hack"
+		"QuickHack.OverloadLvl4Hack", "QuickHack.BossOverloadLvl4Hack", "QuickHack.ChimeraOverloadLvl4Hack"
 	];
 	CraftingData = "Items.EMPOverloadLvl4CraftingPackage";
+}
+
+EMPOverloadLvl4PlusPlusProgram : EMPOverloadLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	OnAttach = 
+	[
+		"EquipmentGLP.EMPOverloadProgram", "EquipmentGLP.EMPOverloadProgramLvl1", "EquipmentGLP.EMPOverloadProgramLvl4PlusPlus", "EquipmentGLP.EMPOverloadProgramLvl3", "EquipmentGLP.EMPOverloadProgramLvl4"
+	];
+	objectActions += 
+	[
+		"QuickHack.OverloadLvl4PlusPlusHack", "QuickHack.BossOverloadLvl4PlusPlusHack", "QuickHack.ChimeraOverloadLvl4PlusPlusHack"
+	];
+	CraftingData = "Items.EMPOverloadLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 BrainMeltLvl2Program : Items.DamageHack
 {
 	tags += 
 	[
-		"Tier2Shard"
+		"Tier2Shard", "DisplayProgramDuration"
 	];
 	quality = "Quality.Rare";
 	shardType = "BrainMelt";
@@ -195,11 +251,11 @@ BrainMeltLvl2Program : Items.DamageHack
 	iconPath = "quickhack_brainmelt";
 	OnAttach += 
 	[
-		"EquipmentGLP.Lethal", "EquipmentGLP.BrainMeltProgramLvl2"
+		"EquipmentGLP.BrainMeltProgramLvl2"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.BrainMeltLvl2Hack"
+		"QuickHack.BrainMeltLvl2Hack", "QuickHack.BossBrainMeltLvl2Hack", "QuickHack.ChimeraBrainMeltLvl2Hack"
 	];
 	hideDurationUI = true;
 	CraftingData = "Items.BrainMeltLvl2CraftingPackage";
@@ -216,9 +272,13 @@ BrainMeltLvl3Program : BrainMeltLvl2Program
 	[
 		"EquipmentGLP.BrainMeltProgramLvl3"
 	];
-	objectActions = 
+	OnEquip += 
 	[
-		"QuickHack.BrainMeltLvl3Hack"
+		"EquipmentGLP.BrainMeltProgramLvl3Passive"
+	];
+	objectActions += 
+	[
+		"QuickHack.BrainMeltLvl3Hack", "QuickHack.BossBrainMeltLvl3Hack", "QuickHack.ChimeraBrainMeltLvl3Hack"
 	];
 	CraftingData = "Items.BrainMeltLvl3CraftingPackage";
 }
@@ -238,36 +298,80 @@ BrainMeltLvl4Program : BrainMeltLvl3Program
 	[
 		"EquipmentGLP.BrainMeltProgramLvl4Passive"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.BrainMeltLvl4Hack"
+		"QuickHack.BrainMeltLvl4Hack", "QuickHack.BossBrainMeltLvl4Hack", "QuickHack.ChimeraBrainMeltLvl4Hack"
 	];
 	CraftingData = "Items.BrainMeltLvl4CraftingPackage";
+}
+
+BrainMeltLvl4PlusPlusProgram : BrainMeltLvl3Program
+{
+	quality = "Quality.Legendary";
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.BrainMeltProgramLvl4PlusPlus", "EquipmentGLP.BrainMeltProgramLvl3", "EquipmentGLP.BrainMeltProgramLvl4"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.BrainMeltProgramLvl4Passive"
+	];
+	objectActions += 
+	[
+		"QuickHack.BrainMeltLvl4PlusPlusHack", "QuickHack.BossBrainMeltLvl4PlusPlusHack", "QuickHack.ChimeraBrainMeltLvl4PlusPlusHack"
+	];
+	CraftingData = "Items.BrainMeltLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 OverheatProgram : Items.DamageHack
 {
 	tags += 
 	[
-		"Tier1Shard"
+		"Tier0Shard"
 	];
-	quality = "Quality.Uncommon";
+	quality = "Quality.Common";
 	shardType = "Overheat";
 	displayName = "LocKey#27962";
 	localizedDescription = "LocKey#27711";
 	iconPath = "quickhack_overheat";
 	OnAttach += 
 	[
-		"EquipmentGLP.NonLethal", "EquipmentGLP.OverheatProgram"
+		"EquipmentGLP.OverheatProgram"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.OverheatHack"
+		"QuickHack.OverheatHack", "QuickHack.BossOverheatHack", "QuickHack.ChimeraOverheatHack"
 	];
 	CraftingData = "Items.OverheatCraftingPackage";
 }
 
-OverheatLvl2Program : OverheatProgram
+OverheatLvl1Program : OverheatProgram
+{
+	tags += 
+	[
+		"Tier1Shard"
+	];
+	quality = "Quality.Uncommon";
+	OnAttach += 
+	[
+		"EquipmentGLP.OverheatProgramLvl1"
+	];
+	objectActions += 
+	[
+		"QuickHack.OverheatLvl1Hack", "QuickHack.BossOverheatLvl1Hack", "QuickHack.ChimeraOverheatLvl1Hack"
+	];
+	CraftingData = "Items.OverheatLvl1CraftingPackage";
+}
+
+OverheatLvl2Program : OverheatLvl1Program
 {
 	tags += 
 	[
@@ -278,9 +382,13 @@ OverheatLvl2Program : OverheatProgram
 	[
 		"EquipmentGLP.OverheatProgramLvl2"
 	];
-	objectActions = 
+	OnEquip += 
 	[
-		"QuickHack.OverheatLvl2Hack"
+		"EquipmentGLP.OverheatPassiveLvl2"
+	];
+	objectActions += 
+	[
+		"QuickHack.OverheatLvl2Hack", "QuickHack.BossOverheatLvl2Hack", "QuickHack.ChimeraOverheatLvl2Hack"
 	];
 	CraftingData = "Items.OverheatLvl2CraftingPackage";
 }
@@ -296,9 +404,9 @@ OverheatLvl3Program : OverheatLvl2Program
 	[
 		"EquipmentGLP.OverheatProgramLvl3"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.OverheatLvl3Hack"
+		"QuickHack.OverheatLvl3Hack", "QuickHack.BossOverheatLvl3Hack", "QuickHack.ChimeraOverheatLvl3Hack"
 	];
 	CraftingData = "Items.OverheatLvl3CraftingPackage";
 }
@@ -314,11 +422,35 @@ OverheatLvl4Program : OverheatLvl3Program
 	[
 		"EquipmentGLP.OverheatProgramLvl4"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.OverheatLvl4Hack"
+		"QuickHack.OverheatLvl4Hack", "QuickHack.BossOverheatLvl4Hack", "QuickHack.ChimeraOverheatLvl4Hack"
 	];
 	CraftingData = "Items.OverheatLvl4CraftingPackage";
+	float bonusThermalDamageFactor = 0.1;
+}
+
+OverheatLvl4PlusPlusProgram : OverheatLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	OnAttach = 
+	[
+		"EquipmentGLP.OverheatProgram", "EquipmentGLP.OverheatProgramLvl2", "EquipmentGLP.OverheatProgramLvl3", "EquipmentGLP.OverheatProgramLvl4PlusPlus"
+	];
+	objectActions += 
+	[
+		"QuickHack.OverheatLvl4PlusPlusHack", "QuickHack.BossOverheatLvl4PlusPlusHack", "QuickHack.ChimeraOverheatLvl4PlusPlusHack"
+	];
+	CraftingData = "Items.OverheatLvl4PlusPlusCraftingPackage";
+	float bonusThermalDamageFactor = 0.2;
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 ContagionProgram : Items.DamageHack
@@ -332,13 +464,17 @@ ContagionProgram : Items.DamageHack
 	displayName = "LocKey#51313";
 	localizedDescription = "LocKey#51314";
 	iconPath = "quickhack_contagion";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.ContagionHack"
 	];
 	OnAttach += 
 	[
-		"EquipmentGLP.NonLethal", "EquipmentGLP.ContagionLvl1Program"
+		"EquipmentGLP.ContagionLvl1Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.ContagionLvl1Passive"
 	];
 	CraftingData = "Items.ContagionCraftingPackage";
 }
@@ -350,13 +486,17 @@ ContagionLvl2Program : ContagionProgram
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.ContagionLvl2Hack"
 	];
-	OnAttach += 
+	OnAttach = 
 	[
 		"EquipmentGLP.ContagionLvl2Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.ContagionLvl2Passive"
 	];
 	CraftingData = "Items.ContagionLvl2CraftingPackage";
 }
@@ -368,13 +508,17 @@ ContagionLvl3Program : ContagionLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.ContagionLvl3Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.ContagionLvl3Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.ContagionLvl3Passive"
 	];
 	CraftingData = "Items.ContagionLvl3CraftingPackage";
 }
@@ -386,7 +530,7 @@ ContagionLvl4Program : ContagionLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.ContagionLvl4Hack"
 	];
@@ -394,18 +538,36 @@ ContagionLvl4Program : ContagionLvl3Program
 	[
 		"EquipmentGLP.ContagionLvl4Program"
 	];
-	OnEquip += 
-	[
-		"EquipmentGLP.ContagionLvl4Passive"
-	];
 	CraftingData = "Items.ContagionLvl4CraftingPackage";
+}
+
+ContagionLvl4PlusPlusProgram : ContagionLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.ContagionLvl4PlusPlusHack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.ContagionLvl4Program"
+	];
+	CraftingData = "Items.ContagionLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 SuicideLvl3Program : Items.UltimateHack
 {
 	tags += 
 	[
-		"Tier3Shard"
+		"Tier3Shard", "DisplayProgramDuration"
 	];
 	quality = "Quality.Epic";
 	shardType = "Suicide";
@@ -423,16 +585,17 @@ SuicideLvl3Program : Items.UltimateHack
 					value = 1;
 				} : ConstantStatModifier
 			];
-		} : GameplayLogicPackage
+		} : GameplayLogicPackage, 
+		"EquipmentGLP.SuicideLvl3ProgramPassive"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.SuicideLvl3Hack"
+		"QuickHack.SuicideLvl3Hack", "QuickHack.BossSuicideLvl3Hack", "QuickHack.ChimeraSuicideLvl3Hack"
 	];
 	hideDurationUI = true;
 	OnAttach += 
 	[
-		"EquipmentGLP.Lethal", "EquipmentGLP.SuicideLvl1Program"
+		"EquipmentGLP.SuicideLvl1Program", "EquipmentGLP.SuicideLvl3Program"
 	];
 	CraftingData = "Items.SuicideLvl3CraftingPackage";
 }
@@ -444,19 +607,37 @@ SuicideLvl4Program : SuicideLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.SuicideLvl4Hack"
-	];
-	OnEquip += 
-	[
-		"EquipmentGLP.SuicideLvl4ProgramPassive"
+		"QuickHack.SuicideLvl4Hack", "QuickHack.BossSuicideLvl4Hack", "QuickHack.ChimeraSuicideLvl4Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.SuicideLvl4Program"
 	];
 	CraftingData = "Items.SuicideLvl4CraftingPackage";
+}
+
+SuicideLvl4PlusPlusProgram : SuicideLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.SuicideLvl4PlusPlusHack", "QuickHack.BossSuicideLvl4PlusPlusHack", "QuickHack.ChimeraSuicideLvl4Hack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.SuicideLvl4PlusPlusProgram"
+	];
+	CraftingData = "Items.SuicideLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 GrenadeExplodeLvl3Program : Items.UltimateHack
@@ -479,18 +660,23 @@ GrenadeExplodeLvl3Program : Items.UltimateHack
 					statType = "BaseStats.CanGrenadeQuickHack";
 					modifierType = "Additive";
 					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasGrenadeHack";
+					modifierType = "Additive";
+					value = 1;
 				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.GrenadeLvl3Hack"
+		"QuickHack.GrenadeLvl3Hack", "QuickHack.BossGrenadeLvl3Hack", "QuickHack.ChimeraGrenadeLvl3Hack"
 	];
 	hideDurationUI = true;
 	OnAttach += 
 	[
-		"EquipmentGLP.Lethal", "EquipmentGLP.GrenadeExplodeLvl1Program", "EquipmentGLP.GrenadeExplodeLvl3Program"
+		"EquipmentGLP.GrenadeExplodeLvl1Program", "EquipmentGLP.GrenadeExplodeWeakspot", "EquipmentGLP.GrenadeExplodeLvl3Program"
 	];
 	CraftingData = "Items.GrenadeExplodeLvl3CraftingPackage";
 }
@@ -502,9 +688,9 @@ GrenadeExplodeLvl4Program : GrenadeExplodeLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.GrenadeLvl4Hack"
+		"QuickHack.GrenadeLvl4Hack", "QuickHack.BossGrenadeLvl4Hack", "QuickHack.ChimeraGrenadeLvl4Hack"
 	];
 	OnEquip += 
 	[
@@ -517,25 +703,55 @@ GrenadeExplodeLvl4Program : GrenadeExplodeLvl3Program
 	];
 }
 
+GrenadeExplodeLvl4PlusPlusProgram : GrenadeExplodeLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.GrenadeLvl4PlusPlusHack", "QuickHack.BossGrenadeLvl4Hack", "QuickHack.ChimeraGrenadeLvl4Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.GrenadeExplodeLvl1Program", "EquipmentGLP.GrenadeExplodeWeakspot", "EquipmentGLP.GrenadeExplodeLvl4PlusPlusProgram", "EquipmentGLP.GrenadeExplodeLvl4Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.GrenadeExplodeLvl4ProgramPassive"
+	];
+	CraftingData = "Items.GrenadeExplodeLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
 SystemCollapseLvl3Program : Items.UltimateHack
 {
 	tags += 
 	[
-		"Tier3Shard"
+		"Tier3Shard", "DisplayProgramDuration"
 	];
 	quality = "Quality.Epic";
 	shardType = "SystemCollapse";
 	displayName = "LocKey#27964";
 	localizedDescription = "LocKey#27718";
 	iconPath = "quickhack_systemcollapse";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.SystemCollapseLvl3Hack"
+		"QuickHack.SystemCollapseLvl3Hack", "QuickHack.BossSystemCollapseLvl3Hack", "QuickHack.ChimeraSystemCollapseLvl3Hack"
 	];
 	hideDurationUI = true;
 	OnAttach += 
 	[
-		"EquipmentGLP.SystemCollapseLvl1Program", "EquipmentGLP.SystemCollapseLvl3Program"
+		"EquipmentGLP.UntraceableHack", "EquipmentGLP.SystemCollapseLvl1Program", "EquipmentGLP.SystemCollapseLvl3Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.SystemCollapseLvl3Passive"
 	];
 	CraftingData = "Items.SystemCollapseLvl3CraftingPackage";
 }
@@ -547,19 +763,37 @@ SystemCollapseLvl4Program : SystemCollapseLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.SystemCollapseLvl4Hack"
-	];
-	OnEquip += 
-	[
-		"EquipmentGLP.SystemCollapseLvl4ProgramPassive"
+		"QuickHack.SystemCollapseLvl4Hack", "QuickHack.BossSystemCollapseLvl4Hack", "QuickHack.ChimeraSystemCollapseLvl4Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.SystemCollapseLvl4Program"
 	];
 	CraftingData = "Items.SystemCollapseLvl4CraftingPackage";
+}
+
+SystemCollapseLvl4PlusPlusProgram : SystemCollapseLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.SystemCollapseLvl4PlusPlusHack", "QuickHack.BossSystemCollapseLvl4Hack", "QuickHack.ChimeraSystemCollapseLvl4Hack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.SystemCollapseLvl4PlusPlusProgram"
+	];
+	CraftingData = "Items.SystemCollapseLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 MadnessLvl3Program : Items.UltimateHack
@@ -573,15 +807,21 @@ MadnessLvl3Program : Items.UltimateHack
 	displayName = "LocKey#27958";
 	localizedDescription = "LocKey#27717";
 	iconPath = "quickhack_cyberpsycho";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.MadnessLvl3Hack", "QuickHack.MadnessSetFriendlyHack"
+		"QuickHack.MadnessLvl3Hack", "QuickHack.BossMadnessLvl3Hack", "QuickHack.ChimeraMadnessLvl3Hack", "QuickHack.MadnessSetFriendlyHack"
 	];
 	OnAttach += 
 	[
-		"EquipmentGLP.Lethal", "EquipmentGLP.MadnessLvl1Program", "EquipmentGLP.MadnessSetFriendly", "EquipmentGLP.MadnessLvl3Program"
+		"EquipmentGLP.MadnessLvl1Program", "EquipmentGLP.MadnessLvl3Program"
 	];
 	CraftingData = "Items.MadnessLvl3CraftingPackage";
+	fk< StatusEffectType >[] statusEffectsTypeCostReductors = 
+	[
+		"BaseStatusEffectTypes.QuickHackStaggerCyberware", "BaseStatusEffectTypes.EMP"
+	];
+	float costReductionPerReductorStack = 9.0f;
+	float maxCostReduction = 18.0f;
 }
 
 MadnessLvl4Program : MadnessLvl3Program
@@ -591,9 +831,9 @@ MadnessLvl4Program : MadnessLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.MadnessLvl4Hack", "QuickHack.MadnessSetFriendlyHack"
+		"QuickHack.MadnessLvl4Hack", "QuickHack.BossMadnessLvl4Hack", "QuickHack.ChimeraMadnessLvl4Hack", "QuickHack.MadnessSetFriendlyHack"
 	];
 	OnAttach += 
 	[
@@ -604,6 +844,32 @@ MadnessLvl4Program : MadnessLvl3Program
 		"EquipmentGLP.MadnessLvl4ProgramPassive"
 	];
 	CraftingData = "Items.MadnessLvl4CraftingPackage";
+}
+
+MadnessLvl4PlusPlusProgram : MadnessLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.MadnessLvl4PlusPlusHack", "QuickHack.BossMadnessLvl4Hack", "QuickHack.ChimeraMadnessLvl4Hack", "QuickHack.MadnessSetFriendlyHack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.MadnessLvl4PlusPlusProgram"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.MadnessLvl4ProgramPassive"
+	];
+	CraftingData = "Items.MadnessLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 DisableCyberwareProgram : Items.ControlHack
@@ -617,9 +883,9 @@ DisableCyberwareProgram : Items.ControlHack
 	displayName = "LocKey#27961";
 	localizedDescription = "LocKey#51527";
 	iconPath = "quickhack_cw_malfunction";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.CyberwareMalfunctionHack"
+		"QuickHack.CyberwareMalfunctionHack", "QuickHack.BossCyberwareMalfunctionHack", "QuickHack.ChimeraCyberwareMalfunctionHack"
 	];
 	OnAttach += 
 	[
@@ -640,13 +906,13 @@ DisableCyberwareLvl2Program : DisableCyberwareProgram
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.CyberwareMalfunctionLvl2Hack"
+		"QuickHack.CyberwareMalfunctionLvl2Hack", "QuickHack.BossCyberwareMalfunctionLvl2Hack", "QuickHack.ChimeraCyberwareMalfunctionLvl2Hack"
 	];
-	OnAttach += 
+	OnAttach = 
 	[
-		"EquipmentGLP.DisableCyberwareProgramLvl2"
+		"EquipmentGLP.DisableCyberwareProgramLvl2Stacks", "EquipmentGLP.DisableCyberwareProgramLvl1", "EquipmentGLP.DisableCyberwareProgramLvl2"
 	];
 	CraftingData = "Items.DisableCyberwareLvl2CraftingPackage";
 }
@@ -658,31 +924,111 @@ DisableCyberwareLvl3Program : DisableCyberwareLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.CyberwareMalfunctionLvl3Hack"
+		"QuickHack.CyberwareMalfunctionLvl3Hack", "QuickHack.BossCyberwareMalfunctionLvl3Hack", "QuickHack.ChimeraCyberwareMalfunctionLvl3Hack"
 	];
-	OnAttach += 
+	OnAttach = 
 	[
-		"EquipmentGLP.DisableCyberwareProgramLvl3"
+		"EquipmentGLP.DisableCyberwareProgramLvl3Stacks", "EquipmentGLP.DisableCyberwareProgramLvl1", "EquipmentGLP.DisableCyberwareProgramLvl2", "EquipmentGLP.DisableCyberwareProgramLvl3"
 	];
 	CraftingData = "Items.DisableCyberwareLvl3CraftingPackage";
+}
+
+DisableCyberwareLvl4Program : DisableCyberwareLvl3Program
+{
+	tags += 
+	[
+		"Tier4Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.CyberwareMalfunctionLvl4Hack", "QuickHack.BossCyberwareMalfunctionLvl4Hack", "QuickHack.ChimeraCyberwareMalfunctionLvl4Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.DisableCyberwareProgramLvl4Stacks", "EquipmentGLP.DisableCyberwareProgramLvl1", "EquipmentGLP.DisableCyberwareProgramLvl2", "EquipmentGLP.DisableCyberwareProgramLvl3", "EquipmentGLP.DisableCyberwareProgramLvl4"
+	];
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "CWMalfunctionEMPExplosion";
+							} : HitFlagHitPrereqCondition
+						];
+					} : PreProcessHitTriggered;
+					hitFlag = "Special";
+				} : AddHitFlagToAttackEffector
+			];
+		}
+	];
+	CraftingData = "Items.DisableCyberwareLvl4CraftingPackage";
+}
+
+DisableCyberwareLvl4PlusPlusProgram : DisableCyberwareLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.CyberwareMalfunctionLvl4PlusPlusHack", "QuickHack.BossCyberwareMalfunctionLvl4PlusPlusHack", "QuickHack.ChimeraCyberwareMalfunctionLvl4PlusPlusHack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.DisableCyberwareProgramLvl4Stacks", "EquipmentGLP.DisableCyberwareProgramLvl4PlusPlus", "EquipmentGLP.DisableCyberwareProgramLvl2", "EquipmentGLP.DisableCyberwareProgramLvl3", "EquipmentGLP.DisableCyberwareProgramLvl4"
+	];
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "CWMalfunctionEMPExplosion";
+							} : HitFlagHitPrereqCondition
+						];
+					} : PreProcessHitTriggered;
+					hitFlag = "Special";
+				} : AddHitFlagToAttackEffector
+			];
+		}
+	];
+	CraftingData = "Items.DisableCyberwareLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 LocomotionMalfunctionProgram : Items.ControlHack
 {
 	tags += 
 	[
-		"Tier1Shard"
+		"pShard"
 	];
 	quality = "Quality.Uncommon";
 	shardType = "LocomotionMalfunction";
 	displayName = "LocKey#27966";
 	localizedDescription = "LocKey#27721";
 	iconPath = "quickhack_locomo_malfunction";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.LocomotionMalfunctionHack"
+		"QuickHack.LocomotionMalfunctionHack", "QuickHack.BossLocomotionMalfunctionHack", "QuickHack.ChimeraLocomotionMalfunctionHack"
 	];
 	hideCooldownUI = true;
 	OnAttach += 
@@ -699,13 +1045,17 @@ LocomotionMalfunctionLvl2Program : LocomotionMalfunctionProgram
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.LocomotionMalfunctionLvl2Hack"
+		"QuickHack.LocomotionMalfunctionLvl2Hack", "QuickHack.BossLocomotionMalfunctionLvl2Hack", "QuickHack.ChimeraLocomotionMalfunctionLvl2Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.LocomotionMalfunctionProgramLvl2"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.LocomotionMalfunctionProgramLvl2Passive"
 	];
 	CraftingData = "Items.LocomotionMalfunctionLvl2CraftingPackage";
 }
@@ -717,15 +1067,16 @@ LocomotionMalfunctionLvl3Program : LocomotionMalfunctionLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.LocomotionMalfunctionLvl3Hack"
+		"QuickHack.LocomotionMalfunctionLvl3Hack", "QuickHack.BossLocomotionMalfunctionLvl3Hack", "QuickHack.ChimeraLocomotionMalfunctionLvl3Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.LocomotionMalfunctionProgramLvl3"
 	];
 	CraftingData = "Items.LocomotionMalfunctionLvl3CraftingPackage";
+	float finisherThresholdModifier = 20.;
 }
 
 LocomotionMalfunctionLvl4Program : LocomotionMalfunctionLvl3Program
@@ -735,9 +1086,9 @@ LocomotionMalfunctionLvl4Program : LocomotionMalfunctionLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.LocomotionMalfunctionLvl4Hack"
+		"QuickHack.LocomotionMalfunctionLvl4Hack", "QuickHack.BossLocomotionMalfunctionLvl4Hack", "QuickHack.ChimeraLocomotionMalfunctionLvl4Hack"
 	];
 	OnAttach += 
 	[
@@ -750,6 +1101,32 @@ LocomotionMalfunctionLvl4Program : LocomotionMalfunctionLvl3Program
 	CraftingData = "Items.LocomotionMalfunctionLvl4CraftingPackage";
 }
 
+LocomotionMalfunctionLvl4PlusPlusProgram : LocomotionMalfunctionLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.LocomotionMalfunctionLvl4Hack", "QuickHack.BossLocomotionMalfunctionLvl4Hack", "QuickHack.ChimeraLocomotionMalfunctionLvl4Hack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.LocomotionMalfunctionProgramLvl4PlusPlus"
+	];
+	OnEquip = 
+	[
+		"EquipmentGLP.LocomotionMalfunctionProgramLvl2Passive", "EquipmentGLP.LocomotionMalfunctionProgramLvl4PlusPlusPassive"
+	];
+	CraftingData = "Items.LocomotionMalfunctionLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
 WeaponMalfunctionProgram : Items.ControlHack
 {
 	tags += 
@@ -758,20 +1135,12 @@ WeaponMalfunctionProgram : Items.ControlHack
 	];
 	quality = "Quality.Uncommon";
 	shardType = "WeaponMalfunction";
-	buyPrice += 
-	[
-		"Price.VeryLow"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLow"
-	];
 	displayName = "LocKey#27965";
 	localizedDescription = "LocKey#51947";
 	iconPath = "quickhack_wpn_malfunction";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.WeaponMalfunctionHack"
+		"QuickHack.WeaponMalfunctionHack", "QuickHack.BossWeaponMalfunctionHack", "QuickHack.ChimeraWeaponMalfunctionHack"
 	];
 	hideCooldownUI = true;
 	OnAttach += 
@@ -788,21 +1157,26 @@ WeaponMalfunctionLvl2Program : WeaponMalfunctionProgram
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	buyPrice += 
+	objectActions += 
 	[
-		"Price.VeryLowNullifier"
+		"QuickHack.WeaponMalfunctionLvl2Hack", "QuickHack.BossWeaponMalfunctionLvl2Hack", "QuickHack.ChimeraWeaponMalfunctionLvl2Hack"
 	];
-	sellPrice += 
+	OnEquip = 
 	[
-		"Price.VeryLowNullifier"
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.CanJamWeaponLvl2QuickHack";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.WeaponMalfunctionLvl2Program"
-	];
-	objectActions = 
-	[
-		"QuickHack.WeaponMalfunctionLvl2Hack"
 	];
 	CraftingData = "Items.WeaponMalfunctionLvl2CraftingPackage";
 }
@@ -814,13 +1188,13 @@ WeaponMalfunctionLvl3Program : WeaponMalfunctionLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	OnAttach += 
+	OnAttach = 
 	[
-		"EquipmentGLP.WeaponMalfunctionLvl3Program"
+		"EquipmentGLP.WeaponMalfunctionLvl3Program", "EquipmentGLP.WeaponMalfunctionLvl1Program", "EquipmentGLP.WeaponMalfunctionLvl2Program"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.WeaponMalfunctionLvl3Hack"
+		"QuickHack.WeaponMalfunctionLvl3Hack", "QuickHack.BossWeaponMalfunctionLvl3Hack", "QuickHack.ChimeraWeaponMalfunctionLvl3Hack"
 	];
 	CraftingData = "Items.WeaponMalfunctionLvl3CraftingPackage";
 }
@@ -836,40 +1210,49 @@ WeaponMalfunctionLvl4Program : WeaponMalfunctionLvl3Program
 	[
 		"EquipmentGLP.WeaponMalfunctionLvl4Program"
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.WeaponMalfunctionLvl4Hack"
-	];
-	OnEquip = 
-	[
-		{
-			effectors = 
-			[
-				{
-					prereqRecord = "Prereqs.AlwaysTruePrereq";
-					effectorClassName = "UnlockMinigameProgramEffector";
-					string networkAction = "MinigameAction.NetworkAutoJamHack";
-				} : Effector
-			];
-		} : GameplayLogicPackage
+		"QuickHack.WeaponMalfunctionLvl4Hack", "QuickHack.BossWeaponMalfunctionLvl4Hack", "QuickHack.ChimeraWeaponMalfunctionLvl4Hack"
 	];
 	CraftingData = "Items.WeaponMalfunctionLvl4CraftingPackage";
+}
+
+WeaponMalfunctionLvl4PlusPlusProgram : WeaponMalfunctionLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	OnAttach += 
+	[
+		"EquipmentGLP.WeaponMalfunctionLvl4PlusPlusProgram"
+	];
+	objectActions += 
+	[
+		"QuickHack.WeaponMalfunctionLvl4PlusPlusHack", "QuickHack.BossWeaponMalfunctionLvl4PlusPlusHack", "QuickHack.ChimeraWeaponMalfunctionLvl4PlusPlusHack"
+	];
+	CraftingData = "Items.WeaponMalfunctionLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 BlindProgram : Items.ControlHack
 {
 	tags += 
 	[
-		"Tier1Shard"
+		"Tier0Shard"
 	];
-	quality = "Quality.Uncommon";
+	quality = "Quality.Common";
 	shardType = "Blind";
 	displayName = "LocKey#849";
 	localizedDescription = "LocKey#51944";
 	iconPath = "quickhack_optics_malfunction";
 	OnAttach += 
 	[
-		"EquipmentGLP.BlindLvl1Program"
+		"EquipmentGLP.BlindProgram"
 	];
 	OnEquip = 
 	[
@@ -884,28 +1267,50 @@ BlindProgram : Items.ControlHack
 			];
 		} : GameplayLogicPackage
 	];
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.BlindHack"
+		"QuickHack.BlindHack", "QuickHack.BossBlindHack", "QuickHack.ChimeraBlindHack"
 	];
 	hideCooldownUI = true;
 	CraftingData = "Items.BlindCraftingPackage";
 }
 
-BlindLvl2Program : BlindProgram
+BlindLvl1Program : BlindProgram
+{
+	tags += 
+	[
+		"Tier1Shard"
+	];
+	quality = "Quality.Uncommon";
+	objectActions += 
+	[
+		"QuickHack.BlindLvl1Hack", "QuickHack.BossBlindLvl1Hack", "QuickHack.ChimeraBlindLvl1Hack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.BlindLvl1Program"
+	];
+	CraftingData = "Items.BlindLvl1CraftingPackage";
+}
+
+BlindLvl2Program : BlindLvl1Program
 {
 	tags += 
 	[
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.BlindLvl2Hack"
+		"QuickHack.BlindLvl2Hack", "QuickHack.BossBlindLvl2Hack", "QuickHack.ChimeraBlindLvl2Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.BlindLvl2Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.BlindLvl2ProgramPassive"
 	];
 	CraftingData = "Items.BlindLvl2CraftingPackage";
 }
@@ -917,13 +1322,13 @@ BlindLvl3Program : BlindLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.BlindLvl3Hack"
+		"QuickHack.BlindLvl3Hack", "QuickHack.BossBlindLvl3Hack", "QuickHack.ChimeraBlindLvl3Hack"
 	];
-	OnAttach += 
+	OnAttach = 
 	[
-		"EquipmentGLP.BlindLvl3Program"
+		"EquipmentGLP.BlindLvl3Program", "EquipmentGLP.BlindLvl2Program"
 	];
 	CraftingData = "Items.BlindLvl3CraftingPackage";
 }
@@ -935,9 +1340,9 @@ BlindLvl4Program : BlindLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.BlindLvl4Hack"
+		"QuickHack.BlindLvl4Hack", "QuickHack.BossBlindLvl4Hack", "QuickHack.ChimeraBlindLvl4Hack"
 	];
 	OnAttach += 
 	[
@@ -945,18 +1350,45 @@ BlindLvl4Program : BlindLvl3Program
 	];
 	OnEquip += 
 	[
-		{
-			effectors = 
-			[
-				{
-					prereqRecord = "Prereqs.AlwaysTruePrereq";
-					effectorClassName = "UnlockMinigameProgramEffector";
-					string networkAction = "MinigameAction.NetworkAutoBlindHack";
-				} : Effector
-			];
-		} : GameplayLogicPackage
+		"EquipmentGLP.BlindLvl4ProgramPassive"
 	];
 	CraftingData = "Items.BlindLvl4CraftingPackage";
+}
+
+BlindLvl4PlusPlusProgram : BlindLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.BlindLvl4Hack", "QuickHack.BossBlindLvl4Hack", "QuickHack.ChimeraBlindLvl4Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.BlindLvl3Program", "EquipmentGLP.BlindLvl4PlusPlusProgram", "EquipmentGLP.BlindLvl4Program"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanBlindQuickHack";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage, 
+		"EquipmentGLP.BlindLvl4ProgramPassive", "EquipmentGLP.BlindLvl4PlusPlusProgramPassive"
+	];
+	CraftingData = "Items.BlindLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
 }
 
 CommsNoiseProgram : Items.CovertHack
@@ -970,13 +1402,13 @@ CommsNoiseProgram : Items.CovertHack
 	displayName = "LocKey#27959";
 	localizedDescription = "LocKey#27716";
 	iconPath = "quickhack_noise";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.CommsNoiseHack"
 	];
 	OnAttach += 
 	[
-		"EquipmentGLP.CommsNoiseLvl1Program"
+		"EquipmentGLP.UntraceableHack", "EquipmentGLP.CommsNoiseLvl1Program"
 	];
 	CraftingData = "Items.CommsNoiseCraftingPackage";
 }
@@ -988,7 +1420,7 @@ CommsNoiseLvl2Program : CommsNoiseProgram
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.CommsNoiseLvl2Hack"
 	];
@@ -1006,7 +1438,7 @@ CommsNoiseLvl3Program : CommsNoiseLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.CommsNoiseLvl3Hack"
 	];
@@ -1024,7 +1456,7 @@ CommsNoiseLvl4Program : CommsNoiseLvl3Program
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.CommsNoiseLvl4Hack"
 	];
@@ -1032,14 +1464,45 @@ CommsNoiseLvl4Program : CommsNoiseLvl3Program
 	[
 		"EquipmentGLP.CommsNoiseLvl4Program"
 	];
-	OnEquip += 
-	[
-		"EquipmentGLP.CommsNoiseLvl4Passive"
-	];
 	CraftingData = "Items.CommsNoiseLvl4CraftingPackage";
 }
 
+CommsNoiseLvl4PlusPlusProgram : CommsNoiseLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.CommsNoiseLvl4PlusPlusHack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.CommsNoiseLvl4Program"
+	];
+	CraftingData = "Items.CommsNoiseLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
+[ notQueryable ]
 CommsCallInProgram : Items.CovertHack
+{
+	deprecated = true;
+	counterpart = "Items.CommsCallInLvl1Program";
+	tags += 
+	[
+		"Tier1Shard", "DeprecatedQuickhack"
+	];
+	quality = "Quality.Uncommon";
+	objectActions = [];
+}
+
+CommsCallInLvl1Program : Items.CovertHack
 {
 	tags += 
 	[
@@ -1047,86 +1510,226 @@ CommsCallInProgram : Items.CovertHack
 	];
 	quality = "Quality.Uncommon";
 	shardType = "CommsCallIn";
-	buyPrice += 
-	[
-		"Price.VeryLow"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLow"
-	];
 	displayName = "LocKey#27960";
 	localizedDescription = "LocKey#27977";
 	iconPath = "quickhack_callin";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.CommsCallInHack"
+		"QuickHack.CommsCallInLvl1Hack"
 	];
-	hideDurationUI = true;
+	hideCooldownUI = true;
 	OnAttach += 
 	[
-		"EquipmentGLP.CommsCallInLvl1Program"
+		"EquipmentGLP.CommsCallInLvl1ProgramRange", "EquipmentGLP.CommsCallInLvl1Program"
 	];
-	CraftingData = "Items.CommsCallInCraftingPackage";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CommsCallDistance";
+					modifierType = "Additive";
+					value = 10;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	CraftingData = "Items.CommsCallInLvl1CraftingPackage";
 }
 
-CommsCallInLvl3Program : CommsCallInProgram
-{
-	tags += 
-	[
-		"Tier3Shard"
-	];
-	quality = "Quality.Epic";
-	buyPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	objectActions = 
-	[
-		"QuickHack.CommsCallInLvl3Hack"
-	];
-	OnAttach += 
-	[
-		"EquipmentGLP.CommsCallInLvl3Program"
-	];
-	CraftingData = "Items.CommsCallInLvl3CraftingPackage";
-}
-
-WhistleProgram : Items.CovertHack
-{
-	tags += 
-	[
-		"Tier1Shard"
-	];
-	quality = "Quality.Uncommon";
-	shardType = "Whistle";
-	displayName = "LocKey#51291";
-	localizedDescription = "LocKey#51292";
-	iconPath = "quickhack_callout";
-	objectActions = 
-	[
-		"QuickHack.WhistleHack"
-	];
-	hideDurationUI = true;
-	OnAttach += 
-	[
-		"EquipmentGLP.WhistleLvl1Program"
-	];
-	CraftingData = "Items.WhistleCraftingPackage";
-}
-
-WhistleLvl2Program : WhistleProgram
+CommsCallInLvl2Program : CommsCallInLvl1Program
 {
 	tags += 
 	[
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	objectActions = 
+	objectActions += 
+	[
+		"QuickHack.CommsCallInLvl2Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.CommsCallInLvl2ProgramRange", "EquipmentGLP.CommsCallInLvl1Program", "EquipmentGLP.CommsCallInLvl2Program"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CommsCallDistance";
+					modifierType = "Additive";
+					value = 15;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	CraftingData = "Items.CommsCallInLvl2CraftingPackage";
+}
+
+CommsCallInLvl3Program : CommsCallInLvl2Program
+{
+	tags += 
+	[
+		"Tier3Shard"
+	];
+	quality = "Quality.Epic";
+	objectActions += 
+	[
+		"QuickHack.CommsCallInLvl3Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.CommsCallInLvl3ProgramRange", "EquipmentGLP.CommsCallInLvl1Program", "EquipmentGLP.CommsCallInLvl2Program", "EquipmentGLP.CommsCallInLvl3Program"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CommsCallDistance";
+					modifierType = "Additive";
+					value = 20;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	CraftingData = "Items.CommsCallInLvl3CraftingPackage";
+}
+
+CommsCallInLvl4Program : CommsCallInLvl3Program
+{
+	tags += 
+	[
+		"Tier4Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.CommsCallInLvl4Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.CommsCallInLvl4ProgramRange", "EquipmentGLP.CommsCallInLvl1Program", "EquipmentGLP.CommsCallInLvl2Program", "EquipmentGLP.CommsCallInLvl3Program", "EquipmentGLP.CommsCallInLvl4Program"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CommsCallDistance";
+					modifierType = "Additive";
+					value = 30;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	CraftingData = "Items.CommsCallInLvl4CraftingPackage";
+}
+
+CommsCallInLvl4PlusPlusProgram : CommsCallInLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.CommsCallInLvl4PlusPlusHack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.CommsCallInLvl4ProgramRange", "EquipmentGLP.CommsCallInLvl1Program", "EquipmentGLP.CommsCallInLvl2Program", "EquipmentGLP.CommsCallInLvl3Program", "EquipmentGLP.CommsCallInLvl4PlusPlusProgram"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CommsCallDistance";
+					modifierType = "Additive";
+					value = 30;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	CraftingData = "Items.CommsCallInLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
+[ notQueryable ]
+WhistleProgram : Items.CovertHack
+{
+	deprecated = true;
+	counterpart = "Items.WhistleLvl0Program";
+	tags += 
+	[
+		"Tier1Shard", "DeprecatedQuickhack"
+	];
+	quality = "Quality.Common";
+	shardType = "Whistle";
+	objectActions = [];
+	hideDurationUI = true;
+}
+
+WhistleLvl0Program : Items.CovertHack
+{
+	tags += 
+	[
+		"Tier0Shard"
+	];
+	quality = "Quality.Common";
+	shardType = "Whistle";
+	displayName = "LocKey#51291";
+	localizedDescription = "LocKey#51292";
+	iconPath = "quickhack_callout";
+	objectActions += 
+	[
+		"QuickHack.WhistleLvl0Hack"
+	];
+	hideCooldownUI = true;
+	OnAttach += 
+	[
+		"EquipmentGLP.UntraceableHack", "EquipmentGLP.WhistleLvl0Program"
+	];
+	CraftingData = "Items.WhistleLvl0CraftingPackage";
+}
+
+WhistleLvl1Program : WhistleLvl0Program
+{
+	tags += 
+	[
+		"Tier1Shard"
+	];
+	quality = "Quality.Uncommon";
+	objectActions += 
+	[
+		"QuickHack.WhistleLvl1Hack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.UntraceableHack", "EquipmentGLP.WhistleLvl1Program"
+	];
+	CraftingData = "Items.WhistleLvl1CraftingPackage";
+}
+
+WhistleLvl2Program : WhistleLvl1Program
+{
+	tags += 
+	[
+		"Tier2Shard"
+	];
+	quality = "Quality.Rare";
+	objectActions += 
 	[
 		"QuickHack.WhistleLvl2Hack"
 	];
@@ -1144,7 +1747,7 @@ WhistleLvl3Program : WhistleLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.WhistleLvl3Hack"
 	];
@@ -1155,33 +1758,65 @@ WhistleLvl3Program : WhistleLvl2Program
 	CraftingData = "Items.WhistleLvl3CraftingPackage";
 }
 
+WhistleLvl4Program : WhistleLvl3Program
+{
+	tags += 
+	[
+		"Tier4Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.WhistleLvl4Hack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.WhistleLvl4Program"
+	];
+	CraftingData = "Items.WhistleLvl4CraftingPackage";
+}
+
+WhistleLvl4PlusPlusProgram : WhistleLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.WhistleLvl4PlusPlusHack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.WhistleLvl4Program"
+	];
+	CraftingData = "Items.WhistleLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
 PingProgram : Items.CovertHack
 {
 	tags += 
 	[
-		"Tier1Shard"
+		"Tier0Shard"
 	];
-	quality = "Quality.Uncommon";
+	quality = "Quality.Common";
 	shardType = "Ping";
-	buyPrice += 
-	[
-		"Price.VeryLow"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLow"
-	];
 	displayName = "LocKey#27967";
 	localizedDescription = "LocKey#27722";
 	iconPath = "quickhack_ping";
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.PingHack", "DeviceAction.PingDevice"
 	];
 	hideCooldownUI = true;
 	OnAttach += 
 	[
-		"EquipmentGLP.PingLvl1Program"
+		"EquipmentGLP.UntraceableHack", "EquipmentGLP.PingLvl1Program"
 	];
 	CraftingData = "Items.PingCraftingPackage";
 }
@@ -1193,59 +1828,38 @@ PingLvl2Program : PingProgram
 		"Tier2Shard"
 	];
 	quality = "Quality.Rare";
-	buyPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.PingLvl2Hack", "DeviceAction.PingDevice"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.PingLvl2Program"
 	];
 	CraftingData = "Items.PingLvl2CraftingPackage";
 }
 
+[ notQueryable ]
 PingLvl3Program : PingProgram
 {
+	deprecated = true;
+	counterpart = "Items.PingLvl2Program";
 	tags += 
 	[
-		"Tier3Shard"
+		"Tier3Shard", "DeprecatedQuickhack"
 	];
 	quality = "Quality.Epic";
-	buyPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	objectActions = 
-	[
-		"QuickHack.PingLvl3Hack", "DeviceAction.PingDevice"
-	];
-	CraftingData = "Items.PingLvl3CraftingPackage";
+	objectActions = [];
 }
 
-PingLvl4Program : PingProgram
+PingLvl4Program : PingLvl2Program
 {
 	tags += 
 	[
 		"Tier4Shard"
 	];
 	quality = "Quality.Legendary";
-	buyPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	sellPrice += 
-	[
-		"Price.VeryLowNullifier"
-	];
-	objectActions = 
+	objectActions += 
 	[
 		"QuickHack.PingLvl4Hack", "DeviceAction.PingDevice"
 	];
@@ -1260,26 +1874,53 @@ PingLvl4Program : PingProgram
 	CraftingData = "Items.PingLvl4CraftingPackage";
 }
 
+PingLvl4PlusPlusProgram : PingLvl2Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	objectActions += 
+	[
+		"QuickHack.PingLvl4PlusPlusHack", "DeviceAction.PingDevice"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.PingLvl4Program"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.PingLvl4ProgramPassive"
+	];
+	CraftingData = "Items.PingLvl4PlusPlusCraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
 MemoryWipeLvl2Program : Items.CovertHack
 {
 	tags += 
 	[
-		"Tier2Shard"
+		"Tier2Shard", "DisplayProgramDuration"
 	];
 	quality = "Quality.Rare";
 	shardType = "MemoryWipe";
 	displayName = "LocKey#51310";
 	localizedDescription = "LocKey#51311";
 	iconPath = "quickhack_memory_wipe";
-	objectActions = 
+	objectActions += 
 	[
-		"QuickHack.MemoryWipeLvl2Hack"
+		"QuickHack.MemoryWipeLvl2Hack", "QuickHack.BossMemoryWipeLvl2Hack", "QuickHack.ChimeraMemoryWipeLvl2Hack"
 	];
 	OnAttach += 
 	[
-		"EquipmentGLP.MemoryWipeLvl2Program"
+		"EquipmentGLP.UntraceableHack", "EquipmentGLP.MemoryWipeLvl2Program"
 	];
 	CraftingData = "Items.MemoryWipeLvl2CraftingPackage";
+	float revealPositionValue = -25;
 }
 
 MemoryWipeLvl3Program : MemoryWipeLvl2Program
@@ -1289,14 +1930,195 @@ MemoryWipeLvl3Program : MemoryWipeLvl2Program
 		"Tier3Shard"
 	];
 	quality = "Quality.Epic";
-	objectActions = 
+	shardType = "MemoryWipe";
+	displayName = "LocKey#51310";
+	localizedDescription = "LocKey#51311";
+	iconPath = "quickhack_memory_wipe";
+	objectActions += 
 	[
-		"QuickHack.MemoryWipeLvl3Hack"
+		"QuickHack.MemoryWipeLvl3Hack", "QuickHack.BossMemoryWipeLvl3Hack", "QuickHack.ChimeraMemoryWipeLvl3Hack"
 	];
 	OnAttach += 
 	[
 		"EquipmentGLP.MemoryWipeLvl3Program"
 	];
 	CraftingData = "Items.MemoryWipeLvl3CraftingPackage";
+}
+
+MemoryWipeLvl4Program : MemoryWipeLvl3Program
+{
+	tags += 
+	[
+		"Tier4Shard"
+	];
+	quality = "Quality.Legendary";
+	shardType = "MemoryWipe";
+	displayName = "LocKey#51310";
+	localizedDescription = "LocKey#51311";
+	iconPath = "quickhack_memory_wipe";
+	objectActions += 
+	[
+		"QuickHack.MemoryWipeLvl4Hack", "QuickHack.BossMemoryWipeLvl4Hack", "QuickHack.ChimeraMemoryWipeLvl4Hack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.MemoryWipeLvl4Program"
+	];
+	CraftingData = "Items.MemoryWipeLvl4CraftingPackage";
+}
+
+MemoryWipeLvl4PlusPlusProgram : MemoryWipeLvl3Program
+{
+	tags += 
+	[
+		"Tier6Shard"
+	];
+	quality = "Quality.Legendary";
+	shardType = "MemoryWipe";
+	displayName = "LocKey#51310";
+	localizedDescription = "LocKey#51311";
+	iconPath = "quickhack_memory_wipe";
+	objectActions += 
+	[
+		"QuickHack.MemoryWipeLvl4PlusPlusHack", "QuickHack.BossMemoryWipeLvl4PlusPlusHack", "QuickHack.ChimeraMemoryWipeLvl4PlusPlusHack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.MemoryWipeLvl4Program"
+	];
+	CraftingData = "Items.MemoryWipeLvlPlusPlus4CraftingPackage";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+BlackWallProgramLvl2 : Items.UltimateHack
+{
+	tags += 
+	[
+		"Tier2Shard", "DummyPart", "HideInUI"
+	];
+	quality = "Quality.Rare";
+	shardType = "BlackWall";
+	displayName = "LocKey#86796";
+	localizedDescription = "LocKey#86797";
+	objectActions += 
+	[
+		"QuickHack.BlackWallHack", "QuickHack.BossBlackWallHack", "QuickHack.ChimeraBlackWallHack"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.BlackwallProgramLvl2"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.BlackwallLvl2Passive"
+	];
+	CraftingData = "";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+BlackWallProgramLvl3 : BlackWallProgramLvl2
+{
+	tags += 
+	[
+		"Tier3Shard"
+	];
+	quality = "Quality.Epic";
+	shardType = "BlackWall";
+	displayName = "LocKey#86796";
+	localizedDescription = "LocKey#86797";
+	objectActions += 
+	[
+		"QuickHack.BlackWallHack", "QuickHack.BossBlackWallHack", "QuickHack.ChimeraBlackWallHack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.BlackwallProgramLvl3"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.BlackwallLvl3Passive"
+	];
+	CraftingData = "";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+BlackWallProgramLvl4 : BlackWallProgramLvl3
+{
+	tags += 
+	[
+		"Tier4Shard"
+	];
+	quality = "Quality.Legendary";
+	shardType = "BlackWall";
+	displayName = "LocKey#86796";
+	localizedDescription = "LocKey#86797";
+	objectActions += 
+	[
+		"QuickHack.BlackWallHack", "QuickHack.BossBlackWallHack", "QuickHack.ChimeraBlackWallHack"
+	];
+	OnAttach = 
+	[
+		"EquipmentGLP.BlackwallProgramLvl4"
+	];
+	OnEquip += 
+	[
+		"EquipmentGLP.BlackwallLvl4Passive"
+	];
+	CraftingData = "";
+}
+
+AllCommonPrograms : InventoryItem
+{
+	fk< Item >[] programs = 
+	[
+		"Items.EMPOverloadProgram", "Items.OverheatProgram", "Items.BlindProgram", "Items.WhistleLvl0Program", "Items.PingProgram"
+	];
+}
+
+AllUncommonPrograms : InventoryItem
+{
+	fk< Item >[] programs = 
+	[
+		"Items.EMPOverloadLvl1Program", "Items.OverheatLvl1Program", "Items.ContagionProgram", "Items.DisableCyberwareProgram", "Items.LocomotionMalfunctionProgram", "Items.WeaponMalfunctionProgram", "Items.BlindLvl1Program", "Items.CommsNoiseProgram", "Items.CommsCallInLvl1Program", "Items.WhistleLvl1Program"
+	];
+}
+
+AllRarePrograms : InventoryItem
+{
+	fk< Item >[] programs = 
+	[
+		"Items.EMPOverloadLvl2Program", "Items.BrainMeltLvl2Program", "Items.OverheatLvl2Program", "Items.ContagionLvl2Program", "Items.DisableCyberwareLvl2Program", "Items.LocomotionMalfunctionLvl2Program", "Items.WeaponMalfunctionLvl2Program", "Items.BlindLvl2Program", "Items.CommsNoiseLvl2Program", "Items.CommsCallInLvl2Program", "Items.WhistleLvl2Program", "Items.PingLvl2Program", "Items.MemoryWipeLvl2Program"
+	];
+}
+
+AllEpicPrograms : InventoryItem
+{
+	fk< Item >[] programs = 
+	[
+		"Items.EMPOverloadLvl3Program", "Items.BrainMeltLvl3Program", "Items.OverheatLvl3Program", "Items.ContagionLvl3Program", "Items.SuicideLvl3Program", "Items.GrenadeExplodeLvl3Program", "Items.SystemCollapseLvl3Program", "Items.MadnessLvl3Program", "Items.DisableCyberwareLvl3Program", "Items.LocomotionMalfunctionLvl3Program", "Items.WeaponMalfunctionLvl3Program", "Items.BlindLvl3Program", "Items.CommsNoiseLvl3Program", "Items.CommsCallInLvl3Program", "Items.WhistleLvl3Program", "Items.MemoryWipeLvl3Program"
+	];
+}
+
+AllLegendaryPrograms : InventoryItem
+{
+	fk< Item >[] programs = 
+	[
+		"Items.EMPOverloadLvl4Program", "Items.BrainMeltLvl4Program", "Items.OverheatLvl4Program", "Items.ContagionLvl4Program", "Items.SuicideLvl4Program", "Items.GrenadeExplodeLvl4Program", "Items.SystemCollapseLvl4Program", "Items.MadnessLvl4Program", "Items.DisableCyberwareLvl4Program", "Items.LocomotionMalfunctionLvl4Program", "Items.WeaponMalfunctionLvl4Program", "Items.BlindLvl4Program", "Items.CommsNoiseLvl4Program", "Items.CommsCallInLvl4Program", "Items.WhistleLvl4Program", "Items.PingLvl4Program", "Items.MemoryWipeLvl4Program"
+	];
+}
+
+AllLegendaryPlusPlusPrograms : InventoryItem
+{
+	fk< Item >[] programs = 
+	[
+		"Items.EMPOverloadLvl4PlusPlusProgram", "Items.BrainMeltLvl4PlusPlusProgram", "Items.OverheatLvl4PlusPlusProgram", "Items.ContagionLvl4PlusPlusProgram", "Items.SuicideLvl4PlusPlusProgram", "Items.GrenadeExplodeLvl4PlusPlusProgram", "Items.SystemCollapseLvl4PlusPlusProgram", "Items.MadnessLvl4PlusPlusProgram", "Items.DisableCyberwareLvl4PlusPlusProgram", "Items.LocomotionMalfunctionLvl4PlusPlusProgram", "Items.WeaponMalfunctionLvl4PlusPlusProgram", "Items.BlindLvl4PlusPlusProgram", "Items.CommsNoiseLvl4PlusPlusProgram", "Items.CommsCallInLvl4PlusPlusProgram", "Items.WhistleLvl4PlusPlusProgram", "Items.PingLvl4PlusPlusProgram", "Items.MemoryWipeLvl4PlusPlusProgram"
+	];
 }
 

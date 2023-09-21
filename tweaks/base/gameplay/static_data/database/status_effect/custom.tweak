@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB
+using RTDB, Prereqs, Effectors
 
 PlayerMovementLocked : StatusEffect
 {
@@ -27,6 +27,53 @@ PlayerMovementLocked : StatusEffect
 BlockBodyDisposal : StatusEffect
 {
 	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+BlockTargetingPlayerAutoRemove : BlockTargetingPlayer
+{
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									{
+										stateName = "Combat";
+										previousState = true;
+										isInState = false;
+									} : Prereqs.HighLevelNPCStatePrereq, 
+									{
+										stateName = "Alerted";
+										isInState = false;
+									} : Prereqs.HighLevelNPCStatePrereq
+								];
+							} : Prereqs.ANDPrereq, 
+							{
+								stateName = "InCombat";
+								previousState = true;
+							} : Prereqs.CombatPSMPrereq
+						];
+					} : Prereqs.ORPrereq;
+					effectorClassName = "ApplyStatusEffectEffector";
+					fk< StatusEffect > statusEffect = "BaseStatusEffect.BlockTargetingPlayerAutoRemove";
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector
+			];
+		}
+	];
+}
+
+BlockTargetingPlayer : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.BlockTargetingPlayer";
 	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
 }
 
@@ -60,6 +107,382 @@ TogglePlayerFlashlight : StatusEffect
 				}
 			];
 		}
+	];
+}
+
+StaminaRatioCalculator : StatusEffect
+{
+	savable = false;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.StaminaRatio";
+					modifierType = "Additive";
+					value = 0.01f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+WeaponChargeRatioCalculator : StatusEffect
+{
+	savable = false;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 20;
+			} : ConstantStatModifier
+		];
+	};
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.SEApplicationRateBasedOnWeaponCharge";
+					modifierType = "Additive";
+					value = 1.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+NoCover : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanUseCovers";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseMediumRing";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseFarRing";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseExtremeRing";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+[ DisabledContent ]
+Haunted_Weapon_Kill_Human : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+[ DisabledContent ]
+Haunted_Weapon_Kill_Mechanical : Haunted_Weapon_Kill_Human
+{
+}
+
+[ DisabledContent ]
+Haunted_Deck_Equipped : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+}
+
+NoShoot : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Blind";
+	gameplayTags += 
+	[
+		"Blind", "ResetSquadSync"
+	];
+	duration = "BaseStats.InfiniteDuration";
+	replicated = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanShootWhileMoving";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPreciseShoot";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanChargedShoot";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSmartShoot";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseCovers";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	AIData = 
+	{
+		float priority = 9.f;
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+[ DisabledContent ]
+UnstoppableBennett : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"HitReactionThresholdModifiers.ForceUnstoppableEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BasePermaStatusEffect : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = "BaseStats.InfiniteStacks";
+}
+
+CWCapacity_Tier2_PermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CWshard_Tier2"
+	];
+}
+
+CWCapacity_Tier3_PermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CWshard_Tier3"
+	];
+}
+
+CWCapacity_Tier4_PermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CWshard_Tier4"
+	];
+}
+
+CWCapacity_Tier5_PermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CWshard_Tier5"
+	];
+}
+
+CWCapacity_DEBUGbuild_lvl20_PermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CWshard_debug_lvl20"
+	];
+}
+
+CWCapacity_DEBUGbuild_lvl30_PermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CWshard_debug_lvl30"
+	];
+}
+
+CarryCapacityPermaBonus : BasePermaStatusEffect
+{
+	gameplayTags += 
+	[
+		"CarryShard"
+	];
+}
+
+BlackwallHack_FactHelper : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+MaxTacAlone : StatusEffect
+{
+}
+
+MainBossSE : StatusEffect
+{
+}
+
+BlockNPCGrenadeBark : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+JustLootedIconicCWFromAirdrop : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+JustLootedIconicCWFromTreasureChest : StatusEffect
+{
+	gameplayTags += 
+	[
+		"VanillaIconicOSLooted"
+	];
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+AllIconicCWFromTreasureChestPurchased : StatusEffect
+{
+	gameplayTags += 
+	[
+		"AllVanillaIconicOSPurchased"
+	];
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "iconic_os_cw_looted_from_treasure_chest";
+					value = 1;
+				} : SetFactEffector, 
+				{
+					fact = "all_iconic_os_cw_purchased";
+					value = 1;
+				} : SetFactEffector
+			];
+		} : GameplayLogicPackage
 	];
 }
 

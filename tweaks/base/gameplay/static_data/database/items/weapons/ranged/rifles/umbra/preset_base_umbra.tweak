@@ -1,8 +1,17 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Umbra_Default : Base_Umbra
 {
+	CName appearanceResourceName = "Preset_Umbra_Default";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
+	tags += 
+	[
+		"DLCAdded"
+	];
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
@@ -22,59 +31,21 @@ Preset_Umbra_Default : Base_Umbra
 			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__mag_stdr";
 		}, 
 		"Items.RifleScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+		} : Power_AR_SMG_LMG_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod2";
+		} : Power_AR_SMG_LMG_ModList_Slot2
 	];
-	CName appearanceResourceName = "Preset_Umbra_Default";
-	CName[] visualTags = 
-	[
-		"Default"
-	];
-	tags += 
-	[
-		"SalesDLC", "DLCAdded"
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 
 Preset_Umbra_Pimp : Preset_Umbra_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -86,6 +57,10 @@ Preset_Umbra_Neon : Preset_Umbra_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Umbra_Military : Preset_Umbra_Default
@@ -94,13 +69,186 @@ Preset_Umbra_Military : Preset_Umbra_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
+[ notQueryable ]
 Preset_Umbra_Legendary : Preset_Umbra_Default
 {
 	CName[] visualTags = 
 	[
 		"Legendary"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Umbra_Collectible : Preset_Umbra_Default
+{
+	displayName = "LocKey#93516";
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "umbra_collectible_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Collectible_Power_AR_SMG_LMG_NoScope_Blueprint";
+	CName[] visualTags = 
+	[
+		"Legendary"
+	];
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.CollectibleIconicWeaponMod";
+		}
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Umbra_NPC_Data;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Umbra_Collectible_Technical_Stats", "Items.Base_Umbra_Handling_Stats", "Items.Base_Umbra_Collectible_Recoil_Stats", "Items.Base_Umbra_Spread_Stats", "Items.Base_Umbra_Aim_Stats", "Items.Base_Umbra_Collectible_Constant_Stats", "Items.CollectableBonusStats", "Items.Base_Umbra_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Assault_Rifle_Mult_Stats", "Items.Base_Power_Assault_Rifle_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_Assault_Rifle_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Assault_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Umbra_Collectible_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.09f;
+		} : CycleTimeModifier, 
+		{
+			value = 30.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Umbra_Collectible_Recoil_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			float value = 0.0f;
+		} : RecoilDirModifier, 
+		{
+			float value = 15.f;
+		} : RecoilAngleModifier, 
+		{
+			float value = 0.08f;
+		} : RecoilHoldDurationModifier, 
+		{
+			float value = 0.03f;
+		} : RecoilTimeModifier, 
+		{
+			float value = 0.20f;
+		} : RecoilRecoveryTimeModifier, 
+		{
+			float value = 1.f;
+		} : RecoilEnableLinearXModifier, 
+		{
+			float value = 1.f;
+		} : RecoilEnableLinearYModifier, 
+		{
+			float value = 1.f;
+		} : RecoilEnableLinearXADSModifier, 
+		{
+			float value = 1.f;
+		} : RecoilEnableLinearYADSModifier
+	];
+}
+
+Base_Umbra_Collectible_Constant_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 4.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.8571;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.474f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 
@@ -134,45 +282,103 @@ Craftable_Common_Umbra : Preset_Umbra_Default
 Craftable_Uncommon_Umbra : Craftable_Common_Umbra
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Umbra : Craftable_Common_Umbra
+Craftable_Rare_Umbra : Craftable_Uncommon_Umbra
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Umbra : Craftable_Common_Umbra
+Craftable_Epic_Umbra : Craftable_Uncommon_Umbra
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Umbra : Craftable_Common_Umbra
+Craftable_Legendary_Umbra : Craftable_Uncommon_Umbra
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Umbra_Bebe : Preset_Umbra_Default
+{
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "umbra_bebe_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
 	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoScope_Blueprint";
+	displayName = "LocKey#84908";
+	visualTags = 
+	[
+		"Paco_Umbra"
+	];
+	quality = "Quality.Random";
+	localizedDescription = "LocKey#84909";
+	tags += 
+	[
+		"IconicWeapon", "PowerOfThePack"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Umbra_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__darra_umbra__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.UmbraBebeWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Umbra_Technical_Stats", "Items.Base_Umbra_Handling_Stats", "Items.Base_Umbra_Recoil_Stats", "Items.Base_Umbra_Spread_Stats", "Items.Base_Umbra_Aim_Stats", "Items.Base_Umbra_Constant_Stats", "Items.Base_Umbra_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Assault_Rifle_Mult_Stats", "Items.Base_Power_Assault_Rifle_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_Assault_Rifle_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Assault_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+	bool scaleToPlayer = true;
 }
 

@@ -15,7 +15,7 @@ Base_Unity : Base_Power_Handgun
 	displayName = "LocKey#49794";
 	localizedDescription = "LocKey#49795";
 	string friendlyName = "w_handgun_constitutional_unity";
-	fk< ItemBlueprint > blueprint = "Items.Base_Handgun_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Handgun_Blueprint";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Unity";
 	fk< ConstantStatModifier > price = 
 	{
@@ -81,18 +81,21 @@ Base_Unity : Base_Power_Handgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Unity_Technical_Stats"
 		];
-	} : Base_Power_Handgun_NPC_Data;
+	} : Base_Unity_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Unity_Technical_Stats", "Items.Base_Unity_Handling_Stats", "Items.Base_Unity_Recoil_Stats", "Items.Base_Unity_Spread_Stats", "Items.Base_Unity_Aim_Stats", "Items.Base_Unity_Constant_Stats"
+		"Items.Base_Unity_Technical_Stats", "Items.Base_Unity_Handling_Stats", "Items.Base_Unity_Recoil_Stats", "Items.Base_Unity_Spread_Stats", "Items.Base_Unity_Aim_Stats", "Items.Base_Unity_Constant_Stats", "Items.Base_Unity_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerHandgun";
-	baseReloadTime = 1.1f;
-	uninterruptibleReloadStart = 0.9f;
-	baseEmptyReloadTime = 2.f;
-	uninterruptibleEmptyReloadStart = 1.0f;
+	baseReloadTime = 0.75f;
+	uninterruptibleReloadStart = 0.5f;
+	baseEmptyReloadTime = 0.75f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 11.0f;
 	float weaponFarPlane = 23.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -109,6 +112,14 @@ Base_Unity : Base_Power_Handgun
 	float weaponBlurIntensity_aim = 1.f;
 }
 
+Base_Unity_NPC_Data : Base_Power_Handgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Unity_Technical_Stats", "Items.Base_Unity_NPC_Damage_Stats"
+	];
+}
+
 Base_Unity_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -117,7 +128,7 @@ Base_Unity_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.2f;
+			value = 0.3f;
 		} : CycleTimeModifier, 
 		{
 			value = 12.f;
@@ -129,16 +140,46 @@ Base_Unity_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Unity_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 56f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Unity_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Unity_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 1.1f;
+			value = 0.75f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.f;
+			value = 0.75f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.35f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.25f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.1f;
 		} : ZoomLevelModifier, 
@@ -153,19 +194,22 @@ Base_Unity_Recoil_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 20.f;
+			value = 15.f;
 		} : RecoilDirModifier, 
 		{
-			value = 65.f;
+			value = 35.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.03f;
+			value = 0.09f;
 		} : RecoilHoldDurationModifier, 
 		{
-			value = 0.06f;
+			value = 0.055f;
 		} : RecoilTimeModifier, 
 		{
-			value = 0.2f;
+			value = 0.05f;
+		} : RecoilDelayModifier, 
+		{
+			value = 0.3f;
 		} : RecoilRecoveryTimeModifier, 
 		{
 			value = 1.f;
@@ -205,10 +249,10 @@ Base_Unity_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.0f;
+			value = 1.75f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.15f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -243,42 +287,47 @@ Base_Unity_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 2.5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadMaxX";
-			modifierType = "Additive";
-			value = 6.0f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsMaxX";
-			modifierType = "Additive";
-			value = 4.0f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadChangePerShot";
-			modifierType = "Additive";
-			value = 0.3f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsChangePerShot";
-			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.f;
+			value = 0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 1.75f;
+			value = 1.66f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 2.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.6f;
 		} : ConstantStatModifier
 	];
 }

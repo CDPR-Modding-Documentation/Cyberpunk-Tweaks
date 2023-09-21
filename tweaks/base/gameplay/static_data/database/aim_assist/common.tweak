@@ -1,6 +1,15 @@
 package AimAssist
 using RTDB
 
+DefaultTargetFilters : SearchFilterMaskTypeValue
+{
+	opType = "OR";
+	values = 
+	[
+		"SearchFilterMaskType.Att_Hostile", "SearchFilterMaskType.Obj_Device", "SearchFilterMaskType.Obj_Sensor", "SearchFilterMaskType.Obj_Other"
+	];
+}
+
 AimAssistCommon_Off : AimAssistCommon
 {
 	isEnabled = false;
@@ -20,6 +29,7 @@ AimAssistCommon_Default : AimAssistCommon
 	worldProximityThreshold = 2.f;
 	worldProximityBonus = 500.f;
 	pastTargetWeight = 30.f;
+	targetLostTimeOut = .25f;
 	aimAssistType = "AimAssistType.Shooting";
 }
 
@@ -53,6 +63,254 @@ AimAssistCommon_QuickMelee : AimAssistCommon_Melee
 AimAssistCommon_Aiming : AimAssistCommon_Default
 {
 	targetAcquisitionDelayTime = 0.0f;
+}
+
+AimAssistCommon_DriverCombat : AimAssistCommon
+{
+	isEnabled = true;
+	isEnabledForMouse = true;
+	firstPassAngleRange = ( 0.f, 40.f, 40.f );
+	angleDistUnitWeight = 15.f;
+	angleDistUnit = 4.f;
+	angleProximityThreshold = 5.f;
+	angleProximityBonus = 500.f;
+	worldDistUnitWeight = 5.f;
+	worldDistUnit = 2.f;
+	worldProximityThreshold = 0.f;
+	worldProximityBonus = 100.f;
+	pastTargetWeight = 0.f;
+	rotatingAwayFromPastTargetPenalty = 0.f;
+	aimAssistType = "AimAssistType.Shooting";
+	primaryComponentsOnly = true;
+	targetFilterPriority = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+	targetFilterPriorityBonus = 200.f;
+	targetFilter = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+	softLockBrakeAngle = ( 0.f, 180.f, 180.f );
+	softLockTargetWeight = 70.f;
+	targetAcquisitionDelayTime = 0.0f;
+	targetLostTimeOut = -1.f;
+}
+
+AimAssistCommon_DriverCombatAiming : AimAssistCommon_Aiming
+{
+	primaryComponentsOnly = true;
+	targetFilter = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+}
+
+AimAssistCommon_DriverCombatTPP : AimAssistCommon
+{
+	isEnabled = true;
+	isEnabledForMouse = true;
+	angleDistUnitWeight = 5.f;
+	angleDistUnit = 4.f;
+	angleProximityThreshold = 5.f;
+	angleProximityBonus = 500.f;
+	worldDistUnitWeight = 2.f;
+	worldDistUnit = 5.f;
+	worldProximityThreshold = 0.f;
+	worldProximityBonus = 100.f;
+	pastTargetWeight = 0.f;
+	rotatingAwayFromPastTargetPenalty = 0.f;
+	aimAssistType = "AimAssistType.DriverCombat";
+	primaryComponentsOnly = true;
+	targetFilterPriority = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+	targetFilterPriorityBonus = 200.f;
+	targetFilter = 
+	{
+		opType = "AND";
+		values = 
+		[
+			{
+				opType = "OR";
+				values = 
+				[
+					"SearchFilterMaskType.Att_Hostile"
+				];
+			} : SearchFilterMaskTypeValue, 
+			{
+				opType = "NOT";
+				values = 
+				[
+					"SearchFilterMaskType.St_MountedToCar"
+				];
+			} : SearchFilterMaskTypeValue
+		];
+	} : SearchFilterMaskTypeCond;
+	softLockBrakeAngle = ( 0.f, 180.f, 180.f );
+	softLockTargetWeight = 40.f;
+	softLockTargetLostTimeOut = -1.f;
+	forceSoftLockMinimumWeight = false;
+	targetAcquisitionDelayTime = 0.3f;
+}
+
+AimAssistCommon_DriverCombatTPP_Light : AimAssistCommon
+{
+	isEnabled = true;
+	isEnabledForMouse = true;
+	angleDistUnitWeight = 7.f;
+	angleDistUnit = 3.f;
+	angleProximityThreshold = 5.f;
+	angleProximityBonus = 500.f;
+	worldDistUnitWeight = 2.f;
+	worldDistUnit = 5.f;
+	worldProximityThreshold = 0.f;
+	worldProximityBonus = 100.f;
+	pastTargetWeight = 0.f;
+	rotatingAwayFromPastTargetPenalty = 0.f;
+	aimAssistType = "AimAssistType.DriverCombat";
+	primaryComponentsOnly = true;
+	targetFilterPriority = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+	targetFilterPriorityBonus = 200.f;
+	targetFilter = 
+	{
+		opType = "AND";
+		values = 
+		[
+			{
+				opType = "OR";
+				values = 
+				[
+					"SearchFilterMaskType.Att_Hostile"
+				];
+			} : SearchFilterMaskTypeValue, 
+			{
+				opType = "NOT";
+				values = 
+				[
+					"SearchFilterMaskType.St_MountedToCar"
+				];
+			} : SearchFilterMaskTypeValue
+		];
+	} : SearchFilterMaskTypeCond;
+	softLockBrakeAngle = ( 0.f, 180.f, 40.f );
+	softLockTargetWeight = 15.f;
+	softLockTargetLostTimeOut = -1.f;
+	forceSoftLockMinimumWeight = false;
+	targetAcquisitionDelayTime = 0.05f;
+}
+
+AimAssistCommon_DriverCombatMissiles : AimAssistCommon
+{
+	isEnabled = true;
+	isEnabledForMouse = true;
+	angleDistUnitWeight = 7.f;
+	angleDistUnit = 3.f;
+	angleProximityThreshold = 5.f;
+	angleProximityBonus = 500.f;
+	worldDistUnitWeight = 2.f;
+	worldDistUnit = 5.f;
+	worldProximityThreshold = 0.f;
+	worldProximityBonus = 100.f;
+	pastTargetWeight = 0.f;
+	rotatingAwayFromPastTargetPenalty = 0.f;
+	aimAssistType = "AimAssistType.DriverCombat";
+	primaryComponentsOnly = true;
+	targetFilterPriority = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+	targetFilterPriorityBonus = 200.f;
+	targetFilter = 
+	{
+		opType = "AND";
+		values = 
+		[
+			{
+				opType = "OR";
+				values = 
+				[
+					"SearchFilterMaskType.Att_Hostile"
+				];
+			} : SearchFilterMaskTypeValue, 
+			{
+				opType = "NOT";
+				values = 
+				[
+					"SearchFilterMaskType.St_MountedToCar"
+				];
+			} : SearchFilterMaskTypeValue
+		];
+	} : SearchFilterMaskTypeCond;
+	softLockBrakeAngle = ( 0.f, 180.f, 45.f );
+	softLockTargetWeight = 15.f;
+	softLockTargetLostTimeOut = -1.f;
+	forceSoftLockMinimumWeight = false;
+	targetAcquisitionDelayTime = 0.5f;
+}
+
+AimAssistCommon_DriverCombatMissilesAiming : AimAssistCommon_DriverCombatMissiles
+{
+	targetAcquisitionDelayTime = 0.05f;
+}
+
+AimAssistCommon_DriverCombatMeleeTPP : AimAssistCommon
+{
+	isEnabled = true;
+	isEnabledForMouse = true;
+	angleDistUnitWeight = 7.f;
+	angleDistUnit = 3.f;
+	angleProximityThreshold = 5.f;
+	angleProximityBonus = 500.f;
+	worldDistUnitWeight = 2.f;
+	worldDistUnit = 5.f;
+	worldProximityThreshold = 0.f;
+	worldProximityBonus = 100.f;
+	pastTargetWeight = 0.f;
+	rotatingAwayFromPastTargetPenalty = 0.f;
+	aimAssistType = "AimAssistType.Shooting";
+	primaryComponentsOnly = true;
+	targetFilter = 
+	{
+		opType = "OR";
+		values = 
+		[
+			"SearchFilterMaskType.Att_Hostile"
+		];
+	} : SearchFilterMaskTypeValue;
+	softLockBrakeAngle = ( 0.f, 180.f, 30.f );
+	softLockTargetWeight = 0.f;
+	softLockTargetLostTimeOut = -1.f;
+	forceSoftLockMinimumWeight = false;
+	targetAcquisitionDelayTime = 0.f;
 }
 
 AimAssistCommon_AimingLimbCyber : AimAssistCommon_DefaultLimbCyber

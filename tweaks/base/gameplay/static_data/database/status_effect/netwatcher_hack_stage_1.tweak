@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB
+using RTDB, Prereqs, Attacks
 
 NetwatcherGeneral : StatusEffect
 {
@@ -15,9 +15,76 @@ NetwatcherGeneral : StatusEffect
 		{
 			effectors = 
 			[
-				"Effectors.Phase1", "Effectors.Phase2", "Effectors.Phase3_VFX", "Effectors.Phase3_Death", "Effectors.GrabAttackEffector01", "Effectors.GrabAttackEffector02", "Effectors.GrabAttackEffector03"
+				"Effectors.Phase1", "Effectors.Phase2", "Effectors.Phase3_VFX"
 			];
 		} : GameplayLogicPackage
+	];
+}
+
+SasquatchGrabAttackEffect : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Wounded";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 3.05f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.SasquatchGrabAttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 3.7f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.SasquatchGrabAttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 8.95f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.SasquatchGrabAttackDamage";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SasquatchGrabAttackDamage : BasePhysicalDamageOverTime
+{
+	hitFlags += 
+	[
+		"CannotKillPlayer"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.03f;
+		} : MediumTargetPercentage
 	];
 }
 

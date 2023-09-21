@@ -4,7 +4,6 @@ using RTDB, BaseStats
 Player_Health_Base : BaseStatPools.Health
 {
 	regen = "BaseStatPools.PlayerBaseOutOfCombatHealthRegen";
-	decay = "";
 }
 
 Johnny_Health_Base : BaseStatPools.Health
@@ -21,18 +20,82 @@ Player_Oxygen_Base : BaseStatPools.Oxygen
 Player_Stamina_Base : BaseStatPools.Stamina
 {
 	regen = "BaseStatPools.PlayerBaseStaminaRegen";
-	decay = "";
+	decay = "BaseStatPools.PlayerBaseStaminaDecay";
 }
 
 Player_Memory_Base : BaseStatPools.Memory
 {
-	regen = "BaseStatPools.PlayerBaseOutOfCombatMemoryRegen";
+	regen = "BaseStatPools.PlayerBaseMemoryRegen";
+}
+
+Player_Healing_Charges_Base : BaseStatPools.HealingItemsCharges
+{
+	regen = "BaseStatPools.PlayerHealingChargesRegen";
+}
+
+Player_Grenades_Charges_Base : BaseStatPools.GrenadesCharges
+{
+	regen = "BaseStatPools.PlayerGrenadesChargesRegen";
+}
+
+Player_VehicleMissileLauncher_Charges_Base : BaseStatPools.VehicleMissileLauncherCharges
+{
+	regen = "BaseStatPools.PlayerVehicleMissileLauncherChargesRegen";
+}
+
+Player_OpticalCamo_Charges_Base : BaseStatPools.OpticalCamoCharges
+{
+	regen = "BaseStatPools.PlayerOpticalCamoChargesRegen";
+	decay = "BaseStatPools.PlayerOpticalCamoChargesDecay";
+}
+
+Player_CWMask_Charges_Base : BaseStatPools.CWMaskCharges
+{
+	regen = "BaseStatPools.PlayerCWMaskChargesRegen";
+}
+
+Player_ProjectileLauncher_Charges_Base : BaseStatPools.ProjectileLauncherCharges
+{
+	regen = "BaseStatPools.PlayerProjectileLauncherChargesRegen";
+}
+
+Player_Bersek_Charge_Base : BaseStatPools.BerserkCharge
+{
+	regen = "BaseStatPools.PlayerBerserkChargesRegen";
+	decay = "BaseStatPools.PlayerBerserkChargesDecay";
+}
+
+Player_Sandevistan_Charge_Base : BaseStatPools.SandevistanCharge
+{
+	regen = "BaseStatPools.PlayerSandevistanChargesRegen";
+	decay = "BaseStatPools.PlayerSandevistanChargesDecay";
+}
+
+Player_Cyberdeck_Overclock_Base : BaseStatPools.CyberdeckOverclock
+{
+	regen = "BaseStatPools.PlayerCyberdeckOverclockRegen";
+	decay = "BaseStatPools.PlayerCyberdeckOverclockDecay";
 }
 
 Player_Adrenaline_Base : BaseStatPools.Adrenaline
 {
 	regen = "";
 	decay = "";
+}
+
+Player_AccumulatedDoT_Base : BaseStatPools.AccumulatedDoT
+{
+	decay = "BaseStatPools.PlayerBaseAccumulatedDoTDecay";
+}
+
+Player_Overshield_Base : BaseStatPools.Overshield
+{
+	decay = "BaseStatPools.PlayerOvershieldDecay";
+}
+
+Player_TimeBank_Base : BaseStatPools.TimeBank
+{
+	regen = "BaseStatPools.PlayerTimeBankRegen";
 }
 
 StaticPlayerBaseOutOfCombatRegen : PoolValueModifier
@@ -148,7 +211,7 @@ PlayerBaseInCombatHealthRegen : MutablePoolValueModifier
 		{
 			statType = "BaseStats.HealthInCombatRegenEndThreshold";
 			modifierType = "Additive";
-			value = 60f;
+			value = 100f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HealthInCombatRegenEndThreshold";
@@ -157,22 +220,6 @@ PlayerBaseInCombatHealthRegen : MutablePoolValueModifier
 			refStat = "BaseStats.HealthInCombatRegenEndThreshold";
 			opSymbol = "*";
 			value = 1f;
-		} : CombinedStatModifier
-	];
-	fk< StatModifier >[] startDelayMods = 
-	[
-		{
-			statType = "BaseStats.HealthInCombatStartDelay";
-			modifierType = "Additive";
-			value = 5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.HealthInCombatStartDelay";
-			modifierType = "AdditiveMultiplier";
-			refObject = "Self";
-			refStat = "BaseStats.HealthInCombatStartDelay";
-			opSymbol = "*";
-			value = -1f;
 		} : CombinedStatModifier
 	];
 	fk< StatModifier >[] valuePerSecMods = 
@@ -199,6 +246,7 @@ PlayerBaseInCombatHealthRegen : MutablePoolValueModifier
 
 PlayerBaseStaminaRegen : MutablePoolValueModifier
 {
+	usingPointValues = true;
 	fk< StatModifier > enabledMod = 
 	{
 		statType = "BaseStats.StaminaRegenEnabled";
@@ -240,7 +288,7 @@ PlayerBaseStaminaRegen : MutablePoolValueModifier
 		{
 			statType = "BaseStats.StaminaRegenStartDelay";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaminaRegenStartDelay";
@@ -262,6 +310,72 @@ PlayerBaseStaminaRegen : MutablePoolValueModifier
 	} : CombinedStatModifier;
 }
 
+PlayerBaseStaminaDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.StaminaDecayEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.StaminaDecayEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.StaminaDecayStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.StaminaDecayEndThrehold";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.StaminaAimingCost";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.StaminaAimingCost";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.StaminaDecayStartDelay";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaminaDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.StaminaDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.StaminaDecayDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.StaminaDecayDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
 JohnnyHealthRegen : PoolValueModifier
 {
 	enabled = true;
@@ -272,30 +386,30 @@ JohnnyHealthRegen : PoolValueModifier
 	delayOnChange = true;
 }
 
-PlayerBaseInCombatMemoryRegen : MutablePoolValueModifier
+PlayerBaseMemoryRegen : MutablePoolValueModifier
 {
 	usingPointValues = true;
 	fk< StatModifier > enabledMod = 
 	{
-		statType = "BaseStats.MemoryInCombatRegenEnabled";
+		statType = "BaseStats.MemoryRegenEnabled";
 		modifierType = "Additive";
 		refObject = "Self";
-		refStat = "BaseStats.MemoryInCombatRegenEnabled";
+		refStat = "BaseStats.MemoryRegenEnabled";
 		opSymbol = "*";
 		value = 1f;
 	} : CombinedStatModifier;
 	fk< StatModifier >[] rangeBeginMods = 
 	[
 		{
-			statType = "BaseStats.MemoryInCombatRegenStartThreshold";
+			statType = "BaseStats.MemoryRegenStartThreshold";
 			modifierType = "Additive";
 			value = 0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.MemoryInCombatRegenStartThreshold";
+			statType = "BaseStats.MemoryRegenStartThreshold";
 			modifierType = "Additive";
 			refObject = "Self";
-			refStat = "BaseStats.MemoryInCombatRegenStartThreshold";
+			refStat = "BaseStats.MemoryRegenStartThreshold";
 			opSymbol = "*";
 			value = 1f;
 		} : CombinedStatModifier
@@ -303,15 +417,15 @@ PlayerBaseInCombatMemoryRegen : MutablePoolValueModifier
 	fk< StatModifier >[] rangeEndMods = 
 	[
 		{
-			statType = "BaseStats.MemoryInCombatRegenEndThreshold";
+			statType = "BaseStats.MemoryRegenEndThreshold";
 			modifierType = "Additive";
 			value = 60f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.MemoryInCombatRegenEndThreshold";
+			statType = "BaseStats.MemoryRegenEndThreshold";
 			modifierType = "Additive";
 			refObject = "Self";
-			refStat = "BaseStats.MemoryInCombatRegenEndThreshold";
+			refStat = "BaseStats.MemoryRegenEndThreshold";
 			opSymbol = "*";
 			value = 1f;
 		} : CombinedStatModifier
@@ -319,15 +433,15 @@ PlayerBaseInCombatMemoryRegen : MutablePoolValueModifier
 	fk< StatModifier >[] startDelayMods = 
 	[
 		{
-			statType = "BaseStats.MemoryInCombatStartDelay";
+			statType = "BaseStats.MemoryStartDelay";
 			modifierType = "Additive";
 			value = 5f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.MemoryInCombatStartDelay";
+			statType = "BaseStats.MemoryStartDelay";
 			modifierType = "AdditiveMultiplier";
 			refObject = "Self";
-			refStat = "BaseStats.MemoryInCombatStartDelay";
+			refStat = "BaseStats.MemoryStartDelay";
 			opSymbol = "*";
 			value = -1f;
 		} : CombinedStatModifier
@@ -335,60 +449,60 @@ PlayerBaseInCombatMemoryRegen : MutablePoolValueModifier
 	fk< StatModifier >[] valuePerSecMods = 
 	[
 		{
-			statType = "BaseStats.MemoryInCombatRegenRate";
+			statType = "BaseStats.MemoryRegenRate";
 			modifierType = "Additive";
 			refObject = "Self";
-			refStat = "BaseStats.MemoryInCombatRegenRate";
+			refStat = "BaseStats.MemoryRegenRate";
 			opSymbol = "*";
 			value = 1.0f;
 		} : CombinedStatModifier
 	];
 	fk< StatModifier > delayOnChangeMod = 
 	{
-		statType = "BaseStats.MemoryInCombatRegenDelayOnChange";
+		statType = "BaseStats.MemoryRegenDelayOnChange";
 		modifierType = "Additive";
 		refObject = "Self";
-		refStat = "BaseStats.MemoryInCombatRegenDelayOnChange";
+		refStat = "BaseStats.MemoryRegenDelayOnChange";
 		opSymbol = "*";
 		value = 1f;
 	} : CombinedStatModifier;
 }
 
-PlayerBaseOutOfCombatMemoryRegen : MutablePoolValueModifier
+PlayerBaseAccumulatedDoTDecay : MutablePoolValueModifier
 {
 	usingPointValues = true;
 	fk< StatModifier > enabledMod = 
 	{
-		statType = "BaseStats.MemoryOutOfCombatRegenEnabled";
+		statType = "BaseStats.AccumulatedDoTDecayEnabled";
 		modifierType = "Additive";
 		refObject = "Self";
-		refStat = "BaseStats.MemoryOutOfCombatRegenEnabled";
+		refStat = "BaseStats.AccumulatedDoTDecayEnabled";
 		opSymbol = "*";
 		value = 1f;
 	} : CombinedStatModifier;
 	fk< StatModifier >[] rangeBeginMods = 
 	[
 		{
-			statType = "BaseStats.MemoryOutOfCombatRegenStartThreshold";
+			statType = "BaseStats.AccumulatedDoTDecayStartThreshold";
 			modifierType = "Additive";
 			value = 0f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.MemoryOutOfCombatRegenStartThreshold";
-			modifierType = "Additive";
-			refObject = "Self";
-			refStat = "BaseStats.MemoryOutOfCombatRegenStartThreshold";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : ConstantStatModifier
 	];
 	fk< StatModifier >[] rangeEndMods = 
 	[
 		{
-			statType = "BaseStats.MemoryOutOfCombatRegenEndThreshold";
+			statType = "BaseStats.AccumulatedDoTDecayEndThrehold";
+			modifierType = "Additive";
+			value = 9999f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.AccumulatedDoTDecayRate";
 			modifierType = "Additive";
 			refObject = "Self";
-			refStat = "BaseStats.MemoryOutOfCombatRegenEndThreshold";
+			refStat = "BaseStats.AccumulatedDoTDecayRate";
 			opSymbol = "*";
 			value = 1f;
 		} : CombinedStatModifier
@@ -396,37 +510,1029 @@ PlayerBaseOutOfCombatMemoryRegen : MutablePoolValueModifier
 	fk< StatModifier >[] startDelayMods = 
 	[
 		{
-			statType = "BaseStats.MemoryOutOfCombatStartDelay";
+			statType = "BaseStats.AccumulatedDoTDecayStartDelay";
 			modifierType = "Additive";
-			value = 5f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.MemoryOutOfCombatStartDelay";
-			modifierType = "AdditiveMultiplier";
-			refObject = "Self";
-			refStat = "BaseStats.MemoryOutOfCombatStartDelay";
-			opSymbol = "*";
-			value = -1f;
-		} : CombinedStatModifier
-	];
-	fk< StatModifier >[] valuePerSecMods = 
-	[
-		{
-			statType = "BaseStats.MemoryOutOfCombatRegenRate";
+			statType = "BaseStats.AccumulatedDoTDecayStartDelay";
 			modifierType = "Additive";
 			refObject = "Self";
-			refStat = "BaseStats.MemoryOutOfCombatRegenRate";
+			refStat = "BaseStats.AccumulatedDoTDecayStartDelay";
 			opSymbol = "*";
 			value = 1f;
 		} : CombinedStatModifier
 	];
 	fk< StatModifier > delayOnChangeMod = 
 	{
-		statType = "BaseStats.MemoryOutOfCombatRegenDelayOnChange";
+		statType = "BaseStats.AccumulatedDoTDecayDelayOnChange";
 		modifierType = "Additive";
 		refObject = "Self";
-		refStat = "BaseStats.MemoryOutOfCombatRegenDelayOnChange";
+		refStat = "BaseStats.AccumulatedDoTDecayDelayOnChange";
 		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerOvershieldDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.OvershieldDecayEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.OvershieldDecayEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.OvershieldDecayStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.OvershieldDecayStartThreshold";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.OvershieldDecayStartThreshold";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.OvershieldDecayEndThrehold";
+			modifierType = "Additive";
+			value = 500f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.OvershieldDecayRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.OvershieldDecayRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.OvershieldDecayStartDelay";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.OvershieldDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.OvershieldDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.OvershieldDecayDelayOnChange";
+		modifierType = "Additive";
+		value = 1f;
+	} : ConstantStatModifier;
+}
+
+PlayerHealingChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.HealingItemsChargesRegenEnabled";
+		modifierType = "Additive";
+		value = 1f;
+	} : ConstantStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.HealingItemsChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.HealingItemsChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.HealingItemsChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealingItemsChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.HealingItemsChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.HealingItemsChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.HealingItemsChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.HealingItemsChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerGrenadesChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.GrenadesChargesRegenEnabled";
+		modifierType = "Additive";
+		value = 1f;
+	} : ConstantStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.GrenadesChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.GrenadesChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.GrenadesChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.GrenadesChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.GrenadesChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.GrenadesChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.GrenadesChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.GrenadesChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerVehicleMissileLauncherChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.VehicleMissileLauncherRegenEnabled";
+		modifierType = "Additive";
+		value = 1f;
+	} : ConstantStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.VehicleMissileLauncherChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.VehicleMissileLauncherChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.VehicleMissileLauncherChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.VehicleMissileLauncherChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.VehicleMissileLauncherChargesRegenStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.VehicleMissileLauncherChargesRegenStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.VehicleMissileLauncherChargesRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.VehicleMissileLauncherChargesRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerTimeBankRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.TimeBankRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.TimeBankRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.TimeBankRegenStartThreshold";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.TimeBankRegenEndThrehold";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.TimeBankRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.TimeBankRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.TimeBankRegenStartDelay";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeBankRegenStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.TimeBankRegenStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.TimeBankRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.TimeBankRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerOpticalCamoChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabled = false;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.OpticalCamoChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.OpticalCamoChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.OpticalCamoChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.OpticalCamoChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.OpticalCamoChargesRegenRate";
+			modifierType = "Multiplier";
+			refObject = "Self";
+			refStat = "BaseStats.OpticalCamoDuration";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.OpticalCamoChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.OpticalCamoChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.OpticalCamoChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.OpticalCamoChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerOpticalCamoChargesDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabled = false;
+	rangeBegin = 0;
+	rangeEnd = 100;
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.OpticalCamoChargesDecayRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.OpticalCamoChargesDecayRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.OpticalCamoChargesDecayRate";
+			modifierType = "Multiplier";
+			refObject = "Self";
+			refStat = "BaseStats.OpticalCamoRechargeDuration";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+}
+
+PlayerCWMaskChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.CWMaskChargesRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.CWMaskChargesRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.CWMaskChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.CWMaskChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.CWMaskChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.CWMaskChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.CWMaskChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.CWMaskChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.CWMaskChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.CWMaskChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerProjectileLauncherChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.ProjectileLauncherChargesRegenEnabled";
+		modifierType = "Additive";
+		value = 1f;
+	} : ConstantStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.ProjectileLauncherChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.ProjectileLauncherChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.ProjectileLauncherChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.ProjectileLauncherChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.ProjectileLauncherChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.ProjectileLauncherChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.ProjectileLauncherChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.ProjectileLauncherChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+JenkinsHelperRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.JenkinsHelperRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.JenkinsHelperRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperEmptyStat";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperEmptyStat";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperRegenPerSecond";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.JenkinsHelperRegenPerSecond";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperEmptyStat";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.JenkinsHelperEmptyStat";
+		modifierType = "Additive";
+		value = 0f;
+	} : ConstantStatModifier;
+}
+
+JenkinsHelperDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.JenkinsHelperDecayEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.JenkinsHelperDecayEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperEmptyStat";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperEmptyStat";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperDecayPerSecond";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.JenkinsHelperDecayPerSecond";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.JenkinsHelperEmptyStat";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.JenkinsHelperEmptyStat";
+		modifierType = "Additive";
+		value = 0f;
+	} : ConstantStatModifier;
+}
+
+PlayerBerserkChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.BerserkChargesRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.BerserkChargesRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.BerserkChargesRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.BerserkChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.BerserkChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.BerserkChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerBerserkChargesDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.BerserkChargesDecayEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.BerserkChargesDecayEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesDecayBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesDecayEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesDecayRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.BerserkChargesDecayRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BerserkChargesDecayRate";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Self";
+			refStat = "BaseStats.BerserkChargesDecayRateMult";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.BerserkChargesDecayStartDelay";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.BerserkChargesDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.BerserkChargesDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerSandevistanChargesRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.SandevistanChargesRegenEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.SandevistanChargesRegenEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.SandevistanChargesRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.SandevistanChargesRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.TimeDilationSandevistanDuration";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.TimeDilationSandevistanDuration";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanDuration";
+			modifierType = "Multiplier";
+			refObject = "Self";
+			refStat = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			opSymbol = "inv";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.SandevistanChargesRegenStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.SandevistanChargesRegenStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.SandevistanChargesRegenDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.SandevistanChargesRegenDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerSandevistanChargesDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	enabledMod = 
+	{
+		statType = "BaseStats.PlayerSandevistanChargesDecayEnabled";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.PlayerSandevistanChargesDecayEnabled";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+	rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.PlayerSandevistanChargesEmptyStat";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.PlayerSandevistanChargesEmptyStat";
+			modifierType = "Additive";
+			value = 100;
+		} : ConstantStatModifier
+	];
+	valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.PlayerSandevistanChargesDecayPerSecond";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.PlayerSandevistanChargesDecayPerSecond";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PlayerSandevistanChargesDecayPerSecond";
+			modifierType = "Multiplier";
+			refObject = "Self";
+			refStat = "BaseStats.TimeDilationSandevistanTimeScale";
+			opSymbol = "inv";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	startDelayMods = 
+	[
+		{
+			statType = "BaseStats.SandevistanChargesDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.SandevistanChargesDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	delayOnChangeMod = 
+	{
+		statType = "BaseStats.SandevistanChargesDecayDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.SandevistanChargesDecayDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerCyberdeckOverclockRegen : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.CyberdeckOverclockRegenEnabled";
+		modifierType = "Additive";
+		value = 1f;
+	} : ConstantStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockRegenBegins";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockRegenEnds";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockRegenRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.CyberdeckOverclockRegenRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockDecayStartDelay";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.CyberdeckOverclockDecayStartDelay";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.CyberdeckOverclockDelayOnChange";
+		modifierType = "Additive";
+		refObject = "Self";
+		refStat = "BaseStats.CyberdeckOverclockDelayOnChange";
+		opSymbol = "*";
+		value = 1f;
+	} : CombinedStatModifier;
+}
+
+PlayerCyberdeckOverclockDecay : MutablePoolValueModifier
+{
+	usingPointValues = true;
+	fk< StatModifier > enabledMod = 
+	{
+		statType = "BaseStats.CyberdeckOverclockEmptyStat";
+		modifierType = "Additive";
+		value = 0f;
+	} : ConstantStatModifier;
+	fk< StatModifier >[] rangeBeginMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockEmptyStat";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] rangeEndMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockEmptyStat";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier
+	];
+	fk< StatModifier >[] valuePerSecMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockDecayRate";
+			modifierType = "Additive";
+			refObject = "Self";
+			refStat = "BaseStats.CyberdeckOverclockDecayRate";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier >[] startDelayMods = 
+	[
+		{
+			statType = "BaseStats.CyberdeckOverclockEmptyStat";
+			modifierType = "Additive";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	fk< StatModifier > delayOnChangeMod = 
+	{
+		statType = "BaseStats.CyberdeckOverclockEmptyStat";
+		modifierType = "Additive";
 		value = 1f;
 	} : CombinedStatModifier;
 }

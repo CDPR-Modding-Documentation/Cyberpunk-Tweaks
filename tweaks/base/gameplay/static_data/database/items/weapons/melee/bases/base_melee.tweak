@@ -18,12 +18,17 @@ MeleeWeapon : WeaponItem
 	[
 		"TriggerMode.SemiAuto"
 	];
-	fk< ItemBlueprint > blueprint = "Items.Base_Melee_Blueprint";
 	fk< Crosshair > crosshair = "Crosshairs.Melee";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.KatanaFxPackage";
 	fk< Quality > quality = "Quality.Random";
 	fk< WeaponEvolution > evolution = "";
 	bool hide_nametag = true;
+	float minimumReloadTime = 0.9f;
+	float weaponSwapOnAttackDelay = 0.4f;
+	OnAttach = 
+	[
+		"GLP.HoldingMelee"
+	];
 	fk< AttachmentSlot >[] placementSlots += 
 	[
 		"AttachmentSlots.ItemSlotSniperRifle", "AttachmentSlots.ItemSlotSMG", "AttachmentSlots.ItemSlotTechRifle", "AttachmentSlots.ItemSlotHandgunLeftJackie", "AttachmentSlots.ItemSlotHandgunRightJackie", "AttachmentSlots.ItemSlotGenericMelee", "AttachmentSlots.ItemSlotHammer", "AttachmentSlots.ItemSlotKatana", "AttachmentSlots.ItemSlotKnifeRight", "AttachmentSlots.ItemSlotKnifeLeft", "AttachmentSlots.ItemSlotGenericRanged", "AttachmentSlots.ItemSlotHandgunRight", "AttachmentSlots.ItemSlotHandgunLeft"
@@ -33,7 +38,7 @@ MeleeWeapon : WeaponItem
 		{
 			statType = "BaseStats.HitReactionFactor";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitWoundsFactor";
@@ -51,12 +56,6 @@ MeleeWeapon : WeaponItem
 			value = 0;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.PowerLevel";
-			modifierType = "Additive";
-			min = 0f;
-			max = 0.95f;
-		} : RandomStatModifier, 
-		{
 			statType = "BaseStats.ItemLevel";
 			modifierType = "Additive";
 			refStat = "BaseStats.PowerLevel";
@@ -64,25 +63,75 @@ MeleeWeapon : WeaponItem
 			value = 10.0f;
 		} : CombinedStatModifier, 
 		{
-			statType = "BaseStats.Level";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			opSymbol = "*";
-			value = 1.0f;
-		} : CombinedStatModifier, 
-		{
 			statType = "BaseStats.DPS";
 			modifierType = "Multiplier";
 			id = "quality_curves";
-			column = "quality_to_dps_multiplier";
+			column = "quality_to_dps_multiplier_new";
 			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemPlusDPS";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "plus_quality_to_dps_multiplier";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemPlusDPS";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "plusplus_to_dps_multiplier";
+			refStat = "BaseStats.IsItemPlus";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ItemPlusDPS";
+			modifierType = "Multiplier";
+			id = "quality_curves";
+			column = "item_plus_to_dmg_boost";
+			refStat = "BaseStats.IsItemPlus";
 		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.DPS";
 			modifierType = "AdditiveMultiplier";
-			column = "body_to_melee_damage";
-			refObject = "Player";
-		} : BodyPassive, 
+			refStat = "BaseStats.ItemPlusDPS";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveTier";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 2.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveTier";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThrowRecovery";
+			modifierType = "Additive";
+			id = "item_knife_RPG_stats";
+			column = "quality_to_reload_time";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = -0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.VehicleDamageQualityDivisor";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "quality_to_dps_multiplier_new";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.StaminaDamage";
 			modifierType = "Additive";
@@ -174,16 +223,9 @@ MeleeWeapon : WeaponItem
 			value = 0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.ItemLevel";
+			statType = "BaseStats.EffectiveRange";
 			modifierType = "Additive";
-			refStat = "BaseStats.WasItemUpgraded";
-			opSymbol = "*";
-			value = 10f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.Level";
-			modifierType = "Additive";
-			refStat = "BaseStats.WasItemUpgraded";
+			refStat = "BaseStats.Range";
 			opSymbol = "*";
 			value = 1.0f;
 		} : CombinedStatModifier, 
@@ -307,11 +349,19 @@ MeleeWeapon : WeaponItem
 		{
 			statType = "BaseStats.StaminaCostToBlock";
 			modifierType = "Additive";
-			value = 10.0f;
+			value = 33.0f;
 		} : ConstantStatModifier, 
 		{
 			float value = 1.f;
 		} : PhysicalImpulseModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanUseStrongArms";
+			opSymbol = "*";
+			value = 0.5f;
+			refObject = "Player";
+		} : CombinedStatModifier, 
 		{
 			float value = 0.2f;
 		} : UnequipDurationModifier, 
@@ -347,20 +397,21 @@ MeleeWeapon : WeaponItem
 			refStat = "BaseStats.IsItemCrafted";
 			opSymbol = "*";
 			value = 1f;
-		} : CombinedStatModifier
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MeleeProjectileGravitySimulationMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VehicleMinHealthPercentWhenDamaged";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier
 	];
 	statModifierGroups += 
 	[
-		"Items.QualityRandomization", "Items.Base_Melee_Status_Effect_Application_Stats"
-	];
-	OnAttach += 
-	[
-		"EquipmentGLP.MeleeStealthPlayerBuff", {
-			effectors = 
-			[
-				"Effectors.NPCMeleeWeaponHitEffector"
-			];
-		}
+		"Items.QualityRandomization", "Items.ItemPlusRandomizer_MaxQuality", "Items.ItemPlusRandomizer_Below_MaxQuality", "Items.WeaponModsWeights_On_Tier2Plus", "Items.WeaponModsWeights_On_Tier3Plus", "Items.WeaponModsWeights_On_Tier4Plus", "Items.WeaponModsWeights_On_Tier5Plus", "Items.WeaponModsWeights_On_Tier5PlusPlus"
 	];
 	fk< Attack >[] attacks = 
 	[
@@ -378,13 +429,13 @@ MeleeWeapon : WeaponItem
 		[
 		];
 	} : Base_Melee_NPC_Data;
-	buyPrice += 
+	buyPrice = 
 	[
-		"Price.MeleeWeapon", "Price.MeleeWeaponPowerLevelMultiplier"
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.BrokenItemPriceMult", "Price.IconicMultiplier", "Price.BuyPrice_StreetCred_Discount"
 	];
-	sellPrice += 
+	sellPrice = 
 	[
-		"Price.MeleeWeapon", "Price.MeleeWeaponPowerLevelMultiplier"
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.WeaponSellMultiplier", "Price.BrokenItemPriceMult", "Price.IconicMultiplier"
 	];
 }
 
@@ -411,41 +462,6 @@ Base_Melee_NPC_Data : Base_NPC_RPG_Data
 	[
 		"Items.Base_Melee_NPC_Stats"
 	];
-}
-
-Base_Melee_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Grip";
-		childElements = 
-		[
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.MeleeWeaponMod1";
-				prereqID = 
-				{
-					valueToCheck = 1;
-				} : ItemQualityEqualPrereq;
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.MeleeWeaponMod2";
-				prereqID = 
-				{
-					valueToCheck = 2;
-				} : ItemQualityEqualPrereq;
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.MeleeWeaponMod3";
-				prereqID = 
-				{
-					valueToCheck = 3;
-				} : ItemQualityEqualPrereq;
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.IconicMeleeWeaponMod1";
-			}
-		];
-	};
 }
 
 Base_Melee_Elemental_Damage_Type_Randomization : StatModifierGroup
@@ -739,6 +755,55 @@ Base_Melee_Status_Effect_Application_Stats : StatModifierGroup
 	];
 }
 
+Base_Melee_Tech_Stats : StatModifierGroup
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.BaseMaxChargeThreshold";
+			modifierType = "Additive";
+			value = 50f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FullyChargedThreshold";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier, 
+		{
+			value = 0.25;
+		} : ChargeMultiplierModifier, 
+		{
+			statType = "BaseStats.ChargeTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseChargeTime";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChargeFullMultiplier";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChargeMultiplier";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+Blunts_Stun_Application_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.StunApplicationRate";
+			modifierType = "Additive";
+			id = "random_distributions";
+			column = "quality_to_debuff_application_rate_on_melee";
+			refStat = "BaseStats.Quality";
+			refObject = "Self";
+		} : CurveStatModifier
+	];
+}
+
 Base_Melee_Weapon_Damage_Type_Physical : StatModifierGroup
 {
 	statModifiers = 
@@ -972,6 +1037,673 @@ Base_Melee_Weapon_Damage_Type_Electric_Min_Max : StatModifierGroup
 			opSymbol = "*";
 			value = 1.1f;
 		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+Base_Blade : MeleeWeapon
+{
+	fk< ItemBlueprint > blueprint = "Items.Base_Blade_Blueprint";
+	evolution = "WeaponEvolution.Blade";
+	tags += 
+	[
+		"BladeWeapon"
+	];
+	statModifiers += 
+	[
+		{
+			column = "amount_of_possible_mods_for_blade_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+	statModifierGroups += 
+	[
+		"Items.Base_Melee_Status_Effect_Application_Stats"
+	];
+}
+
+Base_Blade_NPC_RPG_Data : Base_NPC_RPG_Data
+{
+	statModifiers += 
+	[
+		{
+			column = "amount_of_possible_mods_for_blade_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+}
+
+[ notQueryable ]
+Base_Blunt : MeleeWeapon
+{
+	fk< ItemBlueprint > blueprint = "Items.Base_Blunt_Blueprint";
+	evolution = "WeaponEvolution.Blunt";
+	tags += 
+	[
+		"BluntWeapon"
+	];
+	statModifiers += 
+	[
+		{
+			column = "amount_of_possible_mods_for_blunt_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+	statModifierGroups += 
+	[
+		"Items.Blunts_Stun_Application_Stats"
+	];
+}
+
+Base_Blunt_NPC_RPG_Data : Base_NPC_RPG_Data
+{
+	statModifiers += 
+	[
+		{
+			column = "amount_of_possible_mods_for_blunt_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+}
+
+[ notQueryable ]
+Base_Throwable : MeleeWeapon
+{
+	fk< ItemBlueprint > blueprint = "Items.Base_Throwable_Blueprint";
+	evolution = "WeaponEvolution.Throwable";
+	tags += 
+	[
+		"ThrowableWeapon"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			column = "amount_of_possible_mods_for_throwable_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+	statModifierGroups += 
+	[
+		"Items.Base_Melee_Status_Effect_Application_Stats"
+	];
+}
+
+Base_Throwable_NPC_RPG_Data : Base_NPC_RPG_Data
+{
+	statModifiers += 
+	[
+		{
+			column = "amount_of_possible_mods_for_throwable_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+}
+
+GenericMeleeModList_Base : SlotItemPartPreset
+{
+	itemPartList = 
+	[
+		{
+			item = "Items.DummyBlankMod2";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "hidden_slot_weight_to_player_level_for_non_plus_tier2_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier2";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : HiddenSlot_ModPartListElement, 
+		{
+			item = "Items.DummyBlankMod3";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "hidden_slot_weight_to_player_level_for_non_plus_tier3_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier3";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : HiddenSlot_ModPartListElement, 
+		{
+			item = "Items.DummyBlankMod4";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "hidden_slot_weight_to_player_level_for_non_plus_tier4_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier4";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : HiddenSlot_ModPartListElement, 
+		{
+			item = "Items.DummyBlankMod5";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "hidden_slot_weight_to_player_level_for_non_plus_tier5_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier5";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : HiddenSlot_ModPartListElement, 
+		{
+			item = "";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "empty_slot_weight_to_player_level_for_non_plus_tier2_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier2";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : EmptySlot_ModPartListElement, 
+		{
+			item = "";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "empty_slot_weight_to_player_level_for_non_plus_tier3_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier3";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : EmptySlot_ModPartListElement, 
+		{
+			item = "";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "empty_slot_weight_to_player_level_for_non_plus_tier4_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier4";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : EmptySlot_ModPartListElement, 
+		{
+			item = "";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "empty_slot_weight_to_player_level_for_non_plus_tier5_weapon";
+					refObject = "Player";
+					refStat = "BaseStats.Level";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					id = "weapon_mods_generation";
+					column = "mod_roll_to_quality_tier5";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier
+			];
+		} : EmptySlot_ModPartListElement, 
+		{
+			item = "Items.MeleeMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod2_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod2_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod2_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod2_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod2_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod2_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod3_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod3_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.MeleeMod3_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.GenericMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.GenericMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.GenericMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.GenericMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.GenericMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.GenericMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
+	];
+}
+
+GenericMeleeModList_Slot1 : GenericMeleeModList_Base
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.DummyBlankModVendor";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "forced_mod_for_purchased_weapon";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					refStat = "BaseStats.ItemPurchasedAtVendor";
+					refObject = "Root";
+					opSymbol = "*";
+					value = 1;
+				} : CombinedStatModifier
+			];
+		} : ItemPartListElement
+	];
+}
+
+BladeModList_Slot1 : GenericMeleeModList_Slot1
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.BladeMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
+	];
+}
+
+BluntModList_Slot1 : GenericMeleeModList_Slot1
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.BluntMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
+	];
+}
+
+ThrowableModList_Slot1 : BladeModList_Slot1
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.ThrowMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod2_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
+	];
+}
+
+GenericMeleeModList_Slot2 : GenericMeleeModList_Base
+{
+	itemPartList += 
+	[
+		{
+			item = "";
+			statModifierWeight += 
+			[
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Additive";
+					id = "weapon_mods_generation";
+					column = "forced_mod_for_purchased_weapon";
+					refStat = "BaseStats.Quality";
+				} : CurveStatModifier, 
+				{
+					statType = "BaseStats.EmptyStat";
+					modifierType = "Multiplier";
+					refStat = "BaseStats.ItemPurchasedAtVendor";
+					refObject = "Root";
+					opSymbol = "*";
+					value = 1;
+				} : CombinedStatModifier
+			];
+		} : ItemPartListElement
+	];
+}
+
+BladeModList_Slot2 : GenericMeleeModList_Slot2
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.BladeMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BladeMod3_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
+	];
+}
+
+BluntModList_Slot2 : GenericMeleeModList_Slot2
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.BluntMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.BluntMod2_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
+	];
+}
+
+ThrowableModList_Slot2 : BladeModList_Slot2
+{
+	itemPartList += 
+	[
+		{
+			item = "Items.ThrowMod1_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod1_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod2_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Common";
+		} : Tier1_Mod_In_Tier2_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Common";
+		} : Tier1_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Uncommon";
+		} : Tier2_Mod_In_Tier3_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Uncommon";
+		} : Tier2_Mod_In_Tier4_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Uncommon";
+		} : Tier2_Mod_In_Tier5_Weapon_PartListElement, 
+		{
+			item = "Items.ThrowMod3_Rare";
+		} : Tier3_Mod_In_Tier5_Weapon_PartListElement
 	];
 }
 

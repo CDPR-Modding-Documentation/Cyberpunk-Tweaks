@@ -1,8 +1,9 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Defender_Default : Base_Defender
 {
+	CName appearanceResourceName = "Preset_Defender_Default";
 	CName[] visualTags = 
 	[
 		"Default"
@@ -24,32 +25,23 @@ Preset_Defender_Default : Base_Defender
 		{
 			slot = "AttachmentSlots.MagazineEmpty";
 			fk< Item > itemPartPreset = "Items.w_lmg__constitutional_defender__mag_stdr";
-		}
+		}, 
+		"Items.RifleScopesPartList", {
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+		} : Power_AR_SMG_LMG_ModList_Slot1, 
+		{
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod2";
+		} : Power_AR_SMG_LMG_ModList_Slot2
 	];
-	CName appearanceResourceName = "Preset_Defender_Default";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 5;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 
 Preset_Defender_Pimp : Preset_Defender_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -61,6 +53,10 @@ Preset_Defender_Neon : Preset_Defender_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Defender_Military : Preset_Defender_Default
@@ -69,6 +65,22 @@ Preset_Defender_Military : Preset_Defender_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Defender_MaxTac_2nd_wave : Preset_Defender_Military
+{
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationFull"
+		];
+	} : Base_Defender_NPC_Data;
 }
 
 [ notQueryable ]
@@ -101,45 +113,252 @@ Craftable_Common_Defender : Preset_Defender_Default
 Craftable_Uncommon_Defender : Craftable_Common_Defender
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Defender : Craftable_Common_Defender
+Craftable_Rare_Defender : Craftable_Uncommon_Defender
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Defender : Craftable_Common_Defender
+Craftable_Epic_Defender : Craftable_Uncommon_Defender
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Defender : Craftable_Common_Defender
+Craftable_Legendary_Defender : Craftable_Uncommon_Defender
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Defender_Kurt : Preset_Defender_Default
+{
+	displayName = "LocKey#87641";
+	localizedDescription = "LocKey#87642";
+	CName[] visualTags = 
+	[
+		"Kurt_Defender"
+	];
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "defender_kurt_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			itemPartPreset = "Items.w_lmg__constitutional_defender__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			itemPartPreset = "Items.w_lmg__constitutional_defender__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			itemPartPreset = "Items.w_lmg__constitutional_defender__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			itemPartPreset = "Items.w_lmg__constitutional_defender__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.DefenderKurtWeaponMod";
+		}
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Defender_NPC_Data;
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	bool scaleToPlayer = true;
+	fk< StatPool >[] statPools = 
+	[
+		"BaseStatPools.WeaponOverheat"
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical", "Items.Base_Lightmachinegun_RPG_Stats", "Items.Base_Lightmachinegun_Misc_Stats", "Items.Base_Lightmachinegun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Lightmachinegun_Mult_Stats", "Items.Base_Power_Lightmachinegun_Stats", "Items.Base_Lightmachinegun_DeadReckoning_Stats", "Items.Base_Defender_Kurt_Technical_Stats", "Items.Base_Defender_Handling_Stats", "Items.Base_Defender_Kurt_Recoil_Stats", "Items.Base_Defender_Spread_Stats", "Items.Base_Defender_Aim_Stats", "Items.Base_Defender_Kurt_Constant_Stats", "Items.Base_Defender_Damage_Stats"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"NPCAttacks.StrongAttackKnockdown"
+	];
+}
+
+Base_Defender_Kurt_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.08f;
+		} : CycleTimeModifier, 
+		{
+			value = 150.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 100.f;
+		} : OverheatModifier
+	];
+}
+
+Base_Defender_Kurt_Recoil_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = -10.f;
+		} : RecoilDirModifier, 
+		{
+			value = 30.f;
+		} : RecoilAngleModifier, 
+		{
+			value = 0.045f;
+		} : RecoilHoldDurationModifier, 
+		{
+			value = 0.017f;
+		} : RecoilTimeModifier, 
+		{
+			value = 0.17f;
+		} : RecoilRecoveryTimeModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXADSModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYADSModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableScaleYModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableScaleXModifier, 
+		{
+			value = 1.5f;
+		} : RecoilScaleTimeModifier, 
+		{
+			value = 1.2f;
+		} : RecoilScaleMaxModifier, 
+		{
+			value = 0.1f;
+		} : PreFireTimeModifier, 
+		{
+			value = 10.0f;
+		} : RecoilAlternateDirModifier, 
+		{
+			value = 1.0f;
+		} : RecoilDirPlanCycleRandRangeDirModifier, 
+		{
+			value = 0.5f;
+		} : LinearDirectionUpdateMinModifier, 
+		{
+			value = 0.7f;
+		} : LinearDirectionUpdateMaxModifier
+	];
+}
+
+Base_Defender_Kurt_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.553f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 6.64f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 2.212f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 0.33f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 0.55f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 2.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.2576f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

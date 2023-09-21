@@ -3,30 +3,35 @@ package playerStateMachineCarriedObject
 pickUp : baseCarriedObjectState
 {
 	bool hasOnEnter = true;
-	bool hasExitCondition = true;
+	bool hasOnUpdate = true;
+	bool hasOnExit = true;
 	string[] transitionTo = 
 	[
-		"carry", "release"
+		"carry", "release", "aim", "forceDropBody", "throw"
 	];
 	string[] transitionCondition = 
 	[
-		"", "ToRelease"
+		"ToCarry", "ToRelease", "ToAim", "ToForceDropBody", "ToThrow"
 	];
-	float durationTime = 2.6;
+	float toCarryStateDuration = 2.9;
+	float toCarryStateDurationFastMode = 1.0;
+	float toAimStateDuration = 1.3;
+	float toThrowStateDuration = 0.35;
+	float toAimNoCameraControlTime = 0.5;
+	float toAimNoMovementTime = 0.5;
 }
 
 carry : baseCarriedObjectState
 {
-	bool hasExitCondition = false;
 	bool hasOnEnter = true;
 	bool hasOnUpdate = true;
 	string[] transitionTo = 
 	[
-		"drop", "release", "dispose", "forceDropBody"
+		"drop", "release", "dispose", "forceDropBody", "throw"
 	];
 	string[] transitionCondition = 
 	[
-		"ToDrop", "ToRelease", "ToDispose", "ToForceDropBody"
+		"ToDrop", "ToRelease", "ToDispose", "ToForceDropBody", "ToThrow"
 	];
 }
 
@@ -77,6 +82,43 @@ forceDropBody : baseCarriedObjectState
 	[
 		""
 	];
+}
+
+aim : baseCarriedObjectState
+{
+	bool hasOnEnter = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"release", "throw", "forceDropBody"
+	];
+	string[] transitionCondition = 
+	[
+		"ToRelease", "ToThrow", "ToForceDropBody"
+	];
+}
+
+throw : baseCarriedObjectState
+{
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasExitCondition = true;
+	string[] transitionTo = 
+	[
+		"release", "forceDropBody"
+	];
+	string[] transitionCondition = 
+	[
+		"", "ToForceDropBody"
+	];
+	float stateDuration = 0.19;
+	float ragdollMaxImpulse = 220.0;
+	float ragdollMaxImpulsePitch = 5.0;
+	float ragdollMinImpulse = 100.0;
+	float ragdollMinImpulsePitch = 45.0;
+	float maxAutoTargetAngle = 3.0;
+	float minAutoTargetAngle = 10.0;
+	float maxAutoTargetLateralSpeed = 1.0;
 }
 
 release : baseCarriedObjectState

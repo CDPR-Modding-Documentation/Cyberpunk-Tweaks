@@ -1,9 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Kappa_Default_Left_Hand : Preset_Kappa_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Kappa_Default : Base_Kappa
 {
@@ -31,31 +27,12 @@ Preset_Kappa_Default : Base_Kappa
 			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+			slot = "AttachmentSlots.Smart_Handgun_WeaponMod1";
+		} : Smart_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_Handgun_WeaponMod2";
+		} : Smart_Handgun_ModList_Slot2
 	];
-}
-
-Preset_Kappa_Pimp_Left_Hand : Preset_Kappa_Pimp
-{
 }
 
 Preset_Kappa_Pimp : Preset_Kappa_Default
@@ -64,10 +41,10 @@ Preset_Kappa_Pimp : Preset_Kappa_Default
 	[
 		"Pimp"
 	];
-}
-
-Preset_Kappa_Neon_Left_Hand : Preset_Kappa_Neon
-{
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
 Preset_Kappa_Neon : Preset_Kappa_Default
@@ -76,10 +53,10 @@ Preset_Kappa_Neon : Preset_Kappa_Default
 	[
 		"Neon"
 	];
-}
-
-Preset_Kappa_Military_Left_Hand : Preset_Kappa_Military
-{
+	tags += 
+	[
+		"Neon", "Courier_RareFind"
+	];
 }
 
 Preset_Kappa_Military : Preset_Kappa_Default
@@ -88,19 +65,18 @@ Preset_Kappa_Military : Preset_Kappa_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
 [ notQueryable ]
-Preset_Kappa_Legendary : Preset_Kappa_Default
+Preset_Kappa_Military_Unbreakable : Preset_Kappa_Military
 {
-	quality = "Quality.Legendary";
-	CName[] visualTags = 
-	[
-		"Legendary"
-	];
 	tags += 
 	[
-		"Legendary"
+		"Unbreakable"
 	];
 }
 
@@ -125,6 +101,215 @@ Preset_Kappa_Workspot : Preset_Kappa_Default
 			slot = "AttachmentSlots.MagazineEmpty";
 			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_stdr";
 		}
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Default_Left_Hand : Preset_Kappa_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Kappa_Technical_Stats", "Items.Base_Kappa_SmartGun_Projectile_Stats"
+		];
+	} : Broken_Smart_Handgun_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Kappa_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Pimp_Left_Hand : Preset_Kappa_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Kappa_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Neon_Left_Hand : Preset_Kappa_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Kappa_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Military_Left_Hand : Preset_Kappa_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Kappa_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Default_Retrofix : Preset_Kappa_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_NoAttachments_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Pimp_Retrofix : Preset_Kappa_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Neon_Retrofix : Preset_Kappa_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Kappa_Military_Retrofix : Preset_Kappa_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
 	];
 }
 
@@ -158,45 +343,621 @@ Craftable_Common_Kappa : Preset_Kappa_Default
 Craftable_Uncommon_Kappa : Craftable_Common_Kappa
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Kappa : Craftable_Common_Kappa
+Craftable_Rare_Kappa : Craftable_Uncommon_Kappa
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Kappa : Craftable_Common_Kappa
+Craftable_Epic_Kappa : Craftable_Uncommon_Kappa
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
+}
+
+[ notQueryable ]
+Craftable_Legendary_Kappa : Craftable_Uncommon_Kappa
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Kappa_George : Preset_Kappa_Default
+{
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "kappa_george_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
+	displayName = "LocKey#87358";
+	localizedDescription = "LocKey#87372";
+	CName[] visualTags = 
+	[
+		"George_Kappa"
+	];
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Kappa_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.KappaGeorgeWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Kappa_George_Technical_Stats", "Items.Base_Kappa_Handling_Stats", "Items.Base_Kappa_Recoil_Stats", "Items.Base_Kappa_George_SmartGun_Stats", "Items.Base_Kappa_George_SmartGun_SmartLink_Stats", "Items.Base_Kappa_SmartGun_Projectile_Stats", "Items.Base_Kappa_Flags", "Items.Base_Kappa_Aim_Stats", "Items.Base_Kappa_StatModifierGroup_SpreadStats", "Items.Base_Kappa_George_Constant_Stats", "Items.Base_Kappa_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Handgun_Mult_Stats", "Items.Base_Smart_Handgun_No_Sway_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
+	];
+}
+
+Base_Kappa_George_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 2.5f;
+		} : AccuracyModifier, 
+		{
+			value = 0.10f;
+		} : CycleTimeModifier, 
+		{
+			value = 20.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 0.8f;
+		} : RangeModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Kappa_George_SmartGun_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
+		{
+			value = 1.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.15f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAngleYawModifier, 
+		{
+			value = 3.f;
+		} : SmartGunHipMaxLockedTargetsModifier, 
+		{
+			value = 3.f;
+		} : SmartGunAdsMaxLockedTargetsModifier, 
+		{
+			value = 0.9f;
+		} : SmartGunHipTimeToLockModifier, 
+		{
+			value = 0.9f;
+		} : SmartGunAdsTimeToLockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunHipTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunAdsTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTimeToRemoveOccludedTargetModifier, 
+		{
+			value = 0.f;
+		} : SmartGunUseTimeBasedAccuracyModifier, 
+		{
+			value = 0.5f;
+		} : SmartGunTimeToMaxAccuracyModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunStartingAccuracyModifier, 
+		{
+			value = 5.0f;
+		} : SmartGunSpreadMultiplierModifier, 
+		{
+			value = 50.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = 0.75f;
+		} : SmartGunHitProbabilityModifier
+	];
+}
+
+Base_Kappa_George_SmartGun_SmartLink_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 10.0f;
+			statType = "BaseStats.SmartGunHipLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 10.0f;
+			statType = "BaseStats.SmartGunHipLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 10.0f;
+			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 10.0f;
+			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 9.0f;
+			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 9.0f;
+			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 9.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 9.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.25f;
+			statType = "BaseStats.SmartGunHipTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.25f;
+			statType = "BaseStats.SmartGunAdsTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.25f;
+			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.25f;
+			statType = "BaseStats.SmartGunHitProbability";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 50.f;
+			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+		} : SmartLinkDependentStatModifier
+	];
+}
+
+Base_Kappa_George_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 0.16f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 0.24f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.666;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
 	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Kappa : Craftable_Common_Kappa
+[ DisabledContent ]
+Preset_Kappa_Legendary : Preset_Kappa_Default
 {
-	quality = "Quality.Legendary";
-	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	displayName = "LocKey#93512";
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "kappa_legendary_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Collectible_Smart_Handgun_NoAttachments_Blueprint";
+	CName[] visualTags = 
+	[
+		"Legendary"
+	];
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__tsunami_kappa__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.CollectibleIconicWeaponMod";
+		}
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Kappa_NPC_Data;
+	rangedAttacks = "Attacks.SmartBulletHighExplosivePackage";
+	attacks += 
+	[
+		"Attacks.SmartBulletHighExplosive"
+	];
+	gameplayDescription = "LocKey#92678";
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Kappa_Legendary_Technical_Stats", "Items.Base_Kappa_Handling_Stats", "Items.Base_Kappa_Recoil_Stats", "Items.Base_Kappa_Legendary_SmartGun_Stats", "Items.Base_Kappa_Legendary_SmartGun_SmartLink_Stats", "Items.Base_Kappa_SmartGun_Projectile_Stats", "Items.Base_Kappa_Flags", "Items.Base_Kappa_Aim_Stats", "Items.Base_Kappa_StatModifierGroup_SpreadStats", "Items.Base_Kappa_Legendary_Constant_Stats", "Items.CollectableBonusStats", "Items.Base_Kappa_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Handgun_Mult_Stats", "Items.Base_Smart_Handgun_No_Sway_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Kappa_Legendary_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 2.5f;
+		} : AccuracyModifier, 
+		{
+			value = 0.12f;
+		} : CycleTimeModifier, 
+		{
+			value = 25.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 0.8f;
+		} : RangeModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Kappa_Legendary_SmartGun_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.15f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAngleYawModifier, 
+		{
+			value = 3.f;
+		} : SmartGunHipMaxLockedTargetsModifier, 
+		{
+			value = 1.f;
+		} : SmartGunAdsMaxLockedTargetsModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunHipTimeToLockModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunAdsTimeToLockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunHipTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunAdsTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTimeToRemoveOccludedTargetModifier, 
+		{
+			value = 0.f;
+		} : SmartGunUseTimeBasedAccuracyModifier, 
+		{
+			value = 0.5f;
+		} : SmartGunTimeToMaxAccuracyModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunStartingAccuracyModifier, 
+		{
+			value = 5.0f;
+		} : SmartGunSpreadMultiplierModifier, 
+		{
+			value = 50.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = 0.75f;
+		} : SmartGunHitProbabilityModifier
+	];
+}
+
+Base_Kappa_Legendary_SmartGun_SmartLink_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 6.0f;
+			statType = "BaseStats.SmartGunHipLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 12.0f;
+			statType = "BaseStats.SmartGunHipLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 6.0f;
+			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 12.0f;
+			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 5.0f;
+			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 11.0f;
+			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 5.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 11.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.f;
+			statType = "BaseStats.SmartGunHipTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.f;
+			statType = "BaseStats.SmartGunAdsTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.f;
+			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.20f;
+			statType = "BaseStats.SmartGunHitProbability";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 50.f;
+			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+		} : SmartLinkDependentStatModifier
+	];
+}
+
+Base_Kappa_Legendary_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 0.16f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 0.24f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Additive";
+			value = 0.25f;
+		} : ConstantStatModifier
 	];
 }
 

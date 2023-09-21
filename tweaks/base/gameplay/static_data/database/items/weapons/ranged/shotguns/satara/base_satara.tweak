@@ -22,6 +22,7 @@ Base_Satara : Base_Tech_Dual_Shotgun
 	} : ConstantStatModifier;
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Satara";
 	localizedDescription = "LocKey#3620";
+	gameplayDescription = "LocKey#92671";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
 		{
@@ -64,13 +65,14 @@ Base_Satara : Base_Tech_Dual_Shotgun
 	CName audioName = "wea_set_satara";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Shotgun Dual"
+		"Preload", "Weapon", "Shotgun Dual", "T2_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
 		"TriggerMode.Charge"
 	];
 	fk< TriggerMode > primaryTriggerMode = "TriggerMode.Charge";
+	fk< TriggerMode > secondaryTriggerMode = "TriggerMode.Charge";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Corporation";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Tech";
 	fk< Item > ammo = "Ammo.ShotgunAmmo";
@@ -79,12 +81,15 @@ Base_Satara : Base_Tech_Dual_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Satara_NPC_Technical_Stats"
 		];
-	} : Base_Tech_Dual_Shotgun_NPC_Data;
+	} : Base_Satara_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Satara_Technical_Stats", "Items.Base_Satara_Handling_Stats", "Items.Base_Satara_Recoil_Stats", "Items.Base_Satara_Spread_Stats", "Items.Base_Satara_Aim_Stats", "Items.Base_Satara_Constant_Stats"
+		"Items.Base_Satara_Technical_Stats", "Items.Base_Satara_Handling_Stats", "Items.Base_Satara_Recoil_Stats", "Items.Base_Satara_Spread_Stats", "Items.Base_Satara_Aim_Stats", "Items.Base_Satara_Constant_Stats", "Items.Base_Satara_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.HeavyStaminaDelay", "EquipmentGLP.HeavyWeapon"
 	];
 	fk< StatPool >[] statPools = 
 	[
@@ -95,10 +100,10 @@ Base_Satara : Base_Tech_Dual_Shotgun
 	bool saveStatPools = true;
 	fk< Crosshair > crosshair = "Crosshairs.Tech_Hex";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.TechShotgun";
-	baseReloadTime = 2.f;
-	baseEmptyReloadTime = 2.f;
-	uninterruptibleReloadStart = 0.7f;
-	uninterruptibleEmptyReloadStart = 0.7f;
+	baseReloadTime = 0.9f;
+	baseEmptyReloadTime = 0.9f;
+	uninterruptibleReloadStart = 0.17f;
+	uninterruptibleEmptyReloadStart = 0.1f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -113,6 +118,14 @@ Base_Satara : Base_Tech_Dual_Shotgun
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_Satara_NPC_Data : Base_Tech_Dual_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Satara_NPC_Technical_Stats", "Items.Base_Satara_NPC_Damage_Stats"
+	];
 }
 
 Base_Satara_Technical_Stats : StatModifierGroup
@@ -147,12 +160,34 @@ Base_Satara_Technical_Stats : StatModifierGroup
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			float value = 0.9f;
-		} : TechPierceChargeLevelModifier, 
+			value = 1.f;
+		} : TechPierceEnabledModifier, 
 		{
-			statType = "BaseStats.TechPierceEnabled";
+			value = 0.9f;
+		} : TechPierceChargeLevelModifier
+	];
+}
+
+Base_Satara_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			value = 1f;
+			value = 91f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Satara_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 85f;
 		} : ConstantStatModifier
 	];
 }
@@ -165,13 +200,13 @@ Base_Satara_NPC_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.3f;
+			value = 1.1f;
 		} : CycleTimeModifier, 
 		{
 			value = 2.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 6.f;
+			value = 7.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
 			value = 1.f;
@@ -183,19 +218,20 @@ Base_Satara_NPC_Technical_Stats : StatModifierGroup
 			value = 0.f;
 		} : ChargeReadyPercentageModifier, 
 		{
-			value = 2.f;
+			value = 0.5f;
 		} : ChargeTimeModifier, 
 		{
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			float value = 0.9f;
+			value = 0.f;
+		} : TechPierceEnabledModifier, 
+		{
+			value = 0.9f;
 		} : TechPierceChargeLevelModifier, 
 		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier
+			value = -0.5f;
+		} : TechPierceDamageFactorModifier
 	];
 }
 
@@ -204,11 +240,17 @@ Base_Satara_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.f;
+			value = 0.9f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.f;
+			value = 0.9f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.1f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.1f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.1f;
 		} : ZoomLevelModifier, 
@@ -275,10 +317,10 @@ Base_Satara_Spread_Stats : StatModifierGroup
 			value = 0.75f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.0f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.3f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -296,17 +338,11 @@ Base_Satara_Spread_Stats : StatModifierGroup
 			value = 0.1f;
 		} : SpreadEvenDistributionJitterSizeModifier, 
 		{
-			value = -0.5f;
+			value = -0.25f;
 		} : SpreadChargeMultModifier, 
 		{
-			value = -0.f;
-		} : SpreadFullChargeMultModifier, 
-		{
-			value = -0.5f;
-		} : SpreadAdsChargeMultModifier, 
-		{
-			value = -0.0f;
-		} : SpreadAdsFullChargeMultModifier
+			value = -0.25f;
+		} : SpreadAdsChargeMultModifier
 	];
 }
 
@@ -334,48 +370,59 @@ Base_Satara_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 3.5f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 3.5f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 4.5f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 9.f;
+			value = 7.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 12.f;
+			value = 9.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilRecoveryTime";
 			modifierType = "Additive";
-			value = 0.2f;
-		} : ConstantStatModifier
+			value = 0.7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TechPierceDamageFactor";
+			modifierType = "Additive";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.574f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 

@@ -79,7 +79,10 @@ PlasmaProjectile : Attack_Projectile
 	range = 200.0f;
 	projectileTemplateName = "plasma_projectile";
 	float hitCooldown = 0.5f;
-	fk< StatModifier >[] statModifiers = [];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.PlasmaProjectileDamageNull"
+	];
 }
 
 PlasmaProjectileWeak : Attack_Projectile
@@ -89,7 +92,10 @@ PlasmaProjectileWeak : Attack_Projectile
 	range = 200.0f;
 	projectileTemplateName = "plasma_projectile_weak";
 	float hitCooldown = 0.25f;
-	fk< StatModifier >[] statModifiers = [];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.PlasmaProjectileDamageNull"
+	];
 }
 
 PlasmaProjectileSplash : Attack_Projectile
@@ -99,47 +105,60 @@ PlasmaProjectileSplash : Attack_Projectile
 	range = 200.0f;
 	projectileTemplateName = "plasma_projectile_splash";
 	float hitCooldown = 0.5f;
-	fk< StatModifier >[] statModifiers = [];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.PlasmaProjectileDamageNull"
+	];
+}
+
+PlasmaProjectileDamageNull : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.f;
 }
 
 PlasmaProjectileDamage : CombinedStatModifier
 {
-	statType = "BaseStats.ThermalDamage";
+	statType = "BaseStats.PhysicalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 1.25f;
+	value = 0.5f;
 }
 
 PlasmaProjectileSplashDamage : CombinedStatModifier
 {
-	statType = "BaseStats.ThermalDamage";
+	statType = "BaseStats.PhysicalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 1.5f;
+	value = 0.75f;
 }
 
 PlasmaProjectileWeakDamage : CombinedStatModifier
 {
-	statType = "BaseStats.ThermalDamage";
+	statType = "BaseStats.PhysicalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 1.2f;
+	value = 0.33f;
 }
 
 PlasmaBeamDamage : CombinedStatModifier
 {
-	statType = "BaseStats.ThermalDamage";
+	statType = "BaseStats.PhysicalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 1.6f;
+	value = 0.5f;
 }
 
 PlasmaProjectileThermal : PlasmaProjectile
@@ -205,7 +224,7 @@ ShieldSlam : Attack_Melee
 		{
 			statType = "BaseStats.PhysicalDamage";
 			modifierType = "Additive";
-			value = 100;
+			value = 80;
 		} : ConstantStatModifier
 	];
 	fk< StatusEffectAttackData >[] statusEffects = 
@@ -263,7 +282,43 @@ RoyceWeakspotExplosionDamage : CombinedStatModifier
 	refStat = "BaseStats.Health";
 	refObject = "Self";
 	opSymbol = "*";
-	value = 2.f;
+	value = 0.f;
+}
+
+SasquatchWeakSpotExplosion : RoyceExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectTag = "weakspot_explosion";
+	range = 3.f;
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Pain";
+			applyImmediately = true;
+		}, 
+		{
+			statusEffect = "Sasquatch.WeakSpotDestroyed";
+			applyImmediately = true;
+		}
+	];
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.SasquatchWeakspotExplosionDamage"
+	];
+}
+
+SasquatchWeakspotExplosionDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.Health";
+	refObject = "Self";
+	opSymbol = "*";
+	value = 0.05f;
 }
 
 RoyceProjectileExplosion : RoyceExplosion
@@ -285,10 +340,10 @@ RoyceProjectileExplosionDamage : CombinedStatModifier
 {
 	statType = "BaseStats.ThermalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 1.2f;
+	value = 0.5f;
 }
 
 RoyceProjectileExplosionWeak : RoyceProjectileExplosion
@@ -303,10 +358,10 @@ RoyceProjectileExplosionWeakDamage : CombinedStatModifier
 {
 	statType = "BaseStats.ThermalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 0.5f;
+	value = 0.25f;
 }
 
 RoyceSplashExplosion : RoyceExplosion
@@ -326,11 +381,11 @@ RoyceSplashExplosion : RoyceExplosion
 
 RoyceSplashExplosionDamage : CombinedStatModifier
 {
-	statType = "BaseStats.ThermalDamage";
+	statType = "BaseStats.PhysicalDamage";
 	modifierType = "Additive";
-	refStat = "BaseStats.DPS";
+	refStat = "BaseStats.NPCDamage";
 	refObject = "Root";
 	opSymbol = "*";
-	value = 1.4f;
+	value = 0.5f;
 }
 

@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB
+using RTDB, Effectors, Prereqs, Perks
 
 Wounded : StatusEffect
 {
@@ -9,6 +9,10 @@ Wounded : StatusEffect
 		"Wounded"
 	];
 	statusEffectType = "BaseStatusEffectTypes.Wounded";
+	immunityStats = 
+	[
+		"BaseStats.WoundedImmunity"
+	];
 	uiData = 
 	{
 		string displayName = "Wounded";
@@ -596,3 +600,95 @@ DismemberedHandRight : DismemberedArmRight
 {
 }
 
+Kurtz_Knife_CrippledLegLeft : CrippledLegLeft
+{
+	gameplayTags += 
+	[
+		"Kurt_Knife_Cripple"
+	];
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					statusEffects = 
+					[
+						"BaseStatusEffect.Kurtz_Knife_CrippledLegRight"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		}
+	];
+}
+
+Kurtz_Knife_CrippledLegRight : CrippledLegRight
+{
+	gameplayTags += 
+	[
+		"Kurt_Knife_Cripple"
+	];
+}
+
+Kurtz_Metel_DismemberedLegLeft : DismemberedLegLeft
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					string bodyPart = "LEFT_LEG";
+					string woundType = "COARSE";
+					bool isCritical = true;
+					bool shouldKillNPC = true;
+					float dismembermentChance = 100f;
+				} : ForceDismembermentEffector, 
+				{
+					statusEffects = 
+					[
+						"BaseStatusEffect.Kurtz_Knife_CrippledLegLeft"
+					];
+				} : RemoveStatusEffectsEffector, 
+				{
+					statusEffect = "BaseStatusEffect.KurtKnifeRemoveCooldownsSE";
+				} : ApplyStatusEffectOnPlayer
+			];
+		}
+	];
+}
+
+Kurtz_Metel_DismemberedLegRight : DismemberedLegRight
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					string bodyPart = "RIGHT_LEG";
+					string woundType = "COARSE";
+					bool isCritical = true;
+					bool shouldKillNPC = true;
+					float dismembermentChance = 100f;
+				} : ForceDismembermentEffector, 
+				{
+					statusEffects = 
+					[
+						"BaseStatusEffect.Kurtz_Knife_CrippledLegRight"
+					];
+				} : RemoveStatusEffectsEffector, 
+				{
+					statusEffect = "BaseStatusEffect.KurtKnifeRemoveCooldownsSE";
+				} : ApplyStatusEffectOnPlayer
+			];
+		}
+	];
+}
+
+string[] CripplingStatusEffects = 
+[
+	"BaseStatusEffect.CrippledLegLeft", "BaseStatusEffect.CrippledLegRight", "BaseStatusEffect.CrippledArmLeft", "BaseStatusEffect.CrippledArmRight"
+];

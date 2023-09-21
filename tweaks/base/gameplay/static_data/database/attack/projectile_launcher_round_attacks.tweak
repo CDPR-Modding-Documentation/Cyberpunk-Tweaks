@@ -7,38 +7,56 @@ BaseProjectileAoEAttack : Attack_GameEffect
 	effectName = "projectile_aoe";
 	range = 1.0f;
 	damageType = "DamageTypes.Physical";
+	explosionDamageVSVehicles = 600.0f;
+}
+
+ProjectileChargedMultiplier : ConstantStatModifier
+{
+	modifierType = "AdditiveMultiplier";
+	value = 0.3;
+}
+
+ProjectileGigaChadMultiplier : ConstantStatModifier
+{
+	modifierType = "AdditiveMultiplier";
+	value = -0.5;
+}
+
+QualityScalingMultiplier : CurveStatModifier
+{
+	modifierType = "Multiplier";
+	refStat = "BaseStats.ProjectileLauncherQualityMult";
+	refObject = "Root";
+	id = "quality_curves";
+	column = "quality_to_dps_multiplier_new";
+}
+
+TechAttunement : CombinedStatModifier
+{
+	modifierType = "AdditiveMultiplier";
+	refStat = "BaseStats.TechnicalAbility";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.005f;
 }
 
 MissileProjectile : BaseProjectileAoEAttack
 {
 	effectTag = "explosion_round";
-	range = 2.0f;
+	range = 4.0f;
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
 			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
+			value = 128f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -7f;
-		} : CombinedStatModifier, 
+		} : TechAttunement, 
 		{
 			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier, 
+		} : QualityScalingMultiplier, 
 		{
 			statType = "BaseStats.HitDismembermentFactor";
 			modifierType = "AdditiveMultiplier";
@@ -57,105 +75,71 @@ MissileProjectile : BaseProjectileAoEAttack
 MissileProjectileCharged : MissileProjectile
 {
 	effectTag = "explosion_round_charged";
-	range = 3.0f;
-	fk< StatModifier >[] statModifiers = 
+	range = 5.0f;
+	hitFlags = 
+	[
+		"WeaponFullyCharged"
+	];
+	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 3f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 3f;
-		} : CombinedStatModifier, 
+		} : ProjectileChargedMultiplier, 
 		{
 			statType = "BaseStats.HitDismembermentFactor";
 			modifierType = "AdditiveMultiplier";
-			value = 0.8f;
+			value = 0.4f;
 		} : ConstantStatModifier
 	];
+}
+
+MissileProjectileGigaChadRelicCharged : MissileProjectileCharged
+{
+	effectName = "ep1_projectile_aoe";
+	effectTag = "explosion_relic_round_charged";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+		} : ProjectileGigaChadMultiplier
+	];
+	explosionDamageVSVehicles = 300.0f;
 }
 
 EMPProjectile : BaseProjectileAoEAttack
 {
 	effectTag = "emp_round";
-	range = 2.0f;
+	range = 4.0f;
 	damageType = "DamageTypes.Electric";
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
 			statType = "BaseStats.ElectricDamage";
 			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
+			value = 116.f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ElectricDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -10f;
-		} : CombinedStatModifier, 
+		} : TechAttunement, 
 		{
 			statType = "BaseStats.ElectricDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : QualityScalingMultiplier
 	];
 }
 
 EMPProjectileCharged : EMPProjectile
 {
 	effectTag = "emp_round_charged";
-	range = 4.0f;
-	fk< StatModifier >[] statModifiers = 
+	range = 5.0f;
+	hitFlags = 
+	[
+		"WeaponFullyCharged"
+	];
+	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.ElectricDamage";
-			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.ElectricDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -4f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ElectricDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : ProjectileChargedMultiplier
 	];
 	fk< StatusEffectAttackData >[] statusEffects = 
 	[
@@ -166,171 +150,124 @@ EMPProjectileCharged : EMPProjectile
 	];
 }
 
+EMPProjectileGigaChadRelicCharged : EMPProjectileCharged
+{
+	effectName = "ep1_projectile_aoe";
+	effectTag = "explosion_relic_round_charged";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+		} : ProjectileGigaChadMultiplier
+	];
+	explosionDamageVSVehicles = 300.0f;
+}
+
 ThermalProjectile : BaseProjectileAoEAttack
 {
 	effectTag = "thermal_round";
-	range = 2.0f;
+	range = 4.0f;
 	damageType = "DamageTypes.Thermal";
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
 			statType = "BaseStats.ThermalDamage";
 			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
+			value = 116.f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ThermalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -10f;
-		} : CombinedStatModifier, 
+		} : TechAttunement, 
 		{
 			statType = "BaseStats.ThermalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : QualityScalingMultiplier
 	];
 }
 
 ThermalProjectileCharged : ThermalProjectile
 {
 	effectTag = "thermal_round_charged";
-	range = 4.0f;
+	range = 5.0f;
 	hitFlags = 
 	[
 		"WeaponFullyCharged"
 	];
-	fk< StatModifier >[] statModifiers = 
+	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.ThermalDamage";
-			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -5f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : ProjectileChargedMultiplier
 	];
+}
+
+ThermalProjectileGigaChadRelicCharged : ThermalProjectileCharged
+{
+	effectName = "ep1_projectile_aoe";
+	effectTag = "explosion_relic_round_charged";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+		} : ProjectileGigaChadMultiplier
+	];
+	explosionDamageVSVehicles = 300.0f;
 }
 
 ChemicalProjectile : BaseProjectileAoEAttack
 {
 	effectTag = "chemical_round";
-	range = 2.0f;
+	range = 4.0f;
 	damageType = "DamageTypes.Chemical";
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
 			statType = "BaseStats.ChemicalDamage";
 			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
+			value = 116.f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ChemicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -10f;
-		} : CombinedStatModifier, 
+		} : TechAttunement, 
 		{
 			statType = "BaseStats.ChemicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : QualityScalingMultiplier
 	];
 }
 
 ChemicalProjectileCharged : ChemicalProjectile
 {
 	effectTag = "chemical_round_charged";
-	range = 4.0f;
+	range = 5.0f;
 	hitFlags = 
 	[
 		"WeaponFullyCharged"
 	];
-	fk< StatModifier >[] statModifiers = 
+	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.ChemicalDamage";
-			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_projectile_launcher_DPS";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.ChemicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = -4f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ChemicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
+		} : ProjectileChargedMultiplier
 	];
+}
+
+ChemicalProjectileGigaChadRelicCharged : ChemicalProjectileCharged
+{
+	effectName = "ep1_projectile_aoe";
+	effectTag = "explosion_relic_round_charged";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.ChemicalDamage";
+		} : ProjectileGigaChadMultiplier
+	];
+	explosionDamageVSVehicles = 300.0f;
 }
 
 TranquilizerProjectile : BaseProjectileAoEAttack
 {
 	effectTag = "tranquilizer_round";
 	range = 0.1f;
-	fk< StatModifier >[] statModifiers = 
-	[
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 0.2f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.TechnicalAbility";
-			refObject = "Root";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier
-	];
+	fk< StatModifier >[] statModifiers = [];
 	fk< StatusEffectAttackData >[] statusEffects = 
 	[
 		{
@@ -346,8 +283,28 @@ TranquilizerProjectileCharged : TranquilizerProjectile
 	range = 0.1f;
 }
 
+TranquilizerProjectileGigaChadRelicCharged : TranquilizerProjectileCharged
+{
+}
+
 ProjectileLauncherAttackHelper : Attack_Projectile
 {
 	projectileTemplateName = "launcher_round";
+	staminaCost = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "AdditiveMultiplier";
+			refObject = "Player";
+			refStat = "BaseStats.FistsStaminaCostReduction";
+			opSymbol = "*";
+			value = -1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 25.f;
+		} : ConstantStatModifier
+	];
 }
 

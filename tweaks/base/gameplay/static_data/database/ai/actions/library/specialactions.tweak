@@ -303,6 +303,207 @@ CoverUseCombatStimConsumable : AIAction
 	};
 }
 
+CombatStimCooldown_VeryHard : AIActionCooldown
+{
+	name = "CombatStim";
+	duration = 35.f;
+}
+
+CombatStimConsumable_VeryHardCooldownCondition : AIAction
+{
+	cooldowns = 
+	[
+		"SpecialActions.CombatStimCooldown_VeryHard"
+	];
+}
+
+UseCombatStimConsumable_VeryHard : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthBelow60perc", "Condition.NotIsInWorkspot", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		duration = 1.4f;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 1.3f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.CombatStim_VeryHard"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "buff";
+			delay = 0.f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "Heal_StatusEffect";
+	};
+}
+
+CombatStimCooldown_Hard : AIActionCooldown
+{
+	name = "CombatStim";
+	duration = 60.f;
+}
+
+CombatStimConsumable_HardCooldownCondition : AIAction
+{
+	cooldowns = 
+	[
+		"SpecialActions.CombatStimCooldown_Hard"
+	];
+}
+
+UseCombatStimConsumable_Hard : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthBelow50perc", "Condition.NotIsInWorkspot", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+	};
+	loop = 
+	{
+		duration = 1.4f;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+	};
+	loopSubActions = 
+	[
+		{
+			delay = 1.3f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.CombatStim_Hard"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "buff";
+			delay = 0.f;
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "Heal_StatusEffect";
+	};
+}
+
+CombatStimHardCondition : AIAction
+{
+	cooldowns = 
+	[
+		"SpecialActions.CombatStimCooldown_Hard"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsFollower", "Condition.HealthBelow50perc", "Condition.NotIsInWorkspot", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.Human", {
+					OR = 
+					[
+						"Condition.IsRareNPCRarity", "Condition.IsEliteNPCRarity"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+}
+
+CombatStimVeryHardCondition : AIAction
+{
+	cooldowns = 
+	[
+		"SpecialActions.CombatStimCooldown_VeryHard"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsFollower", "Condition.HealthBelow60perc", "Condition.NotIsInWorkspot", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotIsBossNPCRarity", "Condition.Human"
+			];
+		} : AIActionAND;
+	};
+}
+
+SetHardCombatStimCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"SpecialActions.CombatStimCooldown_Hard"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetVeryHardCombatStimCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"SpecialActions.CombatStimCooldown_VeryHard"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
 CallReinforcementsComposite : AIActionSmartComposite
 {
 	repeat = 0;
@@ -1252,6 +1453,44 @@ InterruptMeleeActionOnSignal : AIAction
 				} : AIActionOR;
 			}
 		];
+	};
+}
+
+TargetIsMeleeOnHard : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetHasMeleeWeapon", {
+					OR = 
+					[
+						"Condition.IsHardGameDifficulty"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+}
+
+TargetIsMeleeOnVeryHard : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetHasMeleeWeapon", {
+					OR = 
+					[
+						"Condition.IsImpossibleGameDifficulty"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
 	};
 }
 

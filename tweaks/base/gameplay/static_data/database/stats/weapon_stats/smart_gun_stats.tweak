@@ -19,26 +19,26 @@ SmartLinkDependentStatModifier : CombinedStatModifier
 	value = 0.f;
 }
 
-SmartGunTrackAllBodyparts : SmartGunStat
+SmartGunTrackWeakSpotComponents : SmartGunStat
 {
-	enumName = "SmartGunTrackAllBodyparts";
-	enumComment = "Should track both primary and secondary bodyparts in hipfire; if set to false, only primary bodyparts will be tracked in hipfire";
+	enumName = "SmartGunTrackWeakSpotComponents";
+	enumComment = "";
 	min = 0;
-	max = 1;
+	max = 9999;
 }
 
-SmartGunTrackAllBodypartsModifier : ConstantStatModifier
+SmartGunTrackWeakSpotComponentsModifier : ConstantStatModifier
 {
-	statType = "BaseStats.SmartGunTrackAllBodyparts";
+	statType = "BaseStats.SmartGunTrackWeakSpotComponents";
 	modifierType = "Additive";
 }
 
 SmartGunTrackHeadComponents : SmartGunStat
 {
 	enumName = "SmartGunTrackHeadComponents";
-	enumComment = "Add tracking for head components on puppets (in hipfire and ADS). Note: this overrides SmartGunTrackAllBodyparts if set";
+	enumComment = "Add tracking for head components on puppets";
 	min = 0;
-	max = 1;
+	max = 9999;
 }
 
 SmartGunTrackHeadComponentsModifier : ConstantStatModifier
@@ -47,12 +47,26 @@ SmartGunTrackHeadComponentsModifier : ConstantStatModifier
 	modifierType = "Additive";
 }
 
+SmartGunTrackChestComponents : SmartGunStat
+{
+	enumName = "SmartGunTrackChestComponents";
+	enumComment = "Add tracking for chest components on puppets";
+	min = 0;
+	max = 9999;
+}
+
+SmartGunTrackChestComponentsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackChestComponents";
+	modifierType = "Additive";
+}
+
 SmartGunTrackLegComponents : SmartGunStat
 {
 	enumName = "SmartGunTrackLegComponents";
-	enumComment = "Add tracking for leg components on puppets (in hipfire and ADS). Note: this overrides SmartGunTrackAllBodyparts if set";
+	enumComment = "Add tracking for leg components on puppets";
 	min = 0;
-	max = 1;
+	max = 9999;
 }
 
 SmartGunTrackLegComponentsModifier : ConstantStatModifier
@@ -64,14 +78,42 @@ SmartGunTrackLegComponentsModifier : ConstantStatModifier
 SmartGunTrackMechanicalComponents : SmartGunStat
 {
 	enumName = "SmartGunTrackMechanicalComponents";
-	enumComment = "Add tracking for components like turrets, drones, grenades, and weakspots (in hipfire and ADS). Note: this overrides SmartGunTrackAllBodyparts if set";
+	enumComment = "Add tracking for components like turrets, drones, grenades, and weakspots";
 	min = 0;
-	max = 1;
+	max = 9999;
 }
 
 SmartGunTrackMechanicalComponentsModifier : ConstantStatModifier
 {
 	statType = "BaseStats.SmartGunTrackMechanicalComponents";
+	modifierType = "Additive";
+}
+
+SmartGunTrackBreachComponents : SmartGunStat
+{
+	enumName = "SmartGunTrackBreachComponents";
+	enumComment = "Add tracking for CW breaches components";
+	min = 0;
+	max = 9999;
+}
+
+SmartGunTrackBreachComponentsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackBreachComponents";
+	modifierType = "Additive";
+}
+
+SmartGunTrackVehicleComponents : SmartGunStat
+{
+	enumName = "SmartGunTrackVehicleComponents";
+	enumComment = "Add tracking for vehicle components";
+	min = 0;
+	max = 9999;
+}
+
+SmartGunTrackVehicleComponentsModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunTrackVehicleComponents";
 	modifierType = "Additive";
 }
 
@@ -158,6 +200,19 @@ SmartGunAdsMaxLockedTargetsModifier : ConstantStatModifier
 	modifierType = "Additive";
 }
 
+SmartGunMaxLockedPointsPerTarget : SmartGunStat
+{
+	enumName = "SmartGunMaxLockedPointsPerTarget";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunMaxLockedPointsPerTargetModifier : ConstantStatModifier
+{
+	statType = "BaseStats.SmartGunMaxLockedPointsPerTarget";
+	modifierType = "Additive";
+}
+
 SmartGunTargetAcquisitionRange : SmartGunStat
 {
 	enumName = "SmartGunTargetAcquisitionRange";
@@ -166,11 +221,14 @@ SmartGunTargetAcquisitionRange : SmartGunStat
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
-SmartGunTargetAcquisitionRangeModifier : ConstantStatModifier
+SmartGunTargetAcquisitionRangeModifier : CombinedStatModifier
 {
 	statType = "BaseStats.SmartGunTargetAcquisitionRange";
 	modifierType = "Additive";
-	value = 1000;
+	refObject = "Self";
+	refStat = "BaseStats.EffectiveRange";
+	opSymbol = "*";
+	value = 1.0f;
 }
 
 SmartGunHipTimeToLock : SmartGunStat
@@ -178,6 +236,8 @@ SmartGunHipTimeToLock : SmartGunStat
 	enumName = "SmartGunHipTimeToLock";
 	enumComment = "Number of seconds that a target must be in Locking state (in crosshair) before it becomes Locked - for hipfire";
 	min = 0;
+	localizedName = "LocKey#90754";
+	inSeconds = true;
 	improvementRelation = "ImprovementRelation.Inverse";
 }
 
@@ -209,6 +269,13 @@ SmartGunHipTimeToUnlock : SmartGunStat
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
+BonusSmartGunTimeToLock : SmartGunStat
+{
+	enumName = "BonusSmartGunTimeToLock";
+	enumComment = "Reduces by % value smart gun lock-on time";
+	bool shouldFlipNegativeValue = true;
+}
+
 SmartGunHipTimeToUnlockModifier : ConstantStatModifier
 {
 	statType = "BaseStats.SmartGunHipTimeToUnlock";
@@ -227,6 +294,55 @@ SmartGunAdsTimeToUnlockModifier : ConstantStatModifier
 {
 	statType = "BaseStats.SmartGunAdsTimeToUnlock";
 	modifierType = "Additive";
+}
+
+SmartGunTimeToLockWeakSpotComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockWeakSpotComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToLockHeadComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockHeadComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToLockChestComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockChestComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToLockLegComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockLegComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToLockMechanicalComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockMechanicalComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToLockBreachComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockBreachComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartGunTimeToLockVehicleComponentMultiplier : SmartGunStat
+{
+	enumName = "SmartGunTimeToLockVehicleComponentMultiplier";
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
 }
 
 SmartGunUseTimeBasedAccuracy : SmartGunStat
@@ -520,6 +636,15 @@ SmartGunNPCLockingAngleYawModifier : ConstantStatModifier
 	modifierType = "Additive";
 }
 
+SmartGunTargetingRectangleSizeIncrease : SmartGunStat
+{
+	enumName = "SmartGunTargetingRectangleSizeIncrease";
+	enumComment = "In percentage. It defines the smart weapon's targeting rectangle increment on the UI.";
+	min = 0;
+	max = 100;
+	float value = 0;
+}
+
 SmartGunNPCShootProjectilesOnlyStraight : SmartGunStat
 {
 	enumName = "SmartGunNPCShootProjectilesOnlyStraight";
@@ -784,5 +909,35 @@ SmartGunMissRadiusModifier : ConstantStatModifier
 	statType = "BaseStats.SmartGunMissRadius";
 	modifierType = "Additive";
 	value = 5.f;
+}
+
+SmartGunKeepTargetsOnWeaponSwap : SmartGunStat
+{
+	enumName = "SmartGunKeepTargetsOnWeaponSwap";
+	enumComment = "Used for Int tree's Extra acquisition perk. If true, targets are not lost on smart weapon swapping.";
+}
+
+SmartGunKeepTargetsOnAimStateChange : SmartGunStat
+{
+	enumName = "SmartGunKeepTargetsOnAimStateChange";
+	enumComment = "";
+}
+
+SmartGunDisableOnReload : SmartGunStat
+{
+	enumName = "SmartGunDisableOnReload";
+	enumComment = "";
+}
+
+SmartGunContinousLockEnabled : SmartGunStat
+{
+	enumName = "SmartGunContinousLockEnabled";
+	enumComment = "";
+}
+
+ShouldIgnoreSmartUI : SmartGunStat
+{
+	enumName = "ShouldIgnoreSmartUI";
+	enumComment = "";
 }
 

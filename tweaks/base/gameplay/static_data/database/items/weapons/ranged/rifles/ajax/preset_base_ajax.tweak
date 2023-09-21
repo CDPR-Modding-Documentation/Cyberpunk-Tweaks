@@ -1,8 +1,13 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Ajax_Default : Base_Ajax
 {
+	CName appearanceResourceName = "Preset_Ajax_Default";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
@@ -22,37 +27,21 @@ Preset_Ajax_Default : Base_Ajax
 			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__mag_stdr";
 		}, 
 		"Items.RifleScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+		} : Power_AR_SMG_LMG_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
-	];
-	CName appearanceResourceName = "Preset_Ajax_Default";
-	CName[] visualTags = 
-	[
-		"Default"
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod2";
+		} : Power_AR_SMG_LMG_ModList_Slot2
 	];
 }
 
 Preset_Ajax_Pimp : Preset_Ajax_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -64,6 +53,10 @@ Preset_Ajax_Neon : Preset_Ajax_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Ajax_Military : Preset_Ajax_Default
@@ -72,6 +65,22 @@ Preset_Ajax_Military : Preset_Ajax_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Ajax_Military_MaxTac_2nd_wave : Preset_Ajax_Military
+{
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationFull"
+		];
+	} : Base_Ajax_NPC_Data;
 }
 
 [ notQueryable ]
@@ -98,22 +107,227 @@ Preset_Ajax_Training : Preset_Ajax_Default
 		{
 			slot = "AttachmentSlots.MagazineEmpty";
 			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__mag_stdr";
+		}
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier
+	];
+}
+
+[ DisabledContent ]
+Preset_Ajax_Krausser : Preset_Ajax_Default
+{
+	CName[] visualTags = 
+	[
+		"Krausser"
+	];
+	tags += 
+	[
+		"Krausser", "PowerOfThePack"
+	];
+	statModifierGroups = 
+	[
+		"Items.QualityRandomization", "Items.ItemPlusRandomizer_MaxQuality", "Items.ItemPlusRandomizer_Below_MaxQuality", "Items.WeaponModsWeights_On_Tier2Plus", "Items.WeaponModsWeights_On_Tier3Plus", "Items.WeaponModsWeights_On_Tier4Plus", "Items.WeaponModsWeights_On_Tier5Plus", "Items.WeaponModsWeights_On_Tier5PlusPlus", "Items.Base_Ajax_Krausser_Technical_Stats", "Items.Base_Ajax_Handling_Stats", "Items.Base_Ajax_Krausser_Recoil_Stats", "Items.Base_Ajax_Krausser_Spread_Stats", "Items.Base_Ajax_Aim_Stats", "Items.Base_Ajax_Krausser_Constant_Stats", "Items.KrausserBonusStats", "Items.Base_Ajax_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Assault_Rifle_Mult_Stats", "Items.Base_Power_Assault_Rifle_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_Assault_Rifle_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Assault_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Ajax_Krausser_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.133f;
+		} : CycleTimeModifier, 
+		{
+			value = 20.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 3.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Ajax_Krausser_Recoil_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = -15.0f;
+		} : RecoilDirModifier, 
+		{
+			value = 50.0f;
+		} : RecoilAngleModifier, 
+		{
+			value = 0.14f;
+		} : RecoilHoldDurationModifier, 
+		{
+			value = 0.05f;
+		} : RecoilTimeModifier, 
+		{
+			value = 0.14f;
+		} : RecoilRecoveryTimeModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXADSModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYADSModifier
+	];
+}
+
+Base_Ajax_Krausser_Spread_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 2.25f;
+		} : SpreadDefaultXModifier, 
+		{
+			value = 0.6f;
+		} : SpreadDefaultYModifier, 
+		{
+			value = 0.f;
+		} : SpreadMinXModifier, 
+		{
+			value = 0.f;
+		} : SpreadMinYModifier, 
+		{
+			value = 2.25f;
+		} : SpreadMaxXModifier, 
+		{
+			value = 0.525f;
+		} : SpreadMaxYModifier, 
+		{
+			value = 0.0f;
+		} : SpreadChangePerShotModifier, 
+		{
+			value = 1.f;
+		} : SpreadUseInAdsModifier, 
+		{
+			value = 1.33f;
+		} : SpreadAdsDefaultXModifier, 
+		{
+			value = 0.125f;
+		} : SpreadAdsDefaultYModifier, 
+		{
+			value = 0.f;
+		} : SpreadAdsMinXModifier, 
+		{
+			value = 0.f;
+		} : SpreadAdsMinYModifier, 
+		{
+			value = 1.33f;
+		} : SpreadAdsMaxXModifier, 
+		{
+			value = 0.125f;
+		} : SpreadAdsMaxYModifier, 
+		{
+			value = 0.0f;
+		} : SpreadAdsChangePerShotModifier, 
+		{
+			value = 1.5f;
+		} : SpreadResetSpeedModifier, 
+		{
+			value = 0.2f;
+		} : SpreadResetTimeThresholdModifier, 
+		{
+			value = 0.f;
+		} : SpreadRandomizeOriginPointModifier, 
+		{
+			value = 1.f;
+		} : SpreadUseCircularSpreadModifier
+	];
+}
+
+Base_Ajax_Krausser_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 1.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.7143f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.8707f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Ajax_Scene : Preset_Ajax_Default
+{
+	CName[] visualTags = 
+	[
+		"Scene_Ajax"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__rcv1";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__base1";
+		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__mag_std";
+		}, 
 		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__mag_stdr";
+		}, 
 		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.Scene_Ajax_Scope";
+		}
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Scene_Ajax_Scope : w_att_scope_short_02
+{
+	appearanceResourceName = "";
+	tags += 
+	[
+		"DummyPart", "HideInUI", "HideAtVendor"
 	];
 }
 
@@ -147,80 +361,76 @@ Craftable_Common_Ajax : Preset_Ajax_Default
 Craftable_Uncommon_Ajax : Craftable_Common_Ajax
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Ajax : Craftable_Common_Ajax
+Craftable_Rare_Ajax : Craftable_Uncommon_Ajax
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Ajax : Craftable_Common_Ajax
+Craftable_Epic_Ajax : Craftable_Uncommon_Ajax
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Ajax : Craftable_Common_Ajax
+Craftable_Legendary_Ajax : Craftable_Uncommon_Ajax
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Ajax_Moron : Preset_Ajax_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "ajax_moron_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#40627";
 	visualTags = 
 	[
 		"Moron_Ajax"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40628";
-	equipPrereqs = 
+	tags += 
 	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+		"IconicWeapon", "CraftableIconic"
 	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	CraftingData = "Items.Iconic_Big_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Ajax_Moron_Legendary";
-				}
-			];
-		}
-	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Ajax_NPC_Data;
+	CraftingData = "Items.Craftable_Iconic_Weapon";
 	slotPartListPreset = 
 	[
 		{
@@ -246,51 +456,186 @@ Preset_Ajax_Moron : Preset_Ajax_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Ajax_Technical_Stats", "Items.Base_Ajax_Handling_Stats", "Items.Base_Ajax_Recoil_Stats", "Items.Base_Ajax_Spread_Stats", "Items.Base_Ajax_Aim_Stats", "Items.Base_Ajax_Constant_Stats", "Items.Base_Power_Assault_Rifle_Mult_Stats", "Items.Base_Power_Assault_Rifle_Stats", "Items.Base_Power_Assault_Rifle_RPG_Randomized_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_Assault_Rifle_Sway_Stats", "Proficiencies.AssaultAssaultRifleStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Ajax_Moron_Technical_Stats", "Items.Base_Ajax_Handling_Stats", "Items.Base_Ajax_Recoil_Stats", "Items.Base_Ajax_Spread_Stats", "Items.Base_Ajax_Aim_Stats", "Items.Base_Ajax_Moron_Constant_Stats", "Items.Base_Ajax_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Assault_Rifle_Mult_Stats", "Items.Base_Power_Assault_Rifle_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_Assault_Rifle_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Assault_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
 }
 
-[ notQueryable ]
-Preset_Ajax_Moron_Legendary : Preset_Ajax_Moron
+Base_Ajax_Moron_Technical_Stats : StatModifierGroup
 {
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.133f;
+		} : CycleTimeModifier, 
+		{
+			value = 30.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
-	CraftingData = 
-	{
-		craftingRecipe += 
-		[
-			{
-				ingredient = "Items.Preset_Ajax_Moron";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
+}
+
+Base_Ajax_Moron_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.33f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 5.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.32f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 0.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.421f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
 }
 
 [ notQueryable ]
-Recipe_Preset_Ajax_Moron_Legendary : ItemRecipe
+Common_Ajax_Moron : Preset_Ajax_Moron
 {
-	displayName = "";
-	craftingResult = 
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Ajax_Moron : Preset_Ajax_Moron
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Ajax_Moron : Preset_Ajax_Moron
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Ajax_Moron : Preset_Ajax_Moron
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Legendary_Ajax_Moron : Preset_Ajax_Moron
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Ajax_Amazon : Preset_Ajax_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "ajax_amazon_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
+	displayName = "LocKey#94456";
+	visualTags = 
+	[
+		"Amazon"
+	];
+	quality = "Quality.Random";
+	localizedDescription = "LocKey#94462";
+	tags += 
+	[
+		"IconicWeapon", "PowerOfThePack", "StashScaling_Iconic"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem", "Character.ScaleToPlayerLevel"
+	];
+	npcRPGData = 
 	{
-		item = "Items.Preset_Ajax_Moron_Legendary";
-	};
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Ajax_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_assault__militech_ajax__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.PowerOfThePackMod";
+		}
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	enableNpcRPGData = false;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Ajax_Krausser_Technical_Stats", "Items.Base_Ajax_Handling_Stats", "Items.Base_Ajax_Krausser_Recoil_Stats", "Items.Base_Ajax_Krausser_Spread_Stats", "Items.Base_Ajax_Aim_Stats", "Items.Base_Ajax_Krausser_Constant_Stats", "Items.KrausserBonusStats", "Items.Base_Ajax_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Assault_Rifle_Mult_Stats", "Items.Base_Power_Assault_Rifle_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_Assault_Rifle_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Assault_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
 }
 

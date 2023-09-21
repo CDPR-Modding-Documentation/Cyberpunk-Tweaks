@@ -1,5 +1,5 @@
 package Perks
-using RTDB, Prereqs
+using RTDB, Prereqs, Effectors
 
 PlayerIsAiming : IPrereq
 {
@@ -29,12 +29,56 @@ PlayerNotReloading : IPrereq
 	bool isInState = false;
 }
 
+PlayerIsShooting : IPrereq
+{
+	prereqClassName = "RangedWeaponPSMPrereq";
+	string stateName = "Shoot";
+	bool isInState = true;
+}
+
 IsMemoryBelowHalf : StatPoolPrereq
 {
 	prereqClassName = "ConstantStatPoolPrereq";
-	float valueToCheck = 50;
-	CName statPoolType = "Memory";
-	CName comparisonType = "LessOrEqual";
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Memory";
+			modifierType = "Additive";
+			value = 50.0f;
+		} : ConstantStatModifier
+	];
+	statPoolType = "Memory";
+	comparisonType = "LessOrEqual";
+}
+
+IsPlayerAboveFatigue : StatPoolPrereq
+{
+	prereqClassName = "ConstantStatPoolPrereq";
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 50.0f;
+		} : ConstantStatModifier
+	];
+	statPoolType = "Stamina";
+	CName comparisonType = "Greater";
+}
+
+IsPlayerAboveExhaustion : StatPoolPrereq
+{
+	prereqClassName = "ConstantStatPoolPrereq";
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Stamina";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier
+	];
+	statPoolType = "Stamina";
+	comparisonType = "Greater";
 }
 
 IsPlayerSliding : MultiPrereq
@@ -56,6 +100,13 @@ IsPlayerVaulting : IPrereq
 {
 	prereqClassName = "DetailedLocomotionPSMPrereq";
 	string stateName = "Vault";
+	bool isInState = true;
+}
+
+IsPlayerClimbingLadder : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "Ladder";
 	bool isInState = true;
 }
 
@@ -85,6 +136,13 @@ IsPlayerSprinting : IPrereq
 	bool isInState = true;
 }
 
+IsPlayerJumping : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "Jump";
+	bool isInState = true;
+}
+
 IsPlayerNotSprinting : IPrereq
 {
 	prereqClassName = "DetailedLocomotionPSMPrereq";
@@ -97,6 +155,31 @@ IsPlayerCrouching : IPrereq
 	prereqClassName = "DetailedLocomotionPSMPrereq";
 	string stateName = "Crouch";
 	bool isInState = true;
+}
+
+IsPlayerCrouchSprinting : IPrereq
+{
+	prereqClassName = "DetailedLocomotionPSMPrereq";
+	string stateName = "CrouchSprint";
+	bool isInState = true;
+}
+
+IsPlayerOnGround : IPrereq
+{
+	prereqClassName = "IsPlayerOnGroundPrereq";
+	bool invert = false;
+}
+
+IsPlayerInAir : IPrereq
+{
+	prereqClassName = "IsPlayerOnGroundPrereq";
+	bool invert = true;
+}
+
+IsPlayerInAirDashElevation : IPrereq
+{
+	prereqClassName = "PlayerElevationPrereq";
+	float elevationThreshold = 0.25f;
 }
 
 ShouldModifyMaxSpeedInCombat : MultiPrereq
@@ -136,10 +219,8 @@ ShouldModifyMaxSpeedInCombatIgnoreSprint : MultiPrereq
 	];
 }
 
-IsPlayerDodging : MultiPrereq
+IsPlayerDodging : ORPrereq
 {
-	CName prereqClassName = "gameMultiPrereq";
-	CName aggregationType = "OR";
 	fk< IPrereq >[] nestedPrereqs = 
 	[
 		{
@@ -149,6 +230,18 @@ IsPlayerDodging : MultiPrereq
 			stateName = "DodgeAir";
 		} : Prereqs.DetailedLocomotionPSMPrereq
 	];
+}
+
+IsPlayerAirDashing : StatusEffectPrereq
+{
+	statusEffect = "BaseStatusEffect.PlayerJustAirDashed";
+}
+
+IsPlayerMeleeAttacking : IPrereq
+{
+	prereqClassName = "MeleePSMPrereq";
+	string stateName = "Attack";
+	bool isInState = true;
 }
 
 IsPlayerBlocking : IPrereq
@@ -219,6 +312,53 @@ IsHitTargetAlive : ProcessHitTriggered
 	];
 }
 
+IsHitTargetAliveAllowProjection : IsHitTargetAlive
+{
+	string pipelineType = "All";
+}
+
+IsReadyToExplodeCW : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			statusEffect = "CyberwareMalfunction7Stacks";
+			checkType = "CheckType.Record";
+			invert = false;
+		} : StatusEffectPresentHitPrereqCondition
+	];
+}
+
+BatonMurphyPrereq : IsHitTargetAlive
+{
+	conditions += 
+	[
+		{
+			weaponType = "Melee";
+		} : WeaponTypeHitPrereqCondition
+	];
+}
+
+BatMalinaPrereq : IsHitTargetAlive
+{
+	conditions += 
+	[
+		{
+			weaponType = "Melee";
+		} : WeaponTypeHitPrereqCondition
+	];
+}
+
+OvertureDodgerPrereq : IsHitTargetAlive
+{
+	conditions += 
+	[
+		{
+			weaponType = "Ranged";
+		} : WeaponTypeHitPrereqCondition
+	];
+}
+
 IsHitACritical : PostProcessHitTriggered
 {
 	conditions = 
@@ -238,6 +378,58 @@ IsTargetKilled : PostProcessHitTriggered
 	];
 }
 
+IsTargetDismembered : PostProcessHitTriggered
+{
+	isSynchronous = false;
+	conditions = 
+	[
+		"Prereqs.DismembermentTriggeredCondition"
+	];
+}
+
+IsNonCivilianTargetKilled : PostProcessHitTriggered
+{
+	isSynchronous = false;
+	conditions = 
+	[
+		{
+			invert = true;
+			reactionPreset = "Civilian";
+		} : ReactionPresetHitPrereqCondition, 
+		"Prereqs.TargetKilledHitPrereqCondition"
+	];
+}
+
+IsWeaponRanged : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			weaponType = "Ranged";
+		} : WeaponTypeHitPrereqCondition
+	];
+}
+
+IsWeaponRangedAllowProjection : IsWeaponRanged
+{
+	string pipelineType = "All";
+}
+
+IsWeaponMelee : ProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			weaponType = "Melee";
+		} : WeaponTypeHitPrereqCondition
+	];
+}
+
+IsWeaponMeleeAllowProjection : IsWeaponMelee
+{
+	string pipelineType = "All";
+}
+
 IsAttackRanged : ProcessHitTriggered
 {
 	conditions = 
@@ -248,22 +440,47 @@ IsAttackRanged : ProcessHitTriggered
 	];
 }
 
-IsAttackMelee : ProcessHitTriggered
+IsAttackRangedAllowProjection : IsAttackRanged
+{
+	string pipelineType = "All";
+}
+
+IsAttackEffect : PreProcessHitTriggered
 {
 	conditions = 
 	[
 		{
-			attackType = "Melee";
+			attackType = "Effect";
 		} : AttackTypeHitPrereqCondition
 	];
 }
 
-IsReceivedAttackExplosion : ProcessHitReceived
+IsPlayerHitWithMelee : IsWeaponMelee
+{
+	conditions += 
+	[
+		{
+			instigatorType = "Player";
+		} : InstigatorTypeHitPrereqCondition
+	];
+}
+
+IsPlayerHitWithRanged : IsWeaponRanged
+{
+	conditions += 
+	[
+		{
+			instigatorType = "Player";
+		} : InstigatorTypeHitPrereqCondition
+	];
+}
+
+WasAttackRanged : PostProcessHitTriggered
 {
 	conditions = 
 	[
 		{
-			attackType = "Explosion";
+			attackType = "Ranged";
 		} : AttackTypeHitPrereqCondition
 	];
 }
@@ -284,19 +501,25 @@ IsHitStrongAttack : PreProcessHitTriggered
 	[
 		{
 			attackType = "StrongMelee";
-		} : AttackTypeHitPrereqCondition
-	];
-}
-
-IsHitStrongOrFastAttack : ORPrereq
-{
-	nestedPrereqs = 
-	[
-		"Perks.IsHitStrongAttack", "Perks.IsAttackMelee"
+		} : AttackTypeHitPrereqCondition, 
+		{
+			attackSubtype = "BodySlamAttack";
+			invert = true;
+		} : AttackSubtypeHitPrereqCondition
 	];
 }
 
 IsHitQuickMelee : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "QuickMelee";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
+WasHitQuickMelee : PostProcessHitTriggered
 {
 	conditions = 
 	[
@@ -396,6 +619,16 @@ IsAttackThrownType : PreProcessHitTriggered
 	];
 }
 
+IsExplosionTypeAttack : PreProcessHitTriggered
+{
+	conditions = 
+	[
+		{
+			attackType = "Explosion";
+		} : AttackTypeHitPrereqCondition
+	];
+}
+
 HitReceivedIsSourceGrenade : PreProcessHitReceived
 {
 	conditions = 
@@ -403,6 +636,16 @@ HitReceivedIsSourceGrenade : PreProcessHitReceived
 		{
 			source = "Grenade";
 		} : SourceTypeHitPrereqCondition
+	];
+}
+
+IsReceivedAttackExplosion : ProcessHitReceived
+{
+	conditions = 
+	[
+		{
+			attackType = "Explosion";
+		} : AttackTypeHitPrereqCondition
 	];
 }
 
@@ -531,6 +774,11 @@ IsTargetNotPlayer : ProcessHitTriggered
 	];
 }
 
+IsTargetNotPlayerAllowProjection : IsTargetNotPlayer
+{
+	string pipelineType = "All";
+}
+
 IsInstigatorStatic : ProcessHitTriggered
 {
 	conditions = 
@@ -593,6 +841,12 @@ ApplyStatGroupOnPlayer : ApplyStatGroupEffector
 ApplyStatGroupOnWeapon : ApplyStatGroupEffector
 {
 	applicationTarget = "Weapon";
+	bool reapplyOnWeaponChange = false;
+}
+
+ApplyStatGroupOnVehicle : ApplyStatGroupEffector
+{
+	applicationTarget = "Vehicle";
 }
 
 ApplyEffectorOnPlayer : ApplyEffectorEffector
@@ -608,6 +862,7 @@ ApplyStatusEffectOnPlayer : ApplyStatusEffectEffector
 {
 	CName effectorClassName = "ApplyStatusEffectEffector";
 	bool removeWithEffector = false;
+	CName applicationTarget = "Player";
 }
 
 ApplyStatusEffectOnWeapon : ApplyStatusEffectEffector
@@ -617,17 +872,10 @@ ApplyStatusEffectOnWeapon : ApplyStatusEffectEffector
 	bool removeWithEffector = false;
 }
 
-AddCritChance : Effector
+MultiplyDamage : ModifyDamageEffector
 {
-	CName effectorClassName = "ModifyAttackCritChanceEffector";
-	float value = 0f;
-}
-
-MultiplyDamage : Effector
-{
-	CName effectorClassName = "ModifyDamageEffector";
-	string operationType = "Multiply";
-	float value = 1f;
+	operationType = "Multiply";
+	value = 1f;
 }
 
 MultiplyDamageWithVelocity : Effector
@@ -638,16 +886,76 @@ MultiplyDamageWithVelocity : Effector
 	string operationType = "Multiply";
 }
 
-AddDamage : Effector
+ModifyDamageWithDistance : Effector
 {
-	CName effectorClassName = "ModifyDamageEffector";
-	string operationType = "Add";
-	float value = 1f;
+	effectorClassName = "ModifyDamageWithDistance";
+	string operationType = "Multiply";
+	float percentMult = 1.0f;
+	float minDistance = 0f;
+	float maxDistance = 0f;
+	bool improveWithDistance = true;
+}
+
+ModifyCritWithDistance : Effector
+{
+	effectorClassName = "ModifyCritWithDistance";
+	float critChanceBonus = 0f;
+	float minDistance = 0f;
+	float maxDistance = 0f;
+	bool improveWithDistance = true;
+}
+
+ModifyDamageWithLeapedDistance : Effector
+{
+	effectorClassName = "ModifyDamageWithLeapedDistance";
+	string operationType = "Multiply";
+	float maxPercentMult = 1f;
+	float minDistance = 0f;
+	float maxDistance = 0f;
+}
+
+AddDamage : ModifyDamageEffector
+{
+	operationType = "Add";
+	value = 1f;
 }
 
 ReloadWeapon : Effector
 {
 	CName effectorClassName = "ReloadWeaponEffector";
+}
+
+StatPoolBasedStatusEffectEffector : Effector
+{
+	CName effectorClassName = "StatPoolBasedStatusEffectEffector";
+	fk< StatPool > statPool = "";
+	fk< StatusEffect > statusEffect = "";
+	float statPoolStep = 0f;
+	bool stepUsesPercent = false;
+	float startingThreshold = 0f;
+	bool thresholdUsesPercent = false;
+	int minStacks = 0;
+	int maxStacks = 0;
+	bool inverted = false;
+	bool roundUpwards = false;
+	bool dontRemoveStacks = false;
+	string targetOfStatPoolCheck = "";
+}
+
+DetectionMeterEffector : Effector
+{
+	CName effectorClassName = "DetectionMeterEffector";
+	fk< StatusEffect > statusEffect = "";
+	float detectionStep = 0f;
+	int maxStacks = 0;
+	bool onlyHostileDetection = false;
+	bool dontRemoveStacks = false;
+}
+
+MakeDetectorRushAvailable : ApplyStatusEffectEffector
+{
+	prereqRecord = "Perks.CanEnableDetectorRush";
+	statusEffect = "BaseStatusEffect.DetectorRushAvailableStatusEffect";
 }
 
 CanEnableSynapticAccelerator : MultiPrereq
@@ -656,11 +964,30 @@ CanEnableSynapticAccelerator : MultiPrereq
 	CName aggregationType = "AND";
 	fk< IPrereq >[] nestedPrereqs = 
 	[
-		"Perks.IsPlayerInExploration", "Perks.IsPlayerNotInVehicle", "Perks.IsPlayerOutOfCombatOrStealthPSMState", {
-			isPlayerNoticed = true;
-		} : Prereqs.EntityNoticedPlayerPrereq, 
+		"Perks.IsPlayerInExploration", "Perks.IsPlayerNotInVehicle", "Perks.IsPlayerOutOfCombatOrInStealthPSMState", {
+			checkType = "CheckType.Tag";
+			tagToCheck = "SynapticAcceleratorBuff";
+		} : Prereqs.StatusEffectAbsentPrereq, 
 		{
 			statusEffect = "BaseStatusEffect.SynapticAcceleratorCooldown";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.PhoneCall";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.NoDangerousCyberware";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+CanEnableSecondChancePerk : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Perks.IsPlayerNotInVehicle", {
+			statusEffect = "BaseStatusEffect.SecondChancePerkCooldown";
 		} : Prereqs.StatusEffectAbsentPrereq, 
 		{
 			statusEffect = "GameplayRestriction.PhoneCall";
@@ -675,12 +1002,61 @@ CanActivateReflexRecorder : MultiPrereq
 	fk< IPrereq >[] nestedPrereqs = 
 	[
 		"Perks.IsPlayerInCombatState", "Perks.IsPlayerInCritHealth", {
+			checkType = "CheckType.Tag";
+			tagToCheck = "ReflexRecorderBuff";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
 			statusEffect = "BaseStatusEffect.ReflexRecorderCooldown";
 		} : Prereqs.StatusEffectAbsentPrereq, 
 		{
 			statusEffect = "GameplayRestriction.PhoneCall";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "GameplayRestriction.NoDangerousCyberware";
 		} : Prereqs.StatusEffectAbsentPrereq
 	];
+}
+
+CanEnableDetectorRush : MultiPrereq
+{
+	CName prereqClassName = "gameMultiPrereq";
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Perks.IsPlayerOutOfCombatOrInStealthPSMState", {
+			checkType = "CheckType.Tag";
+			tagToCheck = "DetectorRushBuff";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.DetectorRushCooldown";
+		} : Prereqs.StatusEffectAbsentPrereq
+	];
+}
+
+CanUseDetectorRush : ANDPrereq
+{
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.DetectorRushAvailableStatusEffect";
+		} : RTDB.StatusEffectPrereq, 
+		"Perks.IsPlayerInExploration", "Perks.IsPlayerNotInVehicle", "Perks.IsPlayerInCombatState"
+	];
+}
+
+CanEnableTroubleFinder : ANDPrereq
+{
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		"Perks.IsPlayerInExploration", "Perks.IsPlayerNotInVehicle", "Perks.IsPlayerOutOfCombatOrInStealthPSMState"
+	];
+}
+
+IsPlayerInVehicle : IPrereq
+{
+	prereqClassName = "VehiclePSMPrereq";
+	string stateName = "Default";
+	bool isInState = false;
 }
 
 IsPlayerNotInVehicle : IPrereq
@@ -688,6 +1064,23 @@ IsPlayerNotInVehicle : IPrereq
 	prereqClassName = "VehiclePSMPrereq";
 	string stateName = "Default";
 	bool isInState = true;
+}
+
+IsPlayerDrivingOrInTransition : MultiPrereq
+{
+	aggregationType = "OR";
+	nestedPrereqs = 
+	[
+		{
+			stateName = "Transition";
+		} : VehiclePSMPrereq, 
+		{
+			stateName = "Driving";
+		} : VehiclePSMPrereq, 
+		{
+			stateName = "DriverCombat";
+		} : VehiclePSMPrereq
+	];
 }
 
 IsPlayerInExploration : IPrereq
@@ -699,12 +1092,47 @@ IsPlayerInExploration : IPrereq
 
 IsPlayerInCritHealth : StatPoolPrereq
 {
-	float valueToCheck = 25;
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 25.0f;
+		} : ConstantStatModifier
+	];
+	statPoolType = "Health";
+	comparisonType = "LessOrEqual";
+}
+
+IsPlayerInLowHealth : StatPoolPrereq
+{
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 40.0f;
+		} : ConstantStatModifier
+	];
 	CName statPoolType = "Health";
 	CName comparisonType = "LessOrEqual";
 }
 
-IsPlayerOutOfCombatOrStealthPSMState : MultiPrereq
+IsPlayerInHighHealth : StatPoolPrereq
+{
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 75.0f;
+		} : ConstantStatModifier
+	];
+	CName statPoolType = "Health";
+	CName comparisonType = "GreaterOrEqual";
+}
+
+IsPlayerOutOfCombatOrInStealthPSMState : MultiPrereq
 {
 	aggregationType = "OR";
 	nestedPrereqs = 
@@ -726,5 +1154,108 @@ IsPlayerInCombatState : CombatPSMPrereq
 IsPlayerInStealthState : CombatPSMPrereq
 {
 	stateName = "Stealth";
+}
+
+PerfectDischargePrereq : StatPoolPrereq
+{
+	prereqClassName = "PerfectDischargePrereq";
+	float perfectDischargeWindow = 0;
+	statPoolType = "WeaponCharge";
+	objectToCheck = "Weapon";
+	bool invert = false;
+}
+
+PerfectChargeWindowInverted : PerfectDischargePrereq
+{
+	invert = true;
+}
+
+PrePerfectChargeIndication : ANDPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			string stateName = "Charging";
+		} : Prereqs.RangedWeaponPSMPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Tech_Right_Milestone_3_Block";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		"Perks.PerfectDischargePrereq"
+	];
+}
+
+IsPerfectChargePossible : ANDPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			string stateName = "Charging";
+		} : Prereqs.RangedWeaponPSMPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Tech_Right_Milestone_3_Block";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		"Perks.PerfectDischargePrereq"
+	];
+}
+
+IsPerfectChargeAchieved : ANDPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			string stateName = "Shoot";
+		} : Prereqs.RangedWeaponPSMPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Tech_Right_Milestone_3_Block";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		"Perks.PerfectDischargePrereq"
+	];
+}
+
+PerfectChargeOvercharged : StatPoolPrereq
+{
+	statPoolType = "WeaponCharge";
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Charge";
+			modifierType = "Additive";
+			value = 49.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Charge";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.CanFullyChargeWeapon";
+			opSymbol = "*";
+			value = 25.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Charge";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.CanOverchargeWeapon";
+			opSymbol = "*";
+			value = 25.0f;
+		} : CombinedStatModifier
+	];
+	comparisonType = "Greater";
+	objectToCheck = "Weapon";
+}
+
+PerfectChargeUndercharged : ANDPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			string stateName = "Shoot";
+		} : Prereqs.RangedWeaponPSMPrereq, 
+		{
+			statusEffect = "BaseStatusEffect.Tech_Right_Milestone_3_Buff";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			invert = true;
+		} : PerfectDischargePrereq
+	];
 }
 

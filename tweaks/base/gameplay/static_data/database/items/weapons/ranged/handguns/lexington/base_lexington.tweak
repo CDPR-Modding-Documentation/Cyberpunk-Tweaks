@@ -65,7 +65,7 @@ Base_Lexington : Base_Power_Handgun
 	CName audioName = "wea_set_lexington";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Handgun"
+		"Preload", "Weapon", "Handgun", "T2_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -81,20 +81,23 @@ Base_Lexington : Base_Power_Handgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Lexington_Technical_Stats"
 		];
-	} : Base_Power_Handgun_NPC_Data;
+	} : Base_Lexington_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Lexington_Technical_Stats", "Items.Base_Lexington_Handling_Stats", "Items.Base_Lexington_Recoil_Stats", "Items.Base_Lexington_Spread_Stats", "Items.Base_Lexington_Aim_Stats", "Items.Base_Lexington_Constant_Stats", "Items.Base_PlayerState_Spread_Stats"
+		"Items.Base_Lexington_Technical_Stats", "Items.Base_Lexington_Handling_Stats", "Items.Base_Lexington_Recoil_Stats", "Items.Base_Lexington_Spread_Stats", "Items.Base_Lexington_Aim_Stats", "Items.Base_Lexington_Constant_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Lexington_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	CName audioSwitchName = "";
 	CName audioSwitchValue = "";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerHandgun";
-	baseReloadTime = 1.4f;
-	baseEmptyReloadTime = 1.8f;
-	uninterruptibleReloadStart = 1.f;
-	uninterruptibleEmptyReloadStart = 1.f;
+	baseReloadTime = 0.9f;
+	baseEmptyReloadTime = 0.9f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 14.0f;
 	float weaponFarPlane = 17.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -115,7 +118,7 @@ Base_Lexington_NPC_Data : Base_Power_Handgun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Lexington_Technical_Stats"
+		"Items.Base_Lexington_Technical_Stats", "Items.Base_Lexington_NPC_Damage_Stats"
 	];
 }
 
@@ -127,10 +130,10 @@ Base_Lexington_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.12f;
+			value = 0.125f;
 		} : CycleTimeModifier, 
 		{
-			value = 21.f;
+			value = 20.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 1.f;
@@ -139,18 +142,48 @@ Base_Lexington_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Lexington_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 56f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Lexington_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Lexington_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 1.4f;
+			value = 0.9f;
 		} : ReloadTimeModifier, 
 		{
-			value = 1.8f;
+			value = 0.9f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.2f;
+			value = 0.5f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 0.9f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.1f;
 		} : ZoomLevelModifier, 
 		{
 			value = 4.2f;
@@ -163,16 +196,16 @@ Base_Lexington_Recoil_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 0.f;
+			value = 7.5f;
 		} : RecoilDirModifier, 
 		{
-			value = 33.f;
+			value = 35.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.1f;
+			value = 0.08f;
 		} : RecoilHoldDurationModifier, 
 		{
-			value = 0.08f;
+			value = 0.06f;
 		} : RecoilTimeModifier, 
 		{
 			value = 0.2f;
@@ -215,10 +248,10 @@ Base_Lexington_Spread_Stats : StatModifierGroup
 			value = 0.375f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			value = 3.5f;
+			value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.14f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -253,42 +286,62 @@ Base_Lexington_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.f;
+			value = 0.33f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 3.0f;
+			value = 3.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 1.0f;
+			value = 1.32f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.06f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.7f;
+			value = 0.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 1.2f;
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.8333f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "Additive";
+			value = -10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.25f;
 		} : ConstantStatModifier
 	];
 }

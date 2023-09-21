@@ -145,9 +145,53 @@ ForceStaggerOda : StatusEffect
 	fk< GameplayLogicPackage >[] packages = 
 	[
 		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HasMeleeHitReactionAndTakedownResistance";
+					modifierType = "Additive";
+					value = -1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage, 
+		{
 			effectors = 
 			[
-				"HitReactionThresholdModifiers.ForceStaggerEffector"
+				"HitReactionThresholdModifiers.ForceStaggerOdaEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ForceStaggerGrenade : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HasMeleeHitReactionAndTakedownResistance";
+					modifierType = "Additive";
+					value = -1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				"HitReactionThresholdModifiers.ForceStaggerOdaEffector"
 			];
 		} : GameplayLogicPackage
 	];
@@ -306,6 +350,51 @@ SmokeBombExplosionEffector : ApplyStatusEffectEffector
 {
 	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
 	fk< StatusEffect > statusEffect = "BaseStatusEffect.SmokeBomb";
+}
+
+WagnerHealingSE : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"Heal"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"Oda.WagnerHealEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+WagnerHealEffector : ModifyStatPoolModifierEffector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ModifyStatPoolModifierEffector";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 100;
+		float startDelay = 0;
+		float valuePerSec = 1;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+	string statPoolType = "Health";
+	string modificationType = "Regeneration";
 }
 
 OdaHackCyberware : HackAction
@@ -487,7 +576,7 @@ OverloadWeakspotEffector : ApplyStatusEffectEffector
 			{
 				statusEffect = "Oda.Masked";
 			} : StatusEffectPrereq, 
-			"BaseStatusEffect.OverloadAppliedPereq"
+			"BaseStatusEffect.CyberwareMalfunctionWeakspotDestructionAppliedPereq"
 		];
 	} : Prereqs.ANDPrereq;
 	statusEffect = "Oda.OverloadWeakspot";
@@ -514,5 +603,67 @@ Phase2 : StatusEffect
 			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
 		} : GameplayLogicPackage
 	];
+}
+
+Main_boss_oda_allow_knockdown : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.05f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.KnockdownImmunity";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BlindedBySmokeGrenade : StatusEffect
+{
+	CName[] gameplayTags = 
+	[
+		"BlindedBySmokeGrenade"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5.f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+Shooting : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
 }
 

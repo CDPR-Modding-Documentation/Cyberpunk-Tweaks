@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Sidewinder_Default : Base_Sidewinder
 {
@@ -27,50 +27,21 @@ Preset_Sidewinder_Default : Base_Sidewinder
 			fk< Item > itemPartPreset = "Items.w_rifle_assault__nokota_sidewinder__mag_stdr";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod1";
+		} : Smart_AR_SMG_LMG_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod2";
+		} : Smart_AR_SMG_LMG_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 
 Preset_Sidewinder_Pimp : Preset_Sidewinder_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -82,11 +53,19 @@ Preset_Sidewinder_Neon : Preset_Sidewinder_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Sidewinder_Military : Preset_Sidewinder_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -122,58 +101,64 @@ Craftable_Common_Sidewinder : Preset_Sidewinder_Default
 Craftable_Uncommon_Sidewinder : Craftable_Common_Sidewinder
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Sidewinder : Craftable_Common_Sidewinder
+Craftable_Rare_Sidewinder : Craftable_Uncommon_Sidewinder
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Sidewinder : Craftable_Common_Sidewinder
+Craftable_Epic_Sidewinder : Craftable_Uncommon_Sidewinder
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Sidewinder : Craftable_Common_Sidewinder
+Craftable_Legendary_Sidewinder : Craftable_Uncommon_Sidewinder
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Sidewinder_Divided : Preset_Sidewinder_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "sidewinder_divided_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40632";
 	visualTags = 
 	[
 		"Divided_Sidewinder"
 	];
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40631";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
@@ -185,18 +170,6 @@ Preset_Sidewinder_Divided : Preset_Sidewinder_Default
 			"Quality.IconicItem"
 		];
 	} : Items.Base_Sidewinder_NPC_Data;
-	CraftingData = "Items.Iconic_Big_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Sidewinder_Divided_Epic";
-				}
-			];
-		}
-	];
 	slotPartListPreset = 
 	[
 		{
@@ -222,7 +195,7 @@ Preset_Sidewinder_Divided : Preset_Sidewinder_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Sidewinder_Technical_Stats", "Items.Base_Sidewinder_Handling_Stats", "Items.Base_Sidewinder_Recoil_Stats", "Items.Base_Sidewinder_Divided_SmartGun_Stats", "Items.Base_Sidewinder_Divided_SmartGun_SmartLink_Stats", "Items.Base_Sidewinder_Divided_SmartGun_Projectile_Stats", "Items.Base_Sidewinder_Spread_Stats", "Items.Base_Sidewinder_Flags", "Items.Base_Sidewinder_Aim_Stats", "Items.Base_Sidewinder_Constant_Stats", "Items.Base_Smart_Assault_Rifle_Mult_Stats", "Items.Base_Smart_Assault_Rifle_RPG_Randomized_Stats", "Items.Base_Smart_Assault_Rifle_No_Sway_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Proficiencies.AssaultAssaultRifleStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Chemical"
+		"Items.IconicQualityRandomization", "Items.Base_Sidewinder_Technical_Stats", "Items.Base_Sidewinder_Handling_Stats", "Items.Base_Sidewinder_Recoil_Stats", "Items.Base_Sidewinder_Divided_SmartGun_Stats", "Items.Base_Sidewinder_Divided_SmartGun_SmartLink_Stats", "Items.Base_Sidewinder_Divided_SmartGun_Projectile_Stats", "Items.Base_Sidewinder_Spread_Stats", "Items.Base_Sidewinder_Flags", "Items.Base_Sidewinder_Aim_Stats", "Items.Base_Sidewinder_Constant_Stats", "Items.Base_Sidewinder_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Assault_Rifle_Mult_Stats", "Items.Base_Smart_Assault_Rifle_No_Sway_Stats", "Items.Base_Assault_Rifle_RPG_Stats", "Items.Base_Assault_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Chemical"
 	];
 }
 
@@ -231,46 +204,49 @@ Base_Sidewinder_Divided_SmartGun_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 10.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
 		{
 			value = 1.f;
-		} : SmartGunTrackAllBodypartsModifier, 
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
 		{
-			value = 2.5f;
+			value = 0.15f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
 		} : SmartGunHipLockingAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunHipLockingAngleYawModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAngleYawModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAngleYawModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAnglePitchModifier, 
 		{
-			value = 2.5f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAngleYawModifier, 
 		{
-			value = 1.f;
+			value = 5.f;
 		} : SmartGunHipMaxLockedTargetsModifier, 
 		{
 			value = 5.f;
 		} : SmartGunAdsMaxLockedTargetsModifier, 
 		{
-			value = 0.5f;
+			value = 1.2f;
 		} : SmartGunHipTimeToLockModifier, 
 		{
-			value = 0.5f;
+			value = 1.2f;
 		} : SmartGunAdsTimeToLockModifier, 
 		{
 			value = 0.f;
@@ -307,68 +283,56 @@ Base_Sidewinder_Divided_SmartGun_SmartLink_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 3.5f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunHipLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 6.0f;
+			value = 14.0f;
 			statType = "BaseStats.SmartGunHipLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.5f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.0f;
+			value = 14.0f;
 			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 14.0f;
 			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 14.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = -1.f;
-			statType = "BaseStats.SmartGunHipTimeToLock";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = -1.f;
-			statType = "BaseStats.SmartGunAdsTimeToLock";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 5.f;
+			value = 1.5f;
 			statType = "BaseStats.SmartGunHipTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 5.f;
+			value = 1.5f;
 			statType = "BaseStats.SmartGunAdsTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 5.f;
+			value = 1.5f;
 			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 0.10f;
+			value = 0.15f;
 			statType = "BaseStats.SmartGunHitProbability";
 		} : SmartLinkDependentStatModifier, 
 		{
 			value = 10.f;
 			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 10.f;
-			statType = "BaseStats.SmartGunTargetAcquisitionRange";
 		} : SmartLinkDependentStatModifier
 	];
 }
@@ -405,108 +369,5 @@ Base_Sidewinder_Divided_SmartGun_Projectile_Stats : StatModifierGroup
 			value = 6.5f;
 		} : SmartGunMissRadiusModifier
 	];
-}
-
-[ notQueryable ]
-Preset_Sidewinder_Divided_Epic : Preset_Sidewinder_Divided
-{
-	quality = "Quality.Epic";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.mq008_golden_knuckledusters";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Sidewinder_Divided_Legendary";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Sidewinder_Divided_Legendary : Preset_Sidewinder_Divided
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Sidewinder_Divided_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Sidewinder_Divided_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Sidewinder_Divided_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Sidewinder_Divided_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Sidewinder_Divided_Legendary";
-	};
 }
 

@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Effectors
+using RTDB, Effectors, Prereqs, Perks, Items
 
 Sandevistan : BuffStatusEffect
 {
@@ -26,7 +26,6 @@ Sandevistan : BuffStatusEffect
 			];
 		} : GameplayLogicPackage
 	];
-	uiData = "BaseStatusEffect.BaseSandevistanUI";
 }
 
 SandevistanBuff : Sandevistan
@@ -57,7 +56,19 @@ SandevistanBuff : Sandevistan
 		{
 			effectors = 
 			[
-				"BaseStatusEffect.DeactivateMaskedStatusEffects"
+				"BaseStatusEffect.DeactivateMaskedStatusEffects", {
+					prereqRecord = 
+					{
+					} : Prereqs.AnyTakedownOrKill;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.SandevistanCharge";
+							statPoolValue = 100;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : ModifyStatPoolValueEffector
 			];
 		} : GameplayLogicPackage
 	];
@@ -98,13 +109,18 @@ DeactivateMaskedStatusEffects : Effector
 	];
 }
 
-SandevistanPlayerBuff : BuffStatusEffect
+SandevistanPlayerBuff : TimeDilationStatusEffect
 {
+	gameplayTags += 
+	[
+		"CyberwareBuff", "SandevistanPlayerBuff", "PreventFuryVFX"
+	];
+	statusEffectType = "BaseStatusEffectTypes.Sandevistan";
 	isAffectedByTimeDilationNPC = false;
 	isAffectedByTimeDilationPlayer = false;
 	duration = 
 	{
-		statModifiers = 
+		statModifiers += 
 		[
 			{
 				statType = "BaseStats.MaxDuration";
@@ -114,13 +130,109 @@ SandevistanPlayerBuff : BuffStatusEffect
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				refObject = "Instigator";
+				refObject = "Player";
 				refStat = "BaseStats.TimeDilationSandevistanDuration";
 				opSymbol = "*";
 				value = 1;
 			} : CombinedStatModifier
 		];
-	};
+	} : CyberwareBuffDuration;
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.SandevistanChargesRegenEnabled";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.PlayerSandevistanChargesDecayEnabled";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "ReflexesSkill";
+								valueToCheck = 60;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							"Prereqs.AnyWeaponHeldPrereq"
+						];
+					} : ANDPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CritChance";
+								modifierType = "Additive";
+								value = 40f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon, 
+				{
+					prereqRecord = 
+					{
+						statType = "ReflexesSkill";
+						valueToCheck = 60;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.DodgeStaminaCostReduction";
+								modifierType = "Additive";
+								value = 2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CrouchSprintStaminaCostReduction";
+								modifierType = "Additive";
+								value = 2f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer, 
+				{
+					prereqRecord = 
+					{
+					} : Prereqs.AnyTakedownOrKill;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.SandevistanCharge";
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.SandevistanKillRechargeValue";
+									modifierType = "Additive";
+									refStat = "BaseStats.SandevistanKillRechargeValue";
+									opSymbol = "*";
+									value = 1.f;
+								} : CombinedStatModifier
+							];
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : ModifyStatPoolValueEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CooldownedSandevistanPlayerBuff : SandevistanPlayerBuff
+{
 	packages += 
 	[
 		{
@@ -129,17 +241,10 @@ SandevistanPlayerBuff : BuffStatusEffect
 				{
 					statusEffect = "BaseStatusEffect.SandevistanCooldown";
 					inverted = true;
+					removeWithEffector = false;
 				} : ApplyStatusEffectEffector
 			];
 		}
 	];
-	uiData = "BaseStatusEffect.BaseSandevistanUI";
-}
-
-BaseSandevistanUI : StatusEffectUIData
-{
-	displayName = "LocKey#40988";
-	description = "LocKey#77866";
-	iconPath = "sandevistan_buff_icon";
 }
 

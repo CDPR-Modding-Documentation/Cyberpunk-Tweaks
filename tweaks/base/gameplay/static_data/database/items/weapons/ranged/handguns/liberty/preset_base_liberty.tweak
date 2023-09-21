@@ -1,13 +1,13 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Liberty_Default_Left_Hand : Preset_Liberty_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Liberty_Default : Base_Liberty
 {
 	CName appearanceResourceName = "Preset_Liberty_Rogue";
+	CName[] visualTags = 
+	[
+		"Default"
+	];
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
@@ -27,45 +27,12 @@ Preset_Liberty_Default : Base_Liberty
 			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_liberty__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+		} : Power_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod2";
+		} : Power_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 25;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-Preset_Liberty_Pimp_Left_Hand : Preset_Liberty_Pimp
-{
 }
 
 Preset_Liberty_Pimp : Preset_Liberty_Default
@@ -74,10 +41,10 @@ Preset_Liberty_Pimp : Preset_Liberty_Default
 	[
 		"Pimp"
 	];
-}
-
-Preset_Liberty_Neon_Left_Hand : Preset_Liberty_Neon
-{
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
 Preset_Liberty_Neon : Preset_Liberty_Default
@@ -86,15 +53,228 @@ Preset_Liberty_Neon : Preset_Liberty_Default
 	[
 		"Neon"
 	];
-}
-
-Preset_Liberty_Military_Left_Hand : Preset_Liberty_Military
-{
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Liberty_Military : Preset_Liberty_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Default_Left_Hand : Preset_Liberty_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Liberty_Technical_Stats"
+		];
+	} : Broken_Power_Handgun_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Liberty_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Pimp_Left_Hand : Preset_Liberty_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Liberty_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Neon_Left_Hand : Preset_Liberty_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Liberty_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Military_Left_Hand : Preset_Liberty_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Liberty_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Default_Retrofix : Preset_Liberty_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_liberty__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_liberty__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_liberty__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__constitutional_liberty__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Pimp_Retrofix : Preset_Liberty_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Neon_Retrofix : Preset_Liberty_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Military_Retrofix : Preset_Liberty_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -130,57 +310,51 @@ Craftable_Common_Liberty : Preset_Liberty_Default
 Craftable_Uncommon_Liberty : Craftable_Common_Liberty
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Liberty : Craftable_Common_Liberty
+Craftable_Rare_Liberty : Craftable_Uncommon_Liberty
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Liberty : Craftable_Common_Liberty
+Craftable_Epic_Liberty : Craftable_Uncommon_Liberty
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Liberty : Craftable_Common_Liberty
+Craftable_Legendary_Liberty : Craftable_Uncommon_Liberty
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Liberty_Rogue : Preset_Liberty_Default
 {
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#40551";
 	visualTags = 
 	[
 		"Rogue_Liberty"
 	];
-	quality = "Quality.Legendary";
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
@@ -218,25 +392,151 @@ Preset_Liberty_Rogue : Preset_Liberty_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Liberty_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Power_Handgun_RPG_Randomized_Stats", "Proficiencies.GunslingerHandgunStats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Liberty_Rogue_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Rogue_Constant_Stats", "Items.Base_Liberty_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
-	CraftingData = "Items.Iconic_Small_Legendary_Crafting_Materials_Weapon";
 	bool scaleToPlayer = true;
+}
+
+Base_Liberty_Rogue_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.3f;
+		} : CycleTimeModifier, 
+		{
+			value = 10.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Liberty_Rogue_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 0.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 2.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.417f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Preset_Liberty_Rogue_Stash : Preset_Liberty_Rogue
+{
+	tags += 
+	[
+		"StashScaling_Iconic"
+	];
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						fact = "endgame_reward_liberty_rogue_owned";
+						value = 0;
+						comparisonType = "Equal";
+					} : FactValuePrereq;
+					fact = "endgame_reward_liberty_rogue_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	bool scaleToPlayerInStash = true;
+	enableNpcRPGData = false;
 }
 
 [ notQueryable ]
 Preset_Liberty_Yorinobu : Preset_Liberty_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "liberty_yorinobu_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#40553";
 	visualTags = 
 	[
 		"Yorinobu_Liberty"
 	];
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40554";
 	npcRPGData = 
 	{
@@ -272,139 +572,49 @@ Preset_Liberty_Yorinobu : Preset_Liberty_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Liberty_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Power_Handgun_RPG_Randomized_Stats", "Proficiencies.GunslingerHandgunStats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Liberty_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Liberty_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
-	CraftingData = "Items.Iconic_Small_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Liberty_Yorinobu_Epic";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Liberty_Yorinobu_Epic : Preset_Liberty_Yorinobu
-{
-	quality = "Quality.Epic";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Liberty_Yorinobu";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 25;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 1;
-			}
-		];
-	};
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Liberty_Yorinobu_Legendary";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Liberty_Yorinobu_Legendary : Preset_Liberty_Yorinobu
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Liberty_Yorinobu_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Liberty_Yorinobu_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Liberty_Yorinobu_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Liberty_Yorinobu_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Liberty_Yorinobu_Legendary";
-	};
 }
 
 [ notQueryable ]
 Preset_Liberty_Dex : Preset_Liberty_Default
 {
+	buyPrice += 
+	[
+		"Price.Dex", "Price.MediumManufactureQuality"
+	];
+	sellPrice += 
+	[
+		"Price.Dex", "Price.MediumManufactureQuality"
+	];
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "liberty_dex_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#40556";
 	visualTags = 
 	[
 		"Dex_Liberty"
 	];
 	CName audioName = "wea_set_liberty_dex";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40555";
 	npcRPGData = 
 	{
@@ -439,143 +649,62 @@ Preset_Liberty_Dex : Preset_Liberty_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Liberty_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Power_Handgun_RPG_Randomized_Stats", "Proficiencies.GunslingerHandgunStats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
-	];
-	CraftingData = "Items.Iconic_Small_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Liberty_Dex_Epic";
-				}
-			];
-		}
+		"Items.IconicQualityRandomization", "Items.Base_Liberty_Dex_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Liberty_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
 }
 
-[ notQueryable ]
-Preset_Liberty_Dex_Epic : Preset_Liberty_Dex
+Base_Liberty_Dex_Technical_Stats : StatModifierGroup
 {
-	quality = "Quality.Epic";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Liberty_Dex";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 25;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 1;
-			}
-		];
-	};
-	OnLooted = 
-	[
+			value = 1.f;
+		} : NumShotsToFireModifier, 
 		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Liberty_Dex_Legendary";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Liberty_Dex_Legendary : Preset_Liberty_Dex
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
+			value = 0.2f;
+		} : CycleTimeModifier, 
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			value = 20.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Liberty_Dex_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Liberty_Dex_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Liberty_Dex_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Liberty_Dex_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Liberty_Dex_Legendary";
-	};
 }
 
 [ notQueryable ]
 Preset_Liberty_Padre : Preset_Liberty_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "liberty_padre_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#79840";
 	visualTags = 
 	[
 		"Padre_Pistol"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	tags += 
 	[
-		"Padre_Burn"
+		"Padre_Burn", "IconicWeapon"
 	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
 	localizedDescription = "LocKey#79841";
+	rangedAttacks = "Attacks.PhysicalExplosiveBulletPackage";
 	npcRPGData = 
 	{
 		statModifiers += 
@@ -608,65 +737,9 @@ Preset_Liberty_Padre : Preset_Liberty_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Liberty_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Power_Handgun_RPG_Randomized_Stats", "Proficiencies.GunslingerHandgunStats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal", "Items.Padre_Status_Effect_Application_Stats"
-	];
-	CraftingData = "Items.Iconic_Small_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Liberty_Padre_Legendary";
-				}
-			];
-		}
+		"Items.IconicQualityRandomization", "Items.Base_Liberty_Technical_Stats", "Items.Base_Liberty_Handling_Stats", "Items.Base_Liberty_Recoil_Stats", "Items.Base_Liberty_Spread_Stats", "Items.Base_Liberty_Aim_Stats", "Items.Base_Liberty_Constant_Stats", "Items.Base_Liberty_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Handgun_Mult_Stats", "Items.Base_Power_Handgun_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal", "Items.Padre_Status_Effect_Application_Stats"
 	];
 	bool scaleToPlayer = true;
-}
-
-[ notQueryable ]
-Preset_Liberty_Padre_Legendary : Preset_Liberty_Padre
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Liberty_Padre";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Liberty_Padre_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Liberty_Padre_Legendary";
-	};
 }
 
 Padre_Status_Effect_Application_Stats : StatModifierGroup

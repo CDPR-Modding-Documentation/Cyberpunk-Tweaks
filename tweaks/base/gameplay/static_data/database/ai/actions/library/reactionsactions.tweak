@@ -1,5 +1,5 @@
 package ReactionsActions
-using RTDB, ItemHandling, 0xF242B6C8F, AIActionTarget, MeleeActions
+using RTDB, ItemHandling, 0xF242B6C8F, AIActionTarget, MeleeActions, Condition
 
 Success : AIAction
 {
@@ -1583,6 +1583,14 @@ OverloadBossCustomAction : AIAction
 	};
 }
 
+CyberwareMalfunctionBossCustomAction : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+}
+
 DeviceInvestigation : AIAction
 {
 	startup = 
@@ -1639,15 +1647,15 @@ DeviceInvestigationUnarmed : AIAction
 {
 	startup = 
 	{
-		duration = 3.2f;
+		duration = 2.567f;
 	};
 	loop = 
 	{
-		duration = 3.2f;
+		duration = 4.100f;
 	};
 	recovery = 
 	{
-		duration = 3.267f;
+		duration = 4.667f;
 	};
 	recoverySubActions = 
 	[
@@ -1853,7 +1861,7 @@ AnswerCall : AIAction
 		{
 			AND = 
 			[
-				"Condition.CallStimType", "Condition.NearestSquadmateNotBelow6m"
+				"Condition.CallStimType", "Condition.StimSourceAbove6m"
 			];
 		} : AIActionAND;
 	};
@@ -1974,6 +1982,40 @@ LookAroundForIntruder : AIAction
 	[
 		"ReactionsActions.PlayStealthSearchVoiceOver"
 	];
+}
+
+LookAroundForWhistle : LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectWhistleTurnAway", "Condition.NotDrone"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.1f;
+	};
+	loop = 
+	{
+		duration = 1.1f;
+	};
+	recovery = 
+	{
+		duration = 1.1f;
+	};
+	animData = 
+	{
+		animFeature = "HearDeviceNoiseFront";
+		animSlot = 
+		{
+		};
+	};
+	subActions = [];
 }
 
 LookAroundForIntruderFast : LookAroundForIntruder
@@ -2258,7 +2300,11 @@ ReprimandAskToLeaveUnarmed : ReprimandAskToLeave
 	[
 		{
 			useItemSpawnDelayFromWeapon = false;
-		} : AISubActionEquipOnSlot
+		} : AISubActionEquipOnSlot, 
+		{
+			name = "rep_ask_to_leave";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver
 	];
 }
 
@@ -3388,7 +3434,7 @@ AskToFollowOrderCondition : AIAction
 				{
 					OR = 
 					[
-						"Condition.StimTargetAbove10m", "Condition.StimTargetDriver", "Condition.NotStimTargetIsVisible"
+						"Condition.StimTargetAbove10m", "Condition.DriverInStimVehicle", "Condition.NotStimTargetIsVisible"
 					];
 				} : AIActionOR;
 			}
@@ -5140,7 +5186,7 @@ IsVehicleLeft : AIAction
 {
 	activationCondition = 
 	{
-		condition = "Condition.StimSourceFrontSides";
+		condition = "Condition.StimSourceBackSides";
 	};
 }
 
@@ -5148,7 +5194,7 @@ IsVehicleRight : AIAction
 {
 	activationCondition = 
 	{
-		condition = "Condition.StimSourceBackSides";
+		condition = "Condition.StimSourceFrontSides";
 	};
 }
 
@@ -5258,33 +5304,33 @@ DodgeVehicleRight : AIAction
 
 CalculatePathStraightDodgeVehicleFront : AICalculatePathCond
 {
-	distance = 3.5f;
+	distance = 0.8f;
 	directionAngle = 0.f;
-	checkStraightPath = true;
+	checkStraightPath = false;
 	checkDynamicObstacle = true;
 }
 
 CalculatePathStraightDodgeVehicleBack : AICalculatePathCond
 {
-	distance = 4.5f;
+	distance = 1.2f;
 	directionAngle = 180.f;
-	checkStraightPath = true;
+	checkStraightPath = false;
 	checkDynamicObstacle = true;
 }
 
 CalculatePathStraightDodgeVehicleLeft : AICalculatePathCond
 {
-	distance = 3.6f;
+	distance = 1.8f;
 	directionAngle = 270.f;
-	checkStraightPath = true;
+	checkStraightPath = false;
 	checkDynamicObstacle = true;
 }
 
 CalculatePathStraightDodgeVehicleRight : AICalculatePathCond
 {
-	distance = 3.4f;
+	distance = 1.8f;
 	directionAngle = 90.f;
-	checkStraightPath = true;
+	checkStraightPath = false;
 	checkDynamicObstacle = true;
 }
 
@@ -5734,6 +5780,21 @@ UpdateStimSource : AIAction
 	];
 }
 
+UpdateStimSourceRevertDirection : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			stimTarget = "";
+			revertStimSourceDirection = true;
+		} : AISubActionSetStimSource
+	];
+}
+
 UnequipAnyWeapon : ItemHandling.UnequipAnyWeapon
 {
 	activationCondition = 
@@ -5985,7 +6046,9 @@ CallSquadMechanicalTargetSelectorCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.Human", "Condition.NearestSquadmateNotHuman"
+				"Condition.Human", "Condition.NearestSquadmateNotHuman", {
+					includeDestroyed = true;
+				} : Condition.NotHasExoWeakspot
 			];
 		} : AIActionAND;
 	};
@@ -6260,61 +6323,68 @@ AlertedWhistleQuickhackCondition : AIAction
 {
 	activationCondition = 
 	{
-		condition = "Condition.StatusEffectWhistle";
+		condition = "Condition.StatusEffectAlertedWhistle";
 	};
+}
+
+RemoveNonCombatWhistleHackSubaction : AISubActionStatusEffect
+{
+	statusEffects += 
+	[
+		"BaseStatusEffect.WhistleLvl0", "BaseStatusEffect.WhistleLvl1", "BaseStatusEffect.WhistleLvl2"
+	];
+	apply = false;
+}
+
+RemoveCombatWhistleHackSubaction : AISubActionStatusEffect
+{
+	statusEffects += 
+	[
+		"BaseStatusEffect.WhistleLvl3", "BaseStatusEffect.WhistleLvl4", "BaseStatusEffect.WhistleLvl4_TurnAway"
+	];
+	apply = false;
 }
 
 RemoveWhistleHack : AIAction
 {
 	subActions = 
 	[
-		{
-			statusEffects += 
-			[
-				"BaseStatusEffect.WhistleLvl3"
-			];
-			apply = false;
-			target = "AIActionTarget.Owner";
-		} : AISubActionStatusEffect, 
-		{
-			statusEffects += 
-			[
-				"BaseStatusEffect.WhistleLvl2"
-			];
-			apply = false;
-			target = "AIActionTarget.Owner";
-		} : AISubActionStatusEffect, 
-		{
-			statusEffects += 
-			[
-				"BaseStatusEffect.Whistle"
-			];
-			apply = false;
-			target = "AIActionTarget.Owner";
-		} : AISubActionStatusEffect
+		"ReactionsActions.RemoveNonCombatWhistleHackSubaction", "ReactionsActions.RemoveCombatWhistleHackSubaction"
 	];
+}
+
+RemoveNonCombatCommsCallInHackSubaction : AISubActionStatusEffect
+{
+	statusEffects += 
+	[
+		"BaseStatusEffect.CommsCallInLvl1", "BaseStatusEffect.CommsCallInLvl2"
+	];
+	apply = false;
+}
+
+RemoveCombatCommsCallInHackSubaction : AISubActionStatusEffect
+{
+	statusEffects += 
+	[
+		"BaseStatusEffect.CommsCallInLvl3", "BaseStatusEffect.CommsCallInLvl4"
+	];
+	apply = false;
+}
+
+RemoveCombatCommsCallHelperSubaction : AISubActionStatusEffect
+{
+	statusEffects += 
+	[
+		"BaseStatusEffect.CommsCallCombatTargetHelper"
+	];
+	apply = false;
 }
 
 RemoveCallInHack : AIAction
 {
 	subActions = 
 	[
-		{
-			statusEffects += 
-			[
-				"BaseStatusEffect.CommsCallInLevel3"
-			];
-			apply = false;
-			target = "AIActionTarget.Owner";
-		} : AISubActionStatusEffect, 
-		{
-			statusEffects += 
-			[
-				"BaseStatusEffect.CommsCallIn"
-			];
-			apply = false;
-			target = "AIActionTarget.Owner";
-		} : AISubActionStatusEffect
+		"ReactionsActions.RemoveNonCombatCommsCallInHackSubaction", "ReactionsActions.RemoveCombatCommsCallInHackSubaction", "ReactionsActions.RemoveCombatCommsCallHelperSubaction"
 	];
 }
 
@@ -6370,6 +6440,224 @@ RunToTrafficLane : AIAction
 	};
 }
 
+MoveToOut_SearchPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToOut_SearchPosition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.Out_SearchPosition";
+			movementType = "Walk";
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.Out_SearchPosition";
+			ignoreRestrictedMovementArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.DestinationReached"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+RunTo_SearchArea : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToOut_SearchPosition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.Out_SearchPosition";
+			movementType = "Sprint";
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.Out_SearchPosition";
+			ignoreCollisionAvoidance = false;
+			ignoreSpotReservation = false;
+			distance = 2f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.DestinationReached"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+RunToCrimeScene : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToOut_LastChasePosition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.Out_LastChasePosition";
+			movementType = "Sprint";
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.Out_LastChasePosition";
+			ignoreRestrictedMovementArea = true;
+			ignoreCollisionAvoidance = false;
+			ignoreSpotReservation = false;
+			distance = 2f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.DestinationReached"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+RunToLastKnownPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToIn_LastKnownPosition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.In_LastKnownPosition";
+			movementType = "Sprint";
+			distance = 10;
+			tolerance = 10;
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.In_LastKnownPosition";
+			ignoreRestrictedMovementArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.DestinationReached"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+WalkAwayFromPlayer : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			avoidThreatRange = 20.f;
+			avoidThreatCost = 10.f;
+			target = "AIActionTarget.Player";
+			distance = 200.f;
+			tolerance = 5.f;
+			movementType = "Walk";
+			avoidSafeArea = true;
+			ignoreCollisionAvoidance = false;
+			ignoreSpotReservation = false;
+			avoidThreatIgnoringDirection = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.DestinationReached"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
 MoveToStimSourceInvestigate : AIAction
 {
 	activationCondition = 
@@ -6408,6 +6696,80 @@ DeviceInvestigationLookat : AIAction
 			target = "AIActionTarget.CustomWorldPosition";
 		}
 	];
+}
+
+MoveToStimTargetInvestigate : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.CalculatePathToStimTarget";
+	};
+	loop = 
+	{
+		duration = 12.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+			destinationOrientationPosition = "AIActionTarget.StimTarget";
+			ignoreRestrictedMovementArea = false;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotStimTarget", "Condition.StimTargetBelow3point5m", "Condition.StimTargetAbove40m", "Condition.NotCalculatePathToStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MovingDeviceInvestigationLookat : AIAction
+{
+	loop = 
+	{
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+MovingDeviceCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.CarAlarmStimType";
+	};
+	loop = 
+	{
+	};
+}
+
+MovingDeviceNearbyCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CarAlarmStimType", "Condition.StimTargetBelow6m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
 }
 
 RotateToStimTarget : AIAction
@@ -6478,6 +6840,21 @@ RotateToStimSource : AIAction
 	];
 }
 
+RotateToStimSourceWithBody : AIAction
+{
+	loop = 
+	{
+		duration = 1.7f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
 RotateToDistractionSource : AIAction
 {
 	activationCondition = 
@@ -6509,7 +6886,7 @@ MoveToStimSourceSearch : AIAction
 		{
 			AND = 
 			[
-				"Condition.CalculatePathToStimSource"
+				"Condition.NotWhistleStimType", "Condition.CalculatePathToStimSource"
 			];
 		} : AIActionAND;
 	};
@@ -6549,7 +6926,7 @@ MoveCloserToStimSource : AIAction
 		{
 			AND = 
 			[
-				"Condition.StimSourceInRestrictedMovementArea", "Condition.CalculatePathToStimSource"
+				"Condition.NotWhistleStimType", "Condition.StimSourceInRestrictedMovementArea", "Condition.CalculatePathToStimSource"
 			];
 		} : AIActionAND;
 	};
@@ -6748,7 +7125,7 @@ MoveToStimTargetInSecurityArea : AIAction
 				{
 					OR = 
 					[
-						"Condition.StimTargetBelow8m", "Condition.StimTargetIsNotTresspassing", "Condition.NotStimTarget"
+						"Condition.StimTargetBelow8m", "Condition.NotStimTargetIsTresspassing", "Condition.NotStimTarget"
 					];
 				} : AIActionOR;
 			}
@@ -7060,16 +7437,11 @@ CallSquadMove : AIAction
 	{
 		condition = 
 		{
-			AND = 
+			OR = 
 			[
-				{
-					OR = 
-					[
-						"Condition.NotStimTargetIsVisible", "Condition.StimTargetAbove4m"
-					];
-				} : AIActionOR
+				"Condition.NotStimTargetIsVisible", "Condition.StimTargetAbove4m"
 			];
-		} : AIActionAND;
+		} : AIActionOR;
 	};
 	loop = 
 	{
@@ -7159,7 +7531,13 @@ CallSquadMoveToStimPosition : AIAction
 		{
 			AND = 
 			[
-				"Condition.StimSourceAbove4m", "Condition.NotAdamPhase1", "Condition.NotAdamPhase2", "Condition.NotAdamPhase3"
+				{
+					OR = 
+					[
+						"Condition.StimSourceAbove4m", "Condition.StimSourceAbove25deg"
+					];
+				} : AIActionOR, 
+				"Condition.NotAdamPhase1", "Condition.NotAdamPhase2", "Condition.NotAdamPhase3"
 			];
 		} : AIActionAND;
 	};
@@ -7179,7 +7557,13 @@ CallSquadMoveToStimPosition : AIAction
 				{
 					OR = 
 					[
-						"Condition.StimTargetBelow4m", "Condition.PathFindingFailed", "Condition.DestinationReached"
+						{
+							AND = 
+							[
+								"Condition.StimTargetBelow4m", "Condition.StimSourceBelow15deg"
+							];
+						} : AIActionAND, 
+						"Condition.PathFindingFailed", "Condition.DestinationReached"
 					];
 				} : AIActionOR;
 			}
@@ -7271,7 +7655,7 @@ HearGunshot : AIAction
 		{
 			AND = 
 			[
-				"Condition.GunshotStimType", "Condition.NotStimTargetIsVisible"
+				"Condition.AnyGunshotStimType", "Condition.NotStimTargetIsVisible"
 			];
 		} : AIActionAND;
 	};
@@ -7451,7 +7835,7 @@ IsNotTargetTrespassing : AIAction
 {
 	activationCondition = 
 	{
-		condition = "Condition.StimTargetIsNotTresspassing";
+		condition = "Condition.NotStimTargetIsTresspassing";
 	};
 }
 
@@ -7546,6 +7930,48 @@ LookAtExplosionSource : RotateToStimSource
 	];
 }
 
+LookAwayFromWhistle : AIAction
+{
+	loop = 
+	{
+		duration = 3f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimSource";
+			deadAngle = 5.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.StimSourceBelow15deg";
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.7f;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+LookAwayFromWhistleNoBodyLookat : LookAwayFromWhistle
+{
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.EyesHead";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
 AimAroundExplosionInstigator : AIAction
 {
 	loop = 
@@ -7633,7 +8059,7 @@ SyncActionCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotStatusTypeEffectMadness", "Condition.NotStatusEffectMadness"
+				"Condition.NotStatusEffectTypeMadness", "Condition.NotStatusEffectMadness"
 			];
 		} : AIActionAND;
 	};

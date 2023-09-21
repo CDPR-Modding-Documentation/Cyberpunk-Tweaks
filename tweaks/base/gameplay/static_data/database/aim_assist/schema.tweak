@@ -1,5 +1,27 @@
 package RTDB
 
+SearchFilterMaskType
+{
+	CName enumName = "";
+	string enumComment = "";
+}
+
+SearchFilterMaskTypeCondition
+{
+}
+
+SearchFilterMaskTypeValue : SearchFilterMaskTypeCondition
+{
+	CName opType = "";
+	fk< SearchFilterMaskType >[] values = [];
+}
+
+SearchFilterMaskTypeCond : SearchFilterMaskTypeCondition
+{
+	CName opType = "";
+	fk< SearchFilterMaskType >[] values = [];
+}
+
 AimAssistType
 {
 	CName enumName = "";
@@ -23,8 +45,14 @@ AimAssistCommon
 	float rotatingAwayFromPastTargetPenalty = 1.f;
 	float targetLostTimeOut = 1.0f;
 	float softLockTargetWeight = 999999.f;
-	EulerAngles softLockBrakeAngle = ( 0.f, 5.f, 130.f );
+	EulerAngles softLockBrakeAngle = ( 0.f, 20.f, 130.f );
+	float softLockTargetLostTimeOut = 1.0f;
+	bool forceSoftLockMinimumWeight = false;
+	fk< SearchFilterMaskTypeCondition > targetFilterPriority = "";
+	float targetFilterPriorityBonus = 0;
+	bool primaryComponentsOnly = false;
 	fk< AimAssistType > aimAssistType = "";
+	fk< SearchFilterMaskTypeCondition > targetFilter = "AimAssist.DefaultTargetFilters";
 	float targetAcquisitionDelayTime = 0.f;
 	float recentInputTime = 0.2f;
 }
@@ -50,19 +78,23 @@ AimAssistMagnetism
 	CName stickInputMagMultiplier = "";
 	float blendOnTime = 0.05f;
 	float blendOffTime = 0.5f;
+	float softLockMinimumMagnetism = 0.0f;
 	float softLockTimeToReach = 0.25f;
+	float softLockBlendInTime = 0.5f;
+	bool trackedTargetAutoTargeting = false;
 	bool targetLostBlendOut = true;
 	bool checkWeaponEffectiveRange = true;
 	float pitchBoundAdditiveForYawMagnetism = 4.0f;
 	float yawBoundAdditiveForPitchMagnetism = 5.0f;
 	bool disableWithNoInput = true;
 	float fullStickThreshold = 0.95f;
-	float fullStickYawAngleDisable = 90.0f;
+	float fullStickYawAngleDisable = 45.0f;
 }
 
 AimAssistAimSnap
 {
 	bool isEnabled = false;
+	bool ignoreInputType = false;
 	float duration = 0.2f;
 	bool adjustPitch = true;
 	bool adjustYaw = true;
@@ -71,6 +103,7 @@ AimAssistAimSnap
 	bool endOnTimeExceeded = true;
 	bool endOnAimingStopped = true;
 	float cameraInputMagToBreak = 0.2f;
+	float cameraMouseInputMagToBreak = 10.0f;
 	float precision = 0.1f;
 	float maxDuration = 2.0f;
 	bool easeIn = true;
@@ -79,8 +112,17 @@ AimAssistAimSnap
 	bool checkRange = true;
 	float minDistance = 4.0f;
 	float maxDistance = 30.0f;
+	bool breakOnDistance = false;
 	float targetAngleDistanceFactor = 1.0f;
+	bool affectedByRecoil = true;
 	bool cancelWithRecoil = true;
+	bool bodyPartsTracking = false;
+	bool targetCycling = false;
+	float bptMaxDot = 0.0f;
+	float bptMaxSwitches = -1.0f;
+	float bptMinInputMag = 0.0f;
+	float bptMinMouseInputMag = 0.0f;
+	float bptMinResetInputMag = 0.0f;
 }
 
 AimAssistBulletMagnetism
@@ -90,6 +132,8 @@ AimAssistBulletMagnetism
 	float targetSearchAnglePitch = 30.0f;
 	float targetSearchAngleYaw = 30.0f;
 	float magPointOffset = 0.1f;
+	float deadReckoningSearchAnglePitch = 20.0f;
+	float deadReckoningSearchAngleYaw = 20.0f;
 }
 
 AimAssistMelee
@@ -119,6 +163,7 @@ AimAssistSettings
 	fk< AimAssistConfigPreset > off = "";
 	fk< AimAssistConfigPreset > light = "";
 	fk< AimAssistConfigPreset > standard = "";
+	fk< AimAssistConfigPreset > heavy = "";
 }
 
 AimAssistTargetData
@@ -130,6 +175,15 @@ AimAssistTargetData
 	float width = 0.1f;
 	float aimSnapAngle = 3.0f;
 	float aimSnapPriorityWeight = 1.0f;
+	float magnetismPriorityWeight = 1.0f;
 	fk< AimAssistType >[] filters = [];
+}
+
+SmartGunHandlerParams
+{
+	fk< AimAssistTargetData >[] blacklist = 
+	[
+		"AimAssistTargetsData.Grenade"
+	];
 }
 

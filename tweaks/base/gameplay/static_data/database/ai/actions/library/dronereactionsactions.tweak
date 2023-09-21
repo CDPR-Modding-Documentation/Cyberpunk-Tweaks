@@ -1,5 +1,5 @@
 package DroneReactionsActions
-using RTDB, DroneActions, AIActionTarget
+using RTDB, DroneActions, AIActionTarget, ReactionsActions
 
 IsDrone : AIActionCondition
 {
@@ -304,7 +304,7 @@ AnswerCall : StartReaction
 	};
 }
 
-CallSquadMove : MoveToStimTarget
+CallSquadMove : DroneReactionsActions.MoveToStimTarget
 {
 }
 
@@ -417,11 +417,15 @@ CallPlayerTalk : DroneActions.LookAroundForIntruder
 	{
 		condition = 
 		{
-			AND = 
+			OR = 
 			[
-				"Condition.StimSourceBelow5m"
+				"Condition.StimSourceBelow5m", "Condition.StatusEffectWhistleTurnAway"
 			];
-		} : AIActionAND;
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 3.3f;
 	};
 }
 
@@ -655,7 +659,7 @@ RotateToCustomWorldPosition : AIAction
 	];
 }
 
-LookAtStimSource : RotateToStimSource
+LookAtStimSource : DroneReactionsActions.RotateToStimSource
 {
 	startup = 
 	{
@@ -1018,6 +1022,21 @@ RotateToStimTarget : AIAction
 		{
 			preset = "LookatPreset.DroneVertical";
 			target = "AIActionTarget.StimTarget";
+		}
+	];
+}
+
+LookAwayFromWhistle : ReactionsActions.LookAwayFromWhistle
+{
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.DroneVertical";
+			target = "AIActionTarget.StimSource";
+		}, 
+		{
+			preset = "LookatPreset.DroneHorizontal";
+			target = "AIActionTarget.StimSource";
 		}
 	];
 }

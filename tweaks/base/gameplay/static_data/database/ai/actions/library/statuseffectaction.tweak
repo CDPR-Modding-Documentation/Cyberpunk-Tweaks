@@ -19,7 +19,7 @@ SE_Burning : AIActionSelector
 {
 	actions = 
 	[
-		"StatusEffectActions.SE_BurningArmed", "StatusEffectActions.SE_BurningUnarmed"
+		"StatusEffectActions.SE_BurningArmed", "StatusEffectActions.SE_BurningUnarmed", "StatusEffectActions.SE_BurningResidualArmedTwitch", "StatusEffectActions.SE_BurningResidualUnarmedTwitch"
 	];
 }
 
@@ -89,7 +89,7 @@ SE_BurningResidualArmed : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.IsNPCBurning", "Condition.ArmedTwoHandedWeapon"
+				"Condition.IsNPCBurning", "Condition.ArmedTwoHandedWeapon", "Condition.NotInStatesCombat", "Condition.NotStatusEffectPreventQHStaggerAnimation"
 			];
 		} : AIActionAND;
 	};
@@ -97,6 +97,16 @@ SE_BurningResidualArmed : AIStatusEffectAction
 	{
 		duration = 4.9f;
 	};
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
 	animData = 
 	{
 		animFeature = "SE_Burning";
@@ -114,7 +124,7 @@ SE_BurningResidualUnarmed : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.IsNPCBurning"
+				"Condition.IsNPCBurning", "Condition.NotInStatesCombat", "Condition.NotStatusEffectPreventQHStaggerAnimation"
 			];
 		} : AIActionAND;
 	};
@@ -122,6 +132,16 @@ SE_BurningResidualUnarmed : AIStatusEffectAction
 	{
 		duration = 3.4f;
 	};
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
 	animData = 
 	{
 		animFeature = "SE_Burning";
@@ -129,6 +149,60 @@ SE_BurningResidualUnarmed : AIStatusEffectAction
 		{
 		};
 	};
+}
+
+SE_BurningResidualArmedTwitch : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBurning", "Condition.ArmedTwoHandedWeapon", {
+					OR = 
+					[
+						"Condition.StatusEffectPreventQHStaggerAnimation", "Condition.InStatesCombat"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.6f;
+	};
+	subActions += 
+	[
+		"StatusEffectActions.QuickhackTwitchAttack"
+	];
+}
+
+SE_BurningResidualUnarmedTwitch : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBurning", {
+					OR = 
+					[
+						"Condition.StatusEffectPreventQHStaggerAnimation", "Condition.InStatesCombat"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.13f;
+	};
+	subActions += 
+	[
+		"StatusEffectActions.QuickhackTwitchAttack"
+	];
 }
 
 SE_Stun : AIActionSelector
@@ -162,13 +236,7 @@ SE_StunArmed : AIStatusEffectAction
 		{
 			AND = 
 			[
-				{
-					OR = 
-					[
-						"Condition.StatusEffectStun"
-					];
-				} : AIActionOR, 
-				"Condition.ArmedTwoHandedWeapon"
+				"Condition.IsNPCStunned", "Condition.ArmedTwoHandedWeapon"
 			];
 		} : AIActionAND;
 	};
@@ -183,7 +251,7 @@ SE_StunArmed : AIStatusEffectAction
 		toNextPhaseCondition = 
 		[
 			{
-				condition = "Condition.NotStatusEffectStun";
+				condition = "Condition.NotStatusEffectTypeStun";
 			}
 		];
 	};
@@ -213,11 +281,11 @@ SE_StunUnarmed : AIStatusEffectAction
 	{
 		condition = 
 		{
-			OR = 
+			AND = 
 			[
-				"Condition.StatusEffectStun"
+				"Condition.IsNPCStunned"
 			];
-		} : AIActionOR;
+		} : AIActionAND;
 	};
 	startup = 
 	{
@@ -234,7 +302,7 @@ SE_StunUnarmed : AIStatusEffectAction
 				{
 					AND = 
 					[
-						"Condition.NotStatusEffectStun"
+						"Condition.NotStatusEffectTypeStun"
 					];
 				} : AIActionAND;
 			}
@@ -1042,7 +1110,7 @@ SE_BleedingWorkspot : SE_BleedingResidualArmed
 		{
 			OR = 
 			[
-				"Condition.StatusEffectBleeding"
+				"Condition.StatusEffectTypeBleeding"
 			];
 		} : AIActionOR;
 	};
@@ -1099,13 +1167,7 @@ SE_BleedingResidualArmed : AIStatusEffectAction
 		{
 			AND = 
 			[
-				{
-					OR = 
-					[
-						"Condition.StatusEffectBleeding"
-					];
-				} : AIActionOR, 
-				"Condition.ArmedTwoHandedWeapon"
+				"Condition.IsNPCBleeding", "Condition.ArmedTwoHandedWeapon"
 			];
 		} : AIActionAND;
 	};
@@ -1128,11 +1190,11 @@ SE_BleedingResidualUnarmed : AIStatusEffectAction
 	{
 		condition = 
 		{
-			OR = 
+			AND = 
 			[
-				"Condition.StatusEffectBleeding"
+				"Condition.IsNPCBleeding"
 			];
-		} : AIActionOR;
+		} : AIActionAND;
 	};
 	loop = 
 	{
@@ -1169,6 +1231,32 @@ SE_WeaponJammed : AIQuickhackDefaultAction
 	{
 		duration = 3.667f;
 	};
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WeaponMalfunctionReactionBlocker"
+			];
+			remove = false;
+			delay = 0;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WeaponMalfunctionReapply"
+			];
+			remove = false;
+			delay = -1;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
 	animData = 
 	{
 		animFeature = "SE_WeaponJammed";
@@ -1191,7 +1279,7 @@ SE_WeaponJammedBlowUpWeapon : AIQuickhackDefaultAction
 		{
 			AND = 
 			[
-				{
+				"Condition.NotStatusEffectWeaponMalfunctionRepeat", {
 					OR = 
 					[
 						"Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
@@ -1223,7 +1311,37 @@ SE_WeaponJammedBlowUpWeapon : AIQuickhackDefaultAction
 			unequipDespiteInterruption = true;
 			dropItem = true;
 			delay = 2f;
-		} : AISubActionForceUnequip
+		} : AISubActionForceUnequip, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WeaponMalfunctionReactionBlocker"
+			];
+			remove = false;
+			delay = 0;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WeaponMalfunctionReapply"
+			];
+			remove = false;
+			delay = -1;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -1265,7 +1383,30 @@ SE_WeaponJammedBlowUpWeaponManMassive : AIQuickhackDefaultAction
 		{
 			name = "weapon_malfunction_blow_up";
 			delay = 1.7f;
-		} : AISubActionSpawnFX
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WeaponMalfunctionReactionBlocker"
+			];
+			remove = false;
+			delay = 0;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.WeaponMalfunctionReapply"
+			];
+			remove = false;
+			delay = -1;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -1329,7 +1470,7 @@ SE_CommsNoise : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.CommNoise"
+				"Condition.CommNoise", "Condition.NotInStatesCombat", "Condition.NotStatusEffectPreventQHStaggerAnimation"
 			];
 		} : AIActionAND;
 	};
@@ -1346,11 +1487,16 @@ SE_CommsNoise : AIStatusEffectAction
 			{
 				condition = 
 				{
-					OR = 
+					AND = 
 					[
-						"Condition.NotCommNoise", "Condition.InStatesCombat"
+						"Condition.NotStatusEffectPreventQHStaggerAnimation", {
+							OR = 
+							[
+								"Condition.NotCommNoise", "Condition.InStatesCombat"
+							];
+						} : AIActionOR
 					];
-				} : AIActionOR;
+				} : AIActionAND;
 			}
 		];
 	};
@@ -1378,13 +1524,7 @@ SE_CommsCallIn : AIStatusEffectAction
 {
 	activationCondition = 
 	{
-		condition = 
-		{
-			OR = 
-			[
-				"Condition.StatusEffectCommsCallIn"
-			];
-		} : AIActionOR;
+		condition = "Condition.StatusEffectCommsCallIn";
 	};
 	startup = 
 	{
@@ -1397,13 +1537,7 @@ SE_CommsCallIn : AIStatusEffectAction
 		toNextPhaseCondition = 
 		[
 			{
-				condition = 
-				{
-					OR = 
-					[
-						"Condition.CombatTarget"
-					];
-				} : AIActionOR;
+				condition = "Condition.InStatesCombat";
 			}
 		];
 	};
@@ -1414,12 +1548,9 @@ SE_CommsCallIn : AIStatusEffectAction
 	loopSubActions = 
 	[
 		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.Call";
-			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
+			useCommsCallLogic = true;
 			delay = 1.6f;
-		} : AISubActionTriggerStim
+		} : AISubActionCallSquadSearchBackUp
 	];
 	subActions = 
 	[
@@ -1437,21 +1568,27 @@ SE_CommsCallIn : AIStatusEffectAction
 	};
 }
 
+SE_CommsCallInCombat : SE_CommsCallIn
+{
+	activationCondition = 
+	{
+		condition = "Condition.StatusEffectCombatCommsCallIn";
+	};
+	loop = 
+	{
+		duration = 2.8f;
+	};
+}
+
 SE_CommsCallInWait : AIStatusEffectAction
 {
 	activationCondition = 
 	{
-		condition = 
-		{
-			OR = 
-			[
-				"Condition.StatusEffectCommsCallIn", "Condition.StatusEffectCommsCallInLevel3"
-			];
-		} : AIActionOR;
+		condition = "Condition.StatusEffectCommsCallIn";
 	};
 	loop = 
 	{
-		duration = 10.f;
+		duration = 30.f;
 		toNextPhaseConditionCheckInterval = 0.25f;
 		toNextPhaseCondition = 
 		[
@@ -1460,7 +1597,7 @@ SE_CommsCallInWait : AIStatusEffectAction
 				{
 					OR = 
 					[
-						"Condition.CombatTarget", "Condition.NearestSquadmateBelow4m"
+						"Condition.InStatesCombat", "Condition.NearestSquadmateBelow4m", "Condition.NotStatusEffectCommsCallIn"
 					];
 				} : AIActionOR;
 			}
@@ -1476,51 +1613,33 @@ SE_CommsCallInCombatInCombat : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.StatusEffectCommsCallInLevel3", "Condition.InStatesCombat"
+				"Condition.StatusEffectCombatCommsCallIn", "Condition.InStatesCombat"
 			];
 		} : AIActionAND;
 	};
 	subActions = 
 	[
 		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.CombatCall";
-			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
-		} : AISubActionTriggerStim
+			name = "stlh_curious";
+		} : AISubActionPlayVoiceOver, 
+		{
+			useCommsCallLogic = true;
+		} : AISubActionCallSquadSearchBackUp
 	];
 }
 
-SE_CommsCallInCombat : SE_CommsCallIn
+SE_CommsCallOut : AIStatusEffectAction
 {
 	activationCondition = 
 	{
 		condition = 
 		{
-			OR = 
+			AND = 
 			[
-				"Condition.StatusEffectCommsCallInLevel3"
+				"Condition.StatusEffectCommsCallOutOnCommsNoise", "Condition.StatusEffectTypeCommsNoise"
 			];
-		} : AIActionOR;
+		} : AIActionAND;
 	};
-	loop = 
-	{
-		duration = 2.8f;
-	};
-	loopSubActions = 
-	[
-		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.CombatCall";
-			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
-			delay = 1.6f;
-		} : AISubActionTriggerStim
-	];
-}
-
-SE_CommsCallOut : AIQuickhackDefaultAction
-{
 	startup = 
 	{
 		duration = 0.533f;
@@ -1532,13 +1651,7 @@ SE_CommsCallOut : AIQuickhackDefaultAction
 		toNextPhaseCondition = 
 		[
 			{
-				condition = 
-				{
-					OR = 
-					[
-						"Condition.CombatTarget"
-					];
-				} : AIActionOR;
+				condition = "Condition.InStatesCombat";
 			}
 		];
 	};
@@ -1553,12 +1666,10 @@ SE_CommsCallOut : AIQuickhackDefaultAction
 			delay = 0.25f;
 		} : AISubActionPlayVoiceOver, 
 		{
-			stimSource = "AIActionTarget.FurthestSquadmate";
-			stimType = "StimTypes.Call";
-			direct = true;
-			target = "AIActionTarget.Owner";
+			useCommsCallLogic = true;
+			invert = true;
 			delay = 1.6f;
-		} : AISubActionTriggerStim
+		} : AISubActionCallSquadSearchBackUp
 	];
 	animData = 
 	{
@@ -1569,7 +1680,7 @@ SE_CommsCallOut : AIQuickhackDefaultAction
 	};
 }
 
-SE_Whistle : AIStatusEffectAction
+SE_CommsCallOutCombat : SE_CommsCallOut
 {
 	activationCondition = 
 	{
@@ -1577,14 +1688,45 @@ SE_Whistle : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.NotMech", {
-					OR = 
-					[
-						"Condition.StatusEffectWhistle", "Condition.StatusEffectWhistleLvl2"
-					];
-				} : AIActionOR
+				"Condition.StatusEffectCombatCommsCallIn", "Condition.StatusEffectCommsCallOutOnCommsNoise", "Condition.StatusEffectTypeCommsNoise"
 			];
 		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.867f;
+	};
+}
+
+SE_CommsCallOutCombatInCombat : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.InStatesCombat", "Condition.StatusEffectCombatCommsCallIn", "Condition.StatusEffectCommsCallOutOnCommsNoise", "Condition.StatusEffectTypeCommsNoise"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			name = "phone_start";
+		} : AISubActionPlayVoiceOver, 
+		{
+			useCommsCallLogic = true;
+			invert = true;
+		} : AISubActionCallSquadSearchBackUp
+	];
+}
+
+SE_Whistle : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.StatusEffectWhistle";
 	};
 	startup = 
 	{
@@ -1615,6 +1757,7 @@ SE_Whistle : AIStatusEffectAction
 			stimSource = "AIActionTarget.Player";
 			stimType = "StimTypes.Whistle";
 			direct = true;
+			purelyDirect = true;
 			target = "AIActionTarget.Owner";
 			delay = 1.6f;
 		} : AISubActionTriggerStim
@@ -1629,17 +1772,11 @@ SE_CombatWhistle : SE_Whistle
 {
 	activationCondition = 
 	{
-		condition = 
-		{
-			AND = 
-			[
-				"Condition.NotMech", "Condition.StatusEffectWhistleLvl3"
-			];
-		} : AIActionAND;
+		condition = "Condition.StatusEffectCombatWhistle";
 	};
 	loop = 
 	{
-		duration = 2.8f;
+		duration = 2.867f;
 	};
 	subActions = 
 	[
@@ -1651,10 +1788,49 @@ SE_CombatWhistle : SE_Whistle
 			stimSource = "AIActionTarget.Player";
 			stimType = "StimTypes.CombatWhistle";
 			direct = true;
+			purelyDirect = true;
 			target = "AIActionTarget.Owner";
 			delay = 1.6f;
 		} : AISubActionTriggerStim
 	];
+}
+
+SE_WhistleTurnAway : SE_Whistle
+{
+	activationCondition = 
+	{
+		condition = "Condition.StatusEffectWhistleTurnAway";
+	};
+	startup = 
+	{
+		duration = 0.f;
+	};
+	recovery = 
+	{
+		duration = 0.f;
+	};
+	subActions = 
+	[
+		{
+			name = "stlh_patrol_back";
+			delay = 0.25f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.CombatWhistle";
+			direct = true;
+			purelyDirect = true;
+			target = "AIActionTarget.Owner";
+			delay = 1.4f;
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_CommsCall";
+		animSlot = 
+		{
+		};
+	};
 }
 
 SE_CombatWhistleInCombat : AIQuickhackDefaultAction
@@ -1665,7 +1841,7 @@ SE_CombatWhistleInCombat : AIQuickhackDefaultAction
 		{
 			AND = 
 			[
-				"Condition.NotMech", "Condition.StatusEffectWhistleLvl3", "Condition.InStatesCombat"
+				"Condition.StatusEffectCombatWhistle", "Condition.InStatesCombat"
 			];
 		} : AIActionAND;
 	};
@@ -1673,14 +1849,13 @@ SE_CombatWhistleInCombat : AIQuickhackDefaultAction
 	[
 		{
 			name = "stlh_curious";
-			delay = 0.25f;
 		} : AISubActionPlayVoiceOver, 
 		{
 			stimSource = "AIActionTarget.Player";
 			stimType = "StimTypes.CombatWhistle";
 			direct = true;
+			purelyDirect = true;
 			target = "AIActionTarget.Owner";
-			delay = 1.6f;
 		} : AISubActionTriggerStim
 	];
 }
@@ -1693,7 +1868,7 @@ SE_QuickHackStaggerLocomotion : AIQuickhackDefaultAction
 		{
 			OR = 
 			[
-				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2"
+				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4"
 			];
 		} : AIActionOR;
 	};
@@ -1790,7 +1965,88 @@ SE_QuickHackStaggerWeapon : AIStatusEffectAction
 	];
 }
 
+SE_QuickHackStaggerCyberwareSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_QuickHackStaggerCyberware", "StatusEffectActions.SE_QuickHackStaggerCyberwareTwitch"
+	];
+}
+
 SE_QuickHackStaggerCyberware : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesCombat", "Condition.NotStatusEffectPreventQHStaggerAnimation", {
+					OR = 
+					[
+						"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl1", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3", "Condition.StatusEffectCyberwareMalfunctionLvl4", "Condition.StatusEffectCyberwareMalfunctionLvl4PlusPlus"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.PreventQHStaggerAnimation"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerCyberware";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackStaggerCyberwareTwitch : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectPreventQHStaggerAnimation", "Condition.InStatesCombat"
+					];
+				} : AIActionOR, 
+				{
+					OR = 
+					[
+						"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl1", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3", "Condition.StatusEffectCyberwareMalfunctionLvl4", "Condition.StatusEffectCyberwareMalfunctionLvl4PlusPlus"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions += 
+	[
+		"StatusEffectActions.QuickhackTwitchAttack"
+	];
+}
+
+SE_ForceStagger : AIStatusEffectAction
 {
 	activationCondition = 
 	{
@@ -1798,7 +2054,7 @@ SE_QuickHackStaggerCyberware : AIQuickhackDefaultAction
 		{
 			OR = 
 			[
-				"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3"
+				"Condition.StatusEffectNPCForceStagger"
 			];
 		} : AIActionOR;
 	};
@@ -1808,7 +2064,7 @@ SE_QuickHackStaggerCyberware : AIQuickhackDefaultAction
 	};
 	animData = 
 	{
-		animFeature = "SE_QuickHackStaggerCyberware";
+		animFeature = "SE_Staggered";
 		animSlot = 
 		{
 		};
@@ -1823,7 +2079,7 @@ SE_Madness : AIStatusEffectAction
 		{
 			OR = 
 			[
-				"Condition.StatusEffectMadness"
+				"Condition.StatusEffectTypeMadness"
 			];
 		} : AIActionOR;
 	};
@@ -2012,8 +2268,36 @@ SystemCollapseSelector : AIActionSelector
 {
 	actions = 
 	[
-		"StatusEffectActions.SE_SystemCollapseAndroid", "StatusEffectActions.SE_SystemCollapseMech", "StatusEffectActions.SE_SystemCollapse"
+		"StatusEffectActions.SE_SystemCollapseAndroid", "StatusEffectActions.SE_SystemCollapseMech", "StatusEffectActions.SE_SystemCollapseBossMitigated", "StatusEffectActions.SE_SystemCollapseBoss", "StatusEffectActions.SE_SystemCollapse"
 	];
+}
+
+SystemCollapseManagerTaskCondition : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsBossNPCRarity", "Condition.NotIsMaxTacNPCRarity", "Condition.NotIsExoNPCRarity"
+			];
+		} : AIActionAND;
+	};
+}
+
+SystemCollapseManagerWorkspotBossCondition : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.IsBossNPCRarity", "Condition.IsMaxTacNPCRarity", "Condition.IsExoNPCRarity"
+			];
+		} : AIActionOR;
+	};
 }
 
 SE_SystemCollapse : AIStatusEffectAction
@@ -2072,6 +2356,103 @@ SE_SystemCollapse : AIStatusEffectAction
 		animFeature = "SE_SystemCollapse";
 		animSlot = 
 		{
+		};
+	};
+}
+
+SE_SystemCollapseBoss : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSystemCollapse", "Condition.NotStatusEffectBossSystemCollapseHackReactionImmunity", {
+					OR = 
+					[
+						"Condition.IsMaxTacNPCRarity", "Condition.IsBossNPCRarity"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.5f;
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 8.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSystemCollapseHackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+			delay = 8.f;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_Blind";
+		animSlot = 
+		{
+		};
+		animVariation = 1;
+	};
+}
+
+SE_SystemCollapseBossMitigated : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSystemCollapse", "Condition.StatusEffectBossSystemCollapseHackReactionImmunity", {
+					OR = 
+					[
+						"Condition.IsMaxTacNPCRarity", "Condition.IsBossNPCRarity"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX, 
+		{
+			name = "hacks_cyberware_malfunction";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_Staggered";
+		animVariation = 0;
+		animSlot = 
+		{
+			useRootMotion = true;
+			usePoseMatching = true;
 		};
 	};
 }
@@ -2280,6 +2661,20 @@ SuicideWithWeaponSelector : AIActionSelector
 	[
 		"StatusEffectActions.SE_SuicideWithGunMech", "StatusEffectActions.SE_SuicideWithGunHandgunEquipped", "StatusEffectActions.SE_SuicideWithMeleeShortBladeEquipped", "StatusEffectActions.SE_SuicideWithMeleeLongWeaponEquipped", "StatusEffectActions.SE_SuicideWithGunRifleEquipped", "StatusEffectActions.SE_SuicideWithGunUnarmed"
 	];
+}
+
+SE_ReequipAfterSuicideCondition : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotMech", "Condition.NotDrone", "Condition.NotAbilityIsExo"
+			];
+		} : AIActionAND;
+	};
 }
 
 SE_SuicideWithGunMech : AIQuickhackDefaultAction
@@ -2743,7 +3138,7 @@ SuicideWithGrenadeSelector : AIActionSelector
 {
 	actions = 
 	[
-		"StatusEffectActions.SuicideWithGrenadeFrag", "StatusEffectActions.SuicideWithGrenadeFlash", "StatusEffectActions.SuicideWithGrenadeBiohazard", "StatusEffectActions.SuicideWithGrenadeEMP", "StatusEffectActions.SuicideWithGrenadeIncendiary", "StatusEffectActions.SuicideWithGrenadeRecon", "StatusEffectActions.SuicideWithGrenadeCutting"
+		"StatusEffectActions.SuicideWithGrenadeEMP", "StatusEffectActions.SuicideWithGrenadeBiohazard", "StatusEffectActions.SuicideWithGrenadeIncendiary", "StatusEffectActions.SuicideWithGrenadeFallback"
 	];
 }
 
@@ -2825,6 +3220,28 @@ SE_SuicideWithGrenade : AIQuickhackDefaultAction
 		{
 		};
 	};
+}
+
+SuicideWithGrenadeFallback : SE_SuicideWithGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.AbilityCanUseFragGrenades", "Condition.AbilityCanUseFlashbangGrenades", "Condition.AbilityCanUseReconGrenades", "Condition.AbilityCanUseCuttingGrenades"
+			];
+		} : AIActionOR;
+	};
+	startupSubActions += 
+	[
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegularHack";
+		} : AISubActionForceEquip
+	];
 }
 
 SuicideWithGrenadeFrag : SE_SuicideWithGrenade
@@ -2981,6 +3398,86 @@ SuicideWithGrenadeCutting : SE_SuicideWithGrenade
 	];
 }
 
+BossBlackWallSelector : AIActionSelector
+{
+	actions = 
+	[
+		"StatusEffectActions.SE_BlackwallDamage"
+	];
+}
+
+SE_BlackwallDamage : AIQuickhackDefaultAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.BossBlackWallAttack"
+			];
+			float delay = 0.f;
+		} : AISubActionCustomEffectors
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim, 
+		{
+			name = "black_wall_activation";
+		} : AISubActionSpawnFX, 
+		{
+			name = "black_wall";
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CloakedOda"
+			];
+			apply = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_CommsNoise";
+		animSlot = 
+		{
+		};
+	};
+}
+
 SE_Knockdown : AIStatusEffectAction
 {
 	activationCondition = 
@@ -3122,7 +3619,7 @@ SE_EMPResidualArmed : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.StatusEffectTypeEMP", "Condition.IsNPCElectrocuted", "Condition.ArmedTwoHandedWeapon"
+				"Condition.StatusEffectTypeEMP", "Condition.IsNPCElectrocuted", "Condition.ArmedTwoHandedWeapon", "Condition.NotStatusEffectPreventQHStaggerAnimation"
 			];
 		} : AIActionAND;
 	};
@@ -3147,7 +3644,7 @@ SE_EMPResidualUnarmed : AIStatusEffectAction
 		{
 			AND = 
 			[
-				"Condition.StatusEffectTypeEMP", "Condition.IsNPCElectrocuted"
+				"Condition.StatusEffectTypeEMP", "Condition.IsNPCElectrocuted", "Condition.NotStatusEffectPreventQHStaggerAnimation"
 			];
 		} : AIActionAND;
 	};
@@ -3728,26 +4225,24 @@ SE_Defeated : AIStatusEffectAction
 	};
 	loop = 
 	{
-		repeat = 0;
+		duration = -1.f;
 	};
-	startupSubActions = 
-	[
-		{
-			attachmentSlot = "AttachmentSlots.WeaponRight";
-			delay = 0.4f;
-			dropItem = true;
-		} : AISubActionForceUnequip
-	];
 	animData = 
 	{
 		animFeature = "SE_DefeatedLoop";
 		animSlot = 
 		{
-			useRootMotion = true;
+			useRootMotion = false;
 			usePoseMatching = true;
 		};
 		ragdollOnDeath = true;
-		animVariation = 1;
+		animVariationSubAction = 
+		{
+			animVariationRandomize = 
+			[
+				0, 1, 2, 3, 4
+			];
+		} : AISubActionRandomize;
 	};
 }
 
@@ -4677,6 +5172,49 @@ StartWoundedShootCooldown : AIStatusEffectAction
 				}
 			];
 		} : AISubActionStartCooldown
+	];
+}
+
+SE_MagnetDeviceNPC : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 1.0f;
+	};
+	animData = 
+	{
+		animFeature = "SE_MagnetDeviceNPC";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_MagnetDeviceNPCUnarmed : AIStatusEffectAction
+{
+	loop = 
+	{
+		duration = 1.0f;
+	};
+	animData = 
+	{
+		animFeature = "SE_MagnetDeviceNPCUnarmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+QuickhackTwitchAttack : AISubActionCustomEffectors
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Prereqs.AlwaysTruePrereq";
+			attackRecord = "Attacks.QuickHackTwitchAttack";
+			playerAsInstigator = true;
+			attackPositionSlotName = "Chest";
+		} : Effectors.TriggerAttackOnOwnerEffect
 	];
 }
 

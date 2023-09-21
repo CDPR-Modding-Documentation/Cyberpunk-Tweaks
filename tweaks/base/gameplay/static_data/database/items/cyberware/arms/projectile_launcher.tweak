@@ -1,6 +1,7 @@
 package Items
-using RTDB, BaseStats, Prereqs
+using RTDB, BaseStats, Prereqs, Perks
 
+[ notQueryable ]
 ProjectileLauncher : WeaponItem
 {
 	isCustomizable = true;
@@ -10,7 +11,18 @@ ProjectileLauncher : WeaponItem
 	crosshair = "Crosshairs.Cyberware_Projectile_Launcher";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.CWProjectileLauncher";
 	itemSecondaryAction = "";
+	buyPrice = 
+	[
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.BuyPrice_StreetCred_Discount"
+	];
+	sellPrice = 
+	[
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.CyberwareSellMultiplier"
+	];
 	blueprint = "Items.ProjectileLauncherBlueprint";
+	float explosionRangeBonus = 2.0;
+	float projectileSmartTargetingAngle = 120;
+	float projectileSmartTargetingDistance = 10;
 	quality = "Quality.Rare";
 	slotPartList = 
 	[
@@ -104,7 +116,7 @@ ProjectileLauncher : WeaponItem
 	entityName = "a0_006__launcher_ent";
 	tags = 
 	[
-		"Core", "Cyberware", "QuickAction", "ChargeAction", "ChargeAttack", "WeaponAttachment", "Attack_Projectile", "QuickSlots", "HideInBackpackUI", "UnequipHolsteredArms", "PSM"
+		"Core", "Cyberware", "QuickAction", "ChargeAction", "ChargeAttack", "WeaponAttachment", "Attack_Projectile", "QuickSlots", "HideInBackpackUI", "UnequipHolsteredArms", "PSM", "ProjectileLauncher"
 	];
 	placementSlots = 
 	[
@@ -122,12 +134,11 @@ ProjectileLauncher : WeaponItem
 	equipArea = "EquipmentArea.ArmsCW";
 	itemType = "ItemType.Cyb_Launcher";
 	itemCategory = "ItemCategory.Cyberware";
-	evolution = "WeaponEvolution.Smart";
+	evolution = "WeaponEvolution.Tech";
 	holsteredItem = "Items.ProjectileLauncherHolsteredFists";
-	float projectileSmartTargetingAngle = 100;
 	fk< StatModifierGroup >[] statModifierGroups = 
 	[
-		"Items.ProjectileLauncherHandlingStats", "Items.ProjectileLauncherRPGStats", "Items.ProjectileLauncherTargetingStats"
+		"Items.ProjectileLauncherHandlingStats", "Items.ProjectileLauncherRPGStats", "Items.ProjectileLauncher_Tech_Stats", "Items.ProjectileLauncher_Mult_Stats"
 	];
 	statPools = 
 	[
@@ -135,11 +146,35 @@ ProjectileLauncher : WeaponItem
 	];
 	statModifiers += 
 	[
-		"Items.ItemArmorToArmor"
+		{
+			statType = "BaseStats.ProjectileLauncherQualityMult";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.7f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ProjectileLauncherQualityMult";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 0.3f;
+		} : CombinedStatModifier
 	];
 	fk< Attack >[] attacks = 
 	[
 		"Attacks.ProjectileLauncherAttackHelper"
+	];
+	OnAttach += 
+	[
+		"EquipmentGLP.ProjectileLauncherSelfDamageModifier", {
+			effectors = 
+			[
+				{
+					statGroup = "Items.ProjectileLauncher_Tech_Stats_OnEquip";
+				} : ApplyStatGroupOnWeapon
+			];
+		}
 	];
 	OnEquip = 
 	[
@@ -151,16 +186,10 @@ ProjectileLauncher : WeaponItem
 		}
 	];
 	CName cyberwareType = "ProjectileLauncher";
-	buyPrice = 
-	[
-		"Price.Meleeware", "Price.CyberwareQualityMultiplier"
-	];
-	sellPrice = 
-	[
-		"Price.Meleeware", "Price.CyberwareSellMultiplier", "Price.CyberwareQualityMultiplier", "Price.CraftingTraitMultiplier"
-	];
+	counterpart = "Items.AdvancedProjectileLauncherUncommon";
 }
 
+[ notQueryable ]
 ProjectileLauncherBlueprint : ItemBlueprint
 {
 	fk< ItemBlueprintElement > rootElement = 
@@ -184,11 +213,15 @@ ProjectileLauncherBlueprint : ItemBlueprint
 				{
 					valueToCheck = 3;
 				} : ItemQualityPrereq;
+			}, 
+			{
+				slot = "AttachmentSlots.StatsShardSlot";
 			}
 		];
 	};
 }
 
+[ notQueryable ]
 ProjectileLauncherHandlingStats : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
@@ -216,6 +249,7 @@ ProjectileLauncherHandlingStats : StatModifierGroup
 	];
 }
 
+[ notQueryable ]
 ProjectileLauncherRPGStats : ArmsCyberwareStatGroupBase
 {
 	fk< StatModifier >[] statModifiers += 
@@ -246,47 +280,92 @@ ProjectileLauncherRPGStats : ArmsCyberwareStatGroupBase
 			value = 0;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.ItemRequiresSmartLink";
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 2.f;
+		} : CycleTimeModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			value = 1.0f;
+		} : ChargeTimeModifier, 
+		{
+			value = 0.25;
+		} : ChargeMultiplierModifier, 
+		{
+			statType = "BaseStats.ChargeFullMultiplier";
 			modifierType = "Additive";
-			value = 1;
+			refStat = "BaseStats.ChargeMultiplier";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChargeTime";
+			modifierType = "Additive";
+			refStat = "BaseStats.BaseChargeTime";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+ProjectileLauncher_Tech_Stats : StatModifierGroup
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.BaseMaxChargeThreshold";
+			modifierType = "Additive";
+			value = 50f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FullyChargedThreshold";
+			modifierType = "Additive";
+			value = 75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.OverchargeThreshold";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier, 
+		{
+			value = 0.25;
+		} : ChargeMultiplierModifier, 
+		{
+			statType = "BaseStats.ChargeFullMultiplier";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChargeMultiplier";
+			opSymbol = "*";
+			value = 1.25f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+ProjectileLauncher_Tech_Stats_OnEquip : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.CanFullyChargeWeapon";
+			modifierType = "Additive";
+			value = 1f;
 		} : ConstantStatModifier
 	];
 }
 
-ProjectileLauncherTargetingStats : StatModifierGroup
+[ notQueryable ]
+ProjectileLauncher_Mult_Stats : StatModifierGroup
 {
-	fk< StatModifier >[] statModifiers = 
+	statModifiers = 
 	[
-		{
-			float value = 30.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
-		{
-			float value = 1.f;
-		} : SmartGunTrackAllBodypartsModifier, 
-		{
-			float value = 5.f;
-		} : SmartGunHipLockingAnglePitchModifier, 
-		{
-			float value = 5.f;
-		} : SmartGunHipLockingAngleYawModifier, 
-		{
-			float value = 5.f;
-		} : SmartGunAdsLockingAnglePitchModifier, 
-		{
-			float value = 5.f;
-		} : SmartGunAdsLockingAngleYawModifier, 
-		{
-			float value = 15.f;
-		} : SmartGunHipTargetableAnglePitchModifier, 
-		{
-			float value = 15.f;
-		} : SmartGunHipTargetableAngleYawModifier, 
-		{
-			float value = 15.f;
-		} : SmartGunAdsTargetableAnglePitchModifier, 
-		{
-			float value = 15.f;
-		} : SmartGunAdsTargetableAngleYawModifier
+		"AttackModifier.TechWeaponDPSReduction"
 	];
 }
 
@@ -294,11 +373,13 @@ ProjectileLauncherTargetingStats : StatModifierGroup
 ProjectileLauncherEpic : ProjectileLauncher
 {
 	quality = "Quality.Epic";
+	counterpart = "Items.AdvancedProjectileLauncherUncommon";
 }
 
 [ notQueryable ]
 ProjectileLauncherLegendary : ProjectileLauncher
 {
 	quality = "Quality.Legendary";
+	counterpart = "Items.AdvancedProjectileLauncherUncommon";
 }
 

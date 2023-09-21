@@ -158,6 +158,7 @@ AIActionPhase
 	float toNextPhaseConditionCheckInterval = 0.f;
 	float conditionSuccessDuration = 0.f;
 	bool completeActionWithFailureOnCondition = false;
+	bool forceZeroUpdateInterval = false;
 }
 
 AIActionChangeNPCState
@@ -282,6 +283,7 @@ AISubActionEquipOnBody : AISubActionCharacterRecordEquip
 AISubActionEquipOnSlot : AISubActionCharacterRecordEquip
 {
 	bool useItemSpawnDelayFromWeapon = true;
+	bool cacheEquippedItem = true;
 }
 
 AISubActionCharacterRecordUnequip : AISubAction
@@ -383,6 +385,7 @@ AISubActionTriggerStim : AISubAction
 	fk< StimType > stimType = "";
 	float radius = 0.f;
 	bool direct = false;
+	bool purelyDirect = false;
 	fk< AIActionTarget > target = "";
 }
 
@@ -434,8 +437,16 @@ AISubActionAttackWithWeapon : AISubAction
 	float attackTime = 0.f;
 	float attackDuration = 0.f;
 	float attackRange = -1.f;
+	float attackInitRange = 0.f;
+	float attackWidth = 0.f;
+	float axisLowerMargin = 0.f;
+	float axisUpperMargin = 0.f;
+	Vector3 coneDirection = ( 0.f, 1.f, 0.f );
+	float coneHalfAngle = 0.f;
 	Vector3 colliderBoxSize = ( 0.5f, 0.3f, 1.5f );
 	CName attackName = "";
+	Vector3 positionOffset = ( 0.f, 0.f, 0.f );
+	bool stopContinuousAttackOnDurationEnd = true;
 }
 
 AISubActionRegisterActionName : AISubAction
@@ -471,8 +482,16 @@ AISubActionShootWithWeapon : AISubAction
 	float pauseConditionCheckInterval = 0.2f;
 	fk< AIPatternsPackage >[] shootingPatternPackages = [];
 	CName dualWieldShootingStyle = "Sequence";
+	CName weaponCustomEvent = "";
 	int numberOfShots = -1;
 	int maxNumberOfShots = -1;
+}
+
+AISubActionShootFromCar : AISubAction
+{
+	float delay = 0.35f;
+	fk< AIActionTarget > target = "";
+	fk< AIActionTarget > instigator = "AIActionTarget.Owner";
 }
 
 AISubActionShootToPoint : AISubActionShootWithWeapon
@@ -494,6 +513,10 @@ AISubActionMissileRainCircular : AISubActionShootWithWeapon
 	float minRadius = 0.f;
 	float maxRadius = 0.f;
 	int missilesPerLaunch = 1;
+}
+
+AISubActionChimeraMetalstorm : AISubActionShootWithWeapon
+{
 }
 
 AISubActionActivateStrongArmsFX : AISubAction
@@ -535,6 +558,7 @@ AISubActionSetStimSource : AISubAction
 	float delay = 0.f;
 	fk< AIActionTarget > stimTarget = "";
 	bool useInvestigateData = false;
+	bool revertStimSourceDirection = false;
 }
 
 AISubActionWorkspot : AISubAction
@@ -548,12 +572,12 @@ AISubActionSetTargetByTag : AISubAction
 	fk< AIActionTarget > target = "";
 	fk< AIActionTarget > rangeObj = "";
 	CName tag = "";
-	bool avoidSelectingSameTarget = false;
 	int avoidSelectingSameTargetMethod = 0;
 	Vector2 rangeFromOwner = ( -1.f, -1.f );
 	Vector2 rangeFromObj = ( -1.f, -1.f );
 	CName selectionMethod = "Random";
 	fk< AIActionTarget > lineOfSightTarget = "";
+	bool blockLoSByNonPenetrableObj = false;
 	CName[] allowedOffMeshTags = [];
 }
 
@@ -589,9 +613,11 @@ AISubActionSecuritySystemNotification : AISubAction
 
 AISubActionCallSquadSearchBackUp : AISubAction
 {
+	float delay = 0.f;
 	fk< AIActionTarget > target = "AIActionTarget.StimTarget";
 	float numberOfTargets = -1;
-	float callInLevel = -1;
+	bool useCommsCallLogic = false;
+	bool invert = false;
 }
 
 AISubActionStartCooldown : AISubAction
@@ -606,6 +632,7 @@ AISubActionMountVehicle : AISubAction
 	fk< AIActionTarget > vehicle = "AIActionTarget.AssignedVehicle";
 	fk< VehicleSeat > slot = "";
 	bool mountInstantly = false;
+	bool ignoreFlatTires = false;
 }
 
 AISubActionUseSensePreset : AISubAction

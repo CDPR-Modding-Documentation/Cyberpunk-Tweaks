@@ -12,7 +12,7 @@ Base_Yukimura : Base_Smart_Handgun
 	[
 		"Price.Arasaka", "Price.TopManufactureQuality"
 	];
-	fk< ItemBlueprint > blueprint = "Items.Base_Yukimura_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Smart_Handgun_NoAttachments_Blueprint";
 	displayName = "LocKey#3577";
 	string friendlyName = "w_handgun_arasaka_yukimura";
 	localizedDescription = "LocKey#3578";
@@ -20,7 +20,7 @@ Base_Yukimura : Base_Smart_Handgun
 	CName audioName = "wea_set_yukimura";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "WeaponAttachment", "HasFirstEquip", "Handgun"
+		"Preload", "Weapon", "WeaponAttachment", "HasFirstEquip", "Handgun", "T2_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -78,12 +78,15 @@ Base_Yukimura : Base_Smart_Handgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats"
 		];
-	} : Base_Smart_Handgun_NPC_Data;
+	} : Base_Yukimura_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_Handling_Stats", "Items.Base_Yukimura_Recoil_Stats", "Items.Base_Yukimura_SmartGun_Stats", "Items.Base_Yukimura_SmartGun_SmartLink_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_Flags", "Items.Base_Yukimura_Aim_Stats", "Items.Base_Yukimura_StatModifierGroup_SpreadStats"
+		"Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_Handling_Stats", "Items.Base_Yukimura_Recoil_Stats", "Items.Base_Yukimura_SmartGun_Stats", "Items.Base_Yukimura_SmartGun_SmartLink_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_Flags", "Items.Base_Yukimura_Aim_Stats", "Items.Base_Yukimura_StatModifierGroup_SpreadStats", "Items.Base_Yukimura_Damage_Stats", "Items.Base_Yukimura_Constant_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay", "Items.SmartWeaponTargetsPriorityQueues", "Items.YukimuraADSDamageReduction"
 	];
 	fk< ConstantStatModifier > price = 
 	{
@@ -94,10 +97,10 @@ Base_Yukimura : Base_Smart_Handgun
 	bool useNewSpawnMethod = true;
 	bool isSingleInstance = false;
 	bool IsIKEnabled = false;
-	baseReloadTime = 2.1f;
-	baseEmptyReloadTime = 2.8f;
-	uninterruptibleReloadStart = 1.6f;
-	uninterruptibleEmptyReloadStart = 1.7f;
+	baseReloadTime = 1.6f;
+	baseEmptyReloadTime = 1.6f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 10.0f;
 	float weaponFarPlane = 22.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -118,28 +121,8 @@ Base_Yukimura_NPC_Data : Base_Smart_Handgun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Yukimura_Technical_Stats"
+		"Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_NPC_Damage_Stats"
 	];
-}
-
-Base_Yukimura_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.SmartModRareElement", "Items.SmartModEpicElement", "Items.SmartModLegendaryElement", "Items.IconicWeaponModElement", {
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-			}
-		];
-	};
 }
 
 Base_Yukimura_Technical_Stats : StatModifierGroup
@@ -150,7 +133,7 @@ Base_Yukimura_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 5.f;
+			value = 2.25f;
 		} : AccuracyModifier, 
 		{
 			value = 0.15f;
@@ -174,18 +157,48 @@ Base_Yukimura_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Yukimura_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 53f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Yukimura_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Yukimura_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.1f;
+			value = 1.6f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.8f;
+			value = 1.6f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.1f;
+			value = 0.5f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.2f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.3f;
 		} : ZoomLevelModifier, 
 		{
 			value = 3.7f;
@@ -238,46 +251,49 @@ Base_Yukimura_SmartGun_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 15.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
 		{
 			value = 0.f;
-		} : SmartGunTrackAllBodypartsModifier, 
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
 		{
-			value = 3.5f;
+			value = 0.2f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
 		} : SmartGunHipLockingAnglePitchModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunHipLockingAngleYawModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAnglePitchModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAngleYawModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAnglePitchModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAngleYawModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAnglePitchModifier, 
 		{
-			value = 3.5f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAngleYawModifier, 
 		{
-			value = 1.f;
+			value = 3.f;
 		} : SmartGunHipMaxLockedTargetsModifier, 
 		{
 			value = 1.f;
 		} : SmartGunAdsMaxLockedTargetsModifier, 
 		{
-			value = 0.6f;
+			value = 1.2f;
 		} : SmartGunHipTimeToLockModifier, 
 		{
-			value = 0.6f;
+			value = 1.2f;
 		} : SmartGunAdsTimeToLockModifier, 
 		{
 			value = 0.f;
@@ -314,60 +330,56 @@ Base_Yukimura_SmartGun_SmartLink_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunHipLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 2.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunHipLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 2.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 2.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 9.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 1.6f;
 			statType = "BaseStats.SmartGunHipTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 1.6f;
 			statType = "BaseStats.SmartGunAdsTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 1.6f;
 			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 0.30f;
+			value = 0.25f;
 			statType = "BaseStats.SmartGunHitProbability";
 		} : SmartLinkDependentStatModifier, 
 		{
 			value = 35.f;
 			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 15.f;
-			statType = "BaseStats.SmartGunTargetAcquisitionRange";
 		} : SmartLinkDependentStatModifier
 	];
 }
@@ -411,55 +423,55 @@ Base_Yukimura_StatModifierGroup_SpreadStats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.f;
+			value = 2.5f;
 		} : SpreadDefaultXModifier, 
 		{
-			value = 3.0f;
+			value = 2.0f;
 		} : SpreadDefaultYModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadMinXModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadMinYModifier, 
 		{
-			value = 4.5f;
+			value = 2.5f;
 		} : SpreadMaxXModifier, 
 		{
-			value = 5.0f;
+			value = 2.0f;
 		} : SpreadMaxYModifier, 
 		{
-			value = 0.1f;
+			value = 0.0f;
 		} : SpreadChangePerShotModifier, 
 		{
 			value = 1.0f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.f;
+			value = 1.25f;
 		} : SpreadAdsDefaultXModifier, 
 		{
-			value = 0.25f;
+			value = 1.0f;
 		} : SpreadAdsDefaultYModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 2.5f;
+			value = 1.25f;
 		} : SpreadAdsMaxXModifier, 
 		{
-			value = 0.375f;
+			value = 1.0f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			value = 0.4f;
+			value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			value = 2.0f;
+			value = 1.75f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.15f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -497,6 +509,23 @@ Base_Yukimura_Misc_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		"BaseStats.EquipDurationModifier", "BaseStats.UnequipDurationModifier", "BaseStats.SlideWhenLeaningOutOfCoverModifier", "BaseStats.BlockLocomotionWhenLeaningOutOfCoverModifier"
+	];
+}
+
+Base_Yukimura_Constant_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.833;
+		} : ConstantStatModifier
 	];
 }
 

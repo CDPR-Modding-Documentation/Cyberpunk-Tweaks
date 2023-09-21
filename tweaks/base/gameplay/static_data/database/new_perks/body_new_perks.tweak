@@ -1,0 +1,2605 @@
+package NewPerks
+using RTDB, Perks, BaseStatusEffect, Effectors, Prereqs, BaseStats
+
+Body_Central_Milestone_1 : NewPerk
+{
+	loc_name_key = "LocKey#87970";
+	loc_desc_key = "LocKey#88004";
+	perkIcon = "UIIcon.Athletics_Area_03_Perk_2";
+	enumName = "Body_Central_Milestone_1";
+	enumComment = "Slow health regeneration in combat";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	slot = "NewPerks.Central_Milestone_1";
+	requiresPerks = [];
+	tier = "NewPerks.NoviceNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				stats = 
+				[
+					{
+						statType = "BaseStats.HealthInCombatRegenEnabled";
+						modifierType = "Additive";
+						value = 1f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HealthInCombatRegenRate";
+						modifierType = "Additive";
+						value = 0.1f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.HealthInCombatRegenDelayOnChange";
+						modifierType = "Multiplier";
+						value = 0f;
+					} : ConstantStatModifier
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Central_Perk_1_1 : NewPerk
+{
+	loc_name_key = "LocKey#87971";
+	loc_desc_key = "LocKey#88005";
+	perkIcon = "UIIcon.Athletics_Area_08_Perk_2";
+	uiData = 
+	{
+		floatValues = 
+		[
+			60f
+		];
+	};
+	enumName = "Body_Central_Perk_1_1";
+	enumComment = "Boost regeneration when sprinting";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_1_1";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_1"
+	];
+	tier = "NewPerks.NoviceNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.IsPlayerSprinting";
+						statusEffect = "BaseStatusEffect.Body_Central_Perk_1_1_HealthRegenBuff";
+					} : ApplyStatusEffectOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							isInState = false;
+						} : Perks.IsPlayerSprinting;
+						statusEffects = 
+						[
+							"BaseStatusEffect.Body_Central_Perk_1_1_HealthRegenBuff"
+						];
+					} : RemoveStatusEffectsEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Central_Perk_1_2 : NewPerk
+{
+	loc_name_key = "LocKey#87972";
+	loc_desc_key = "LocKey#88006";
+	uiData = 
+	{
+		floatValues = 
+		[
+			1.f
+		];
+	};
+	perkIcon = "UIIcon.Brawling_Area_02_Perk_1";
+	enumName = "Body_Central_Perk_1_2";
+	enumComment = "Regeneration stronger on lower health";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_1_2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_1"
+	];
+	tier = "NewPerks.NoviceNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						statPool = "BaseStatPools.Health";
+						statusEffect = "BaseStatusEffect.Body_Central_Perk_1_2_Buff";
+						statPoolStep = 4f;
+						stepUsesPercent = true;
+						startingThreshold = 100f;
+						thresholdUsesPercent = true;
+						maxStacks = 25;
+						inverted = true;
+						roundUpwards = true;
+					} : StatPoolBasedStatusEffectEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+IsPlayerBelowCriticalHealth : StatPoolPrereq
+{
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 25.0f;
+		} : ConstantStatModifier
+	];
+	statPoolType = "Health";
+	comparisonType = "LessOrEqual";
+}
+
+DoesPlayerHaveOvershield : StatPoolPrereq
+{
+	valueToCheck = 
+	[
+		{
+			statType = "BaseStats.Overshield";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier
+	];
+	statPoolType = "Overshield";
+	comparisonType = "Greater";
+}
+
+Body_Central_Perk_1_3 : NewPerk
+{
+	loc_name_key = "LocKey#87973";
+	loc_desc_key = "LocKey#88007";
+	uiData = 
+	{
+		floatValues = 
+		[
+			10f
+		];
+	};
+	perkIcon = "UIIcon.Body_Central_Perk_3_1";
+	enumName = "Body_Central_Perk_1_3";
+	enumComment = "Health regeneration is stronger for each close enemy";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_1_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_1"
+	];
+	tier = "NewPerks.NoviceNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.IsPlayerInCombatState";
+						maxEnemyDistance = 7.f;
+						statusEffect = "BaseStatusEffect.Body_Central_Perk_1_3_HealthRegenBuff";
+					} : StuckInEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Central_Perk_1_4 : NewPerk
+{
+	loc_name_key = "LocKey#87974";
+	loc_desc_key = "LocKey#88008";
+	uiData = 
+	{
+		floatValues = 
+		[
+			100f, 2f
+		];
+	};
+	perkIcon = "UIIcon.ColdBlood_Area_07_Perk_2";
+	enumName = "Body_Central_Perk_1_4";
+	enumComment = "Using healing item or cyberware increase mitigation chance and strength by 10% for short duration";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_1_4";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_1"
+	];
+	tier = "NewPerks.NoviceNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Prereqs.UsedHealingItemOrCyberwarePrereq", "Prereqs.StartedUsingHealingItemOrCyberwarePrereq"
+							];
+						} : ORPrereq;
+						statusEffect = "BaseStatusEffect.Body_Central_Perk_1_4_MitigationBuff";
+					} : ApplyStatusEffectOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Milestone_1 : NewPerk
+{
+	loc_name_key = "LocKey#89369";
+	loc_desc_key = "LocKey#89368";
+	uiData = 
+	{
+		floatValues = 
+		[
+			50f, 50f
+		];
+	};
+	perkIcon = "UIIcon.Body_Right_Milestone_1";
+	enumName = "Body_Right_Milestone_1";
+	enumComment = "Vehicle Rigid Body";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	slot = "NewPerks.Right_Milestone_1";
+	requiresPerks = [];
+	tier = "NewPerks.NoviceNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Milestone_2 : NewPerk
+{
+	loc_name_key = "LocKey#87975";
+	perkIcon = "UIIcon.Body_Left_Milestone_2";
+	enumName = "Body_Left_Milestone_2";
+	enumComment = "Follow Through";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Milestone_2";
+	requiresPerks = [];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			loc_desc_key = "LocKey#89364";
+			uiData = 
+			{
+				floatValues = 
+				[
+					15f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.RecoilHoldDuration";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilTime";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilRecoveryTime";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilKickMin";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilKickMax";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilAngle";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SwaySideMinimumAngleDistance";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SwaySideMinimumAngleDistance";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon, 
+					{
+						prereqRecord = "Prereqs.LMGHeldPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.SpreadDefaultX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SpreadAdsDefaultX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SpreadMaxX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SpreadAdsMaxX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#88009";
+			uiData = 
+			{
+				floatValues = 
+				[
+					25f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.CycleTimeBonus";
+									modifierType = "Additive";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.25f;
+								} : CombinedStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_2_1 : NewPerk
+{
+	enumName = "Body_Left_Perk_2_1";
+	enumComment = "Your spread is now improved by 25% during movement";
+	loc_name_key = "LocKey#87976";
+	loc_desc_key = "LocKey#88010";
+	perkIcon = "UIIcon.Demolition_Area_07_Perk_2";
+	uiData = 
+	{
+		floatValues = 
+		[
+			25f
+		];
+	};
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Perk_2_1";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.SpreadFastSpeedMinAdd";
+									modifierType = "Additive";
+									value = -0.5f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.SpreadFastSpeedMaxAdd";
+									modifierType = "Multiplier";
+									value = -0.5f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.SpreadAdsFastSpeedMinAdd";
+									modifierType = "Multiplier";
+									value = -0.5f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.SpreadAdsFastSpeedMaxAdd";
+									modifierType = "Multiplier";
+									value = -0.5f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_2_3 : NewPerk
+{
+	enumName = "Body_Left_Perk_2_3";
+	enumComment = "When out of stamina increase mitigation chance by 10% and mitigation strength by 20%";
+	loc_name_key = "LocKey#87978";
+	loc_desc_key = "LocKey#88012";
+	perkIcon = "UIIcon.Athletics_Area_01_Perk_1";
+	uiData = 
+	{
+		floatValues = 
+		[
+			33f, 15, 5f
+		];
+	};
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Perk_2_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Perks.DemolitionPerkPrereq", {
+									valueToCheck = 0.33f;
+									statType = "StaminaRatio";
+									comparisonType = "LessOrEqual";
+								} : StatPrereq
+							];
+						} : ANDPrereq;
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.MitigationChance";
+									modifierType = "Additive";
+									value = 15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.MitigationStrength";
+									modifierType = "Additive";
+									value = 5f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_2_4 : NewPerk
+{
+	enumName = "Body_Left_Perk_2_4";
+	enumComment = "Remove movement penalties for LMGs and Shotguns";
+	loc_name_key = "LocKey#90671";
+	loc_desc_key = "LocKey#90670";
+	uiData = 
+	{
+		floatValues = 
+		[
+			100f
+		];
+	};
+	perkIcon = "UIIcon.Demolition_Area_05_Perk_2";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Left_Perk_2_4";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.LocomotionPenaltyDisabled";
+									modifierType = "Additive";
+									value = 1f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Milestone_2 : NewPerk
+{
+	loc_name_key = "LocKey#87982";
+	perkIcon = "UIIcon.Body_Right_Milestone_2";
+	enumName = "Body_Right_Milestone_2";
+	enumComment = "Body Slam";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	binkPath = "base\movies\tutorials\700x394\perk_body_wreckingball.bk2";
+	slot = "NewPerks.Right_Milestone_2";
+	requiresPerks = [];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			loc_desc_key = "LocKey#89365";
+			uiData = 
+			{
+				floatValues = 
+				[
+					15f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.BatonStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.FistsStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.OneHandBluntStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.StrongArmsStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupOnPlayer
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#88016";
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackSubtype = "BodySlam";
+									} : AttackSubtypeHitPrereqCondition, 
+									"Prereqs.TargetIsCrowdHitPrereqCondition"
+								];
+							} : ProcessHitTriggered;
+							value = 70.0f;
+						} : AddDamage;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Perk_2_1 : NewPerk
+{
+	loc_name_key = "LocKey#87983";
+	loc_desc_key = "LocKey#88017";
+	uiData = 
+	{
+		floatValues = 
+		[
+			40f
+		];
+	};
+	perkIcon = "UIIcon.Brawling_Area_04_Perk_1";
+	enumName = "Body_Right_Perk_2_1";
+	enumComment = "Power Block";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Perk_2_1";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Prereqs.BluntWeaponHeldPrereq", "Perks.IsPlayerBlocking"
+							];
+						} : ANDPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackType = "Ranged";
+									} : AttackTypeHitPrereqCondition, 
+									{
+										weaponType = "Ranged";
+									} : WeaponTypeHitPrereqCondition
+								];
+							} : ProcessHitReceived;
+							effectorClassName = "PowerBlockEffector";
+							float damageReduction = 0.4f;
+							removeAfterActionCall = true;
+						} : Effector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Perk_2_2 : NewPerk
+{
+	loc_name_key = "LocKey#87984";
+	loc_desc_key = "LocKey#88018";
+	uiData = 
+	{
+		floatValues = 
+		[
+			10f, 30f, 5f
+		];
+	};
+	perkIcon = "UIIcon.Brawling_Area_02_Perk_2";
+	enumName = "Body_Right_Perk_2_2";
+	enumComment = "Kinetic Block";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Perk_2_2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Prereqs.BluntWeaponHeldPrereq", "Perks.IsPlayerBlocking"
+							];
+						} : ANDPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = "Prereqs.ProcessHitReceived";
+							statPoolUpdates = 
+							[
+								{
+									statPoolType = "BaseStatPools.Stamina";
+									statPoolValue = 10f;
+								} : StatPoolUpdate
+							];
+							bool usePercent = true;
+						} : ModifyStatPoolValueEffector;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Prereqs.BluntWeaponHeldPrereq", "Perks.IsPlayerBlocking"
+							];
+						} : ANDPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = "Prereqs.ProcessHitReceived";
+							statusEffect = "NewPerks.KineticBlockMeleeDamage_Buff";
+						} : ApplyStatusEffectOnPlayer;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Perk_2_3 : NewPerk
+{
+	loc_name_key = "LocKey#87985";
+	loc_desc_key = "LocKey#88019";
+	perkIcon = "UIIcon.Brawling_Area_09_Perk_1";
+	uiData = 
+	{
+		floatValues = 
+		[
+			100f, 100f
+		];
+		intValues = 
+		[
+			10f
+		];
+	};
+	enumName = "Body_Right_Perk_2_3";
+	enumComment = "Power Push";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Perk_2_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions += 
+								[
+									{
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										statusEffect = "Unconscious";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition, 
+									{
+										attackSubtype = "BlockAttack";
+									} : AttackSubtypeHitPrereqCondition, 
+									{
+										statusEffect = "Body_Right_Perk_2_3_Cooldown";
+										checkType = "CheckType.Record";
+										objectToCheck = "Instigator";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition
+								];
+							} : PreProcessHitTriggered;
+							hitFlag = "ForceKnockdown";
+						} : AddHitFlagToAttackEffector;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions += 
+								[
+									{
+										attackSubtype = "BlockAttack";
+									} : AttackSubtypeHitPrereqCondition, 
+									{
+										statusEffect = "Body_Right_Perk_2_3_Cooldown";
+										checkType = "CheckType.Record";
+										objectToCheck = "Instigator";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition
+								];
+							} : IsHitTargetAlive;
+							statusEffect = "BaseStatusEffect.Body_Right_Perk_2_3_Cooldown";
+						} : ApplyStatusEffectOnPlayer;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions += 
+								[
+									{
+										attackSubtype = "DeflectAttack";
+									} : AttackSubtypeHitPrereqCondition
+								];
+							} : IsHitTargetAlive;
+							statusEffect = "BaseStatusEffect.Stun";
+							isRandom = false;
+						} : AddStatusEffectToAttackEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Perk_2_4 : NewPerk
+{
+	loc_name_key = "LocKey#87986";
+	loc_desc_key = "LocKey#88020";
+	uiData = 
+	{
+		floatValues = 
+		[
+			40f, 7f
+		];
+	};
+	perkIcon = "UIIcon.Brawling_Area_05_Perk_1";
+	enumName = "Body_Right_Perk_2_4";
+	enumComment = "Power Blows";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Perk_2_4";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_2"
+	];
+	tier = "NewPerks.AdeptNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = "Perks.IsHitStrongAttack";
+							statusEffect = "BaseStatusEffect.Body_Right_Perk_2_4_Vulnerable";
+							isRandom = false;
+						} : AddStatusEffectToAttackEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Inbetween_Left_3 : NewPerk
+{
+	loc_name_key = "LocKey#88568";
+	loc_desc_key = "LocKey#88634";
+	uiData = 
+	{
+		floatValues = 
+		[
+			50f
+		];
+	};
+	perkIcon = "UIIcon.Body_Inbetween_Left_3";
+	enumName = "Body_Inbetween_Left_3";
+	enumComment = "Bloodlust";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Inbetween_Left_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Perk_3_2", "NewPerks.Body_Left_Perk_3_1"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = "Prereqs.DismembermentTriggeredPrereq";
+							maxDistance = 5.0f;
+							healAmount = 50.0f;
+							usePercent = false;
+						} : BloodlustHealingEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Milestone_3 : NewPerk
+{
+	loc_name_key = "LocKey#87987";
+	perkIcon = "UIIcon.Demolition_Area_09_Perk_2";
+	enumName = "Body_Left_Milestone_3";
+	enumComment = "Dismember Execute";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Milestone_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_2"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			loc_desc_key = "LocKey#89364";
+			uiData = 
+			{
+				floatValues = 
+				[
+					15f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.RecoilHoldDuration";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilTime";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilRecoveryTime";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilKickMin";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilKickMax";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.RecoilAngle";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SwaySideMinimumAngleDistance";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SwaySideMinimumAngleDistance";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon, 
+					{
+						prereqRecord = "Prereqs.LMGHeldPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.SpreadDefaultX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SpreadAdsDefaultX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SpreadMaxX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier, 
+								{
+									statType = "BaseStats.SpreadAdsMaxX";
+									modifierType = "AdditiveMultiplier";
+									refStat = "BaseStats.StaminaRatio";
+									refObject = "Player";
+									opSymbol = "*(1-x)";
+									value = -0.15f;
+								} : CombinedStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#89363";
+			uiData = 
+			{
+				floatValues = 
+				[
+					10f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								{
+									conditions = 
+									[
+										{
+											float distanceRequired = 10.0f;
+											string comparisonType = "LessOrEqual";
+										} : Prereqs.DistanceCoveredHitPrereqCondition, 
+										{
+											weaponType = "Ranged";
+										} : WeaponTypeHitPrereqCondition
+									];
+								} : ProcessHitTriggered, 
+								"Perks.DemolitionPerkPrereq"
+							];
+						} : ANDPrereq;
+						value = 1.1f;
+					} : MultiplyDamage
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#88021";
+			uiData = 
+			{
+				floatValues = 
+				[
+					20f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.ExecuteDismemberByHealthChance";
+									modifierType = "Additive";
+									value = 0.05f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_3_1 : NewPerk
+{
+	enumName = "Body_Left_Perk_3_1";
+	enumComment = "Battle High";
+	loc_name_key = "LocKey#87988";
+	loc_desc_key = "LocKey#88022";
+	perkIcon = "UIIcon.Demolition_Area_02_Perk_2";
+	uiData = 
+	{
+		floatValues = 
+		[
+			20f, 8f
+		];
+	};
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Perk_3_1";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									"Prereqs.DismembermentTriggeredCondition", {
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition
+								];
+							} : ProcessHitTriggered;
+							statusEffect = "NewPerks.BodyPerkReload_Buff";
+						} : ApplyStatusEffectOnPlayer;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_3_2 : NewPerk
+{
+	enumName = "Body_Left_Perk_3_2";
+	enumComment = "Heavy Shots";
+	loc_name_key = "LocKey#87989";
+	loc_desc_key = "LocKey#88023";
+	perkIcon = "UIIcon.Brawling_Area_05_Perk_2";
+	uiData = 
+	{
+		floatValues = 
+		[
+			200f
+		];
+	};
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Perk_3_2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = "Perks.IsHitQuickMelee";
+							effectorClassName = "ModifyDamageWithStatPoolEffector";
+							string statPool = "Stamina";
+							string refObj = "Instigator";
+							string operationType = "Multiply";
+							string poolStatus = "Missing";
+							float maxDmg = 2.0f;
+						} : Effector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+			uiData = 
+			{
+				floatValues = 
+				[
+					200
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_3_3 : NewPerk
+{
+	enumName = "Body_Left_Perk_3_3";
+	enumComment = "Sow Terror";
+	loc_name_key = "LocKey#88567";
+	loc_desc_key = "LocKey#88631";
+	perkIcon = "UIIcon.Demolition_Area_06_Perk_1";
+	uiData = 
+	{
+		floatValues = 
+		[
+			15f
+		];
+	};
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	slot = "NewPerks.Left_Perk_3_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = "Perks.IsAttackRanged";
+							statusEffect = "BaseStatusEffect.Body_Left_Perk_3_3_Vulnerable";
+							isRandom = false;
+						} : AddStatusEffectToAttackEffector;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = "Prereqs.DismembermentTriggeredPrereq";
+							statusEffect = "BaseStatusEffect.Body_Left_Perk_3_3_Vulnerable";
+							range = 5.0f;
+							applicationTarget = "Dismemberment";
+							propagateToInstigator = false;
+						} : PropagateStatusEffectInAreaEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Left_Perk_3_4 : NewPerk
+{
+	enumName = "Body_Left_Perk_3_4";
+	enumComment = "Up Close and Personal";
+	loc_name_key = "LocKey#87990";
+	loc_desc_key = "LocKey#88024";
+	perkIcon = "UIIcon.Demolition_Area_06_Perk_2";
+	perkWeaponGroup = "NewPerks.BodyGunsPerkWeaponGroup";
+	uiData = 
+	{
+		floatValues = 
+		[
+			10f
+		];
+	};
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Left_Perk_3_4";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Perks.DemolitionPerkPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.ExecuteDismemberProximityChance";
+									modifierType = "Additive";
+									value = 0.1;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Central_Milestone_3 : NewPerk
+{
+	loc_name_key = "LocKey#87991";
+	perkIcon = "UIIcon.ColdBlood_Area_05_Perk_3";
+	enumName = "Body_Central_Milestone_3";
+	enumComment = "Over Shield";
+	binkPath = "base\movies\tutorials\700x394\perk_body_overhealing.bk2";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	slot = "NewPerks.Central_Milestone_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_1"
+	];
+	float overshieldPercentage = 0.30f;
+	levels = 
+	[
+		{
+			loc_desc_key = "LocKey#89361";
+			uiData = 
+			{
+				floatValues = 
+				[
+					35f
+				];
+			};
+			dataPackage = 
+			{
+				stats = 
+				[
+					{
+						statType = "BaseStats.Health";
+						modifierType = "Additive";
+						value = 35.0f;
+					} : ConstantStatModifier
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#89360";
+			uiData = 
+			{
+				floatValues = 
+				[
+					20f
+				];
+			};
+			dataPackage = 
+			{
+				stats = 
+				[
+					{
+						statType = "BaseStats.HealthInCombatRegenRate";
+						modifierType = "AdditiveMultiplier";
+						value = 0.20f;
+					} : ConstantStatModifier
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#88025";
+			uiData = 
+			{
+				floatValues = 
+				[
+					30f, 50f
+				];
+			};
+			dataPackage = 
+			{
+				stats = 
+				[
+					{
+						statType = "BaseStats.OvershieldDecayRate";
+						modifierType = "Additive";
+						value = 15.0f;
+					} : ConstantStatModifier
+				];
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.AlwaysTruePrereq";
+						effectorToApply = 
+						{
+							prereqRecord = "Prereqs.AlwaysTruePrereq";
+							delayTime = 0.5f;
+							b = 1.15f;
+							kInit = -12.5f;
+							k = 2.5f;
+							maxDecay = 185.0f;
+						} : ScaleOvershieldDecayOverTimeEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+}
+
+Body_Central_Perk_3_1 : NewPerk
+{
+	loc_name_key = "LocKey#87992";
+	loc_desc_key = "LocKey#88026";
+	perkIcon = "UIIcon.Body_Central_Milestone_3";
+	uiData = 
+	{
+		floatValues = 
+		[
+			3f
+		];
+	};
+	enumName = "Body_Central_Perk_3_1";
+	enumComment = "Grit";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_3_1";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				stats = 
+				[
+					{
+						statType = "BaseStats.OvershieldDecayStartDelay";
+						modifierType = "Additive";
+						value = 3.f;
+					} : ConstantStatModifier
+				];
+			};
+		} : NewPerkLevelData
+	];
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+}
+
+Body_Central_Perk_3_2 : NewPerk
+{
+	loc_name_key = "LocKey#87993";
+	loc_desc_key = "LocKey#88027";
+	uiData = 
+	{
+		floatValues = 
+		[
+			20f, 10f
+		];
+	};
+	perkIcon = "UIIcon.Body_Central_Perk_3_2";
+	enumName = "Body_Central_Perk_3_2";
+	enumComment = "Juggernaut";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_3_2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					"Effectors.JuggernautEffector"
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Central_Perk_3_4 : NewPerk
+{
+	loc_name_key = "LocKey#87994";
+	loc_desc_key = "LocKey#88028";
+	perkIcon = "UIIcon.Athletics_Area_10_Perk_1";
+	enumName = "Body_Central_Perk_3_4";
+	enumComment = "Unstoppable";
+	category = "NewPerks.SimpleNewPerkCategory";
+	slot = "NewPerks.Central_Perk_3_4";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					"Effectors.UnstoppableEffector"
+				];
+			};
+		} : NewPerkLevelData
+	];
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+}
+
+Body_Inbetween_Right_3 : NewPerk
+{
+	loc_name_key = "LocKey#87995";
+	loc_desc_key = "LocKey#88029";
+	uiData = 
+	{
+		floatValues = 
+		[
+			15.f
+		];
+	};
+	perkIcon = "UIIcon.Body_Inbetween_Right_3";
+	enumName = "Body_Inbetween_Right_3";
+	enumComment = "Schadenfreude";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Inbetween_Right_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Perk_3_1", "NewPerks.Body_Right_Perk_3_2"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions += 
+								[
+									{
+										hitFlag = "GroundSlam";
+									} : HitFlagHitPrereqCondition, 
+									{
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition
+								];
+							} : ProcessHitTriggered;
+							statPoolUpdates = 
+							[
+								{
+									statPoolType = "BaseStatPools.Health";
+									statPoolValue = 15.f;
+								} : StatPoolUpdate
+							];
+							bool usePercent = true;
+						} : ModifyStatPoolValueEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Milestone_3 : NewPerk
+{
+	loc_name_key = "LocKey#87996";
+	perkIcon = "UIIcon.Brawling_Area_08_Perk_1";
+	enumName = "Body_Right_Milestone_3";
+	enumComment = "Ground Slam";
+	binkPath = "base\movies\tutorials\700x394\perk_body_groundslam.bk2";
+	category = "NewPerks.MilestoneNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Milestone_3";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_2"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			loc_desc_key = "LocKey#89367";
+			uiData = 
+			{
+				floatValues = 
+				[
+					15f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.BatonStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.FistsStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.OneHandBluntStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.StrongArmsStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+									modifierType = "Additive";
+									value = 0.15f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupOnPlayer
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#89366";
+			uiData = 
+			{
+				floatValues = 
+				[
+					20f
+				];
+			};
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.AttackSpeed";
+									modifierType = "AdditiveMultiplier";
+									value = 0.2f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupOnWeapon
+				];
+			};
+		} : NewPerkLevelData, 
+		{
+			loc_desc_key = "LocKey#88030";
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.CanGroundSlamOnGround";
+									modifierType = "Additive";
+									value = 1f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.CanGroundSlamInAir";
+									modifierType = "Additive";
+									value = 1f;
+								} : ConstantStatModifier
+							];
+						};
+					} : ApplyStatGroupOnPlayer
+				];
+			};
+			uiData = 
+			{
+				floatValues = 
+				[
+					10f
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Perk_3_1 : NewPerk
+{
+	loc_name_key = "LocKey#87997";
+	loc_desc_key = "LocKey#88031";
+	perkIcon = "UIIcon.Athletics_Area_02_Perk_1";
+	enumName = "Body_Right_Perk_3_1";
+	enumComment = "Earthshaker";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Perk_3_1";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+		} : NewPerkLevelData
+	];
+}
+
+Body_Right_Perk_3_2 : NewPerk
+{
+	loc_name_key = "LocKey#87998";
+	loc_desc_key = "LocKey#88032";
+	uiData = 
+	{
+		floatValues = 
+		[
+			30f
+		];
+	};
+	perkIcon = "UIIcon.Body_Right_Perk_3_2";
+	enumName = "Body_Right_Perk_3_2";
+	enumComment = "Divide and Conquer";
+	category = "NewPerks.SimpleNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	slot = "NewPerks.Right_Perk_3_2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_3"
+	];
+	tier = "NewPerks.ExpertNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions += 
+								[
+									{
+										hitFlag = "GroundSlam";
+									} : HitFlagHitPrereqCondition, 
+									{
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition
+								];
+							} : ProcessHitTriggered;
+							statPoolUpdates = 
+							[
+								{
+									statPoolType = "BaseStatPools.Stamina";
+									statPoolValue = 30.0f;
+								} : StatPoolUpdate
+							];
+							bool usePercent = true;
+						} : ModifyStatPoolValueEffector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Master_Perk_1 : NewPerk
+{
+	loc_name_key = "LocKey#88001";
+	loc_desc_key = "LocKey#88035";
+	uiData = 
+	{
+		floatValues = 
+		[
+			100f, 100f
+		];
+	};
+	perkIcon = "UIIcon.Demolition_Area_02_Perk_1";
+	enumName = "Body_Master_Perk_1";
+	enumComment = "Rip and Tear";
+	category = "NewPerks.MasterNewPerkCategory";
+	perkWeaponGroup = "NewPerks.ShotgunsPerkWeaponGroup";
+	slot = "NewPerks.Master_Perk_1";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_3"
+	];
+	tier = "NewPerks.MasterNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.AnyShotgunHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackType = "Ranged";
+									} : AttackTypeHitPrereqCondition, 
+									{
+										weaponType = "Ranged";
+									} : WeaponTypeHitPrereqCondition, 
+									{
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition
+								];
+							} : ProcessHitTriggered;
+							statusEffect = "NewPerks.RipAndTearQuickmelee_Buff";
+						} : ApplyStatusEffectOnPlayer;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = "Prereqs.AnyShotgunHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackType = "QuickMelee";
+									} : AttackTypeHitPrereqCondition, 
+									{
+										weaponType = "Ranged";
+									} : WeaponTypeHitPrereqCondition, 
+									{
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition
+								];
+							} : ProcessHitTriggered;
+							statusEffect = "NewPerks.RipAndTearRanged_Buff";
+						} : ApplyStatusEffectOnPlayer;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Master_Perk_2 : NewPerk
+{
+	loc_name_key = "LocKey#88566";
+	loc_desc_key = "LocKey#88633";
+	uiData = 
+	{
+		floatValues = 
+		[
+			20f
+		];
+	};
+	perkIcon = "UIIcon.Demolition_Area_08_Perk_2";
+	enumName = "Body_Master_Perk_2";
+	enumComment = "Ceaseless Lead";
+	category = "NewPerks.MasterNewPerkCategory";
+	perkWeaponGroup = "NewPerks.LMGsPerkWeaponGroup";
+	slot = "NewPerks.Master_Perk_2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Left_Milestone_3"
+	];
+	tier = "NewPerks.MasterNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = "Prereqs.LMGHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions += 
+								[
+									{
+										attackType = "QuickMelee";
+										invert = true;
+									} : AttackTypeHitPrereqCondition, 
+									{
+										statusEffect = "Defeated";
+										checkType = "CheckType.Type";
+										invert = true;
+									} : StatusEffectPresentHitPrereqCondition, 
+									{
+										float valueToCheck = 0f;
+										CName objectToCheck = "Target";
+										string statPoolToCompare = "Health";
+										string comparisonType = "NotEqual";
+									} : StatPoolHitPrereqCondition
+								];
+							} : IsTargetKilled;
+							effectorClassName = "CeaselessLeadAmmoEffector";
+							float percentToRefund = 0.2f;
+						} : Effector;
+					} : ApplyEffectorOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+Body_Master_Perk_3 : NewPerk
+{
+	loc_name_key = "LocKey#88002";
+	loc_desc_key = "LocKey#88036";
+	perkIcon = "UIIcon.Brawling_Area_06_Perk_2";
+	enumName = "Body_Master_Perk_3";
+	enumComment = "Sadism";
+	category = "NewPerks.MasterNewPerkCategory";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Central_Milestone_3"
+	];
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						healingItemChargeRestorePercentage = 0.2f;
+					} : Effectors.SadismEffector
+				];
+			};
+		} : NewPerkLevelData
+	];
+	uiData = 
+	{
+		floatValues = 
+		[
+			20f
+		];
+	};
+	slot = "NewPerks.Master_Perk_3";
+	tier = "NewPerks.MasterNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+}
+
+Body_Master_Perk_5 : NewPerk
+{
+	loc_name_key = "LocKey#88003";
+	loc_desc_key = "LocKey#88037";
+	perkIcon = "UIIcon.New_Athletics_Area_06_Perk_2";
+	uiData = 
+	{
+		floatValues = 
+		[
+			20f
+		];
+	};
+	enumName = "Body_Master_Perk_5";
+	enumComment = "Savage Sling";
+	category = "NewPerks.MasterNewPerkCategory";
+	perkWeaponGroup = "NewPerks.BluntsPerkWeaponGroup";
+	binkPath = "base\movies\tutorials\700x394\perk_body_savagesling.bk2";
+	requiresPerks = 
+	[
+		"NewPerks.Body_Right_Milestone_3"
+	];
+	slot = "NewPerks.Master_Perk_5";
+	tier = "NewPerks.MasterNewPerkTier";
+	attribute = "NewPerks.BodyAttributeData";
+	levels = 
+	[
+		{
+			dataPackage = 
+			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							statusEffect = "BaseStatusEffect.FastFinisherSE";
+						} : StatusEffectPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackType = "StrongMelee";
+									} : AttackTypeHitPrereqCondition, 
+									{
+										weaponEvolution = "Blunt";
+									} : WeaponEvolutionHitPrereqCondition
+								];
+							} : PreProcessHitTriggered;
+							value = 3.0f;
+						} : MultiplyDamage;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							statusEffect = "BaseStatusEffect.FastFinisherSE";
+						} : StatusEffectPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackType = "StrongMelee";
+									} : AttackTypeHitPrereqCondition, 
+									{
+										weaponEvolution = "Blunt";
+									} : WeaponEvolutionHitPrereqCondition
+								];
+							} : PreProcessHitTriggered;
+							hitFlag = "FinisherTriggered";
+						} : AddHitFlagToAttackEffector;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							statusEffect = "BaseStatusEffect.FastFinisherSE";
+						} : StatusEffectPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = "NewPerks.FinishersAlwaysKillPrereq";
+							hitFlag = "Kill";
+						} : AddHitFlagToAttackEffector;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							statusEffect = "BaseStatusEffect.FastFinisherSE";
+						} : StatusEffectPrereq;
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								conditions = 
+								[
+									{
+										attackType = "StrongMelee";
+									} : AttackTypeHitPrereqCondition, 
+									{
+										weaponEvolution = "Blunt";
+									} : WeaponEvolutionHitPrereqCondition
+								];
+							} : PreProcessHitTriggered;
+							hitFlag = "Special";
+						} : AddHitFlagToAttackEffector;
+					} : ApplyEffectorOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Prereqs.BluntWeaponHeldPrereq", {
+									statusEffect = "BaseStatusEffect.Berserk";
+									checkType = "CheckType.Type";
+								} : Prereqs.StatusEffectAbsentPrereq
+							];
+						} : ANDPrereq;
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.HealthRegainOnKill";
+									modifierType = "Additive";
+									value = 20.0f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.CanPerformBluntFinisher";
+									modifierType = "Additive";
+									value = 1;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.NewPerkFinisherBlunt_TargetDistanceMax";
+									modifierType = "Additive";
+									value = 4.0f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.NewPerkFinisherBlunt_TargetHealthMax";
+									modifierType = "Additive";
+									value = 20.0f;
+								} : ConstantStatModifier
+							];
+						} : StatModifierGroup;
+					} : ApplyStatGroupOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"Prereqs.BluntWeaponHeldPrereq", {
+									statusEffect = "BaseStatusEffect.Berserk";
+									checkType = "CheckType.Type";
+								} : Prereqs.StatusEffectAbsentPrereq
+							];
+						} : ANDPrereq;
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.BluntFinisherHealthThresholdIncrease";
+									modifierType = "Additive";
+									value = 20.0f;
+								} : ConstantStatModifier
+							];
+						} : StatModifierGroup;
+					} : ApplyStatGroupOnPlayer
+				];
+			};
+		} : NewPerkLevelData
+	];
+}
+
+BodyPerkReload_Buff : BuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ReloadTimeBonus";
+								modifierType = "Additive";
+								value = -0.2f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#87990";
+		string iconPath = "perks_reload";
+		description = "";
+	};
+}
+
+RipAndTearQuickmelee_Buff : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8.f;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyShotgunHeldPrereq";
+					fk< Effector > effectorToApply = 
+					{
+						prereqRecord = 
+						{
+							conditions += 
+							[
+								{
+									statusEffect = "Defeated";
+									checkType = "CheckType.Type";
+									invert = true;
+								} : StatusEffectPresentHitPrereqCondition, 
+								{
+									float valueToCheck = 0f;
+									CName objectToCheck = "Target";
+									string statPoolToCompare = "Health";
+									string comparisonType = "NotEqual";
+								} : StatPoolHitPrereqCondition
+							];
+						} : Perks.IsHitQuickMelee;
+						value = 2.f;
+						statusEffectToRemove = "NewPerks.RipAndTearQuickmelee_Buff";
+						sfxName = "w_gun_perk_rip_and_tear_melee";
+						vfxName = "perk_rip_and_tear";
+					} : RipAndTearEffector;
+				} : ApplyEffectorOnPlayer
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#88001";
+		description = "";
+		string iconPath = "perks_buffed_melee";
+	};
+}
+
+RipAndTearRanged_Buff : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8.f;
+			} : ConstantStatModifier
+		];
+	} : StatModifierGroup;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyShotgunHeldPrereq";
+					fk< Effector > effectorToApply = 
+					{
+						prereqRecord = 
+						{
+							conditions += 
+							[
+								{
+									statusEffect = "Defeated";
+									checkType = "CheckType.Type";
+									invert = true;
+								} : StatusEffectPresentHitPrereqCondition, 
+								{
+									float valueToCheck = 0f;
+									CName objectToCheck = "Target";
+									string statPoolToCompare = "Health";
+									string comparisonType = "NotEqual";
+								} : StatPoolHitPrereqCondition
+							];
+						} : Perks.IsAttackRanged;
+						value = 2.f;
+						statusEffectToRemove = "NewPerks.RipAndTearRanged_Buff";
+						sfxName = "w_gun_perk_rip_and_tear_gun";
+						vfxName = "perk_rip_and_tear";
+					} : RipAndTearEffector;
+				} : ApplyEffectorOnPlayer
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#88001";
+		description = "";
+		string iconPath = "perks_buffed_shell";
+	};
+}
+
+KineticBlockMeleeDamage_Buff : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.BluntWeaponHeldPrereq";
+					fk< Effector > effectorToApply = 
+					{
+						prereqRecord = "Perks.IsWeaponMelee";
+						value = 1.3f;
+					} : MultiplyDamage;
+				} : ApplyEffectorOnPlayer
+			];
+		} : GameplayLogicPackage
+	];
+}
+

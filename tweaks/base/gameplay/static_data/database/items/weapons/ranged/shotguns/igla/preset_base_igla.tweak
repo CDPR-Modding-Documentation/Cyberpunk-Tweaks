@@ -1,8 +1,9 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Igla_Default : Base_Igla
 {
+	CName appearanceResourceName = "Preset_Igla_Default";
 	CName[] visualTags = 
 	[
 		"Default"
@@ -26,47 +27,21 @@ Preset_Igla_Default : Base_Igla
 			fk< Item > itemPartPreset = "Items.w_shotgun_dual__rostovic_igla__mag_stdr";
 		}, 
 		"Items.ShotgunScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Shotgun_WeaponMod1";
+		} : Power_Shotgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_Shotgun_WeaponMod2";
+		} : Power_Shotgun_ModList_Slot2
 	];
-	CName appearanceResourceName = "Preset_Igla_Default";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
 Preset_Igla_Pimp : Preset_Igla_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -78,11 +53,19 @@ Preset_Igla_Neon : Preset_Igla_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Igla_Military : Preset_Igla_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -118,86 +101,82 @@ Craftable_Common_Igla : Preset_Igla_Default
 Craftable_Uncommon_Igla : Craftable_Common_Igla
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_Shotgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Igla : Craftable_Common_Igla
+Craftable_Rare_Igla : Craftable_Uncommon_Igla
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Igla : Craftable_Common_Igla
+Craftable_Epic_Igla : Craftable_Uncommon_Igla
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Igla : Craftable_Common_Igla
+Craftable_Legendary_Igla : Craftable_Uncommon_Igla
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Igla_Sovereign : Preset_Igla_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "igla_sovereign_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40605";
 	visualTags = 
 	[
 		"Sovereign_Igla"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40606";
+	tags += 
+	[
+		"IconicWeapon", "CraftableIconic"
+	];
 	triggerModes = 
 	[
 		"TriggerMode.SemiAuto", "TriggerMode.Burst"
 	];
-	primaryTriggerMode = "TriggerMode.SemiAuto";
+	primaryTriggerMode = "TriggerMode.Burst";
 	secondaryTriggerMode = "TriggerMode.Burst";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	CraftingData = "Items.Iconic_Big_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Igla_Sovereign_Legendary";
-				}
-			];
-		}
-	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Igla_NPC_Data;
+	CraftingData = "Items.Craftable_Iconic_Weapon";
 	slotPartListPreset = 
 	[
 		{
@@ -223,51 +202,119 @@ Preset_Igla_Sovereign : Preset_Igla_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Igla_Technical_Stats", "Items.Base_Igla_Handling_Stats", "Items.Base_Igla_Recoil_Stats", "Items.Base_Igla_Spread_Stats", "Items.Base_Igla_Aim_Stats", "Items.Base_Igla_Constant_Stats", "Items.Base_Power_Shotgun_Stats", "Items.Base_Power_Shotgun_Mult_Stats", "Items.Base_Power_Shotgun_RPG_Randomized_Stats", "Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Shotgun_Sway_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Proficiencies.DemolitionDualShotgunStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Sovereign_Igla_Technical_Stats", "Items.Base_Igla_Handling_Stats", "Items.Base_Igla_Recoil_Stats", "Items.Base_Igla_Spread_Stats", "Items.Base_Igla_Aim_Stats", "Items.Base_Sovereign_Igla_Constant_Stats", "Items.Base_Igla_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Shotgun_Stats", "Items.Base_Power_Shotgun_Mult_Stats", "Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Shotgun_Sway_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Dual_Shotgun_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Sovereign_Elemental_Damage_Type_Stats"
 	];
 }
 
-[ notQueryable ]
-Preset_Igla_Sovereign_Legendary : Preset_Igla_Sovereign
+Base_Sovereign_Igla_Technical_Stats : StatModifierGroup
 {
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.2f;
+		} : CycleTimeModifier, 
+		{
+			value = 2.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 6.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Igla_Sovereign";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
+}
+
+Base_Sovereign_Igla_Constant_Stats : Base_Igla_Constant_Stats
+{
+	statModifiers += 
+	[
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
+}
+
+Sovereign_Elemental_Damage_Type_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.35f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 0.35f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.CraftingBonusWeaponDamage2";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
 }
 
 [ notQueryable ]
-Recipe_Preset_Igla_Sovereign_Legendary : ItemRecipe
+Common_Igla_Sovereign : Preset_Igla_Sovereign
 {
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Igla_Sovereign_Legendary";
-	};
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Igla_Sovereign : Preset_Igla_Sovereign
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Igla_Sovereign : Preset_Igla_Sovereign
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Igla_Sovereign : Preset_Igla_Sovereign
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Legendary_Igla_Sovereign : Preset_Igla_Sovereign
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
 }
 

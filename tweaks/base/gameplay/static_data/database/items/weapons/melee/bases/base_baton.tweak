@@ -2,7 +2,7 @@ package Items
 using RTDB, BaseStats, Prereqs
 
 [ notQueryable ]
-Base_Baton : MeleeWeapon
+Base_Baton : Base_Blunt
 {
 	fk< ItemType > itemType = "ItemType.Wea_OneHandedClub";
 	triggerEffectName = "te_wea_melee_swing_mid";
@@ -14,10 +14,9 @@ Base_Baton : MeleeWeapon
 		modifierType = "Additive";
 		value = 2;
 	} : ConstantStatModifier;
-	evolution = "WeaponEvolution.Blunt";
 	CName[] tags += 
 	[
-		"Baton"
+		"Baton", "FinisherFront", "FinisherBack", "DriverCombatBikeWeapon"
 	];
 	fk< AttachmentSlot >[] placementSlots += 
 	[
@@ -38,15 +37,15 @@ Base_Baton : MeleeWeapon
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.BluntFxPackage";
 	statPools = 
 	[
-		"BaseStatPools.WeaponCharge"
+		"BaseStatPools.TechMeleeCharge"
 	];
 	statModifierGroups += 
 	[
-		"Items.Base_Baton_RPG_Stats", "Items.Base_Baton_RPG_Randomized_Stats", "Items.Base_Baton_Handling_Stats", "Items.Base_Baton_Misc_Stats", "Proficiencies.BrawlingWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Electric", "Items.Base_Melee_Weapon_Damage_Type_Electric_Min_Max"
+		"Items.Base_Melee_Tech_Stats", "Items.Base_Baton_RPG_Stats", "Items.Base_Baton_Handling_Stats", "Items.Base_Baton_Misc_Stats", "Items.Base_Melee_Weapon_Damage_Type_Electric", "Items.Base_Melee_Weapon_Damage_Type_Electric_Min_Max"
 	];
 	attacks += 
 	[
-		"BatonAttacks.BatonComboAttack1", "BatonAttacks.BatonComboAttack2", "BatonAttacks.BatonComboAttack3", "BatonAttacks.BatonComboAttack4", "BatonAttacks.BatonFinalAttack1", "BatonAttacks.BatonFinalAttack2", "BatonAttacks.BatonFinalAttack3", "BatonAttacks.BatonFinalAttack4", "BatonAttacks.BatonFinalAttack5", "BatonAttacks.BatonStrongAttack1", "BatonAttacks.BatonStrongAttack2", "BatonAttacks.BatonStrongAttack3", "BatonAttacks.BatonJumpAttack", "BatonAttacks.BatonCrouchAttack", "BatonAttacks.BatonSprintAttack", "BatonAttacks.BatonSafeAttack", "BatonAttacks.BatonBlockAttack", "BatonAttacks.BatonDeflectAttack"
+		"BatonAttacks.BatonComboAttack1", "BatonAttacks.BatonComboAttack2", "BatonAttacks.BatonComboAttack3", "BatonAttacks.BatonComboAttack4", "BatonAttacks.BatonMountedComboAttack1", "BatonAttacks.BatonMountedComboAttack2", "BatonAttacks.BatonMountedComboAttack3", "BatonAttacks.BatonMountedComboAttack4", "BatonAttacks.BatonFinalAttack1", "BatonAttacks.BatonFinalAttack2", "BatonAttacks.BatonFinalAttack3", "BatonAttacks.BatonFinalAttack4", "BatonAttacks.BatonFinalAttack5", "BatonAttacks.BatonMountedFinalAttack1", "BatonAttacks.BatonMountedFinalAttack2", "BatonAttacks.BatonMountedFinalAttack3", "BatonAttacks.BatonMountedFinalAttack4", "BatonAttacks.BatonMountedFinalAttack5", "BatonAttacks.BatonStrongAttack1", "BatonAttacks.BatonStrongAttack2", "BatonAttacks.BatonStrongAttack3", "BatonAttacks.BatonMountedStrongAttack1", "BatonAttacks.BatonMountedStrongAttack2", "BatonAttacks.BatonMountedStrongAttack3", "BatonAttacks.BatonJumpAttack", "BatonAttacks.BatonCrouchAttack", "BatonAttacks.BatonSprintAttack", "BatonAttacks.BatonSafeAttack", "BatonAttacks.BatonBlockAttack", "BatonAttacks.BatonDeflectAttack", "BatonAttacks.BatonBodySlamLevel1Attack", "BatonAttacks.BatonBodySlamLevel2Attack", "BatonAttacks.BatonBodySlamLevel3Attack", "BatonAttacks.BatonGroundSlamAttack"
 	];
 	audioWeaponConfiguration = "audio_melee_metadata_baton";
 	enableNpcRPGData = true;
@@ -110,14 +109,6 @@ Base_Baton_NPC_Stats : StatModifierGroup
 			float value = 10.f;
 		} : BaseEvadeImpulseModifier, 
 		{
-			statType = "BaseStats.KnockdownImpulse";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			float value = 0.05f;
-		} : CombinedStatModifier, 
-		{
 			float value = 8.f;
 		} : PhysicalImpulseModifier, 
 		{
@@ -159,11 +150,11 @@ Base_Baton_NPC_Stats : StatModifierGroup
 	];
 }
 
-Base_Baton_NPC_Data : Base_NPC_RPG_Data
+Base_Baton_NPC_Data : Base_Blunt_NPC_RPG_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Baton_NPC_Stats"
+		"Items.Base_Baton_NPC_Stats", "Items.Baton_NPC_Damage_Stats"
 	];
 }
 
@@ -171,13 +162,6 @@ Base_Baton_RPG_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_one_hand_blunt_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
@@ -187,89 +171,45 @@ Base_Baton_RPG_Stats : StatModifierGroup
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			value = 1.5f;
+			value = 1.0f;
 		} : ChargeTimeModifier, 
-		{
-			value = 0.25;
-		} : ChargeMultiplierModifier, 
-		{
-			statType = "BaseStats.ChargeFullMultiplier";
-			modifierType = "Additive";
-			refStat = "BaseStats.ChargeMultiplier";
-			opSymbol = "*";
-			value = 1.0f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ChargeTime";
-			modifierType = "Additive";
-			refStat = "BaseStats.BaseChargeTime";
-			opSymbol = "*";
-			value = 1.0f;
-		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.BlockFactor";
 			modifierType = "Additive";
 			value = 4f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.ElectrocutedApplicationRate";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.SEApplicationRateBasedOnWeaponCharge";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+Baton_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
 		} : ConstantStatModifier
 	];
 }
 
-Base_Baton_RPG_Randomized_Stats : StatModifierGroup
+Baton_NPC_Damage_Stats : StatModifierGroup
 {
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_randomized_stats";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = 
+	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			statType = "BaseStats.CritChance";
+			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			id = "item_one_hand_blunt_RPG_stats";
-			column = "power_level_to_crit_chance";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "Additive";
-			id = "item_one_hand_blunt_RPG_stats";
-			column = "power_level_to_crit_damage";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "Additive";
-			id = "item_one_hand_blunt_RPG_stats";
-			column = "power_level_to_bonus_stamina_cost_reduction";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier
+			value = 67f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -290,7 +230,7 @@ Base_Baton_Handling_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.HitDismembermentFactor";
 			modifierType = "Multiplier";
-			value = 0.f;
+			value = 1.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.MeleeAttackDuration";
@@ -313,7 +253,17 @@ Base_Baton_Handling_Stats : StatModifierGroup
 		} : BaseEvadeImpulseModifier, 
 		{
 			float value = 8.f;
-		} : PhysicalImpulseModifier
+		} : PhysicalImpulseModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Multiplier";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "Additive";
+			value = 10f;
+		} : ConstantStatModifier
 	];
 }
 

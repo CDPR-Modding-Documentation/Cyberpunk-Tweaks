@@ -13,11 +13,11 @@ Map : ActionMap
 			}, 
 			{
 				node = "StatusEffectActions.SE_QuickHackFreezeLocomotion";
-				isOverriddenBy = "OdaBoss.SE_QuickHackFreezeLocomotion";
+				isOverriddenBy = "OdaBoss.SE_QuickHackStaggerLocomotion";
 			}, 
 			{
 				node = "StatusEffectActions.SE_QuickHackStaggerLocomotion";
-				isOverriddenBy = "OdaBoss.SE_QuickHackFreezeLocomotion";
+				isOverriddenBy = "OdaBoss.SE_QuickHackStaggerLocomotion";
 			}, 
 			{
 				node = "ReactionsActions.DeviceInvestigationHigh";
@@ -74,9 +74,629 @@ Map : ActionMap
 			{
 				node = "GenericArchetype.DodgeBulletSelectorCondition";
 				isOverriddenBy = "OdaBoss.DodgeBulletSelectorCondition";
+			}, 
+			{
+				node = "ReactionsActions.LookAroundForIntruder";
+				isOverriddenBy = "OdaBoss.LookAroundForIntruder";
+			}, 
+			{
+				node = "ReactionsActions.LookAroundForIntruderUnarmed";
+				isOverriddenBy = "OdaBoss.LookAroundForIntruderUnarmed";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithGunRifleEquipped";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGunRifleEquipped";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithGunMech";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGunRifleEquipped";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithGunHandgunEquipped";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGunRifleEquipped";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithMeleeShortBladeEquipped";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGunRifleEquipped";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithMeleeLongWeaponEquipped";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGunRifleEquipped";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithGunUnarmed";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGunRifleEquipped";
+			}, 
+			{
+				node = "ItemHandling.EquipPrimaryWeaponAfterSuicideSequence";
+				isOverriddenBy = "OdaBoss.EquipPrimaryWeaponAfterSuicideSequence";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseAndroid";
+				isOverriddenBy = "OdaBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseMech";
+				isOverriddenBy = "OdaBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBossMitigated";
+				isOverriddenBy = "OdaBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBoss";
+				isOverriddenBy = "OdaBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapse";
+				isOverriddenBy = "OdaBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SuicideWithGrenadeEMP";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGrenadeOda";
+			}, 
+			{
+				node = "StatusEffectActions.SuicideWithGrenadeBiohazard";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGrenadeOda";
+			}, 
+			{
+				node = "StatusEffectActions.SuicideWithGrenadeFallback";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGrenadeOda";
+			}, 
+			{
+				node = "StatusEffectActions.SuicideWithGrenadeIncendiary";
+				isOverriddenBy = "OdaBoss.SE_SuicideWithGrenadeOda";
+			}, 
+			{
+				node = "StatusEffectActions.SE_Knockdown";
+				isOverriddenBy = "OdaBoss.SE_Knockdown";
+			}, 
+			{
+				node = "GenericArchetype.SE_WeaponJammed";
+				isOverriddenBy = "OdaBoss.SE_WeaponJammed";
+			}, 
+			{
+				node = "GenericArchetype.SE_Madness";
+				isOverriddenBy = "OdaBoss.SE_Madness";
+			}, 
+			{
+				node = "DashAndDodgeActions.DodgeMeleeSelectorConditionDefinition";
+				isOverriddenBy = "OdaBoss.DodgeMeleeSelectorConditionDefinition";
 			}
 		];
 	};
+}
+
+SE_Stagger_suicide : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSasquatchSuicideStagger"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 4.9f;
+	};
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"Sasquatch.ForceStaggerSuicide"
+			];
+			delay = 0.5f;
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			name = "hack_weapon_malfunction";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "StaggerRightSuicideBoss";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Madness : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeMadness"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 3.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "hit_reaction_heavy";
+			delay = 0.3f;
+		} : AISubActionPlayVoiceOver, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_Madness";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_WeaponJammed : StatusEffectActions.AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon", "Condition.StatusEffectTypeWeaponMalfunction"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossControlhackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_WeaponJammed";
+	};
+}
+
+SE_QuickHackStaggerLocomotion : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeLocomotionMalfunction"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossControlhackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerLocomotionLegs";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithGrenadeOda : AIQuickhackDefaultAction
+{
+	startup = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.96f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			name = "fx_beeping";
+			delay = 1.1f;
+		} : AISubActionSpawnFX, 
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			itemID = "Items.GrenadeSmokeOda";
+		} : AISubActionForceEquip, 
+		{
+			statusEffects = 
+			[
+				"Oda.BlindedBySmokeGrenade"
+			];
+			delay = 1f;
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	loopSubActions = 
+	[
+		{
+			delay = -1f;
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+		} : AISubActionTriggerItemActivation, 
+		{
+			name = "smoke_screen";
+			delay = 1.f;
+		} : AISubActionSpawnFX
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGrenade";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BlindedBySmokeGrenade : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.BlindedBySmokeGrenade"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.BlindedBySmokeGrenade"
+			];
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossMemoryWipe"
+			];
+			delay = 1f;
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	startup = 
+	{
+		duration = 2.433f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 2.433f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 2.433f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "SE_StunArmed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_Knockdown : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectKnockdown", "Condition.StatusEffectKnockdownInfinite"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 2.667f;
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.f;
+	};
+	recovery = 
+	{
+		duration = 1.9f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_Knockdown";
+		ragdollOnDeath = true;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SystemCollapse : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectBossSystemCollapse", "Condition.NotStatusEffectBossSystemCollapseHackReactionImmunity"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+		useDurationFromAnimSlot = false;
+		duration = 1.5f;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+		useDurationFromAnimSlot = false;
+		duration = 8.5f;
+	};
+	animData = 
+	{
+		animFeature = "SE_Blind";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "status_electricity_resistance";
+		} : AISubActionSpawnFX, 
+		{
+			name = "status_electrocuted";
+		} : AISubActionSpawnFX, 
+		{
+			name = "status_emp";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSystemCollapseHackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+			delay = 8.f;
+		} : AISubActionStatusEffect
+	];
+}
+
+SE_SystemCollapseBossMitigated : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectBossSystemCollapse", "Condition.StatusEffectBossSystemCollapseHackReactionImmunity"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX, 
+		{
+			name = "hacks_cyberware_malfunction";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_Staggered";
+		animVariation = 0;
+		animSlot = 
+		{
+			useRootMotion = true;
+			usePoseMatching = true;
+		};
+	};
+}
+
+SE_SuicideWithGunRifleEquipped : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectSuicideWithWeapon", "Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 4.3f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.05f;
+			dropItem = false;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.75f;
+			itemCategory = "ItemCategory.Weapon";
+			itemID = "Items.Preset_Unity_Default";
+			itemType = "ItemType.Wea_Handgun";
+		} : AISubActionForceEquip
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.Owner";
+			rangedAttack = "Attacks.SuicideBullet";
+			numberOfShots = 1;
+			maxNumberOfShots = 1;
+			delay = 2.1f;
+		} : AISubActionShootWithWeapon, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 2.2f;
+			dropItem = false;
+		} : AISubActionForceUnequip, 
+		{
+			effectors = 
+			[
+				"Effectors.BossForceSuicideGunWeapon"
+			];
+			float delay = 2.1f;
+		} : AISubActionCustomEffectors, 
+		{
+			delay = 4f;
+			apply = false;
+			statusEffects = 
+			[
+				"BaseStatusEffect.SuicideWithWeapon"
+			];
+		} : AISubActionStatusEffect
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	recoverySubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 1.05f;
+			dropItem = false;
+		} : AISubActionForceUnequip
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGunNoEquip";
+		animSlot = 
+		{
+		};
+	};
+}
+
+EquipPrimaryWeaponAfterSuicideSequence : AIActionSequence
+{
+	actions = [];
 }
 
 DodgeBulletSelectorCondition : AIAction
@@ -87,7 +707,7 @@ DodgeBulletSelectorCondition : AIAction
 		{
 			AND = 
 			[
-				"OdaBoss.OdaDodgeBulletConditionDefinition", "Condition.AbilityHasKerenzikov"
+				"OdaBoss.OdaDodgeBulletConditionDefinition", "Condition.AbilityHasKerenzikov", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack", "Condition.NotStatusEffectTypeMadness"
 			];
 		} : AIActionAND;
 	};
@@ -176,7 +796,7 @@ UnequipMantisBladesStealth : OdaBoss.UnequipAnyWeapon
 		{
 			AND = 
 			[
-				"Condition.NotHasRangedWeapon"
+				"Condition.NotHasRangedWeapon", "Condition.HasMeleeWeapon"
 			];
 		} : AIActionAND;
 	};
@@ -228,7 +848,7 @@ ReevaluationBreak : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 }
 
@@ -258,7 +878,7 @@ InitialCombatActionSequence : AIActionSequence
 {
 	actions = 
 	[
-		"OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "OdaBoss.EquipMantisBladesInstantly", "GenericArchetype.ImmediateSuccess"
+		"OdaBoss.SetSwitchToLoop0Cooldown", "OdaBoss.SetSwitchToLoop0CooldownMin", "OdaBoss.SetSwitchToLoop1Cooldown", "OdaBoss.SetSwitchToLoop1CooldownMin", "OdaBoss.EquipMantisBladesInstantly", "GenericArchetype.Success"
 	];
 }
 
@@ -492,7 +1112,7 @@ RemoveInvulnerability : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -509,7 +1129,7 @@ ApplyHurt : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -562,10 +1182,6 @@ SE_BlindBase : AIAction
 	loop = 
 	{
 		duration = 6.f;
-	};
-	recovery = 
-	{
-		duration = 0.05f;
 	};
 	subActions = 
 	[
@@ -797,7 +1413,7 @@ SwitchToLoop2ConditionStatusEffect : AIAction
 		{
 			AND = 
 			[
-				"Condition.OdaEmergency", "Condition.NotIsUsingOffMeshLink"
+				"Condition.OdaEmergency"
 			];
 		} : AIActionAND;
 	};
@@ -821,7 +1437,7 @@ SetSwitchToLoop2Cooldown : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -915,7 +1531,7 @@ SetSwitchToLoop1Cooldown : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -933,7 +1549,7 @@ SetSwitchToLoop1CooldownMin : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1063,7 +1679,7 @@ SetSwitchToLoop0Cooldown : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1081,7 +1697,7 @@ SetSwitchToLoop0CooldownMin : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1095,11 +1711,33 @@ SetSwitchToLoop0CooldownMin : AIAction
 	];
 }
 
+FindPatrolPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "jumpSpot";
+			rangeFromOwner = ( 10.f, 100.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+			allowedOffMeshTags = 
+			[
+				"OdaJump"
+			];
+		} : AISubActionSetWaypointByTag
+	];
+}
+
 FindShootPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -1107,8 +1745,8 @@ FindShootPosition : AIAction
 			target = "AIActionTarget.MovementDestination";
 			rangeObj = "AIActionTarget.CombatTarget";
 			tag = "jumpSpot";
-			rangeFromOwner = ( 10.f, 30.f );
-			rangeFromObj = ( 7.5, 15.f );
+			rangeFromOwner = ( 10.f, 100.f );
+			rangeFromObj = ( 7.5, 20.f );
 			avoidSelectingSameTargetMethod = 0;
 			selectionMethod = "Random";
 			allowedOffMeshTags = 
@@ -1124,7 +1762,7 @@ FindShootPositionFailsafe : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -1148,7 +1786,7 @@ FindRoamPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -1157,7 +1795,7 @@ FindRoamPosition : AIAction
 			rangeObj = "AIActionTarget.CombatTarget";
 			tag = "roamSpot";
 			rangeFromOwner = ( 10.f, 20.f );
-			rangeFromObj = ( 10.f, -1.f );
+			rangeFromObj = ( 10.f, 300.f );
 			avoidSelectingSameTargetMethod = 0;
 			selectionMethod = "Random";
 			allowedOffMeshTags = 
@@ -1172,16 +1810,36 @@ FindHealPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
 		{
 			target = "AIActionTarget.MovementDestination";
-			rangeObj = "AIActionTarget.CombatTarget";
 			tag = "healSpot";
 			rangeFromOwner = ( 10.f, 100.f );
-			rangeFromObj = ( 20.f, 100.f );
+			avoidSelectingSameTargetMethod = 0;
+			allowedOffMeshTags = 
+			[
+				"OdaJump"
+			];
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindHealPositionBackup : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "healSpot";
+			rangeFromOwner = ( 10.f, 100.f );
 			avoidSelectingSameTargetMethod = 0;
 			allowedOffMeshTags = 
 			[
@@ -1196,7 +1854,7 @@ HealSequence : AIActionSequence
 {
 	actions = 
 	[
-		"OdaBoss.FindHealPosition", "OdaBoss.SprintToRoamDestination", "OdaBoss.RotateToTarget", "OdaBoss.Heal", "GenericArchetype.Success"
+		"OdaBoss.SprintToRoamDestination", "OdaBoss.RotateToTarget", "GenericArchetype.Success"
 	];
 }
 
@@ -1227,7 +1885,7 @@ Heal : AIAction
 		{
 			upperBodyState = "Attack";
 		};
-		toNextPhaseConditionCheckInterval = 0.25f;
+		toNextPhaseConditionCheckInterval = 2.f;
 		toNextPhaseCondition = 
 		[
 			{
@@ -1235,7 +1893,7 @@ Heal : AIAction
 				{
 					OR = 
 					[
-						"Condition.NotOdaHealing", "Condition.TargetBelow8m"
+						"Condition.NotOdaHealing", "Condition.TargetBelow6m"
 					];
 				} : AIActionOR;
 			}
@@ -1413,7 +2071,7 @@ EquipSMGBackflipCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotHasRangedWeapon", "Condition.CalculatePathStraightBackClose", "Condition.NotOdaLeapBlocker"
+				"Condition.NotHasRangedWeapon", "Condition.CalculatePathStraightBackClose", "Condition.NotOdaLeapBlocker", "Condition.NotStatusEffectTypeLocomotionMalfunction"
 			];
 		} : AIActionAND;
 	};
@@ -1519,6 +2177,13 @@ EquipSMGBackFlip : AIAction
 			[
 				"Oda.Invulnerable"
 			];
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.Shooting"
+			];
+			apply = true;
 		} : AISubActionStatusEffect
 	];
 	animData = 
@@ -1726,7 +2391,7 @@ EquipMantisBladesCombo01P1 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -1772,7 +2437,7 @@ EquipMantisBladesCombo01P2 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -1818,7 +2483,7 @@ EquipMantisBladesCombo01P3 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -1889,7 +2554,7 @@ RotateToTarget : AIAction
 				{
 					OR = 
 					[
-						"Condition.TargetBelow45deg"
+						"Condition.TargetBelow75deg"
 					];
 				} : AIActionOR;
 			}
@@ -2003,7 +2668,7 @@ SprintToMovementDestination : AIAction
 		{
 			AND = 
 			[
-				"Condition.MovementDestinationAbove1m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+				"Condition.MovementDestinationAbove1m"
 			];
 		} : AIActionAND;
 	};
@@ -2148,7 +2813,7 @@ SprintToMovementRoamDestinationLoopPhase : AIActionPhase
 			{
 				AND = 
 				[
-					"Condition.NotIsUsingOffMeshLink", {
+					"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 						OR = 
 						[
 							"Condition.MovementDestinationBelow1m", {
@@ -2235,7 +2900,7 @@ SprintToMovementRoamDestinationNoInterruptLoopPhase : AIActionPhase
 			{
 				AND = 
 				[
-					"Condition.NotIsUsingOffMeshLink", {
+					"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 						OR = 
 						[
 							"Condition.MovementDestinationBelow1m"
@@ -2332,13 +2997,10 @@ SprintToRoamDestination : AIAction
 	{
 		condition = 
 		{
-			AND = 
-			[
-				"Condition.MovementDestinationAbove3m"
-			];
+			AND = [];
 		} : AIActionAND;
 	};
-	loop = "OdaBoss.SprintToMovementDestinationLoopPhase";
+	loop = "OdaBoss.SprintToRoamDestinationLoopPhase";
 	loopSubActions = 
 	[
 		{
@@ -2368,14 +3030,12 @@ SprintToRoamDestinationLoopPhase : AIActionPhase
 		movementType = "Sprint";
 		tolerance = 0.f;
 		avoidThreatRange = 0.f;
-		dontUseStart = true;
 	};
 	changeNPCState = 
 	{
 		upperBodyState = "Attack";
 		hitReactionMode = "Unstoppable";
 	};
-	toNextPhaseConditionCheckInterval = 0.5f;
 	toNextPhaseCondition = 
 	[
 		{
@@ -2383,7 +3043,7 @@ SprintToRoamDestinationLoopPhase : AIActionPhase
 			{
 				AND = 
 				[
-					"Condition.NotIsUsingOffMeshLink", {
+					{
 						OR = 
 						[
 							"Condition.MovementDestinationBelow1m"
@@ -2607,7 +3267,7 @@ SprintToTargetMeleeSandevistanLos : SprintToTargetMeleeSandevistan
 		{
 			AND = 
 			[
-				"Condition.TargetAbove5mPrediction", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack", "Condition.CombatTarget"
+				"Condition.TargetAbove5mPrediction", "Condition.CombatTarget"
 			];
 		} : AIActionAND;
 	};
@@ -2634,7 +3294,7 @@ SprintToTargetMeleeSandevistanLos : SprintToTargetMeleeSandevistan
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", "Condition.TargetBelow4m"
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", "Condition.TargetBelow4m"
 					];
 				} : AIActionAND;
 			}
@@ -2672,7 +3332,7 @@ SprintToTargetMelee : AIAction
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
 								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
@@ -2721,7 +3381,7 @@ SprintToTargetMeleeSandevistan : AIAction
 				{
 					AND = 
 					[
-						"Condition.CalculatePathToTargetOdaJump", "Condition.TargetAbove5mPrediction", "Condition.MinAccuracySharedValue0dot5", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+						"Condition.CalculatePathToTargetOdaJump", "Condition.TargetAbove5mPrediction", "Condition.MinAccuracySharedValue0dot5"
 					];
 				} : AIActionAND
 			];
@@ -2750,10 +3410,10 @@ SprintToTargetMeleeSandevistan : AIAction
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
-								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.StatusEffectTypeLocomotionMalfunction", {
 									AND = 
 									[
 										"Condition.TargetBelow4m", "Condition.TargetUpTo0dot5mZDiff"
@@ -2801,7 +3461,7 @@ SprintToTargetDashSandevistan : SprintToTargetMeleeSandevistan
 		{
 			AND = 
 			[
-				"Condition.TargetAbove8m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+				"Condition.TargetAbove8m"
 			];
 		} : AIActionAND;
 	};
@@ -2829,7 +3489,7 @@ SprintToTargetDashSandevistan : SprintToTargetMeleeSandevistan
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
 								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
@@ -2882,10 +3542,10 @@ SprintToTargetDash : AIAction
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
-								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", {
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", "Condition.StatusEffectTypeLocomotionMalfunction", {
 									AND = 
 									[
 										"Condition.TargetBelow3mPrediction", "Condition.TargetUpTo0dot5mZDiff"
@@ -2908,7 +3568,7 @@ SprintToTargetDashAmbushSandevistan : SprintToTargetDashSandevistan
 		{
 			AND = 
 			[
-				"Condition.TargetAbove8m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+				"Condition.TargetAbove8m"
 			];
 		} : AIActionAND;
 	};
@@ -2935,7 +3595,7 @@ SprintToTargetDashAmbushSandevistan : SprintToTargetDashSandevistan
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
 								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotCalculatePathToTargetOdaJump", {
@@ -2979,10 +3639,10 @@ SprintToTargetLeapSandevistan : SprintToTargetMeleeSandevistan
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
-								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", {
+								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", "Condition.StatusEffectTypeLocomotionMalfunction", {
 									AND = 
 									[
 										"Condition.TargetBelow18m", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
@@ -3023,7 +3683,7 @@ SprintToTargetDashAmbush : AIAction
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
 								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotCalculatePathToTargetOdaJump", {
@@ -3062,7 +3722,7 @@ SprintToTargetLeap : AIAction
 				{
 					AND = 
 					[
-						"Condition.NotIsUsingOffMeshLink", {
+						"Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner", {
 							OR = 
 							[
 								"Condition.TargetBelow2m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", "Condition.NotCalculatePathToTargetOdaJump", {
@@ -3189,7 +3849,7 @@ MeleeAttackSMG : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.QuickAttackStagger";
@@ -3298,7 +3958,7 @@ MeleeCombo01P1 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3344,7 +4004,7 @@ MeleeCombo01P2 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3390,7 +4050,7 @@ MeleeCombo01P3 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3464,7 +4124,7 @@ MeleeCombo01CloseP1 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3511,7 +4171,7 @@ MeleeCombo01CloseP2 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3558,7 +4218,7 @@ MeleeCombo01CloseP3 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3634,7 +4294,7 @@ MeleeCombo02P1 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3680,7 +4340,7 @@ MeleeCombo02P1Close : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3727,7 +4387,7 @@ MeleeCombo02P2 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStompAttack";
@@ -3801,7 +4461,7 @@ MeleeCombo02CloseP1 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3848,7 +4508,7 @@ MeleeCombo02CloseP2 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3932,7 +4592,7 @@ MeleeCombo03P1 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -3977,7 +4637,7 @@ MeleeCombo03P1OnPlace : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4024,7 +4684,7 @@ MeleeCombo03P2 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4070,7 +4730,7 @@ MeleeCombo03P3 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4116,7 +4776,7 @@ MeleeCombo03P4 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4284,7 +4944,7 @@ MeleeComboTurn180L : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4338,7 +4998,7 @@ MeleeComboTurn180R : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4392,7 +5052,7 @@ MeleeComboTurn270 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4446,7 +5106,7 @@ MeleeComboTurn90 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.OdaStrongAttack";
@@ -4549,7 +5209,6 @@ DashAttack01 : AIAction
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
-			upperBodyState = "Attack";
 		};
 	};
 	loop = 
@@ -4580,7 +5239,7 @@ DashAttack01 : AIAction
 			attackDuration = 0.05f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -4609,7 +5268,6 @@ DashAttack01Startup : AIAction
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
-			upperBodyState = "Attack";
 		};
 	};
 	animData = 
@@ -4666,7 +5324,7 @@ DashAttack01Recovery : AIAction
 			attackDuration = 0.05f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -4715,7 +5373,6 @@ DashAttack02 : AIAction
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
-			upperBodyState = "Attack";
 		};
 	};
 	loop = 
@@ -4746,7 +5403,7 @@ DashAttack02 : AIAction
 			attackDuration = 0.05f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -4775,7 +5432,6 @@ DashAttack02Startup : AIAction
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
-			upperBodyState = "Attack";
 		};
 	};
 	animData = 
@@ -4832,7 +5488,7 @@ DashAttack02Recovery : AIAction
 			attackDuration = 0.075f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 		} : AISubActionAttackWithWeapon
@@ -4881,7 +5537,6 @@ DashAttack03 : AIAction
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
-			upperBodyState = "Attack";
 		};
 	};
 	loop = 
@@ -4912,7 +5567,7 @@ DashAttack03 : AIAction
 			attackDuration = 0.05f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -4941,7 +5596,6 @@ DashAttack03Startup : AIAction
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
-			upperBodyState = "Attack";
 		};
 	};
 	animData = 
@@ -4998,7 +5652,7 @@ DashAttack03Recovery : AIAction
 			attackDuration = 0.075f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 1.5f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -5071,7 +5725,7 @@ SetDashAttackAmbushCooldown : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000000000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -5154,7 +5808,7 @@ DashAttackAmbushRecovery : AIAction
 			attackDuration = 0.075f;
 			attackRange = 5.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleLeft01MeleeAttackLight01";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 		} : AISubActionAttackWithWeapon
@@ -5181,7 +5835,7 @@ ChargeAttackCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.TargetAbove10m"
+				"Condition.TargetAbove8m"
 			];
 		} : AIActionAND;
 	};
@@ -5195,7 +5849,7 @@ SandevistanActivation : AIAction
 		{
 			AND = 
 			[
-				"Condition.TargetAbove10m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+				"Condition.TargetAbove10m"
 			];
 		} : AIActionAND;
 	};
@@ -5267,7 +5921,7 @@ ChargeAttack01P1 : AIAction
 			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "Combo01MeleeAttackLight02";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 		} : AISubActionAttackWithWeapon
@@ -5345,7 +5999,7 @@ ChargeAttack02P1 : AIAction
 			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.05f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaDashAttack";
 			attackName = "CloseSingleBack01MeleeAttackLight01";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 		} : AISubActionAttackWithWeapon
@@ -5464,10 +6118,10 @@ LeapAttack01 : AIAction
 			[
 				"AttachmentSlots.WeaponRight"
 			];
-			attackDuration = 0.1f;
+			attackDuration = 0.05f;
 			attackRange = 3.f;
 			attackTime = 0.3f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaLeapAttack";
 			attackName = "CloseSingleRight01MeleeAttackLight01";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 		} : AISubActionAttackWithWeapon
@@ -5527,7 +6181,7 @@ LeapAttack02 : AIAction
 			attackDuration = 0.15f;
 			attackRange = 3.f;
 			attackTime = 0.f;
-			attack = "NPCAttacks.OdaStrongAttack";
+			attack = "NPCAttacks.OdaLeapAttack";
 			attackName = "CloseSingleRight01MeleeAttackLight01";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 		} : AISubActionAttackWithWeapon
@@ -5622,7 +6276,7 @@ CheckHitAimAttackSMG : AIAction
 		{
 			AND = 
 			[
-				"Condition.HitCount7Timeout5"
+				"Condition.HitCount7Timeout5", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
 			];
 		} : AIActionAND;
 	};
@@ -5761,11 +6415,16 @@ AimAttackSMGOnPlace : AIAction
 			{
 				condition = 
 				{
-					AND = 
+					OR = 
 					[
-						"Condition.TargetBelow3mPrediction", "Condition.TargetUpTo0dot5mZDiff"
+						"Condition.StatusEffectTypeWeaponMalfunction", {
+							AND = 
+							[
+								"Condition.TargetBelow3mPrediction", "Condition.TargetUpTo0dot5mZDiff"
+							];
+						} : AIActionAND
 					];
-				} : AIActionAND;
+				} : AIActionOR;
 			}
 		];
 	};
@@ -5787,7 +6446,14 @@ AimAttackSMGOnPlace : AIAction
 		{
 			attachmentSlot = "AttachmentSlots.WeaponRight";
 			name = "flare";
-		} : AISubActionSpawnFX
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"Oda.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	loopSubActions = 
 	[
@@ -5879,6 +6545,19 @@ SwipeAttackSMGOnPlace : AIAction
 			upperBodyState = "Attack";
 			locomotionMode = "Static";
 		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StatusEffectTypeWeaponMalfunction"
+					];
+				} : AIActionAND;
+			}
+		];
 	};
 	recovery = 
 	{
@@ -5891,6 +6570,13 @@ SwipeAttackSMGOnPlace : AIAction
 	};
 	loopSubActions = 
 	[
+		{
+			statusEffects = 
+			[
+				"Oda.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect, 
 		{
 			weaponSlots = 
 			[
@@ -6165,10 +6851,7 @@ Vanish : AIAction
 	{
 		condition = 
 		{
-			AND = 
-			[
-				"Condition.HasGrenadeInInventory"
-			];
+			AND = [];
 		} : AIActionAND;
 	};
 	loop = 
@@ -6247,7 +6930,7 @@ VanishAlerted : Vanish
 		{
 			AND = 
 			[
-				"Condition.HasGrenadeInInventory", "Condition.NotCloakedOda"
+				"Condition.NotCloakedOda"
 			];
 		} : AIActionAND;
 	};
@@ -6387,7 +7070,7 @@ ActivateKerenzikov : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000000000001f;
+		duration = 0.01f;
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
@@ -6396,7 +7079,7 @@ ActivateKerenzikov : AIAction
 	};
 	recovery = 
 	{
-		duration = 0.00000000000001;
+		duration = 0.1;
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
@@ -6483,7 +7166,7 @@ SetMantisBladeVFXOn : AIAction
 {
 	loop = 
 	{
-		duration = 0.00000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -6497,7 +7180,7 @@ SetMantisBladeVFXOff : AIAction
 {
 	loop = 
 	{
-		duration = 0.00000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -6708,11 +7391,39 @@ Taunt03SMG : AIAction
 	};
 }
 
+OdaNotHasCamoCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotOdaCamo"
+			];
+		} : AIActionAND;
+	};
+}
+
+OdaHasCamoCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.OdaCamo"
+			];
+		} : AIActionAND;
+	};
+}
+
 EnableCamo : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -6734,7 +7445,7 @@ DisableCamo : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -6856,7 +7567,7 @@ DashAttackAmbushInitCooldown : AIActionCooldown
 SwitchToLoop2Cooldown : AIActionCooldown
 {
 	name = "SwitchToLoop2Cooldown";
-	duration = 60.f;
+	duration = 25.f;
 }
 
 SwitchToLoop2InitCooldown : AIActionCooldown
@@ -7107,8 +7818,68 @@ BossInvestigateCustomComposite : AIActionSmartComposite
 	type = "AISmartCompositeType.Sequence";
 	nodes = 
 	[
-		"OdaBoss.DisableCamo", "OdaBoss.UnequipAnyWeapon", "OdaBoss.EquipHandgunDeviceInvestigate", "OdaBoss.AimAttackHandgunOnPlaceDevice", "OdaBoss.UnequipAnyWeapon", "OdaBoss.StealthIdleDelay", "OdaBoss.EquipSMGStealth", "ReactionsActions.LookAroundForIntruder", "OdaBoss.VanishAlerted", "GenericArchetype.Success"
+		"OdaBoss.DisableCamo", "OdaBoss.UnequipAnyWeapon", "OdaBoss.EquipHandgunDeviceInvestigate", "OdaBoss.AimAttackHandgunOnPlaceDevice", "OdaBoss.UnequipAnyWeapon", "OdaBoss.StealthIdleDelay", "OdaBoss.EquipSMGStealth", "OdaBoss.LookAroundForIntruder", "OdaBoss.VanishAlerted", "GenericArchetype.Success"
 	];
+}
+
+LookAroundForIntruder : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.1f;
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 0.f;
+	};
+	recovery = 
+	{
+		duration = 2.167f;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+		weaponOverride = 2;
+	};
+	subActions = 
+	[
+		"ReactionsActions.PlayStealthSearchVoiceOver"
+	];
+}
+
+LookAroundForIntruderUnarmed : OdaBoss.LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.NotIsNPCBlinded", "Condition.IsUnarmed"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
 }
 
 EquipSMGStealth : AIAction
@@ -7199,7 +7970,7 @@ MoveToStimSourceInvestigate : AIAction
 				{
 					AND = 
 					[
-						"Condition.StimSourceBelow5m", "Condition.NotIsUsingOffMeshLink"
+						"Condition.StimSourceBelow5m", "Condition.NotIsUsingOffMeshLink", "Condition.CalculatePathToOwner"
 					];
 				} : AIActionAND;
 			}
@@ -7426,6 +8197,19 @@ AimAttackHandgunOnPlaceDevice : AIAction
 		{
 			strafingTarget = "AIActionTarget.StimTarget";
 		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.StatusEffectTypeWeaponMalfunction"
+					];
+				} : AIActionAND;
+			}
+		];
 	};
 	recovery = 
 	{
@@ -7439,6 +8223,13 @@ AimAttackHandgunOnPlaceDevice : AIAction
 	};
 	loopSubActions = 
 	[
+		{
+			statusEffects = 
+			[
+				"Oda.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect, 
 		{
 			weaponSlots = 
 			[
@@ -7511,7 +8302,7 @@ MoveCloserToStimSource : AIAction
 		{
 			AND = 
 			[
-				"Condition.StimSource", "Condition.StimSourceInRestrictedMovementArea"
+				"Condition.NotWhistleStimType", "Condition.StimSource", "Condition.StimSourceInRestrictedMovementArea"
 			];
 		} : AIActionAND;
 	};
@@ -7533,7 +8324,7 @@ MoveCloserToStimSource : AIAction
 						"Condition.NotIsUsingOffMeshLink", {
 							OR = 
 							[
-								"Condition.StimSourceBelow2dot5m", "Condition.NotCalculatePathToStimSource"
+								"Condition.StimSourceBelow2dot5m", "Condition.NotCalculatePathToStimSource", "Condition.CalculatePathToOwner"
 							];
 						} : AIActionOR
 					];
@@ -7650,6 +8441,115 @@ StealthIdleDelay : AIAction
 	animationWrapperOverrides = 
 	[
 		"combatLocomotion"
+	];
+}
+
+DodgeMeleeSelectorConditionDefinition : AIAction
+{
+	cooldowns = 
+	[
+		"DashAndDodgeActions.HitDodgeCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"OdaBoss.OdaMeleeDodgeConditionDefinition", "Condition.AbilityHasDodge"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+OdaOwnerParryCounterCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AttackOwnerMaxParriesCount2"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+OdaOwnerParryCounterSoftCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AttackOwnerMaxParriesCount1"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+ResetParryCount : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "ResetmyAttackParriedCount";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+ParryStaggerBack : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "status_electricity_resistance";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_Staggered";
+		animSlot = 
+		{
+		};
+	};
+}
+
+OdaMeleeDodgeConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.HitDodgeCooldown", "Condition.NotIsNPCBlinded", "Condition.NotTargetInStatesBlock", "Condition.HasMeleeWeapon", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.TargetBelow90deg", "Condition.TargetBelow20m", "Condition.AbilityCanUseLegs", "Condition.NotHitTimeout2MinSeverity0", "Condition.NotTargetStatusEffectSandevistanBuff"
 	];
 }
 

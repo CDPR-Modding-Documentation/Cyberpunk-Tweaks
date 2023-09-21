@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, BaseStatPools, Prereqs
+using RTDB, BaseStats, BaseStatPools, Prereqs, Perks
 
 [ notQueryable ]
 NanoWires : MeleeWeapon
@@ -13,7 +13,16 @@ NanoWires : MeleeWeapon
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.CWNanowires";
 	itemSecondaryAction = "";
 	friendlyName = "mono_wires";
+	buyPrice = 
+	[
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.BuyPrice_StreetCred_Discount"
+	];
+	sellPrice = 
+	[
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.CyberwareSellMultiplier"
+	];
 	blueprint = "Items.NanoWiresBlueprint";
+	int specialAttackNumber = 6;
 	slotPartList = 
 	[
 		{
@@ -88,6 +97,10 @@ NanoWires : MeleeWeapon
 			itemPartPreset = "Items.PhysicalDamageCable";
 		}, 
 		{
+			slot = "AttachmentSlots.NanoWiresQuickhackSlot";
+			itemPartPreset = "";
+		}, 
+		{
 			slot = "AttachmentSlots.NanoWiresBattery";
 			itemPartPreset = "";
 		}, 
@@ -99,7 +112,7 @@ NanoWires : MeleeWeapon
 	entityName = "a0_002__monowire_whip_ent";
 	tags = 
 	[
-		"MeleeWeapon", "Core", "Melee", "Cyberware", "TakedownWeapon", "Meleeware", "PSM", "WeaponQuickSlots", "KeepRenderPlane", "ForceDismember", "UnequipHolsteredArms", "HideInBackpackUI"
+		"MeleeWeapon", "Core", "Melee", "Cyberware", "TakedownWeapon", "Meleeware", "PSM", "WeaponQuickSlots", "KeepRenderPlane", "ForceDismember", "UnequipHolsteredArms", "HideInBackpackUI", "FinisherFront", "FinisherBack"
 	];
 	placementSlots = 
 	[
@@ -121,16 +134,20 @@ NanoWires : MeleeWeapon
 	holsteredItem = "Items.NanoWireHolsteredFists";
 	statModifierGroups = 
 	[
-		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.Nano_Wires_Handling_Stats", "Items.Nano_Wires_RPG_Stats", "Items.Nano_Wires_Throw_Attack_TargetingStats", "Proficiencies.KenjutsuWeaponPassives"
+		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.Nano_Wires_Handling_Stats", "Items.Nano_Wires_RPG_Stats", "Items.Nano_Wires_Throw_Attack_TargetingStats", "Items.Nano_Wires_Damage_Stats"
 	];
 	statModifiers += 
 	[
-		"Items.ItemArmorToArmor"
+		"Items.ItemArmorToArmor", {
+			statType = "BaseStats.ChargeTime";
+			modifierType = "Multiplier";
+			refObject = "Player";
+			refStat = "BaseStats.CanUseNewMeleewareAttackSpyTree";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
 	];
-	statPools = 
-	[
-		"BaseStatPools.NanoWiresCharge"
-	];
+	statPools = [];
 	OnEquip = 
 	[
 		{
@@ -140,11 +157,15 @@ NanoWires : MeleeWeapon
 			};
 		}
 	];
+	OnAttach += 
+	[
+		"GLP.HoldingNanoWires"
+	];
 	attacks = 
 	[
 		"MonoWiresAttacks.MonoWiresComboAttack1", "MonoWiresAttacks.MonoWiresComboAttack2", "MonoWiresAttacks.MonoWiresComboAttack3", "MonoWiresAttacks.MonoWiresComboAttack4", "MonoWiresAttacks.MonoWiresFinalAttack1", "MonoWiresAttacks.MonoWiresFinalAttack2", "MonoWiresAttacks.MonoWiresFinalAttack3", "MonoWiresAttacks.MonoWiresFinalAttack4", "MonoWiresAttacks.MonoWiresFinalAttack5", "MonoWiresAttacks.MonoWiresStrongAttack1", "MonoWiresAttacks.MonoWiresStrongAttack2", "MonoWiresAttacks.MonoWiresStrongAttack3", "MonoWiresAttacks.MonoWiresStrongAttack4", "MonoWiresAttacks.MonoWiresStrongAttack5", "MonoWiresAttacks.MonoWiresJumpAttack", "MonoWiresAttacks.MonoWiresSprintAttack", "MonoWiresAttacks.MonoWiresBlockAttack", "MonoWiresAttacks.MonoWiresCrouchAttack", "MonoWiresAttacks.MonoWiresThrowAttack", "MonoWiresAttacks.MonoWiresThrowAttackHelper"
 	];
-	evolution = "WeaponEvolution.Blade";
+	evolution = "WeaponEvolution.None";
 	audioWeaponConfiguration = "audio_melee_metadata_nanowire";
 	float weaponNearPlane = 21.88f;
 	float weaponFarPlane = 50.0f;
@@ -154,14 +175,7 @@ NanoWires : MeleeWeapon
 	float weaponVignetteCircular = 0.0f;
 	float weaponBlurIntensity = 1.0f;
 	CName cyberwareType = "NanoWires";
-	buyPrice = 
-	[
-		"Price.Meleeware", "Price.CyberwareQualityMultiplier"
-	];
-	sellPrice = 
-	[
-		"Price.Meleeware", "Price.CyberwareSellMultiplier", "Price.CyberwareQualityMultiplier", "Price.CraftingTraitMultiplier"
-	];
+	counterpart = "Items.AdvancedNanoWiresUncommon";
 }
 
 [ notQueryable ]
@@ -169,6 +183,7 @@ NanoWiresTest : NanoWires
 {
 }
 
+[ notQueryable ]
 NanoWiresBlueprint : ItemBlueprint
 {
 	fk< ItemBlueprintElement > rootElement = 
@@ -192,11 +207,24 @@ NanoWiresBlueprint : ItemBlueprint
 				{
 					valueToCheck = 3;
 				} : ItemQualityPrereq;
+			}, 
+			{
+				fk< AttachmentSlot > slot = "AttachmentSlots.NanoWiresQuickhackSlot";
+				prereqID = 
+				{
+					statType = "CanUseNewMeleewareAttackSpyTree";
+					valueToCheck = 0;
+					comparisonType = "Greater";
+				} : StatPrereq;
+			}, 
+			{
+				slot = "AttachmentSlots.StatsShardSlot";
 			}
 		];
 	};
 }
 
+[ notQueryable ]
 Nano_Wires_Throw_Attack_TargetingStats : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
@@ -204,9 +232,6 @@ Nano_Wires_Throw_Attack_TargetingStats : StatModifierGroup
 		{
 			float value = 30.f;
 		} : SmartGunTargetAcquisitionRangeModifier, 
-		{
-			float value = 1.f;
-		} : SmartGunTrackAllBodypartsModifier, 
 		{
 			float value = 5.f;
 		} : SmartGunHipLockingAnglePitchModifier, 
@@ -234,6 +259,7 @@ Nano_Wires_Throw_Attack_TargetingStats : StatModifierGroup
 	];
 }
 
+[ notQueryable ]
 ArmsCyberwareStatGroupBase : StatModifierGroup
 {
 	statModifiers = 
@@ -242,10 +268,12 @@ ArmsCyberwareStatGroupBase : StatModifierGroup
 			statType = "BaseStats.Level";
 			modifierType = "Multiplier";
 			value = 0f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		"Character.ScaleToPlayerLevel"
 	];
 }
 
+[ notQueryable ]
 Nano_Wires_RPG_Stats : ArmsCyberwareStatGroupBase
 {
 	fk< StatModifier >[] statModifiers += 
@@ -266,22 +294,16 @@ Nano_Wires_RPG_Stats : ArmsCyberwareStatGroupBase
 			value = 5.f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_nano_wire_DPS";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.DPS";
+			statType = "BaseStats.DamagePerHit";
 			modifierType = "Multiplier";
-			float value = 2f;
+			value = 0.66f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.Charge";
-			modifierType = "Additive";
-			float value = 100.f;
-		} : ConstantStatModifier, 
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			value = 0.5f;
+		} : ChargeTimeModifier, 
 		{
 			value = 0.25;
 		} : ChargeMultiplierModifier, 
@@ -297,37 +319,37 @@ Nano_Wires_RPG_Stats : ArmsCyberwareStatGroupBase
 			modifierType = "Additive";
 			value = 10.f;
 		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.BaseDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.DamagePerHit";
-			opSymbol = "*";
-			value = 0.7f;
-		} : CombinedStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
+}
+
+[ notQueryable ]
+Nano_Wires_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
 		{
 			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			refStat = "BaseStats.Reflexes";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 3.f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.PowerLevel";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 1.f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.Level";
-			modifierType = "Multiplier";
-			value = 0.f;
+			value = 70f;
 		} : ConstantStatModifier
 	];
 }
 
+[ notQueryable ]
+Nano_Wires_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
 Nano_Wires_Handling_Stats : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
@@ -363,6 +385,11 @@ Nano_Wires_Handling_Stats : StatModifierGroup
 			value = 0.483f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "Additive";
+			value = 8f;
+		} : ConstantStatModifier, 
+		{
 			float value = 8.f;
 		} : PhysicalImpulseModifier, 
 		{
@@ -373,15 +400,7 @@ Nano_Wires_Handling_Stats : StatModifierGroup
 		} : BaseKnockdownImpulseModifier, 
 		{
 			float value = 10.f;
-		} : BaseEvadeImpulseModifier, 
-		{
-			statType = "BaseStats.KnockdownImpulse";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			float value = 0.05f;
-		} : CombinedStatModifier
+		} : BaseEvadeImpulseModifier
 	];
 }
 
@@ -389,11 +408,13 @@ Nano_Wires_Handling_Stats : StatModifierGroup
 NanoWiresEpic : NanoWires
 {
 	quality = "Quality.Epic";
+	counterpart = "Items.AdvancedNanoWiresUncommon";
 }
 
 [ notQueryable ]
 NanoWiresLegendary : NanoWires
 {
 	quality = "Quality.Legendary";
+	counterpart = "Items.AdvancedNanoWiresUncommon";
 }
 

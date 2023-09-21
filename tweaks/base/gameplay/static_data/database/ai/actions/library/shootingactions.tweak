@@ -231,6 +231,12 @@ CrouchShootCooldown : AIActionCooldown
 	duration = 5.f;
 }
 
+WeaponChangedCooldown : AIActionCooldown
+{
+	name = "WeaponChanged";
+	duration = 7.f;
+}
+
 SimpleSubActionShootWithWeapon : ShootActions.DefaultSubActionShootWithWeapon
 {
 	pauseCondition = 
@@ -347,6 +353,33 @@ SniperShootSubActionShootWithWeapon : AISubActionShootWithWeapon
 	];
 }
 
+PreventionMaxTacSniperShootSubActionShootWithWeapon : AISubActionShootWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	target = "AIActionTarget.CombatTarget";
+	rangedAttack = "Attacks.PreventionMaxTac_RangedAttack";
+	aimingDelay = 0.05f;
+	targetOffset = ( 0.0f, 0.0f, 1.0f );
+	delay = 3.f;
+	numberOfShots = 1;
+	tbhCoefficient = 0.f;
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition"
+				];
+			} : AIActionOR;
+		}
+	];
+}
+
 ChargedShootSubActionShootWithWeapon : ShootActions.SniperShootSubActionShootWithWeapon
 {
 	delay = 0.f;
@@ -374,6 +407,33 @@ ChargedShootSubActionAttackWithWeapon : AISubActionAttackWithWeapon
 	attack = "Attacks.TechLaserSight";
 	attackRange = 10.f;
 	attackName = "Swiped";
+	stopContinuousAttackOnDurationEnd = false;
+}
+
+ChargedShootSubActionAttackWithWeaponReed : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight"
+	];
+	attackDuration = 2.f;
+	attack = "Attacks.ReedLaserSight";
+	attackRange = 10.f;
+	attackName = "Swiped";
+	stopContinuousAttackOnDurationEnd = false;
+}
+
+ChargedShootSubActionAttackWithWeaponStartupReed : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight"
+	];
+	attackDuration = -1;
+	attack = "Attacks.ReedLaserSight";
+	attackRange = 10.f;
+	attackName = "Swiped";
+	stopContinuousAttackOnDurationEnd = false;
 }
 
 ShootDefault : AIAction
@@ -1591,6 +1651,198 @@ SniperShootWhileMoving : ShootActions.SniperShoot
 	};
 }
 
+MaxTacSniperShootWhileMoving : ShootActions.SniperShoot
+{
+	cooldowns = [];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.TargetBelow120deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.InaccurateSniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+SniperShootReed : AIAction
+{
+	cooldowns = 
+	[
+		"ShootActions.PreciseShootCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.NotStrafeConditions", "Condition.SniperShootActivationCondition", {
+					OR = 
+					[
+						"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.CombatTargetChanged";
+			}
+		];
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	loopSubActions = 
+	[
+		"ShootActions.ChargedShootSubActionAttackWithWeaponReed", {
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			rangedAttack = "Attacks.ReedSniperAttack_RangedAttack";
+			aimingDelay = 0.05f;
+			targetOffset = ( 0.0f, 0.0f, 1.0f );
+			delay = 7f;
+			numberOfShots = 1;
+			tbhCoefficient = 0.f;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.ShootingPauseCondition"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
 SniperShoot : AIAction
 {
 	cooldowns = 
@@ -1701,6 +1953,151 @@ SniperShoot : AIAction
 			target = "AIActionTarget.CombatTarget";
 			timeDelay = 0.25f;
 			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+SniperShoot_PreventionMaxTac : AIAction
+{
+	cooldowns = 
+	[
+		"ShootActions.PreciseShootCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.NotStrafeConditions", "Condition.SniperShootActivationCondition", {
+					OR = 
+					[
+						"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		"ShootActions.PreventionMaxTacSniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+	subActions += 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+SniperShootSubActionShootWithWeaponReed : AISubActionShootWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+	];
+	target = "AIActionTarget.CombatTarget";
+	rangedAttack = "Attacks.ReedSniperAttack_RangedAttack";
+	shootingPatternPackages = 
+	[
+		"ShootingPatterns.ReedSniperShootingPackage"
+	];
+	aimingDelay = 0.05f;
+	targetOffset = ( 0.0f, 0.0f, 1.0f );
+	delay = 1.f;
+	numberOfShots = -1;
+	tbhCoefficient = 0.f;
+	pauseCondition = 
+	[
+		{
+			condition = 
+			{
+				OR = 
+				[
+					"Condition.ShootingPauseCondition"
+				];
+			} : AIActionOR;
 		}
 	];
 }

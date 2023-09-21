@@ -16,14 +16,14 @@ NPC_Base_Curves : StatModifierGroup
 			statType = "BaseStats.Health";
 			modifierType = "Additive";
 			id = "puppet_powerLevelToHealth";
-			column = "puppet_powerLevelToHealth";
+			column = "puppet_powerLevelToHealth_base";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.LimbHealth";
 			modifierType = "Additive";
 			id = "puppet_powerLevelToHealth";
-			column = "puppet_powerLevelToHealth";
+			column = "puppet_powerLevelToHealth_base";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
@@ -48,17 +48,38 @@ NPC_Base_Curves : StatModifierGroup
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "puppet_powerLevelToDPS";
-			column = "puppet_powerLevelToDPS";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
-		{
 			statType = "BaseStats.Detection";
 			modifierType = "Additive";
 			value = 1f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.8f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.NPCDoTDPS";
+			modifierType = "Additive";
+			refStat = "BaseStats.NPCDamage";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_intrinsic_levelToDPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.ArmorMultBonus";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
 	];
 }
 
@@ -104,17 +125,17 @@ NPC_Base_Primary_Stat_ModGroup : NPC_Base_Curves
 		{
 			statType = "BaseStats.ImpactDamageThreshold";
 			modifierType = "Additive";
-			value = 10;
+			value = 15;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThreshold";
 			modifierType = "Additive";
-			value = 25;
+			value = 30;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.KnockdownDamageThreshold";
 			modifierType = "Additive";
-			value = 33;
+			value = 40;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdInCover";
@@ -337,6 +358,41 @@ NPC_Base_Primary_Stat_ModGroup : NPC_Base_Curves
 			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockMechanicalComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.NPCDamage";
 			modifierType = "Additive";
 			refStat = "BaseStats.DPS";
@@ -351,7 +407,7 @@ BaseAccuracy : ConstantStatModifier
 {
 	statType = "BaseStats.Accuracy";
 	modifierType = "Additive";
-	value = 1.0f;
+	value = 0.0f;
 }
 
 PoisonImmunityCanBePiercedByPlayer : CombinedStatModifier
@@ -431,12 +487,12 @@ Android_Primary_Stat_ModGroup : NPC_Base_Curves
 		{
 			statType = "BaseStats.WoundLArmDamageThreshold";
 			modifierType = "Additive";
-			value = 10;
+			value = 100;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.WoundRArmDamageThreshold";
 			modifierType = "Additive";
-			value = 10;
+			value = 100;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.WoundLLegDamageThreshold";
@@ -605,7 +661,14 @@ Android_Primary_Stat_ModGroup : NPC_Base_Curves
 			opSymbol = "*";
 			value = 1.0f;
 		} : CombinedStatModifier, 
-		"Character.BaseAccuracy"
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			id = "puppet_hacking_res_to_upload";
+			column = "android_hacking_res_to_npc_rarity";
+			refStat = "BaseStats.NPCRarity";
+		} : CurveStatModifier, 
+		"QuickHack.TargetResistance_DifficultyMult", "QuickHack.TargetResistanceUltimate_DifficultyMult"
 	];
 }
 
@@ -624,7 +687,7 @@ Crowd_Primary_Stat_ModGroup : StatModifierGroup
 			statType = "BaseStats.Health";
 			modifierType = "Additive";
 			id = "puppet_powerLevelToHealth";
-			column = "puppet_powerLevelToHealth";
+			column = "puppet_powerLevelToHealth_base";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
@@ -646,13 +709,6 @@ Crowd_Primary_Stat_ModGroup : StatModifierGroup
 			modifierType = "Additive";
 			id = "puppet_powerLevelToResistances";
 			column = "puppet_powerLevelToResistances";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "puppet_powerLevelToDPS";
-			column = "puppet_powerLevelToDPS";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
@@ -860,12 +916,59 @@ Crowd_Primary_Stat_ModGroup : StatModifierGroup
 	];
 }
 
+Mechanical_Primary_Stat_ModGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockMechanicalComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier
+	];
+}
+
 Mechanical_Immunities_ModGroup : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.PoisonImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundedImmunity";
 			modifierType = "Additive";
 			value = 1;
 		} : ConstantStatModifier, 
@@ -896,6 +999,16 @@ Drone_Primary_Stat_ModGroup : NPC_Base_Curves
 {
 	fk< StatModifier >[] statModifiers += 
 	[
+		{
+			statType = "BaseStats.HitShapeArmor";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.5f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.PowerLevel";
 			modifierType = "Additive";
@@ -1003,11 +1116,216 @@ Drone_Primary_Stat_ModGroup : NPC_Base_Curves
 			opSymbol = "*";
 			value = 1.0f;
 		} : CombinedStatModifier, 
-		"Character.BaseAccuracy", {
+		{
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockMechanicalComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			id = "puppet_hacking_res_to_upload";
+			column = "drone_hacking_res_to_npc_rarity";
+			refStat = "BaseStats.NPCRarity";
+		} : CurveStatModifier, 
+		"QuickHack.TargetResistance_DifficultyMult", "QuickHack.TargetResistanceUltimate_DifficultyMult"
+	];
+}
+
+Drone_Big_Primary_Stat_ModGroup : NPC_Base_Curves
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.HitShapeArmor";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
-			value = 0.4f;
-		} : ConstantStatModifier
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PowerLevel";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 60;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 35;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThreshold";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdInCover";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImmunity";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = -1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AudioStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VisualStimRangeMultiplier";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Visibility";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Hearing";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TBHsBaseSourceMultiplierCoefficient";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockMechanicalComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			id = "puppet_hacking_res_to_upload";
+			column = "drone_hacking_res_to_npc_rarity";
+			refStat = "BaseStats.NPCRarity";
+		} : CurveStatModifier, 
+		"QuickHack.TargetResistance_DifficultyMult", "QuickHack.TargetResistanceUltimate_DifficultyMult"
 	];
 }
 
@@ -1015,6 +1333,11 @@ Border_Patrol_Drone_Primary_Stat_ModGroup : NPC_Base_Curves
 {
 	fk< StatModifier >[] statModifiers += 
 	[
+		{
+			statType = "BaseStats.HitShapeArmor";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
@@ -1151,8 +1474,7 @@ Border_Patrol_Drone_Primary_Stat_ModGroup : NPC_Base_Curves
 			refStat = "BaseStats.DPS";
 			opSymbol = "*";
 			value = 1.0f;
-		} : CombinedStatModifier, 
-		"Character.BaseAccuracy"
+		} : CombinedStatModifier
 	];
 }
 
@@ -1161,14 +1483,14 @@ Mech_Primary_Stat_ModGroup : NPC_Base_Curves
 	statModifiers += 
 	[
 		{
-			statType = "BaseStats.Health";
-			modifierType = "Multiplier";
-			value = 15f;
+			statType = "BaseStats.HitShapeArmor";
+			modifierType = "Additive";
+			value = 100f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.HackingResistance";
-			modifierType = "Additive";
-			value = 2;
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ElectricResistance";
@@ -1179,6 +1501,11 @@ Mech_Primary_Stat_ModGroup : NPC_Base_Curves
 			statType = "BaseStats.ThermalResistance";
 			modifierType = "Additive";
 			value = 35;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.LimbHealth";
+			modifierType = "Multiplier";
+			value = 1.5;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.PowerLevel";
@@ -1192,18 +1519,18 @@ Mech_Primary_Stat_ModGroup : NPC_Base_Curves
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThreshold";
-			modifierType = "Additive";
-			value = -1;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThreshold";
-			modifierType = "Additive";
-			value = -1;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.KnockdownDamageThreshold";
-			modifierType = "Additive";
-			value = -1;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdInCover";
@@ -1301,18 +1628,25 @@ Mech_Primary_Stat_ModGroup : NPC_Base_Curves
 			value = 1.0f;
 		} : ConstantStatModifier, 
 		"AttackModifier.MinotaurHGMMinTBH", {
-			statType = "BaseStats.DPS";
-			modifierType = "AdditiveMultiplier";
-			value = 1.9;
-		} : ConstantStatModifier, 
-		{
 			statType = "BaseStats.NPCDamage";
 			modifierType = "Additive";
 			refStat = "BaseStats.DPS";
 			opSymbol = "*";
-			value = 0.85f;
+			value = 1f;
 		} : CombinedStatModifier, 
-		"Character.BaseAccuracy"
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Multiplier";
+			value = 0.66;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HackingResistance";
+			modifierType = "Additive";
+			id = "puppet_hacking_res_to_upload";
+			column = "mech_hacking_res_to_npc_rarity";
+			refStat = "BaseStats.NPCRarity";
+		} : CurveStatModifier, 
+		"QuickHack.TargetResistance_DifficultyMult", "QuickHack.TargetResistanceUltimate_DifficultyMult"
 	];
 }
 
@@ -1543,6 +1877,11 @@ Cyberpsycho_ModGroup : StatModifierGroup
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 1.5;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.HitReactionFactor";
 			modifierType = "Multiplier";
 			value = 0.5;
@@ -1578,9 +1917,50 @@ Cyberpsycho_ModGroup : StatModifierGroup
 			value = 25;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.HackingResistance";
+			statType = "BaseStats.TranquilizerImmunity";
 			modifierType = "Additive";
-			value = 4.f;
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.2f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = -0.66f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Finisher_TargetHealthMax_Clamp";
+			modifierType = "Additive";
+			value = 15;
+		} : ConstantStatModifier
+	];
+}
+
+MaxTac_ModGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Multiplier";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 1.75;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TranquilizerImmunity";
@@ -1588,10 +1968,151 @@ Cyberpsycho_ModGroup : StatModifierGroup
 			value = 1;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.SystemCollapseImmunity";
+			statType = "BaseStats.Poise";
 			modifierType = "Additive";
-			value = 1;
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.2f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = -0.66f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Finisher_TargetHealthMax_Clamp";
+			modifierType = "Additive";
+			value = 15;
 		} : ConstantStatModifier
 	];
+}
+
+MaxTac_Mantis_ModGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Multiplier";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 1.75;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TranquilizerImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.2f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = -0.66f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Finisher_TargetHealthMax_Clamp";
+			modifierType = "Additive";
+			value = 15;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterKnockdown";
+			modifierType = "Additive";
+			value = -5.33;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = -4.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = -4.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = -3.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = -3.5;
+		} : ConstantStatModifier
+	];
+}
+
+Cyberpsycho_HitReaction_Resistance : StatModifierGroup
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.HitTimerAfterKnockdown";
+			modifierType = "Additive";
+			value = 5.33;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStagger";
+			modifierType = "Additive";
+			value = 4.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterStaggerMelee";
+			modifierType = "Additive";
+			value = 4.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpact";
+			modifierType = "Additive";
+			value = 3.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitTimerAfterImpactMelee";
+			modifierType = "Additive";
+			value = 3.5;
+		} : ConstantStatModifier
+	];
+}
+
+Cyberpsycho_EarlyGame_Weapon : NPCEquipmentItemsPoolEntry
+{
+	minLevel = 0;
+	weight = 1.0f;
+}
+
+Cyberpsycho_MidGame_Weapon : NPCEquipmentItemsPoolEntry
+{
+	minLevel = 17;
+	weight = 100;
+}
+
+Cyberpsycho_LateGame_Weapon : NPCEquipmentItemsPoolEntry
+{
+	minLevel = 25;
+	weight = 10000;
+}
+
+Cyberpsycho_EndGame_Weapon : NPCEquipmentItemsPoolEntry
+{
+	minLevel = 33;
+	weight = 1000000;
 }
 

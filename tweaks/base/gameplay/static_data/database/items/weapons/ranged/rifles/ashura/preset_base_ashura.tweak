@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Ashura_Default : Base_Ashura
 {
@@ -27,50 +27,21 @@ Preset_Ashura_Default : Base_Ashura
 			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_ashura__mag_stdr";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+			slot = "AttachmentSlots.Smart_Precision_Sniper_Rifle_WeaponMod1";
+		} : Smart_PR_SR_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_Precision_Sniper_Rifle_WeaponMod2";
+		} : Smart_PR_SR_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 5;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 25;
-			}
-		];
-	};
 }
 
 Preset_Ashura_Pimp : Preset_Ashura_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -82,6 +53,10 @@ Preset_Ashura_Neon : Preset_Ashura_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Ashura_Military : Preset_Ashura_Default
@@ -90,6 +65,52 @@ Preset_Ashura_Military : Preset_Ashura_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Ashura_Prevention_MaxTac : Preset_Ashura_Default
+{
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.MaxTacsSniperAttack"
+	];
+}
+
+[ notQueryable ]
+Preset_Ashura_Prevention_MaxTac_2nd_wave : Preset_Ashura_Prevention_MaxTac
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationFull"
+		];
+	} : Base_Ashura_NPC_Data;
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Ashura_Reed : Preset_Ashura_Default
+{
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.ReedLaserSight", "Attacks.ReedSniperAttack", "Attacks.ReedSniperAttackProjectile"
+	];
+	npcRPGData = 
+	{
+		statModifierGroups = 
+		[
+			"Items.Base_Ashura_Reed_Recoil_Stats", "Items.Base_Ashura_Reed_Stats", "Items.Base_Ashura_NPC_Damage_Stats"
+		];
+	} : Base_Smart_Sniper_Rifle_NPC_Data;
 }
 
 [ notQueryable ]
@@ -122,45 +143,255 @@ Craftable_Common_Ashura : Preset_Ashura_Default
 Craftable_Uncommon_Ashura : Craftable_Common_Ashura
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Ashura : Craftable_Common_Ashura
+Craftable_Rare_Ashura : Craftable_Uncommon_Ashura
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Ashura : Craftable_Common_Ashura
+Craftable_Epic_Ashura : Craftable_Uncommon_Ashura
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Ashura : Craftable_Common_Ashura
+Craftable_Legendary_Ashura : Craftable_Uncommon_Ashura
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Ashura_Twitch : Preset_Ashura_Default
+{
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "ashura_twitch_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Collectible_Smart_Sniper_NoAttachments_Blueprint";
+	displayName = "LocKey#94217";
+	visualTags = 
+	[
+		"Ashura_Twitch"
+	];
+	quality = "Quality.Random";
+	localizedDescription = "LocKey#94218";
+	gameplayDescription = "LocKey#92677";
+	tags += 
+	[
+		"IconicWeapon", "StashScaling_Iconic"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_ashura__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_ashura__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_ashura__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_ashura__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.CollectibleIconicWeaponMod";
+		}
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	enableNpcRPGData = false;
+	statModifiers += 
+	[
+		"Quality.IconicItem", "Character.ScaleToPlayerLevel"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Ashura_NPC_Data;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Ashura_Technical_Stats", "Items.Base_Ashura_Handling_Stats", "Items.Base_Ashura_Twitch_Recoil_Stats", "Items.Base_Ashura_Spread_Stats", "Items.Base_Ashura_Twitch_SmartGun_Stats", "Items.Base_Ashura_SmartGun_SmartLink_Stats", "Items.Base_Ashura_SmartGun_Projectile_Stats", "Items.Base_Ashura_Aim_Stats", "Items.Base_Ashura_Flags", "Items.Base_Ashura_Twitch_Constant_Stats", "Items.Base_Ashura_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Sniper_Rifle_Mult_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Ashura_Twitch_Recoil_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 60.f;
+		} : RecoilDirModifier, 
+		{
+			value = 0.f;
+		} : RecoilAngleModifier, 
+		{
+			value = 0.6f;
+		} : RecoilKickMinModifier, 
+		{
+			value = 0.8f;
+		} : RecoilKickMaxModifier, 
+		{
+			value = 0.066f;
+		} : RecoilHoldDurationModifier, 
+		{
+			value = 0.02f;
+		} : RecoilTimeModifier, 
+		{
+			value = 0.15f;
+		} : RecoilRecoveryTimeModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearXADSModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableLinearYADSModifier
+	];
+}
+
+Base_Ashura_Twitch_SmartGun_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAngleYawModifier, 
+		{
+			value = 1.f;
+		} : SmartGunHipMaxLockedTargetsModifier, 
+		{
+			value = 1.f;
+		} : SmartGunAdsMaxLockedTargetsModifier, 
+		{
+			value = 1.25f;
+		} : SmartGunHipTimeToLockModifier, 
+		{
+			value = 1.25f;
+		} : SmartGunAdsTimeToLockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunHipTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunAdsTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTimeToRemoveOccludedTargetModifier, 
+		{
+			value = 1.f;
+		} : SmartGunUseTimeBasedAccuracyModifier, 
+		{
+			value = 0.5f;
+		} : SmartGunTimeToMaxAccuracyModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunStartingAccuracyModifier, 
+		{
+			value = 0.1f;
+		} : SmartGunSpreadMultiplierModifier, 
+		{
+			value = 60.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = 0.50f;
+		} : SmartGunHitProbabilityModifier
+	];
+}
+
+Base_Ashura_Twitch_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.347f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.533;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTimeBonus";
+			modifierType = "Additive";
+			value = -0.22f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTrackMultipleEntitiesInADS";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

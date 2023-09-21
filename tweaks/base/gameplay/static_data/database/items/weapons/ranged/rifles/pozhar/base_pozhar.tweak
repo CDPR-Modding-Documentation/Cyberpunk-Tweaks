@@ -4,7 +4,7 @@ using RTDB, BaseStats
 [ notQueryable ]
 Base_Pozhar : Base_Power_Shotgun
 {
-	fk< ItemBlueprint > blueprint = "Items.Base_Shotgun_NoScope_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Shotgun_NoAttachments_Blueprint";
 	buyPrice += 
 	[
 		"Price.Militech", "Price.MediumManufactureQuality"
@@ -26,7 +26,7 @@ Base_Pozhar : Base_Power_Shotgun
 	CName audioName = "wea_set_pozhar";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Precision"
+		"Preload", "Weapon", "Rifle Precision", "T3_Inject_Weapon", "Techtronika"
 	];
 	shootingPatternPackages = 
 	[
@@ -43,7 +43,7 @@ Base_Pozhar : Base_Power_Shotgun
 	fk< ItemType > itemType = "ItemType.Wea_Shotgun";
 	fk< Item > ammo = "Ammo.ShotgunAmmo";
 	stateMachineName = "Weapon";
-	fk< Crosshair > crosshair = "Crosshairs.Power_Overture";
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
 		{
@@ -89,20 +89,23 @@ Base_Pozhar : Base_Power_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Pozhar_NPC_Technical_Stats"
 		];
-	} : Base_Power_Shotgun_NPC_Data;
+	} : Base_Pozhar_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Pozhar_Technical_Stats", "Items.Base_Pozhar_Handling_Stats", "Items.Base_Pozhar_Recoil_Stats", "Items.Base_Pozhar_Spread_Stats", "Items.Base_Pozhar_Aim_Stats", "Items.Base_Pozhar_Constant_Stats"
+		"Items.Base_Pozhar_Technical_Stats", "Items.Base_Pozhar_Handling_Stats", "Items.Base_Pozhar_Recoil_Stats", "Items.Base_Pozhar_Spread_Stats", "Items.Base_Pozhar_Aim_Stats", "Items.Base_Pozhar_Constant_Stats", "Items.Base_Pozhar_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	CName audioSwitchName = "audio_data";
 	CName audioSwitchValue = "w_power_corp_handgun_11101_a";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerShotgun";
-	baseReloadTime = 2.5f;
-	baseEmptyReloadTime = 3.5f;
-	uninterruptibleReloadStart = 1.6f;
-	uninterruptibleEmptyReloadStart = 1.6f;
+	baseReloadTime = 2.15f;
+	baseEmptyReloadTime = 2.15f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 12.5f;
 	float weaponFarPlane = 30.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -117,6 +120,14 @@ Base_Pozhar : Base_Power_Shotgun
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_Pozhar_NPC_Data : Base_Power_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Pozhar_NPC_Technical_Stats", "Items.Base_Pozhar_NPC_Damage_Stats"
+	];
 }
 
 Base_Pozhar_Technical_Stats : StatModifierGroup
@@ -147,10 +158,10 @@ Base_Pozhar_NPC_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.4f;
+			value = 0.33f;
 		} : CycleTimeModifier, 
 		{
-			value = 8.f;
+			value = 12.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 3.f;
@@ -159,16 +170,46 @@ Base_Pozhar_NPC_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Pozhar_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 90f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Pozhar_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 70f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Pozhar_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.0f;
+			value = 1.72f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.f;
+			value = 1.83f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.28f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.17f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -186,14 +227,17 @@ Base_Pozhar_Recoil_Stats : StatModifierGroup
 			value = -5f;
 		} : RecoilDirModifier, 
 		{
-			value = 50.f;
+			value = 30.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.0f;
+			value = 0.1f;
 		} : RecoilHoldDurationModifier, 
 		{
-			value = 0.06f;
+			value = 0.065f;
 		} : RecoilTimeModifier, 
+		{
+			value = 0.15f;
+		} : RecoilRecoveryTimeModifier, 
 		{
 			value = 0.03f;
 		} : RecoilDelayModifier, 
@@ -240,13 +284,13 @@ Base_Pozhar_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadMinYModifier, 
 		{
-			value = 3.00f;
+			value = 0.0f;
 		} : SpreadMaxXModifier, 
 		{
 			value = 3.75f;
 		} : SpreadMaxYModifier, 
 		{
-			value = 0.3f;
+			value = 0.0f;
 		} : SpreadChangePerShotModifier, 
 		{
 			value = 1.f;
@@ -258,13 +302,13 @@ Base_Pozhar_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 0.4f;
+			value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			value = 2.5f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -282,12 +326,12 @@ Base_Pozhar_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.9f;
+			value = 2.33f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 1.7f;
+			value = 1.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
@@ -297,27 +341,27 @@ Base_Pozhar_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 2.1f;
+			value = 1.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 6.f;
+			value = 4.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 8.f;
+			value = 5.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilRecoveryTime";
@@ -325,15 +369,49 @@ Base_Pozhar_Constant_Stats : StatModifierGroup
 			value = 0.35f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			value = 1.4f;
-		} : ConstantStatModifier, 
-		{
 			statType = "BaseStats.EffectiveDPS";
 			modifierType = "Multiplier";
-			value = 0.715f;
-		} : ConstantStatModifier
+			value = 0.789f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = -1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.043f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow", {
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Multiplier";
+			value = 0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier
 	];
 }
 

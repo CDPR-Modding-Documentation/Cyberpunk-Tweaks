@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Effectors, Prereqs
+using RTDB, Effectors, Prereqs, Perks, Items
 
 Cloaked : StatusEffect
 {
@@ -15,6 +15,25 @@ Cloaked : StatusEffect
 			effectors = 
 			[
 				"BaseStatusEffect.CamoEffector", "BaseStatusEffect.CamoSFXEffector", "BaseStatusEffect.DisableTargetingEffector", "BaseStatusEffect.ApplyExitCamoEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CloakedSoMiSQ : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Cloaked";
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"Cloak", "CloakSoMiSQ"
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				"BaseStatusEffect.CamoEffector", "BaseStatusEffect.CamoSFXEffector", "BaseStatusEffect.DisableTargetingEffector", "BaseStatusEffect.ApplyExitCamoSoMiSQEffector"
 			];
 		} : GameplayLogicPackage
 	];
@@ -44,7 +63,7 @@ Cloaked_Exit : StatusEffect
 	statusEffectType = "BaseStatusEffectTypes.Cloaked";
 	gameplayTags += 
 	[
-		"Cloak"
+		"Cloak", "Cloak_Exit"
 	];
 	duration = 
 	{
@@ -63,6 +82,26 @@ Cloaked_Exit : StatusEffect
 			name = "status_emp";
 		}
 	];
+}
+
+Cloaked_Exit_SoMiSQ : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Cloaked";
+	gameplayTags += 
+	[
+		"Cloak", "CloakSoMiSQ", "Cloak_Exit"
+	];
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5.f;
+			} : ConstantStatModifier
+		];
+	};
 }
 
 DeactivateCloakedtatusEffects : Effector
@@ -99,11 +138,19 @@ ApplyExitCamoEffector : ApplyStatusEffectEffector
 	inverted = true;
 }
 
+ApplyExitCamoSoMiSQEffector : ApplyStatusEffectEffector
+{
+	effectorClassName = "ApplyStatusEffectEffector";
+	fk< StatusEffect > statusEffect = "BaseStatusEffect.Cloaked_Exit_SoMiSQ";
+	removeWithEffector = true;
+	inverted = true;
+}
+
 CamoEffector : Effector
 {
 	effectorClassName = "ApplyShaderEffector";
 	CName overrideMaterialName = "cloaking_effect";
-	CName overrideMaterialTag = "cloak";
+	CName overrideMaterialTag = "cloakOda";
 	bool applyToOwner = true;
 	bool applyToWeapon = true;
 }
@@ -144,7 +191,7 @@ OpticalCamoPlayerBuffBase : StatusEffect
 {
 	gameplayTags += 
 	[
-		"Buff", "Cloak"
+		"Buff", "Cloak", "CamoActiveOnPlayer", "ActiveCamo", "CyberwareBuff"
 	];
 	statusEffectType = "BaseStatusEffectTypes.PassiveBuff";
 	VFX = 
@@ -181,76 +228,156 @@ OpticalCamoPlayerBuffBase : StatusEffect
 					CName overrideMaterialName = "cloaking_effect";
 					CName overrideMaterialTag = "player_cloak";
 					bool overrideMaterialClearOnDetach = true;
-				}
+				}, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "CoolSkill";
+								valueToCheck = 60;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								nestedPrereqs = 
+								[
+									"Perks.IsWeaponMeleeAllowProjection", "Perks.IsWeaponRangedAllowProjection"
+								];
+							} : ORPrereq
+						];
+					} : ANDPrereq;
+					value = 1.25;
+				} : MultiplyDamage
 			];
 			stats = 
 			[
 				{
-					statType = "BaseStats.Visibility";
-					modifierType = "AdditiveMultiplier";
-					value = -0.9f;
+					statType = "BaseStats.OpticalCamoIsActive";
+					modifierType = "Additive";
+					value = 1f;
 				} : ConstantStatModifier, 
 				{
-					statType = "BaseStats.CanUseOpticalCamo";
+					statType = "BaseStats.TBHsBaseCoefficient";
+					modifierType = "AdditiveMultiplier";
+					value = 15;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.OpticalCamoChargesRegenRate";
 					modifierType = "Multiplier";
-					value = 0f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.TBHsBaseCoefficient";
-					modifierType = "AdditiveMultiplier";
-					value = 33;
+					value = 0;
 				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
 	];
-	uiData = 
-	{
-		displayName = "LocKey#77882";
-		description = "LocKey#77883";
-		iconPath = "increased_stats_icon";
-	};
 }
 
-OpticalCamoPlayerBuffRare : OpticalCamoPlayerBuffBase
+OpticalCamoPlayerBuffBase_LowTier : OpticalCamoPlayerBuffBase
 {
-	duration = 
-	{
-		statModifiers = 
-		[
-			{
-				statType = "BaseStats.MaxDuration";
-				modifierType = "Additive";
-				value = 10;
-			} : ConstantStatModifier
-		];
-	};
 	packages += 
 	[
 		{
 			effectors = 
 			[
-				{
-					statusEffect = "BaseStatusEffect.OpticalCamoCooldown";
-					inverted = true;
-				} : ApplyStatusEffectEffector
+				"Effectors.AttachCloakVisionBlocker"
 			];
-		} : GameplayLogicPackage
+		}
 	];
 }
 
-OpticalCamoPlayerBuffEpic : OpticalCamoPlayerBuffRare
+OpticalCamoPlayerBuffBase_HighTier : OpticalCamoPlayerBuffBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.AttachPerfectCloakVisionBlocker"
+			];
+		}
+	];
+}
+
+OpticalCamoPlayerBuffBaseUncommon : OpticalCamoPlayerBuffBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.AttachCloakVisionBlockerUncommon"
+			];
+		}
+	];
+}
+
+OpticalCamoPlayerBuffBaseRare : OpticalCamoPlayerBuffBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.AttachCloakVisionBlockerRare"
+			];
+		}
+	];
+}
+
+OpticalCamoPlayerBuffBaseEpic : OpticalCamoPlayerBuffBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.AttachCloakVisionBlockerEpic"
+			];
+		}
+	];
+}
+
+OpticalCamoPlayerBuffBaseLegendary : OpticalCamoPlayerBuffBase
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.AttachCloakVisionBlockerLegendary"
+			];
+		}
+	];
+}
+
+OpticalCamoPlayerBuffCommon : OpticalCamoPlayerBuffBase_LowTier
 {
 	duration = 
 	{
-		statModifiers = 
+		statModifiers += 
 		[
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 15;
+				value = 4;
 			} : ConstantStatModifier
 		];
-	};
+	} : CyberwareBuffDuration;
+}
+
+OpticalCamoPlayerBuffUncommon : OpticalCamoPlayerBuffBaseUncommon
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 4;
+			} : ConstantStatModifier
+		];
+	} : CyberwareBuffDuration;
 	packages += 
 	[
 		{
@@ -259,46 +386,91 @@ OpticalCamoPlayerBuffEpic : OpticalCamoPlayerBuffRare
 				{
 					statType = "BaseStats.TBHsBaseCoefficient";
 					modifierType = "AdditiveMultiplier";
-					value = 33;
+					value = 10;
 				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
 	];
 }
 
-OpticalCamoPlayerBuffLegendary : OpticalCamoPlayerBuffBase
+OpticalCamoPlayerBuffRare : OpticalCamoPlayerBuffBaseRare
 {
-	gameplayTags += 
-	[
-		"PerfectCloak"
-	];
 	duration = 
 	{
-		statModifiers = 
+		statModifiers += 
 		[
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 15;
+				value = 5;
 			} : ConstantStatModifier
 		];
-	};
+	} : CyberwareBuffDuration;
 	packages += 
 	[
 		{
-			effectors = 
-			[
-				{
-					statusEffect = "BaseStatusEffect.OpticalCamoLegendaryCooldown";
-					inverted = true;
-				} : ApplyStatusEffectEffector
-			];
 			stats = 
 			[
 				{
 					statType = "BaseStats.TBHsBaseCoefficient";
 					modifierType = "AdditiveMultiplier";
-					value = 67;
+					value = 12;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OpticalCamoPlayerBuffEpic : OpticalCamoPlayerBuffBaseEpic
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 6;
+			} : ConstantStatModifier
+		];
+	} : CyberwareBuffDuration;
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.TBHsBaseCoefficient";
+					modifierType = "AdditiveMultiplier";
+					value = 16;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+OpticalCamoPlayerBuffLegendary : OpticalCamoPlayerBuffBaseLegendary
+{
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	} : CyberwareBuffDuration;
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.TBHsBaseCoefficient";
+					modifierType = "AdditiveMultiplier";
+					value = 20;
 				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
@@ -311,5 +483,61 @@ OpticalCamoPlayerSFXEffector : Effector
 	CName activationSFXName = "w_cyb_camo_activate";
 	CName deactivationSFXName = "w_cyb_camo_deactivate";
 	bool unique = true;
+}
+
+OpticalCamoCoolPerkShort : OpticalCamoPlayerBuffBase_LowTier
+{
+	gameplayTags += 
+	[
+		"OpticalCamoSlideCoolPerk"
+	];
+	duration = "BaseStats.InfiniteDuration";
+	packages += 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.OpticalCamoChargesDecayRate";
+					modifierType = "Additive";
+					value = -0.4;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+OpticalCamo_Cool_40 : OpticalCamoPlayerBuffBase
+{
+	gameplayTags += 
+	[
+		"OpticalCamoGrapple"
+	];
+	duration = "BaseStats.InfiniteDuration";
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					visionBlockerDetectionModifier = 0.5f;
+				} : AttachCloakVisionBlocker, 
+				{
+					prereqRecord = "Perks.IsPlayerGrappling";
+					statusEffect = "BaseStatusEffect.OpticalCamo_Cool_40_Cooldown";
+					inverted = true;
+				} : ApplyStatusEffectEffector
+			];
+			stats += 
+			[
+				{
+					statType = "BaseStats.OpticalCamoIsActive";
+					modifierType = "Multiplier";
+					value = 0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
 }
 

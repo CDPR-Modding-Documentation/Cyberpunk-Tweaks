@@ -15,11 +15,12 @@ Base_Grad : Base_Power_Sniper_Rifle
 	displayName = "LocKey#3613";
 	string friendlyName = "w_rifle_sniper_techtronika_grad";
 	localizedDescription = "LocKey#3614";
+	gameplayDescription = "LocKey#92668";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Grad";
 	CName audioName = "wea_set_grad";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Sniper", "AnimCycleRound"
+		"Preload", "Weapon", "AnimCycleRound", "Techtronika"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -67,7 +68,7 @@ Base_Grad : Base_Power_Sniper_Rifle
 				}
 			];
 		}, 
-		"Items.SniperPossibleScopesList"
+		"Items.GradPossibleScopesList"
 	];
 	fk< WeaponFxPackage > fxPackage = 
 	{
@@ -77,10 +78,15 @@ Base_Grad : Base_Power_Sniper_Rifle
 		"ShootingPatterns.SemiAutoSniperShootingPackage"
 	];
 	enableNpcRPGData = true;
-	npcRPGData = "Items.Base_Grad_NPC_Data";
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+		];
+	} : Base_Grad_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Grad_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_Constant_Stats"
+		"Items.Base_Grad_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_Constant_Stats", "Items.Base_Grad_Damage_Stats"
 	];
 	fk< ConstantStatModifier > price = 
 	{
@@ -88,11 +94,15 @@ Base_Grad : Base_Power_Sniper_Rifle
 		modifierType = "Additive";
 		value = 120;
 	} : ConstantStatModifier;
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", "EquipmentGLP.VeryHeavyWeapon"
+	];
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 3.5f;
-	baseEmptyReloadTime = 6.2f;
-	uninterruptibleReloadStart = 3.f;
-	uninterruptibleEmptyReloadStart = 4.5f;
+	baseReloadTime = 3.0f;
+	baseEmptyReloadTime = 4.7f;
+	uninterruptibleReloadStart = 1.0f;
+	uninterruptibleEmptyReloadStart = 1.0f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -107,88 +117,13 @@ Base_Grad : Base_Power_Sniper_Rifle
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
-	OnAttach += 
-	[
-		"Items.GradCrouchPackage", "EquipmentGLP.BorgWeaponHeavy"
-	];
-}
-
-GradCrouchPackage : GameplayLogicPackage
-{
-	stackable = false;
-	effectors = 
-	[
-		{
-			prereqRecord = "Perks.IsPlayerCrouching";
-			statGroup = 
-			{
-				statModifiers = 
-				[
-					{
-						statType = "BaseStats.RecoilKickMin";
-						modifierType = "Multiplier";
-						value = 0.9f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.RecoilKickMax";
-						modifierType = "Multiplier";
-						value = 0.9f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.SwayTraversalTime";
-						modifierType = "Multiplier";
-						value = 3.0f;
-					} : ConstantStatModifier
-				];
-			} : StatModifierGroup;
-		} : ApplyStatGroupOnWeapon, 
-		{
-			prereqRecord = "Prereqs.UsingCoverPSMPrereq";
-			statGroup = 
-			{
-				statModifiers = 
-				[
-					{
-						statType = "BaseStats.RecoilKickMin";
-						modifierType = "Multiplier";
-						value = 0.9f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.RecoilKickMax";
-						modifierType = "Multiplier";
-						value = 0.9f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.RecoilScaleMax";
-						modifierType = "Multiplier";
-						value = 0.25f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.SwaySideMaximumAngleDistance";
-						modifierType = "Multiplier";
-						value = 0.5f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.SwaySideMaximumAngleDistance";
-						modifierType = "Multiplier";
-						value = 0.5f;
-					} : ConstantStatModifier, 
-					{
-						statType = "BaseStats.SwayTraversalTime";
-						modifierType = "Multiplier";
-						value = 2.0f;
-					} : ConstantStatModifier
-				];
-			} : StatModifierGroup;
-		} : ApplyStatGroupOnWeapon
-	];
 }
 
 Base_Grad_NPC_Data : Base_Power_Sniper_Rifle_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Grad_Technical_Stats"
+		"Items.Base_Grad_Technical_Stats", "Items.Base_Grad_NPC_Damage_Stats"
 	];
 }
 
@@ -209,32 +144,33 @@ Base_Grad_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.Strength";
-			modifierType = "Additive";
-			value = 10.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.Strength";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanUseStrongArms";
-			refObject = "Player";
-			opSymbol = "*";
-			value = -1f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			value = 0.66f;
-		} : ConstantStatModifier, 
-		{
 			statType = "BaseStats.EffectiveDPS";
 			modifierType = "Multiplier";
 			value = 1.5f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Grad_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Grad_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 15f;
 		} : ConstantStatModifier
 	];
 }
@@ -244,23 +180,23 @@ Base_Grad_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 3.5f;
+			value = 3.0f;
 		} : ReloadTimeModifier, 
 		{
-			value = 6.2f;
+			value = 4.7f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.1f;
+			value = 0.5f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.5f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.5f;
 		} : ZoomLevelModifier, 
 		{
 			value = 4.7f;
-		} : EquipDuration_FirstModifier, 
-		{
-			value = 10.f;
-		} : TechPierceScanAngleModifier, 
-		{
-			value = -0.2f;
-		} : TechPierceDamageFactorModifier
+		} : EquipDuration_FirstModifier
 	];
 }
 
@@ -330,7 +266,7 @@ Base_Grad_Spread_Stats : StatModifierGroup
 			value = 0.125f;
 		} : SpreadMinYModifier, 
 		{
-			value = 12.0f;
+			value = 0.0f;
 		} : SpreadMaxXModifier, 
 		{
 			value = 7.5f;
@@ -339,16 +275,16 @@ Base_Grad_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.2f;
+			value = 0.0f;
 		} : SpreadAdsMinXModifier, 
 		{
 			value = 0.125f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 1.2f;
+			value = 1.25f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.3f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -383,7 +319,7 @@ Base_Grad_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 7.f;
+			value = 1.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
@@ -391,50 +327,51 @@ Base_Grad_Constant_Stats : StatModifierGroup
 			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.SpreadDefaultY";
-			modifierType = "Additive";
-			value = 0.f;
-		} : ConstantStatModifier, 
-		{
 			statType = "BaseStats.SpreadMaxX";
-			modifierType = "Additive";
-			value = 8.0f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
 			value = 6.0f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 12.f;
+			value = 4.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 15.f;
+			value = 6.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMinADS";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 1.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMaxADS";
 			modifierType = "Additive";
-			value = 4.5f;
-		} : ConstantStatModifier
+			value = 2.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.411f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 

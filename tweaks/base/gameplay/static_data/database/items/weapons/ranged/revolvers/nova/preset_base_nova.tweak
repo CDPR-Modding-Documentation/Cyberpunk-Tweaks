@@ -1,9 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Nova_Default_Left_Hand : Preset_Nova_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Nova_Default : Base_Nova
 {
@@ -31,45 +27,21 @@ Preset_Nova_Default : Base_Nova
 			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+		} : Power_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod2";
+		} : Power_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 
-Preset_Nova_Pimp_Left_Hand : Preset_Nova_Pimp
+[ notQueryable ]
+Preset_Nova_Default_Unbreakable : Preset_Nova_Default
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Nova_Pimp : Preset_Nova_Default
@@ -78,10 +50,19 @@ Preset_Nova_Pimp : Preset_Nova_Default
 	[
 		"Pimp"
 	];
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
-Preset_Nova_Neon_Left_Hand : Preset_Nova_Neon
+[ notQueryable ]
+Preset_Nova_Pimp_Unbreakable : Preset_Nova_Pimp
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Nova_Neon : Preset_Nova_Default
@@ -90,15 +71,251 @@ Preset_Nova_Neon : Preset_Nova_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
-Preset_Nova_Military_Left_Hand : Preset_Nova_Military
+[ notQueryable ]
+Preset_Nova_Neon_Unbreakable : Preset_Nova_Neon
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Nova_Military : Preset_Nova_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Military_Unbreakable : Preset_Nova_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Scene : Preset_Nova_Pimp
+{
+}
+
+[ notQueryable ]
+Preset_Nova_Default_Left_Hand : Preset_Nova_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Nova_Technical_Stats"
+		];
+	} : Broken_Power_Revolver_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Nova_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Pimp_Left_Hand : Preset_Nova_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Nova_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Neon_Left_Hand : Preset_Nova_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Nova_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Military_Left_Hand : Preset_Nova_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Nova_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Default_Retrofix : Preset_Nova_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_NoMuzzle_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Pimp_Retrofix : Preset_Nova_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Neon_Retrofix : Preset_Nova_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Nova_Military_Retrofix : Preset_Nova_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -134,60 +351,41 @@ Craftable_Common_Nova : Preset_Nova_Default
 Craftable_Uncommon_Nova : Craftable_Common_Nova
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Proficiency_Craftable_Rare_Nova : Craftable_Common_Nova
+Proficiency_Craftable_Rare_Nova : Craftable_Uncommon_Nova
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Nova : Craftable_Common_Nova
+Craftable_Epic_Nova : Craftable_Uncommon_Nova
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Nova : Craftable_Common_Nova
+Craftable_Legendary_Nova : Craftable_Uncommon_Nova
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_MQ008_Nova : Preset_Nova_Default
 {
 	localizedDescription = "LocKey#50348";
-	tags += 
-	[
-		"AutoScalingItem", "RescalePL"
-	];
-	statModifiers += 
-	[
-		"Character.ScaleToPlayerLevel"
-	];
 	bool scaleToPlayer = true;
 }
 
@@ -218,27 +416,231 @@ Preset_Nova_Q000_Nomad : Preset_Nova_Default
 		}
 	];
 	quality = "Quality.Common";
-	bool scaleToPlayer = true;
-	statModifierGroups = 
+	statModifiers += 
 	[
-		"Items.Base_Nova_Technical_Stats", "Items.Base_Nova_Handling_Stats", "Items.Base_Nova_Recoil_Stats", "Items.Base_Nova_Spread_Stats", "Items.Base_Nova_Aim_Stats", "Items.Base_Nova_Constant_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Power_Revolver_RPG_Randomized_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier
 	];
+	bool scaleToPlayer = true;
 }
 
 [ notQueryable ]
 Preset_Nova_Doom_Doom : Preset_Nova_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "nova_doom_doom_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
 	displayName = "LocKey#40569";
 	visualTags = 
 	[
 		"Doom_Doom_Nova"
 	];
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	rangedAttacks = "Attacks.PhysicalExplosiveBulletPackage";
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
 	localizedDescription = "LocKey#40570";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Nova_NPC_Data;
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay", "EquipmentGLP.MediumWeapon", {
+			animationWrapperOverrides = 
+			[
+				"w_base_revolver"
+			];
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_nova__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.DoomDoomWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Nova_Technical_Stats", "Items.Base_Nova_Handling_Stats", "Items.Base_Nova_Recoil_Stats", "Items.Base_Nova_Doom_Doom_Spread_Stats", "Items.Base_Nova_Aim_Stats", "Items.Base_Nova_Doom_Doom_Constant_Stats", "Items.Base_Nova_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical", "Items.Base_Weapon_Damage_Type_Min_Max"
+	];
+}
+
+Base_Nova_Doom_Doom_Spread_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.33f;
+		} : SpreadMinXModifier, 
+		{
+			value = 0.33f;
+		} : SpreadMinYModifier, 
+		{
+			value = 1.f;
+		} : SpreadUseInAdsModifier, 
+		{
+			value = 0.33f;
+		} : SpreadAdsMinXModifier, 
+		{
+			value = 0.33f;
+		} : SpreadAdsMinYModifier, 
+		{
+			value = 1.5f;
+		} : SpreadResetSpeedModifier, 
+		{
+			value = 0.25f;
+		} : SpreadResetTimeThresholdModifier, 
+		{
+			value = 0.f;
+		} : SpreadRandomizeOriginPointModifier, 
+		{
+			value = 1.f;
+		} : SpreadUseCircularSpreadModifier
+	];
+}
+
+Base_Nova_Doom_Doom_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadZeroOnFirstShot";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 2.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 3.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilHoldDuration";
+			modifierType = "Multiplier";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilTime";
+			modifierType = "Multiplier";
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.7143;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Nova_Hitman : Preset_Nova_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "nova_hitman_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	audioName = "wea_set_nova_suppressor";
+	displayName = "LocKey#84843";
+	visualTags = 
+	[
+		"Hitman_Nova"
+	];
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon", "Hitman_Nova"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	localizedDescription = "LocKey#84844";
+	rangedAttacks = "Attacks.HitmanNovaPackage";
 	npcRPGData = 
 	{
 		statModifiers += 
@@ -266,127 +668,76 @@ Preset_Nova_Doom_Doom : Preset_Nova_Default
 		}, 
 		{
 			slot = "AttachmentSlots.IconicWeaponModLegendary";
-			itemPartPreset = "Items.DoomDoomWeaponMod";
+			itemPartPreset = "Items.HitmanNovaWeaponMod";
 		}
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Nova_Technical_Stats", "Items.Base_Nova_Handling_Stats", "Items.Base_Nova_Recoil_Stats", "Items.Base_Nova_Spread_Stats", "Items.Base_Nova_Aim_Stats", "Items.Base_Nova_Constant_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Power_Revolver_RPG_Randomized_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Nova_Technical_Stats", "Items.Base_Nova_Handling_Stats", "Items.Base_Nova_Recoil_Stats", "Items.Base_Nova_Spread_Stats", "Items.Base_Nova_Aim_Stats", "Items.Base_Nova_Hitman_Constant_Stats", "Items.Base_Nova_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Chemical"
 	];
-	CraftingData = "Items.Iconic_Small_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Nova_Doom_Doom_Epic";
-				}
-			];
-		}
-	];
+	bool scaleToPlayer = true;
 }
 
-[ notQueryable ]
-Preset_Nova_Doom_Doom_Epic : Preset_Nova_Doom_Doom
+Base_Nova_Hitman_Constant_Stats : StatModifierGroup
 {
-	quality = "Quality.Epic";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Nova_Doom_Doom";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 25;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 1;
-			}
-		];
-	};
-	OnLooted = 
-	[
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
 		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Nova_Doom_Doom_Legendary";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Nova_Doom_Doom_Legendary : Preset_Nova_Doom_Doom
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.15f;
+		} : ConstantStatModifier, 
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 2.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 3.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.938f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTimeBonus";
+			modifierType = "Additive";
+			value = -0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EmptyReloadTime";
+			modifierType = "AdditiveMultiplier";
+			value = -0.15f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Nova_Doom_Doom_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Nova_Doom_Doom_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Nova_Doom_Doom_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Nova_Doom_Doom_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Nova_Doom_Doom_Legendary";
-	};
 }
 

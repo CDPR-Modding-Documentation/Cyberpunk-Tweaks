@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Nekomata_Default : Base_Nekomata
 {
@@ -31,54 +31,21 @@ Preset_Nekomata_Default : Base_Nekomata
 			itemPartPreset = "Items.w_att_scope_sniper_02";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericTechModList, 
+			slot = "AttachmentSlots.Tech_Precision_Sniper_Rifle_WeaponMod1";
+		} : Tech_PR_SR_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModRare";
-		} : RareDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModEpic";
-		} : EpicDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModLegendary";
-		} : LegendaryDedicatedTechModList
+			slot = "AttachmentSlots.Tech_Precision_Sniper_Rifle_WeaponMod2";
+		} : Tech_PR_SR_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 5;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 20;
-			}
-		];
-	};
 }
 
 Preset_Nekomata_Pimp : Preset_Nekomata_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -90,6 +57,10 @@ Preset_Nekomata_Neon : Preset_Nekomata_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Nekomata_Military : Preset_Nekomata_Default
@@ -98,12 +69,199 @@ Preset_Nekomata_Military : Preset_Nekomata_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
 [ notQueryable ]
-Craftable_Common_Nekomata : Preset_Nekomata_Default
+Preset_Nekomata_Legendary : Preset_Nekomata_Default
 {
-	quality = "Quality.Common";
+	CName[] visualTags = 
+	[
+		"Legendary"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Nekomata_Prevention : Preset_Nekomata_Default
+{
+	CName[] visualTags = 
+	[
+		"Default"
+	];
+	statModifierGroups = 
+	[
+		"Items.QualityRandomization", "Items.ItemPlusRandomizer_MaxQuality", "Items.ItemPlusRandomizer_Below_MaxQuality", "Items.WeaponModsWeights_On_Tier2Plus", "Items.WeaponModsWeights_On_Tier3Plus", "Items.WeaponModsWeights_On_Tier4Plus", "Items.WeaponModsWeights_On_Tier5Plus", "Items.WeaponModsWeights_On_Tier5PlusPlus", "Items.Base_Nekomata_Krausser_Technical_Stats", "Items.Base_Nekomata_Handling_Stats", "Items.Base_Nekomata_Recoil_Stats", "Items.Base_Nekomata_Spread_Stats", "Items.Base_Nekomata_Aim_Stats", "Items.Base_Nekomata_Krausser_Constant_Stats", "Items.KrausserBonusStats", "Items.Base_Nekomata_Damage_Stats", "Items.Base_Tech_Sniper_Stats", "Items.Base_Tech_Sniper_Rifle_Mult_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+[ DisabledContent ]
+Preset_Nekomata_Krausser : Preset_Nekomata_Prevention
+{
+	CName[] visualTags = 
+	[
+		"Krausser"
+	];
+	tags += 
+	[
+		"Krausser", "PowerOfThePack"
+	];
+}
+
+Base_Nekomata_Krausser_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.55f;
+		} : CycleTimeModifier, 
+		{
+			value = 3.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 1.f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.0f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 1.f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 2.0f;
+		} : ChargeTimeModifier, 
+		{
+			value = 0.05f;
+		} : ShotDelayModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			value = 0.9f;
+		} : TechPierceChargeLevelModifier
+	];
+}
+
+Base_Nekomata_Krausser_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 6.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 6.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMinADS";
+			modifierType = "Additive";
+			value = 2.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMaxADS";
+			modifierType = "Additive";
+			value = 2.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 0.9041f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.4857f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Nekomata_MaxTac : Preset_Nekomata_Default
+{
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.MaxTacsSniperAttack"
+	];
+}
+
+[ notQueryable ]
+Preset_Nekomata_Boris : Preset_Nekomata_Default
+{
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Nekomata_Boris_Hologram : Items.Preset_Nekomata_Boris
+{
+	fk< ItemBlueprint > blueprint = "Items.Base_Tech_Precision_Sniper_Rifle_NoAttachments_Blueprint";
+	CName[] visualTags = 
+	[
+		"Boris_Nekomata_Hologram"
+	];
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Craftable_Base_Nekomata : Preset_Nekomata_Default
+{
 	slotPartListPreset = 
 	[
 		{
@@ -123,89 +281,388 @@ Craftable_Common_Nekomata : Preset_Nekomata_Default
 			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__mag_stdr";
 		}
 	];
+}
+
+[ notQueryable ]
+Craftable_Common_Nekomata : Craftable_Base_Nekomata
+{
+	quality = "Quality.Common";
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_02_Common";
+		}
+	];
 	CraftingData = "Items.Big_Common_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Uncommon_Nekomata : Craftable_Common_Nekomata
+Craftable_Uncommon_Nekomata : Craftable_Base_Nekomata
 {
 	quality = "Quality.Uncommon";
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_02_Uncommon";
+		}, 
+		{
+			slot = "AttachmentSlots.Tech_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Nekomata : Craftable_Common_Nekomata
+Craftable_Rare_Nekomata : Craftable_Base_Nekomata
 {
 	quality = "Quality.Rare";
-	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	slotPartListPreset += 
 	[
 		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_02_Rare";
+		}, 
+		{
+			slot = "AttachmentSlots.Tech_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
 	];
+	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Epic_Nekomata : Craftable_Common_Nekomata
+Craftable_Epic_Nekomata : Craftable_Base_Nekomata
 {
 	quality = "Quality.Epic";
-	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	slotPartListPreset += 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_02_Epic";
+		}, 
+		{
+			slot = "AttachmentSlots.Tech_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
 	];
+	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Proficiency_Craftable_Legendary_Nekomata : Craftable_Common_Nekomata
+Proficiency_Craftable_Legendary_Nekomata : Craftable_Base_Nekomata
 {
 	quality = "Quality.Legendary";
-	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	slotPartListPreset += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_02_Epic";
+		}, 
+		{
+			slot = "AttachmentSlots.Tech_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
 	];
+	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_02_Common : w_att_scope_sniper_02
+{
+	quality = "Quality.Common";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_02_Uncommon : w_att_scope_sniper_02
+{
+	quality = "Quality.Uncommon";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_02_Rare : w_att_scope_sniper_02
+{
+	quality = "Quality.Rare";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_02_Epic : w_att_scope_sniper_02
+{
+	quality = "Quality.Epic";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_02_Legendary : w_att_scope_sniper_02
+{
+	quality = "Quality.Legendary";
 }
 
 [ notQueryable ]
 Preset_Nekomata_Breakthrough : Preset_Nekomata_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "nekomata_breakthrough_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
 	displayName = "LocKey#40629";
 	visualTags = 
 	[
 		"Breakthrough_Nekomata"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40630";
+	tags += 
+	[
+		"IconicWeapon", "CraftableIconic", "Nekomata_Breakthrough"
+	];
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "ricochet";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	CraftingData = "Items.Iconic_Big_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Nekomata_NPC_Data;
+	CraftingData = "Items.Craftable_Iconic_Weapon";
+	slotPartListPreset = 
 	[
 		{
-			items = 
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__tsunami_nekomata__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.Scope";
+			itemPartPreset = "Items.Breakthrough_scope";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.NekomataBreakthroughWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Nekomata_Technical_Stats", "Items.Base_Nekomata_Handling_Stats", "Items.Base_Nekomata_Recoil_Stats", "Items.Base_Nekomata_Spread_Stats", "Items.Base_Nekomata_Aim_Stats", "Items.Base_Nekomata_Breakthrough_Constant_Stats", "Items.Base_Nekomata_Damage_Stats", "Items.Base_Tech_Sniper_Stats", "Items.Base_Tech_Sniper_Rifle_Mult_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Nekomata_Breakthrough_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.125f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 4.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 6.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 7.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMinADS";
+			modifierType = "Additive";
+			value = 2.45f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMaxADS";
+			modifierType = "Additive";
+			value = 2.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.766f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 2.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.25f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+Breakthrough_scope : Base_Sniper_Scope
+{
+	displayName = "LocKey#79430";
+	localizedDescription = "LocKey#79431";
+	quality = "Quality.Common";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ScopeFOV";
+			modifierType = "Additive";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ScopeOffset";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier
+	];
+	iconPath = "grandstand_default";
+	tags += 
+	[
+		"DummyPart", "HideInUI", "HideAtVendor"
+	];
+	buyPrice += 
+	[
+		"Price.TopManufactureQuality"
+	];
+	sellPrice += 
+	[
+		"Price.TopManufactureQuality"
+	];
+}
+
+[ notQueryable ]
+Common_Nekomata_Breakthrough : Preset_Nekomata_Breakthrough
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Nekomata_Breakthrough : Preset_Nekomata_Breakthrough
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Nekomata_Breakthrough : Preset_Nekomata_Breakthrough
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Nekomata_Breakthrough : Preset_Nekomata_Breakthrough
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Legendary_Nekomata_Breakthrough : Preset_Nekomata_Breakthrough
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Nekomata_Amazon : Preset_Nekomata_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
 			[
 				{
-					item = "Items.Recipe_Preset_Nekomata_Breakthrough_Legendary";
-				}
+					fact = "nekomata_amazon_owned";
+					value = 1;
+				} : SetFactEffector
 			];
 		}
 	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	displayName = "LocKey#94459";
+	visualTags = 
+	[
+		"Amazon"
+	];
+	quality = "Quality.Random";
+	localizedDescription = "LocKey#94465";
+	tags += 
+	[
+		"IconicWeapon", "PowerOfThePack", "StashScaling_Iconic"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem", "Character.ScaleToPlayerLevel"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Nekomata_NPC_Data;
 	slotPartListPreset = 
 	[
 		{
@@ -230,55 +687,15 @@ Preset_Nekomata_Breakthrough : Preset_Nekomata_Default
 		}, 
 		{
 			slot = "AttachmentSlots.IconicWeaponModLegendary";
-			itemPartPreset = "Items.NekomataBreakthroughWeaponMod";
+			itemPartPreset = "Items.PowerOfThePackMod";
 		}
 	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	enableNpcRPGData = false;
 	statModifierGroups = 
 	[
-		"Items.Base_Nekomata_Technical_Stats", "Items.Base_Nekomata_Handling_Stats", "Items.Base_Nekomata_Recoil_Stats", "Items.Base_Nekomata_Spread_Stats", "Items.Base_Nekomata_Aim_Stats", "Items.Base_Nekomata_Constant_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Sniper_Rifle_Mult_Stats", "Items.Base_Tech_Sniper_Rifle_RPG_Randomized_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Proficiencies.EngineeringWeaponPassives", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Proficiencies.AssaultSniperRifleStats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Nekomata_Krausser_Technical_Stats", "Items.Base_Nekomata_Handling_Stats", "Items.Base_Nekomata_Recoil_Stats", "Items.Base_Nekomata_Spread_Stats", "Items.Base_Nekomata_Aim_Stats", "Items.Base_Nekomata_Krausser_Constant_Stats", "Items.KrausserBonusStats", "Items.Base_Nekomata_Damage_Stats", "Items.Base_Tech_Sniper_Stats", "Items.Base_Tech_Sniper_Rifle_Mult_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
-}
-
-[ notQueryable ]
-Preset_Nekomata_Breakthrough_Legendary : Preset_Nekomata_Breakthrough
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Nekomata_Breakthrough";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Nekomata_Breakthrough_Legendary : ItemRecipe
-{
-	craftingResult = 
-	{
-		item = "Items.Preset_Nekomata_Breakthrough_Legendary";
-	};
 }
 

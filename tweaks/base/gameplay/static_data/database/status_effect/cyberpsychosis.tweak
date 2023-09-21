@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Prereqs
+using RTDB, Prereqs, Effectors
 
 DontShootAtMe : StatusEffect
 {
@@ -25,7 +25,7 @@ Madness : StatusEffect
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 60.0;
+				value = 20.0;
 			} : ConstantStatModifier
 		];
 	};
@@ -75,11 +75,6 @@ Madness : StatusEffect
 					statType = "BaseStats.CanQuickhack";
 					modifierType = "Multiplier";
 					value = 0.f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.CanSprintHarass";
-					modifierType = "Additive";
-					value = 1.f;
 				} : ConstantStatModifier, 
 				{
 					statType = "BaseStats.CanUseCloseRing";
@@ -135,6 +130,13 @@ Madness : StatusEffect
 	];
 	fk< StatusEffectAIData > AIData = 
 	{
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				invert = true;
+				fk< StatusEffect > statusEffect = "BaseStatusEffect.BossNoInterrupt";
+			} : StatusEffectPrereq
+		];
 		float priority = 6.f;
 	};
 	uiData = 
@@ -143,6 +145,236 @@ Madness : StatusEffect
 		string iconPath = "Cyberpsychosis";
 		priority = 1.0f;
 	};
+}
+
+ChimeraMadness : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Madness";
+	CName[] gameplayTags += 
+	[
+		"Debuff", "Quickhack", "Madness"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 12.5f;
+			} : ConstantStatModifier
+		];
+	};
+	bool canReapply = false;
+	SFX = 
+	[
+		{
+			name = "quickhack_cyberpsychosis";
+		} : StatusEffectFX
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "AdditiveMultiplier";
+					refStat = "BaseStats.QuickHackEffectsApplied";
+					opSymbol = "*";
+					value = 0.25f;
+				} : CombinedStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				invert = true;
+				fk< StatusEffect > statusEffect = "BaseStatusEffect.BossNoInterrupt";
+			} : StatusEffectPrereq
+		];
+		float priority = 6.f;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#27958";
+		string iconPath = "Cyberpsychosis";
+		priority = 1.0f;
+	};
+}
+
+BossMadness : StatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Madness";
+	CName[] gameplayTags += 
+	[
+		"Debuff", "Quickhack", "Madness"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "eye_glow_red";
+		}
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 30.0;
+			} : ConstantStatModifier
+		];
+	};
+	bool canReapply = false;
+	SFX = 
+	[
+		{
+			name = "quickhack_cyberpsychosis";
+		} : StatusEffectFX
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "AdditiveMultiplier";
+					refStat = "BaseStats.QuickHackEffectsApplied";
+					opSymbol = "*";
+					value = 0.25f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					CName effectorClassName = "MadnessEffector";
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatusEffectAIData > AIData = 
+	{
+		fk< IPrereq >[] activationPrereqs = 
+		[
+			{
+				invert = true;
+				fk< StatusEffect > statusEffect = "BaseStatusEffect.BossNoInterrupt";
+			} : StatusEffectPrereq
+		];
+		float priority = 6.f;
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#27958";
+		string iconPath = "Cyberpsychosis";
+		priority = 1.0f;
+	};
+}
+
+MandessLevel4 : Madness
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60.0;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "AdditiveMultiplier";
+					refStat = "BaseStats.QuickHackEffectsApplied";
+					opSymbol = "*";
+					value = 0.25f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "QuickHackEffectsApplied";
+						comparisonType = "Greater";
+						notifyOnAnyChange = true;
+						valueToCheck = 1;
+						notifyOnlyOnStateFulfilled = true;
+					} : StatPrereq;
+					gameplayTags = 
+					[
+						"Madness"
+					];
+					change = 125f;
+					isPercentage = true;
+					listenConstantly = false;
+				} : ModifyStatusEffectDurationEffector
+			];
+		}
+	];
+}
+
+MandessLevel4PlusPlus : Madness
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60.0;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "AdditiveMultiplier";
+					refStat = "BaseStats.QuickHackEffectsApplied";
+					opSymbol = "*";
+					value = 0.40f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "QuickHackEffectsApplied";
+						comparisonType = "Greater";
+						notifyOnAnyChange = true;
+						valueToCheck = 1;
+						notifyOnlyOnStateFulfilled = true;
+					} : StatPrereq;
+					gameplayTags = 
+					[
+						"Madness"
+					];
+					change = 140f;
+					isPercentage = true;
+					listenConstantly = false;
+				} : ModifyStatusEffectDurationEffector
+			];
+		}
+	];
 }
 
 DoNotBlockShootingOnFriendlyFire : StatusEffect

@@ -1,0 +1,916 @@
+package ModifierGroups
+using RTDB, BaseStats, Modifiers
+
+BaseCyberwareStatModifierGroup : StatModifierGroup
+{
+	drawBasedOnStatType = true;
+	saveBasedOnStatType = true;
+}
+
+ModifierPowerSetup : BaseCyberwareStatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ModifierPowerBase";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_number_of_simple_modifiers";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ModifierPowerBase";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_number_of_advanced_modifiers";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ModifierPowerBase";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_number_of_specialized_modifiers";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ModifierPower";
+			modifierType = "Additive";
+			refStat = "BaseStats.ControlledRandomPower";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ModifierPower";
+			modifierType = "Additive";
+			refStat = "BaseStats.ModifierPowerBase";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier
+	];
+}
+
+SimpleCyberwareModifiers : BaseCyberwareStatModifierGroup
+{
+	statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_simple_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	relatedModifierGroups = 
+	[
+		"ModifierGroups.AdvancedCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiersDriverUpdate", "ModifierGroups.SpecializedCyberwareModifiers"
+	];
+	statModifiers = 
+	[
+		"Modifiers.HealthRandom", "Modifiers.ArmorRandom", "Modifiers.CarryCapacityRandom", "Modifiers.MeleeResistanceRandom", "Modifiers.StealthHitDamageBonusRandom", "Modifiers.MeleeDamagePercentBonusRandom", "Modifiers.ReloadSpeedPercentBonusRandom", "Modifiers.HealingItemsEffectPercentBonusRandom", "Modifiers.HealthRegenPercentRandom", "Modifiers.ExplosionDamagePercentBonusRandom"
+	];
+}
+
+AdvancedCyberwareModifiers : SimpleCyberwareModifiers
+{
+	statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_advanced_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	relatedModifierGroups = 
+	[
+		"ModifierGroups.SimpleCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiersDriverUpdate", "ModifierGroups.SpecializedCyberwareModifiers"
+	];
+	statModifiers += 
+	[
+		"Modifiers.ExplosionResistanceRandom", "Modifiers.BonusQuickHackDamageRandom", "Modifiers.HealingItemsChargesRegenMultRandom", "Modifiers.RecoilPercentBonusRandom", "Modifiers.DamageOverTimeResistanceRandom", "Modifiers.RamOnKillRandom", "Modifiers.BonusRicochetDamageRandom", "Modifiers.GrenadesChargesRegenMultRandom", "Modifiers.ADSSpeedPercentBonusRandom", "Modifiers.HeadshotDamageMultiplierRandom", "Modifiers.VisibilityReductionRandom", "Modifiers.DamageOverTimePercentBonusRandom"
+	];
+}
+
+AdvancedCyberwareModifiersDriverUpdate : AdvancedCyberwareModifiers
+{
+	statModsLimitModifier = "";
+	statModsLimit = 1;
+	relatedModifierGroups = 
+	[
+		"ModifierGroups.SimpleCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiers", "ModifierGroups.SpecializedCyberwareModifiers"
+	];
+	statModifiers += 
+	[
+		"Modifiers.HealthToggle", "Modifiers.ArmorToggle", "Modifiers.CarryCapacityToggle", "Modifiers.MeleeResistanceToggle", "Modifiers.StealthHitDamageBonusToggle", "Modifiers.MeleeDamagePercentBonusToggle", "Modifiers.ReloadSpeedPercentBonusToggle", "Modifiers.HealingItemsEffectPercentBonusToggle", "Modifiers.HealthRegenPercentToggle", "Modifiers.ExplosionDamagePercentBonusToggle", "Modifiers.ExplosionResistanceToggle", "Modifiers.BonusQuickHackDamageToggle", "Modifiers.HealingItemsChargesRegenMultToggle", "Modifiers.RecoilPercentBonusToggle", "Modifiers.DamageOverTimeResistanceToggle", "Modifiers.RamOnKillToggle", "Modifiers.BonusRicochetDamageToggle", "Modifiers.GrenadesChargesRegenMultToggle", "Modifiers.ADSSpeedPercentBonusToggle", "Modifiers.HeadshotDamageMultiplierToggle", "Modifiers.VisibilityReductionToggle", "Modifiers.DamageOverTimePercentBonusToggle"
+	];
+}
+
+SpecializedCyberwareModifiers : AdvancedCyberwareModifiers
+{
+	statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_specialized_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	relatedModifierGroups = 
+	[
+		"ModifierGroups.SimpleCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiersDriverUpdate"
+	];
+	statModifiers += 
+	[
+		"Modifiers.CritChanceRandom", "Modifiers.CritDamageRandom", "Modifiers.MitigationChanceRandom", "Modifiers.MitigationStrengthRandom", "Modifiers.BonusPercentDamageToEnemiesBelowHalfHealthRandom", "Modifiers.BonusPercentDamageToEnemiesAtFullHealthRandom", "Modifiers.PercentDamageReductionFromPoisonedEnemiesRandom", "Modifiers.DodgeStaminaCostReductionRandom", "Modifiers.ChemicalDamagePercentBonusRandom", "Modifiers.ThermalDamagePercentBonusRandom", "Modifiers.ElectricDamagePercentBonusRandom", "Modifiers.HealOnKillingBleedingTargetRandom", "Modifiers.BonusCritChanceVsElectrocutedEnemiesRandom", "Modifiers.BonusPercentDamageVsBurningEnemiesRandom"
+	];
+}
+
+CyberwareModifierBoosts : StatModifierGroup
+{
+	optimiseCombinedModifiers = true;
+	statModifiers = 
+	[
+		"Modifiers.HealthBoost", "Modifiers.ArmorBoost", "Modifiers.CarryCapacityBoost", "Modifiers.MeleeResistanceBoost", "Modifiers.StealthHitDamageBonusBoost", "Modifiers.MeleeDamagePercentBonusBoost", "Modifiers.ReloadSpeedPercentBonusBoost", "Modifiers.HealingItemsEffectPercentBonusBoost", "Modifiers.HealthRegenPercentBoost", "Modifiers.ExplosionDamagePercentBonusBoost", "Modifiers.ExplosionResistanceBoost", "Modifiers.BonusQuickHackDamageBoost", "Modifiers.MitigationChanceBoost", "Modifiers.HealingItemsChargesRegenMultBoost", "Modifiers.RecoilPercentBonusBoost", "Modifiers.DamageOverTimeResistanceBoost", "Modifiers.RamOnKillBoost", "Modifiers.BonusRicochetDamageBoost", "Modifiers.GrenadesChargesRegenMultBoost", "Modifiers.ADSSpeedPercentBonusBoost", "Modifiers.HeadshotDamageMultiplierBoost", "Modifiers.VisibilityReductionBoost", "Modifiers.DamageOverTimePercentBonusBoost", "Modifiers.CritChanceBoost", "Modifiers.CritDamageBoost", "Modifiers.MitigationStrengthBoost", "Modifiers.BonusPercentDamageToEnemiesBelowHalfHealthBoost", "Modifiers.BonusPercentDamageToEnemiesAtFullHealthBoost", "Modifiers.PercentDamageReductionFromPoisonedEnemiesBoost", "Modifiers.DodgeStaminaCostReductionBoost", "Modifiers.ChemicalDamagePercentBonusBoost", "Modifiers.ThermalDamagePercentBonusBoost", "Modifiers.ElectricDamagePercentBonusBoost", "Modifiers.HealOnKillingBleedingTargetBoost", "Modifiers.BonusCritChanceVsElectrocutedEnemiesBoost", "Modifiers.BonusPercentDamageVsBurningEnemiesBoost"
+	];
+}
+
+TransferCyberwareModifiersToItem : StatModifierGroup
+{
+	optimiseCombinedModifiers = true;
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			refStat = "BaseStats.HealthModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ItemArmor";
+			modifierType = "Additive";
+			refStat = "BaseStats.ItemArmorModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CarryCapacity";
+			modifierType = "Additive";
+			refStat = "BaseStats.CarryCapacityModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MeleeResistance";
+			modifierType = "Additive";
+			refStat = "BaseStats.MeleeResistanceModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.StealthHitDamageBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.StealthHitDamageBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MeleeDamagePercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.MeleeDamagePercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HealthGeneralRegenRateMult";
+			modifierType = "Additive";
+			refStat = "BaseStats.HealthGeneralRegenRateMultModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HealingItemsEffectPercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.HealingItemsEffectPercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ReloadSpeedPercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.ReloadSpeedPercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ExplosionResistance";
+			modifierType = "Additive";
+			refStat = "BaseStats.ExplosionResistanceModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BonusQuickHackDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.BonusQuickHackDamageModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MitigationChance";
+			modifierType = "Additive";
+			refStat = "BaseStats.MitigationChanceModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.MitigationStrength";
+			modifierType = "Additive";
+			refStat = "BaseStats.MitigationStrengthModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HealingItemsChargesRegenMult";
+			modifierType = "Additive";
+			refStat = "BaseStats.HealingItemsChargesRegenMultModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ExplosionDamagePercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.ExplosionDamagePercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.RecoilPercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.RecoilPercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DamageOverTimeResistance";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamageOverTimeResistanceModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			refStat = "BaseStats.HeadshotDamageMultiplierModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.RamOnKill";
+			modifierType = "Additive";
+			refStat = "BaseStats.RamOnKillModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BonusRicochetDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.BonusRicochetDamageModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.GrenadesChargesRegenMult";
+			modifierType = "Additive";
+			refStat = "BaseStats.GrenadesChargesRegenMultModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ADSSpeedPercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.ADSSpeedPercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.VisibilityReduction";
+			modifierType = "Additive";
+			refStat = "BaseStats.VisibilityReductionModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DamageOverTimePercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamageOverTimePercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritChanceBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.CritChanceBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.CritDamageBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.CritDamageBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BonusPercentDamageToEnemiesBelowHalfHealth";
+			modifierType = "Additive";
+			refStat = "BaseStats.BonusPercentDamageToEnemiesBelowHalfHealthModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BonusPercentDamageToEnemiesAtFullHealth";
+			modifierType = "Additive";
+			refStat = "BaseStats.BonusPercentDamageToEnemiesAtFullHealthModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.PercentDamageReductionFromPoisonedEnemies";
+			modifierType = "Additive";
+			refStat = "BaseStats.PercentDamageReductionFromPoisonedEnemiesModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.DodgeStaminaCostReduction";
+			modifierType = "Additive";
+			refStat = "BaseStats.DodgeStaminaCostReductionModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamagePercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.ChemicalDamagePercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamagePercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.ThermalDamagePercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamagePercentBonus";
+			modifierType = "Additive";
+			refStat = "BaseStats.ElectricDamagePercentBonusModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.HealOnKillingBleedingTarget";
+			modifierType = "Additive";
+			refStat = "BaseStats.HealOnKillingBleedingTargetModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BonusCritChanceVsElectrocutedEnemies";
+			modifierType = "Additive";
+			refStat = "BaseStats.BonusCritChanceVsElectrocutedEnemiesModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.BonusPercentDamageVsBurningEnemies";
+			modifierType = "Additive";
+			refStat = "BaseStats.BonusPercentDamageVsBurningEnemiesModifierHelper";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+BodyCyberwareSimple : BaseCyberwareStatModifierGroup
+{
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_simple_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.Health", "Modifiers.CarryCapacity", "Modifiers.HealthRegen", "Modifiers.ExplosionResistance", "Modifiers.MeleeResistance", "Modifiers.HealthBoost", "Modifiers.CarryCapacityBoost", "Modifiers.HealthRegenBoost", "Modifiers.ExplosionResistanceBoost", "Modifiers.MeleeResistanceBoost"
+	];
+}
+
+BodyCyberwareAdvanced : BodyCyberwareSimple
+{
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_advanced_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers += 
+	[
+		"Modifiers.ThermalResistance", "Modifiers.ChemicalResistance", "Modifiers.ThermalResistanceBoost", "Modifiers.ChemicalResistanceBoost"
+	];
+}
+
+BodyCyberwareAdvancedDriverUpdate : BaseCyberwareStatModifierGroup
+{
+	statModsLimit = 1;
+	statModifiers += 
+	[
+		"Modifiers.ThermalResistance", "Modifiers.ChemicalResistance", "Modifiers.ThermalResistanceBoost", "Modifiers.ChemicalResistanceBoost", "Modifiers.ThermalResistanceToggle", "Modifiers.ChemicalResistanceToggle"
+	];
+}
+
+BodyCyberwareSpecialized : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_specialized_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.PoisonedApplicationRate", "Modifiers.BurningApplicationRate", "Modifiers.ThermalDamage", "Modifiers.ChemicalDamage", "Modifiers.PoisonedApplicationRateBoost", "Modifiers.BurningApplicationRateBoost", "Modifiers.ThermalDamageBoost", "Modifiers.ChemicalDamageBoost"
+	];
+}
+
+ReflexesCyberwareSimple : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_simple_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.StealthHitDamageBonus", "Modifiers.MeleeResistance", "Modifiers.BonusDamageAgainstBosses", "Modifiers.MaxSpeed", "Modifiers.StealthHitDamageBonusBoost", "Modifiers.MeleeResistanceBoost", "Modifiers.BonusDamageAgainstBossesBoost", "Modifiers.MaxSpeedBoost"
+	];
+}
+
+ReflexesCyberwareAdvanced : BaseCyberwareStatModifierGroup
+{
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_advanced_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers += 
+	[
+		"Modifiers.MitigationChance", "Modifiers.ElectricResistance", "Modifiers.HeadshotDamageMultiplier", "Modifiers.MitigationChanceBoost", "Modifiers.ElectricResistanceBoost", "Modifiers.HeadshotDamageMultiplierBoost"
+	];
+}
+
+ReflexesCyberwareAdvancedDriverUpdate : BaseCyberwareStatModifierGroup
+{
+	statModsLimit = 1;
+	statModifiers += 
+	[
+		"Modifiers.MitigationChance", "Modifiers.ElectricResistance", "Modifiers.HeadshotDamageMultiplier", "Modifiers.MitigationChanceBoost", "Modifiers.ElectricResistanceBoost", "Modifiers.HeadshotDamageMultiplierBoost", "Modifiers.MitigationChanceToggle", "Modifiers.ElectricResistanceToggle", "Modifiers.HeadshotDamageMultiplierToggle"
+	];
+}
+
+ReflexesCyberwareSpecialized : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_specialized_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.BleedingApplicationRate", "Modifiers.ElectrocutedApplicationRate", "Modifiers.ElectricDamage", "Modifiers.PhysicalDamage", "Modifiers.BleedingApplicationRateBoost", "Modifiers.ElectrocutedApplicationRateBoost", "Modifiers.ElectricDamageBoost", "Modifiers.PhysicalDamageBoost"
+	];
+}
+
+IntelligenceCyberwareSimple : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_simple_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.BonusDamageAgainstBosses", "Modifiers.BonusQuickHackDamage", "Modifiers.BonusDamageAgainstBossesBoost", "Modifiers.BonusQuickHackDamageBoost"
+	];
+}
+
+IntelligenceCyberwareAdvanced : BaseCyberwareStatModifierGroup
+{
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_advanced_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers += 
+	[
+		"Modifiers.QuickhackResistance", "Modifiers.QuickhacksCooldownReduction", "Modifiers.DurationBonusQuickhack", "Modifiers.MechResistance", "Modifiers.QuickhackResistanceBoost", "Modifiers.QuickhacksCooldownReductionBoost", "Modifiers.DurationBonusQuickhackBoost", "Modifiers.MechResistanceBoost"
+	];
+}
+
+IntelligenceCyberwareAdvancedDriverUpdate : BaseCyberwareStatModifierGroup
+{
+	statModsLimit = 1;
+	statModifiers += 
+	[
+		"Modifiers.QuickhackResistance", "Modifiers.QuickhacksCooldownReduction", "Modifiers.DurationBonusQuickhack", "Modifiers.MechResistance", "Modifiers.QuickhackResistanceBoost", "Modifiers.QuickhacksCooldownReductionBoost", "Modifiers.DurationBonusQuickhackBoost", "Modifiers.MechResistanceBoost", "Modifiers.QuickhackResistanceToggle", "Modifiers.QuickhacksCooldownReductionToggle", "Modifiers.DurationBonusQuickhackToggle", "Modifiers.MechResistanceToggle"
+	];
+}
+
+IntelligenceCyberwareSpecialized : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_specialized_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.CritChance", "Modifiers.CritDamage", "Modifiers.ElectrocutedApplicationRate", "Modifiers.BurningApplicationRate", "Modifiers.ElectricDamage", "Modifiers.ThermalDamage", "Modifiers.CritChanceBoost", "Modifiers.CritDamageBoost", "Modifiers.ElectrocutedApplicationRateBoost", "Modifiers.BurningApplicationRateBoost", "Modifiers.ElectricDamageBoost", "Modifiers.ThermalDamageBoost"
+	];
+}
+
+TechnicalAbilityCyberwareSimple : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_simple_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.Armor", "Modifiers.CarryCapacity", "Modifiers.ExplosionResistance", "Modifiers.ArmorBoost", "Modifiers.CarryCapacityBoost", "Modifiers.ExplosionResistanceBoost"
+	];
+}
+
+TechnicalAbilityCyberwareAdvanced : BaseCyberwareStatModifierGroup
+{
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_advanced_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers += 
+	[
+		"Modifiers.MechResistance", "Modifiers.BonusRicochetDamage", "Modifiers.ThermalResistance", "Modifiers.ElectricResistance", "Modifiers.ChemicalResistance", "Modifiers.MechResistanceBoost", "Modifiers.BonusRicochetDamageBoost", "Modifiers.ThermalResistanceBoost", "Modifiers.ElectricResistanceBoost", "Modifiers.ChemicalResistanceBoost"
+	];
+}
+
+TechnicalAbilityCyberwareAdvancedDriverUpdate : BaseCyberwareStatModifierGroup
+{
+	statModsLimit = 1;
+	statModifiers += 
+	[
+		"Modifiers.MechResistance", "Modifiers.BonusRicochetDamage", "Modifiers.ThermalResistance", "Modifiers.ElectricResistance", "Modifiers.ChemicalResistance", "Modifiers.MechResistanceBoost", "Modifiers.BonusRicochetDamageBoost", "Modifiers.ThermalResistanceBoost", "Modifiers.ElectricResistanceBoost", "Modifiers.ChemicalResistanceBoost", "Modifiers.MechResistanceToggle", "Modifiers.BonusRicochetDamageToggle", "Modifiers.ThermalResistanceToggle", "Modifiers.ElectricResistanceToggle", "Modifiers.ChemicalResistanceToggle"
+	];
+}
+
+TechnicalAbilityCyberwareSpecialized : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_specialized_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.MitigationStrength", "Modifiers.ElectrocutedApplicationRate", "Modifiers.BurningApplicationRate", "Modifiers.ElectricDamage", "Modifiers.ThermalDamage", "Modifiers.MitigationStrengthBoost", "Modifiers.ElectrocutedApplicationRateBoost", "Modifiers.BurningApplicationRateBoost", "Modifiers.ElectricDamageBoost", "Modifiers.ThermalDamageBoost"
+	];
+}
+
+CoolCyberwareSimple : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_simple_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.HealthRegen", "Modifiers.StealthHitDamageBonus", "Modifiers.BonusDamageAgainstBosses", "Modifiers.HealthRegenBoost", "Modifiers.StealthHitDamageBonusBoost", "Modifiers.BonusDamageAgainstBossesBoost"
+	];
+}
+
+CoolCyberwareAdvanced : BaseCyberwareStatModifierGroup
+{
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_advanced_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers += 
+	[
+		"Modifiers.MitigationChance", "Modifiers.ThermalResistance", "Modifiers.ElectricResistance", "Modifiers.ChemicalResistance", "Modifiers.HeadshotDamageMultiplier", "Modifiers.MitigationChanceBoost", "Modifiers.ThermalResistanceBoost", "Modifiers.ElectricResistanceBoost", "Modifiers.ChemicalResistanceBoost", "Modifiers.HeadshotDamageMultiplierBoost"
+	];
+}
+
+CoolCyberwareAdvancedDriverUpdate : BaseCyberwareStatModifierGroup
+{
+	statModsLimit = 1;
+	statModifiers += 
+	[
+		"Modifiers.MitigationChance", "Modifiers.ThermalResistance", "Modifiers.ElectricResistance", "Modifiers.ChemicalResistance", "Modifiers.HeadshotDamageMultiplier", "Modifiers.MitigationChanceBoost", "Modifiers.ThermalResistanceBoost", "Modifiers.ElectricResistanceBoost", "Modifiers.ChemicalResistanceBoost", "Modifiers.HeadshotDamageMultiplierBoost", "Modifiers.MitigationChanceToggle", "Modifiers.ThermalResistanceToggle", "Modifiers.ElectricResistanceToggle", "Modifiers.ChemicalResistanceToggle", "Modifiers.HeadshotDamageMultiplierToggle"
+	];
+}
+
+CoolCyberwareSpecialized : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_specialized_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.CritChance", "Modifiers.CritDamage", "Modifiers.PoisonedApplicationRate", "Modifiers.BleedingApplicationRate", "Modifiers.PhysicalDamage", "Modifiers.ChemicalDamage", "Modifiers.CritChanceBoost", "Modifiers.CritDamageBoost", "Modifiers.PoisonedApplicationRateBoost", "Modifiers.BleedingApplicationRateBoost", "Modifiers.PhysicalDamageBoost", "Modifiers.ChemicalDamageBoost"
+	];
+}
+
+GenericCyberwareVariantModifiers : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.Armor", "Modifiers.Health", "Modifiers.CarryCapacity", {
+			statType = "BaseStats.DamageReductionExplosion";
+			modifierType = "Additive";
+			min = 0.05f;
+			max = 0.15f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.DamageReductionMelee";
+			modifierType = "Additive";
+			min = 0.05f;
+			max = 0.15f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.BleedingApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.BurningApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.PoisonedApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ElectrocutedApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.CritChance";
+			modifierType = "Additive";
+			min = 0.5f;
+			max = 1.5f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.CritDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.MitigationChance";
+			modifierType = "Additive";
+			min = 0.5f;
+			max = 1.5f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.BonusDamageAgainstBosses";
+			modifierType = "Additive";
+			min = 10.0f;
+			max = 30.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.MaxSpeed";
+			modifierType = "Additive";
+			min = 0.05f;
+			max = 0.15f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.QuickhacksCooldownReduction";
+			modifierType = "Additive";
+			min = 0.02f;
+			max = 0.06f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			min = 0.02f;
+			max = 0.06f;
+			useControlledRandom = true;
+		} : RandomStatModifier
+	];
+}
+
+SimpleCyberwareVariantModifiers : BaseCyberwareStatModifierGroup
+{
+	drawBasedOnStatType = true;
+	fk< StatModifier > statModsLimitModifier = 
+	{
+		statType = "BaseStats.StatModifierGroupLimit";
+		modifierType = "Additive";
+		id = "cyberware_curves";
+		column = "quality_to_number_of_modifiers";
+		refStat = "BaseStats.Quality";
+	} : CurveStatModifier;
+	statModifiers = 
+	[
+		"Modifiers.Armor", "Modifiers.Health", "Modifiers.CarryCapacity", {
+			statType = "BaseStats.DamageReductionMelee";
+			modifierType = "Additive";
+			min = 0.05f;
+			max = 0.15f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.BleedingApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.BurningApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.PoisonedApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ElectrocutedApplicationRate";
+			modifierType = "Additive";
+			min = 2.0f;
+			max = 6.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.MaxSpeed";
+			modifierType = "Additive";
+			min = 0.05f;
+			max = 0.15f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			min = 5.0f;
+			max = 15.0f;
+			useControlledRandom = true;
+		} : RandomStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			min = 0.02f;
+			max = 0.06f;
+			useControlledRandom = true;
+		} : RandomStatModifier
+	];
+}
+

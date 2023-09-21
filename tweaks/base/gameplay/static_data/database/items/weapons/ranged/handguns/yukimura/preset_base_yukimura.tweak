@@ -1,10 +1,6 @@
 package Items
 using RTDB, BaseStats, WeaponFxPackage, AttachmentSlots, Perks, Prereqs, Effectors
 
-Preset_Yukimura_Default_Left_Hand : Preset_Yukimura_Default
-{
-}
-
 Preset_Yukimura_Default : Base_Yukimura
 {
 	CName appearanceResourceName = "Preset_Yukimura_Default";
@@ -31,49 +27,12 @@ Preset_Yukimura_Default : Base_Yukimura
 			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+			slot = "AttachmentSlots.Smart_Handgun_WeaponMod1";
+		} : Smart_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_Handgun_WeaponMod2";
+		} : Smart_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-Preset_Yukimura_Pimp_Left_Hand : Preset_Yukimura_Pimp
-{
 }
 
 Preset_Yukimura_Pimp : Preset_Yukimura_Default
@@ -82,10 +41,10 @@ Preset_Yukimura_Pimp : Preset_Yukimura_Default
 	[
 		"Pimp"
 	];
-}
-
-Preset_Yukimura_Neon_Left_Hand : Preset_Yukimura_Neon
-{
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
 Preset_Yukimura_Neon : Preset_Yukimura_Default
@@ -94,10 +53,10 @@ Preset_Yukimura_Neon : Preset_Yukimura_Default
 	[
 		"Neon"
 	];
-}
-
-Preset_Yukimura_Military_Left_Hand : Preset_Yukimura_Military
-{
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Yukimura_Military : Preset_Yukimura_Default
@@ -106,17 +65,245 @@ Preset_Yukimura_Military : Preset_Yukimura_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
-Preset_Yukimura_Trauma_Left_Hand : Preset_Yukimura_Trauma
+[ notQueryable ]
+Preset_Yukimura_Military_Unbreakable : Preset_Yukimura_Military
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
+[ notQueryable ]
 Preset_Yukimura_Trauma : Preset_Yukimura_Default
 {
 	CName[] visualTags = 
 	[
 		"Trauma"
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Default_Left_Hand : Preset_Yukimura_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats"
+		];
+	} : Broken_Smart_Handgun_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Yukimura_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Pimp_Left_Hand : Preset_Yukimura_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Yukimura_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Neon_Left_Hand : Preset_Yukimura_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Yukimura_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Military_Left_Hand : Preset_Yukimura_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Yukimura_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Trauma_Left_Hand : Preset_Yukimura_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Trauma"
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Default_Retrofix : Preset_Yukimura_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_NoAttachments_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Pimp_Retrofix : Preset_Yukimura_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Neon_Retrofix : Preset_Yukimura_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Yukimura_Military_Retrofix : Preset_Yukimura_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
 	];
 }
 
@@ -150,53 +337,45 @@ Craftable_Common_Yukimura : Preset_Yukimura_Default
 Craftable_Uncommon_Yukimura : Craftable_Common_Yukimura
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Yukimura : Craftable_Common_Yukimura
+Craftable_Rare_Yukimura : Craftable_Uncommon_Yukimura
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Proficiency_Craftable_Epic_Yukimura : Craftable_Common_Yukimura
+Proficiency_Craftable_Epic_Yukimura : Craftable_Uncommon_Yukimura
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Yukimura : Craftable_Common_Yukimura
+Craftable_Legendary_Yukimura : Craftable_Uncommon_Yukimura
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Yukimura_Legendary : Preset_Yukimura_Default
 {
-	quality = "Quality.Legendary";
 	visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -214,16 +393,29 @@ Preset_Yukimura_Legendary : Preset_Yukimura_Default
 [ notQueryable ]
 Preset_Yukimura_Skippy : Preset_Yukimura_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "yukimura_skippy_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
 	tags += 
 	[
-		"Quest", "RescalePL", "AutoScalingItem"
+		"RescalePL", "AutoScalingItem", "IconicWeapon"
 	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40563";
 	visualTags = 
 	[
 		"Skippy_Yukimura"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	statModifiers += 
 	[
 		"Quality.IconicItem"
@@ -233,7 +425,7 @@ Preset_Yukimura_Skippy : Preset_Yukimura_Default
 	{
 		statModifiers += 
 		[
-			"Quality.IconicItem", "Character.ScaleToPlayerLevel"
+			"Quality.IconicItem"
 		];
 	} : Items.Base_Yukimura_NPC_Data;
 	bool scaleToPlayer = true;
@@ -301,12 +493,27 @@ Preset_Yukimura_Skippy : Preset_Yukimura_Default
 							{
 								statType = "BaseStats.SmartGunTrackHeadComponents";
 								modifierType = "Additive";
-								value = 1.f;
+								value = 5f;
 							} : ConstantStatModifier, 
 							{
 								statType = "BaseStats.SmartGunTrackLegComponents";
-								modifierType = "Multiplier";
-								value = 0.f;
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunTrackBreachComponents";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunTrackChestComponents";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunTrackMechanicalComponents";
+								modifierType = "Additive";
+								value = 1f;
 							} : ConstantStatModifier
 						];
 					};
@@ -333,9 +540,9 @@ Preset_Yukimura_Skippy : Preset_Yukimura_Default
 			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__mag_stdr";
 		}
 	];
-	statModifierGroups += 
+	statModifierGroups = 
 	[
-		"Items.Skippy_Yukimura_SmartGun_Stats"
+		"Items.IconicQualityRandomization", "Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_Handling_Stats", "Items.Base_Yukimura_Recoil_Stats", "Items.Base_Yukimura_SmartGun_Stats", "Items.Base_Yukimura_SmartGun_SmartLink_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_Flags", "Items.Base_Yukimura_Aim_Stats", "Items.Base_Yukimura_StatModifierGroup_SpreadStats", "Items.Base_Yukimura_Damage_Stats", "Items.Base_Yukimura_Constant_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Handgun_Mult_Stats", "Items.Base_Smart_Handgun_No_Sway_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical", "Items.Skippy_Yukimura_SmartGun_Stats"
 	];
 }
 
@@ -346,15 +553,30 @@ Skippy_Yukimura_SmartGun_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SmartGunTrackLegComponents";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 5f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.HasSmartLink";
+			statType = "BaseStats.SmartGunTrackBreachComponents";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTrackHeadComponents";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTrackChestComponents";
+			modifierType = "Additive";
+			value = 1f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SmartGunTrackMechanicalComponents";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HasSmartLink";
 			modifierType = "Additive";
 			value = 1.f;
 		} : ConstantStatModifier
@@ -362,19 +584,92 @@ Skippy_Yukimura_SmartGun_Stats : StatModifierGroup
 }
 
 [ notQueryable ]
+Preset_Yukimura_Skippy_PostQuest : Preset_Yukimura_Default
+{
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
+	displayName = "LocKey#40563";
+	visualTags = 
+	[
+		"Skippy_Yukimura"
+	];
+	quality = "Quality.Random";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	localizedDescription = "LocKey#92104";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Yukimura_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_handgun__arasaka_yukimura__mag_stdr";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_Handling_Stats", "Items.Base_Yukimura_Recoil_Stats", "Items.Base_Yukimura_SmartGun_Stats", "Items.Base_Yukimura_SmartGun_SmartLink_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_Flags", "Items.Base_Yukimura_Aim_Stats", "Items.Base_Yukimura_StatModifierGroup_SpreadStats", "Items.Base_Yukimura_Damage_Stats", "Items.Base_Yukimura_Constant_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Handgun_Mult_Stats", "Items.Base_Smart_Handgun_No_Sway_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+[ notQueryable ]
 Preset_Yukimura_Kiji : Preset_Yukimura_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "yukimura_kiji_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
+	audioName = "wea_set_yukimura_preset";
 	displayName = "LocKey#40565";
 	visualTags = 
 	[
 		"Kiji_Yukimura"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
 	localizedDescription = "LocKey#40566";
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay", "Items.SmartWeaponTargetsPriorityQueues"
+	];
 	npcRPGData = 
 	{
 		statModifiers += 
@@ -407,63 +702,145 @@ Preset_Yukimura_Kiji : Preset_Yukimura_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_Handling_Stats", "Items.Base_Yukimura_Recoil_Stats", "Items.Base_Yukimura_SmartGun_Stats", "Items.Base_Yukimura_SmartGun_SmartLink_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_Flags", "Items.Base_Yukimura_Aim_Stats", "Items.Base_Yukimura_StatModifierGroup_SpreadStats", "Items.Base_Smart_Handgun_Mult_Stats", "Items.Base_Smart_Handgun_RPG_Randomized_Stats", "Items.Base_Smart_Handgun_No_Sway_Stats", "Proficiencies.GunslingerHandgunStats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
-	];
-	CraftingData = "Items.Iconic_Small_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Yukimura_Kiji_Legendary";
-				}
-			];
-		}
+		"Items.IconicQualityRandomization", "Items.Base_Yukimura_Technical_Stats", "Items.Base_Yukimura_Handling_Stats", "Items.Base_Yukimura_Recoil_Stats", "Items.Base_Yukimura_Kiji_SmartGun_Stats", "Items.Base_Yukimura_SmartGun_Kiji_SmartLink_Stats", "Items.Base_Yukimura_SmartGun_Projectile_Stats", "Items.Base_Yukimura_Flags", "Items.Base_Yukimura_Aim_Stats", "Items.Base_Yukimura_StatModifierGroup_SpreadStats", "Items.Base_Yukimura_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Handgun_Mult_Stats", "Items.Base_Smart_Handgun_No_Sway_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
 	];
 }
 
-[ notQueryable ]
-Preset_Yukimura_Kiji_Legendary : Preset_Yukimura_Kiji
+Base_Yukimura_Kiji_SmartGun_Stats : StatModifierGroup
 {
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
+		{
+			value = 1.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.2f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAngleYawModifier, 
+		{
+			value = 4.f;
+		} : SmartGunHipMaxLockedTargetsModifier, 
+		{
+			value = 4.f;
+		} : SmartGunAdsMaxLockedTargetsModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunHipTimeToLockModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunAdsTimeToLockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunHipTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunAdsTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTimeToRemoveOccludedTargetModifier, 
+		{
+			value = 0.1f;
+		} : SmartGunSpreadMultiplierModifier, 
+		{
+			value = 1.f;
+		} : SmartGunUseTimeBasedAccuracyModifier, 
+		{
+			value = 0.5f;
+		} : SmartGunTimeToMaxAccuracyModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunStartingAccuracyModifier, 
+		{
+			value = 60.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = 0.70f;
+		} : SmartGunHitProbabilityModifier
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Yukimura_Kiji";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
 }
 
-[ notQueryable ]
-Recipe_Preset_Yukimura_Kiji_Legendary : ItemRecipe
+Base_Yukimura_SmartGun_Kiji_SmartLink_Stats : StatModifierGroup
 {
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Yukimura_Kiji_Legendary";
-	};
+	statModifiers = 
+	[
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunHipLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 16.0f;
+			statType = "BaseStats.SmartGunHipLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 16.0f;
+			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 16.0f;
+			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 16.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.4f;
+			statType = "BaseStats.SmartGunHipTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.4f;
+			statType = "BaseStats.SmartGunAdsTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.4f;
+			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.25f;
+			statType = "BaseStats.SmartGunHitProbability";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 35.f;
+			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+		} : SmartLinkDependentStatModifier
+	];
 }
 

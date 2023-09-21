@@ -2,7 +2,7 @@ package Items
 using RTDB, BaseStats, Prereqs, Perks
 
 [ notQueryable ]
-Base_Machete : MeleeWeapon
+Base_Machete : Base_Blade
 {
 	fk< ItemType > itemType = "ItemType.Wea_Machete";
 	triggerEffectName = "te_wea_melee_swing_mid";
@@ -14,7 +14,6 @@ Base_Machete : MeleeWeapon
 		modifierType = "Additive";
 		value = 2;
 	} : ConstantStatModifier;
-	evolution = "WeaponEvolution.Blade";
 	fk< AttachmentSlot >[] placementSlots += 
 	[
 		"AttachmentSlots.ItemSlotSMG"
@@ -39,16 +38,12 @@ Base_Machete : MeleeWeapon
 	];
 	tags += 
 	[
-		"One Hand Blade"
+		"One Hand Blade", "OneHandBladeFinisher", "FinisherFront", "FinisherBack", "DriverCombatBikeWeapon"
 	];
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.KatanaFxPackage";
 	fk< StatModifierGroup >[] statModifierGroups += 
 	[
-		"Items.Base_Machete_RPG_Stats", "Items.Base_Machete_RPG_Randomized_Stats", "Items.Base_Machete_Handling_Stats", "Items.Base_Machete_Misc_Stats", "Proficiencies.KenjutsuWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
-	];
-	fk< Attack >[] attacks += 
-	[
-		"MacheteAttacks.MacheteComboAttack1", "MacheteAttacks.MacheteComboAttack2", "MacheteAttacks.MacheteComboAttack3", "MacheteAttacks.MacheteComboAttack4", "MacheteAttacks.MacheteFinalAttack1", "MacheteAttacks.MacheteFinalAttack2", "MacheteAttacks.MacheteFinalAttack3", "MacheteAttacks.MacheteStrongAttack1", "MacheteAttacks.MacheteStrongAttack2", "MacheteAttacks.MacheteStrongAttack3", "MacheteAttacks.MacheteJumpAttack", "MacheteAttacks.MacheteCrouchAttack", "MacheteAttacks.MacheteSprintAttack", "MacheteAttacks.MacheteSafeAttack", "MacheteAttacks.MacheteBlockAttack", "MacheteAttacks.MacheteDeflectAttack"
+		"Items.Base_Machete_RPG_Stats", "Items.Base_Machete_Handling_Stats", "Items.Base_Machete_Misc_Stats", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
 	];
 	enableNpcRPGData = true;
 	npcRPGData = 
@@ -64,13 +59,6 @@ Base_Machete_RPG_Stats : StatModifierGroup
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_machete_rpg_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
 			value = 4f;
@@ -80,70 +68,7 @@ Base_Machete_RPG_Stats : StatModifierGroup
 			modifierType = "Additive";
 			value = 3.5f;
 		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			value = 1.1f;
-		} : ConstantStatModifier
-	];
-}
-
-Base_Machete_RPG_Randomized_Stats : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_randomized_stats";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = 
-	[
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "Additive";
-			id = "item_machete_rpg_stats";
-			column = "power_level_to_crit_chance";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "Additive";
-			id = "item_machete_rpg_stats";
-			column = "power_level_to_crit_damage";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "Additive";
-			id = "item_machete_rpg_stats";
-			column = "power_level_to_bonus_stamina_cost_reduction";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 
@@ -181,16 +106,18 @@ Base_Machete_Handling_Stats : StatModifierGroup
 			float value = 15.f;
 		} : BaseEvadeImpulseModifier, 
 		{
-			statType = "BaseStats.KnockdownImpulse";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			float value = 0.05f;
-		} : CombinedStatModifier, 
-		{
 			float value = 8.f;
-		} : PhysicalImpulseModifier
+		} : PhysicalImpulseModifier, 
+		{
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Multiplier";
+			value = 1.212f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "Additive";
+			value = 12f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -201,35 +128,12 @@ Borg_Machete_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.MeleeBorgStaminaDrain";
 			modifierType = "Additive";
-			value = 5f;
+			value = 3f;
 		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.Strength";
-			modifierType = "Additive";
-			value = 10.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.Strength";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanUseStrongArms";
-			refObject = "Player";
-			opSymbol = "*";
-			value = -1f;
-		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
 			value = 2.5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.MeleeAttackComboDuration";
-			modifierType = "Additive";
-			value = 0.25f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			value = 1.1f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitWoundsFactor";
@@ -245,6 +149,16 @@ Borg_Machete_Stats : StatModifierGroup
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
 			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttackSpeed";
+			modifierType = "Multiplier";
+			value = 0.9;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.VehicleMinHealthPercentWhenDamaged";
+			modifierType = "Multiplier";
+			value = 0f;
 		} : ConstantStatModifier
 	];
 }
@@ -354,11 +268,29 @@ Base_Machete_NPC_Stats : StatModifierGroup
 	];
 }
 
-Base_Machete_NPC_Data : Base_NPC_RPG_Data
+Base_Machete_NPC_Data : Base_Blade_NPC_RPG_Data
 {
 	statModifierGroups += 
 	[
 		"Items.Base_Machete_NPC_Stats"
+	];
+}
+
+[ notQueryable ]
+Base_Machete_Kukri : Base_Machete
+{
+	fk< Attack >[] attacks += 
+	[
+		"MacheteAttacks.MacheteComboAttack1", "MacheteAttacks.MacheteComboAttack2", "MacheteAttacks.MacheteComboAttack3", "MacheteAttacks.MacheteComboAttack4", "MacheteAttacks.MacheteMountedComboAttack1", "MacheteAttacks.MacheteMountedComboAttack2", "MacheteAttacks.MacheteMountedComboAttack3", "MacheteAttacks.MacheteMountedComboAttack4", "MacheteAttacks.MacheteFinalAttack1", "MacheteAttacks.MacheteFinalAttack2", "MacheteAttacks.MacheteFinalAttack3", "MacheteAttacks.MacheteMountedFinalAttack1", "MacheteAttacks.MacheteMountedFinalAttack2", "MacheteAttacks.MacheteMountedFinalAttack3", "MacheteAttacks.MacheteStrongAttack1", "MacheteAttacks.MacheteStrongAttack2", "MacheteAttacks.MacheteStrongAttack3", "MacheteAttacks.MacheteMountedStrongAttack1", "MacheteAttacks.MacheteMountedStrongAttack2", "MacheteAttacks.MacheteMountedStrongAttack3", "MacheteAttacks.MacheteJumpAttack", "MacheteAttacks.MacheteCrouchAttack", "MacheteAttacks.MacheteSprintAttack", "MacheteAttacks.MacheteSafeAttack", "MacheteAttacks.MacheteBlockAttack", "MacheteAttacks.MacheteDeflectAttack"
+	];
+}
+
+[ notQueryable ]
+Base_Machete_Borg : Base_Machete
+{
+	attacks += 
+	[
+		"MacheteAttacks.BorgMacheteComboAttack1", "MacheteAttacks.BorgMacheteComboAttack2", "MacheteAttacks.BorgMacheteComboAttack3", "MacheteAttacks.BorgMacheteComboAttack4", "MacheteAttacks.BorgMacheteMountedComboAttack1", "MacheteAttacks.BorgMacheteMountedComboAttack2", "MacheteAttacks.BorgMacheteMountedComboAttack3", "MacheteAttacks.BorgMacheteMountedComboAttack4", "MacheteAttacks.BorgMacheteFinalAttack1", "MacheteAttacks.BorgMacheteFinalAttack2", "MacheteAttacks.BorgMacheteFinalAttack3", "MacheteAttacks.BorgMacheteMountedFinalAttack1", "MacheteAttacks.BorgMacheteMountedFinalAttack2", "MacheteAttacks.BorgMacheteMountedFinalAttack3", "MacheteAttacks.BorgMacheteStrongAttack1", "MacheteAttacks.BorgMacheteStrongAttack2", "MacheteAttacks.BorgMacheteStrongAttack3", "MacheteAttacks.BorgMacheteMountedStrongAttack1", "MacheteAttacks.BorgMacheteMountedStrongAttack2", "MacheteAttacks.BorgMacheteMountedStrongAttack3", "MacheteAttacks.BorgMacheteJumpAttack", "MacheteAttacks.BorgMacheteCrouchAttack", "MacheteAttacks.BorgMacheteSprintAttack", "MacheteAttacks.BorgMacheteSafeAttack", "MacheteAttacks.BorgMacheteBlockAttack", "MacheteAttacks.BorgMacheteDeflectAttack"
 	];
 }
 

@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage
+using RTDB, BaseStats, WeaponFxPackage, AttackModifier
 
 [ notQueryable ]
 Smasher_Launcher_Base : Base_Shotgun
@@ -15,6 +15,11 @@ Smasher_Launcher_Base : Base_Shotgun
 		"Attacks.RainMissile"
 	];
 	rangedAttacks = "Attacks.SmartBulletHighPackage";
+	quality = "Quality.Common";
+	tags = 
+	[
+		"Weapon", "RangedWeapon"
+	];
 	placementSlots = 
 	[
 		"AttachmentSlots.LeftShoulder", "AttachmentSlots.RightShoulder"
@@ -25,9 +30,16 @@ Smasher_Launcher_Base : Base_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Smasher_Launcher_Technical_Stats", "Items.Smasher_Launcher_Projectile_Stats", "Items.Base_NPC_SmartGun_Stats"
+			"Items.Smasher_Launcher_Technical_Stats", "Items.Smasher_Launcher_Projectile_Stats", "Items.Base_NPC_SmartGun_Stats", "Items.Smasher_Launcher_NPC_Damage_Stats", "Items.Base_Shotgun_NPC_Stats"
 		];
-	} : Base_Shotgun_NPC_Data;
+		statModifiers += 
+		[
+			{
+				value = 0.5;
+			} : AttackModifier.ShotgunMinTBH, 
+			"AttackModifier.WeaponArmorPenetrationFull"
+		];
+	} : Base_NPC_RPG_Data;
 	statModifierGroups = 
 	[
 		"Items.Smasher_Launcher_Technical_Stats", "Items.Smasher_Launcher_Projectile_Stats", "Items.Base_NPC_SmartGun_Stats"
@@ -39,7 +51,7 @@ Smasher_Launcher_Rain : Smasher_Launcher_Base
 {
 	fk< Attack >[] attacks = 
 	[
-		"Attacks.RainMissile"
+		"Attacks.RainMissileSmasher"
 	];
 }
 
@@ -48,16 +60,7 @@ Smasher_Launcher_Rocket : Smasher_Launcher_Base
 {
 	fk< Attack >[] attacks = 
 	[
-		"Attacks.RainMissile"
-	];
-}
-
-[ notQueryable ]
-Smasher_Launcher_Rain_Right : Smasher_Launcher_Rain
-{
-	fk< AttachmentSlot >[] placementSlots = 
-	[
-		"AttachmentSlots.RightShoulder"
+		"Attacks.RainMissileRun"
 	];
 }
 
@@ -73,13 +76,18 @@ Smasher_Launcher_Rain_Left : Smasher_Launcher_Rain
 [ notQueryable ]
 Smasher_Launcher_Rocket_Right : Smasher_Launcher_Rocket
 {
-	fk< Attack >[] attacks = 
-	[
-		"Attacks.RainMissileRun"
-	];
 	fk< AttachmentSlot >[] placementSlots = 
 	[
 		"AttachmentSlots.RightShoulder", "AttachmentSlots.WeaponRight"
+	];
+}
+
+[ notQueryable ]
+Smasher_Launcher_Rain_Right : Smasher_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightShoulder"
 	];
 }
 
@@ -109,6 +117,30 @@ Smasher_Launcher_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Smasher_Launcher_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 70f;
+		} : ConstantStatModifier
+	];
+}
+
+Smasher_Launcher_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 70f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -146,6 +178,213 @@ Smasher_Launcher_Projectile_Stats : StatModifierGroup
 		{
 			value = 9.0f;
 		} : SmartGunMissRadiusModifier
+	];
+}
+
+[ notQueryable ]
+Chimera_Launcher_Base : Base_Shotgun
+{
+	entityName = "chimera_launcher";
+	triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	primaryTriggerMode = "TriggerMode.SemiAuto";
+	attacks = 
+	[
+		"Attacks.RainMissile"
+	];
+	rangedAttacks = "Attacks.SmartBulletHighPackage";
+	tags = 
+	[
+		"Weapon", "RangedWeapon"
+	];
+	quality = "Quality.Common";
+	placementSlots = 
+	[
+		"AttachmentSlots.LeftShoulder", "AttachmentSlots.RightShoulder"
+	];
+	fxPackage = "WeaponFxPackage.TechWeaponBase";
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Smasher_Launcher_Technical_Stats", "Items.Smasher_Launcher_Projectile_Stats", "Items.Base_NPC_SmartGun_Stats", "Items.Base_Shotgun_NPC_Stats", "Items.Chimera_Launcher_NPC_Damage_Stats"
+		];
+		statModifiers += 
+		[
+			"AttackModifier.ShotgunMinTBH", "AttackModifier.ShotgunMinLineOfSight", "AttackModifier.WeaponArmorPenetrationFull"
+		];
+	} : Base_NPC_RPG_Data;
+	statModifierGroups = 
+	[
+		"Items.Smasher_Launcher_Technical_Stats", "Items.Smasher_Launcher_Projectile_Stats", "Items.Base_NPC_SmartGun_Stats"
+	];
+}
+
+[ notQueryable ]
+Chimera_Launcher_Rain : Chimera_Launcher_Base
+{
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.RainMissileChimera"
+	];
+}
+
+[ notQueryable ]
+Chimera_Launcher_Rain_Right : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightShoulder"
+	];
+	entityName = "chimera_launcher_right";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Rain_Left : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.LeftShoulder"
+	];
+	entityName = "chimera_launcher_left";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Track_Right : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightShoulderTrack"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.TrackMissileChimera"
+	];
+	entityName = "chimera_launcher_right";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Track_Left : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.LeftShoulderTrack"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.TrackMissileChimera"
+	];
+	entityName = "chimera_launcher_left";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Self_Right : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightShoulderSelf"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.SelfMissileChimera"
+	];
+	entityName = "chimera_launcher_right";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Self_Left : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.LeftShoulderSelf"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.SelfMissileChimera"
+	];
+	entityName = "chimera_launcher_left";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Mine_Right : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightShoulderMine"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.MineMissileChimera"
+	];
+	entityName = "chimera_launcher_right";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Mine_Left : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.LeftShoulderMine"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.MineMissileChimera"
+	];
+	entityName = "chimera_launcher_left";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Chandelier_Right : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.RightShoulderChandelier"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.ChandelierMissileChimera"
+	];
+	entityName = "chimera_launcher_right";
+}
+
+[ notQueryable ]
+Chimera_Launcher_Chandelier_Left : Chimera_Launcher_Rain
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.LeftShoulderChandelier"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.ChandelierMissileChimera"
+	];
+	entityName = "chimera_launcher_left";
+}
+
+Chimera_Launcher_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 70f;
+		} : ConstantStatModifier
+	];
+}
+
+Chimera_Launcher_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 70f;
+		} : ConstantStatModifier
 	];
 }
 

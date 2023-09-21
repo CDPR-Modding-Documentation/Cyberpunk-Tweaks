@@ -1,9 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Burya_Default_Left_Hand : Preset_Burya_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Burya_Default : Base_Burya
 {
@@ -31,49 +27,21 @@ Preset_Burya_Default : Base_Burya
 			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericTechModList, 
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod1";
+		} : Tech_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModRare";
-		} : RareDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModEpic";
-		} : EpicDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModLegendary";
-		} : LegendaryDedicatedTechModList
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod2";
+		} : Tech_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
-Preset_Burya_Pimp_Left_Hand : Preset_Burya_Pimp
+[ notQueryable ]
+Preset_Burya_Default_Unbreakable : Preset_Burya_Default
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Burya_Pimp : Preset_Burya_Default
@@ -82,10 +50,19 @@ Preset_Burya_Pimp : Preset_Burya_Default
 	[
 		"Pimp"
 	];
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
-Preset_Burya_Neon_Left_Hand : Preset_Burya_Neon
+[ notQueryable ]
+Preset_Burya_Pimp_Unbreakable : Preset_Burya_Pimp
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Burya_Neon : Preset_Burya_Default
@@ -94,15 +71,246 @@ Preset_Burya_Neon : Preset_Burya_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
-Preset_Burya_Military_Left_Hand : Preset_Burya_Military
+[ notQueryable ]
+Preset_Burya_Neon_Unbreakable : Preset_Burya_Neon
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Burya_Military : Preset_Burya_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Military_Unbreakable : Preset_Burya_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Default_Left_Hand : Preset_Burya_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Burya_NPC_Technical_Stats"
+		];
+	} : Broken_Tech_Revolver_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Burya_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Pimp_Left_Hand : Preset_Burya_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Burya_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Neon_Left_Hand : Preset_Burya_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Burya_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Military_Left_Hand : Preset_Burya_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Burya_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Default_Retrofix : Preset_Burya_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_NoAttachments_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Pimp_Retrofix : Preset_Burya_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Neon_Retrofix : Preset_Burya_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Burya_Military_Retrofix : Preset_Burya_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -138,73 +346,90 @@ Craftable_Common_Burya : Preset_Burya_Default
 Craftable_Uncommon_Burya : Craftable_Common_Burya
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Burya : Craftable_Common_Burya
+Craftable_Rare_Burya : Craftable_Uncommon_Burya
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Burya : Craftable_Common_Burya
+Craftable_Epic_Burya : Craftable_Uncommon_Burya
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Burya : Craftable_Common_Burya
+Craftable_Legendary_Burya : Craftable_Uncommon_Burya
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Burya_Comrade : Preset_Burya_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "burya_comrade_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40609";
 	visualTags = 
 	[
 		"Comrade_Burya"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40610";
-	equipPrereqs = 
+	gameplayDescription = "LocKey#93447";
+	tags += 
 	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+		"IconicWeapon", "CraftableIconic"
 	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	CraftingData = "Items.Iconic_Small_Epic_Crafting_Materials_Weapon";
-	rangedAttacks = "Attacks.PhysicalExplosiveBulletPackage";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Burya_NPC_Data;
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", "EquipmentGLP.ComradeBorgWeaponStagger", {
+			animationWrapperOverrides = 
+			[
+				"w_base_revolver"
+			];
+		} : GameplayLogicPackage
+	];
+	CraftingData = "Items.Craftable_Iconic_Weapon";
+	rangedAttacks = "Attacks.ExplodingBulletMediumPackage";
 	attacks += 
 	[
-		"Attacks.ExplosiveBulletEffect"
+		"Attacks.ExplodingBulletMediumEffect", "Attacks.ExplodingBulletMediumProjectile"
 	];
 	slotPartListPreset = 
 	[
@@ -231,62 +456,448 @@ Preset_Burya_Comrade : Preset_Burya_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats", "Items.Base_Revolver_RPG_Randomized_Stats", "Proficiencies.EngineeringWeaponPassives", "Items.Base_Burya_Technical_Stats", "Items.Base_Burya_Handling_Stats", "Items.Base_Burya_Recoil_Stats", "Items.Base_Burya_Spread_Stats", "Items.Base_Burya_Constant_Stats", "Items.Base_Burya_Aim_Stats", "Items.Base_Weapon_Damage_Type_Thermal"
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats", "Items.Base_Burya_Comrade_Technical_Stats", "Items.Base_Burya_Handling_Stats", "Items.Base_Burya_Recoil_Stats", "Items.Base_Burya_Spread_Stats", "Items.Base_Burya_Comrade_Constant_Stats", "Items.Base_Burya_Aim_Stats", "Items.Base_Burya_Damage_Stats", "Items.Base_Weapon_Damage_Type_Thermal"
 	];
-	OnLooted = 
+}
+
+Base_Burya_Comrade_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
 	[
 		{
-			items = 
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.6f;
+		} : CycleTimeModifier, 
+		{
+			value = 4.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.3f;
+		} : CycleTime_BurstMaxChargeModifier, 
+		{
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
+		{
+			value = 1.5f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 2.0f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.0f;
+		} : ChargeModifier, 
+		{
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Burya_Comrade_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 6.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 7.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 9.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "AdditiveMultiplier";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "AdditiveMultiplier";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilHoldDuration";
+			modifierType = "Multiplier";
+			value = 0.922f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TechPierceDamageFactor";
+			modifierType = "Additive";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwaySideMaximumAngleDistance";
+			modifierType = "Multiplier";
+			value = 1.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwaySideMinimumAngleDistance";
+			modifierType = "Multiplier";
+			value = 1.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwaySideTopAngleLimit";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwaySideBottomAngleLimit";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 2.273f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.1467f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationHigh", {
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Additive";
+			value = -0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+Common_Burya_Comrade : Preset_Burya_Comrade
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Burya_Comrade : Preset_Burya_Comrade
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Burya_Comrade : Preset_Burya_Comrade
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Burya_Comrade : Preset_Burya_Comrade
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Legendary_Burya_Comrade : Preset_Burya_Comrade
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Burya_AirDrop : Preset_Burya_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
 			[
 				{
-					item = "Items.Recipe_Preset_Burya_Comrade_Legendary";
-				}
+					fact = "burya_airdrop_owned";
+					value = 1;
+				} : SetFactEffector
 			];
 		}
 	];
-}
-
-[ notQueryable ]
-Preset_Burya_Comrade_Legendary : Preset_Burya_Comrade
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
+	CName[] visualTags = 
+	[
+		"AirDrop_Weapon"
+	];
+	tags += 
+	[
+		"AirDrop_Burn", "IconicWeapon", "AirDropWeapon"
+	];
+	quality = "Quality.Random";
+	displayName = "LocKey#93439";
+	localizedDescription = "LocKey#93443";
+	gameplayDescription = "LocKey#93447";
+	slotPartListPreset = 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__techtronika_burya__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.BuryaAirDropWeaponMod";
+		}
 	];
-	CraftingData = 
+	rangedAttacks = "Attacks.ExplodingBulletLightPackage";
+	attacks += 
+	[
+		"Attacks.ExplodingBulletLightEffect", "Attacks.ExplodingBulletLightProjectile"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
 	{
-		craftingRecipe = 
+		statModifiers += 
 		[
-			{
-				ingredient = "Items.Preset_Burya_Comrade";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
+			"Quality.IconicItem"
 		];
-	};
+	} : Items.Base_Burya_NPC_Data;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats", "Items.Base_Burya_AirDrop_Technical_Stats", "Items.Base_Burya_Handling_Stats", "Items.Base_Burya_Recoil_Stats", "Items.Base_Burya_Spread_Stats", "Items.Base_Burya_AirDrop_Constant_Stats", "Items.Base_Burya_Aim_Stats", "Items.Base_Burya_Damage_Stats", "Items.AirDrop_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Thermal"
+	];
 }
 
-[ notQueryable ]
-Recipe_Preset_Burya_Comrade_Legendary : ItemRecipe
+Base_Burya_AirDrop_Technical_Stats : StatModifierGroup
 {
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Burya_Comrade_Legendary";
-	};
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.6f;
+		} : CycleTimeModifier, 
+		{
+			value = 2.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.3f;
+		} : CycleTime_BurstMaxChargeModifier, 
+		{
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
+		{
+			value = 1.25f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 1.5f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.0f;
+		} : ChargeModifier, 
+		{
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Burya_AirDrop_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.27f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 5.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.08f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 7.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 7.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "AdditiveMultiplier";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "AdditiveMultiplier";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalImpulse";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.628f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.7143f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
 }
 

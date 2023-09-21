@@ -79,21 +79,24 @@ Base_Igla : Base_Power_Dual_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Igla_NPC_Technical_Stats"
 		];
-	} : Base_Power_Dual_Shotgun_NPC_Data;
+	} : Base_Igla_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Igla_Technical_Stats", "Items.Base_Igla_Handling_Stats", "Items.Base_Igla_Recoil_Stats", "Items.Base_Igla_Spread_Stats", "Items.Base_Igla_Aim_Stats", "Items.Base_Igla_Constant_Stats"
+		"Items.Base_Igla_Technical_Stats", "Items.Base_Igla_Handling_Stats", "Items.Base_Igla_Recoil_Stats", "Items.Base_Igla_Spread_Stats", "Items.Base_Igla_Aim_Stats", "Items.Base_Igla_Constant_Stats", "Items.Base_Igla_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.HeavyStaminaDelay", "EquipmentGLP.MediumWeapon"
 	];
 	bool saveStatPools = true;
-	fk< Crosshair > crosshair = "Crosshairs.Basic";
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerShotgun";
 	float offset = -0.2f;
-	baseReloadTime = 2.f;
-	baseEmptyReloadTime = 2.f;
-	uninterruptibleReloadStart = 0.7f;
-	uninterruptibleEmptyReloadStart = 0.7f;
+	baseReloadTime = 0.9f;
+	baseEmptyReloadTime = 0.9f;
+	uninterruptibleReloadStart = 0.25f;
+	uninterruptibleEmptyReloadStart = 0.25f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -109,6 +112,14 @@ Base_Igla : Base_Power_Dual_Shotgun
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
 	Vector3 ikOffset = ( 0.0f, 0.0f, 0.01f );
+}
+
+Base_Igla_NPC_Data : Base_Power_Dual_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Igla_NPC_Technical_Stats", "Items.Base_Igla_NPC_Damage_Stats"
+	];
 }
 
 Base_Igla_Technical_Stats : StatModifierGroup
@@ -131,6 +142,30 @@ Base_Igla_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Igla_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 85f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Igla_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 75f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Igla_NPC_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -139,13 +174,13 @@ Base_Igla_NPC_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.2f;
+			value = 0.8f;
 		} : CycleTimeModifier, 
 		{
 			value = 2.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 4.f;
+			value = 5.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
@@ -156,17 +191,23 @@ Base_Igla_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.f;
+			value = 0.9f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.f;
+			value = 0.9f;
 		} : EmptyReloadTimeModifier, 
 		{
 			value = 1.1f;
 		} : ZoomLevelModifier, 
 		{
 			value = 3.3f;
-		} : EquipDuration_FirstModifier
+		} : EquipDuration_FirstModifier, 
+		{
+			value = 1.1f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.1f;
+		} : EmptyReloadEndTimeModifier
 	];
 }
 
@@ -230,10 +271,10 @@ Base_Igla_Spread_Stats : StatModifierGroup
 			value = 0.75f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.0f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.3f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -277,48 +318,54 @@ Base_Igla_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 4.f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 4.f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 2.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.6f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.6f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 9.f;
+			value = 7.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 10.f;
+			value = 8.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilRecoverySpeed";
 			modifierType = "Additive";
 			value = 0.17f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.583f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

@@ -1,0 +1,236 @@
+package Effectors
+using RTDB, Prereqs, Perks
+
+PRSRMod2_PopupEffector : Effector
+{
+	effectorClassName = "ShowUIWarningEffector";
+	float duration = 1f;
+	string primaryText = "LocKey#89174";
+	string secondaryText = "";
+}
+
+HGMod1_AccuracyEffector : ApplyStatusEffectOnPlayer
+{
+	prereqRecord = 
+	{
+		conditions += 
+		[
+			{
+				hitFlag = "Headshot";
+				invert = false;
+				onlyOncePerShot = true;
+			} : HitFlagHitPrereqCondition, 
+			{
+				attackType = "Ranged";
+			} : AttackTypeHitPrereqCondition
+		];
+	} : IsHitTargetAlive;
+	statusEffect = "BaseStatusEffect.HGMod1_Buff";
+}
+
+TechMod1_EMPEffector : AddStatusEffectToAttackEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				conditions += 
+				[
+					{
+						attackType = "QuickMelee";
+						invert = true;
+					} : AttackTypeHitPrereqCondition, 
+					{
+						hitFlag = "WeaponFullyCharged";
+						onlyOncePerShot = true;
+					} : HitFlagHitPrereqCondition
+				];
+			} : IsWeaponRanged, 
+			{
+				conditions += 
+				[
+					{
+						attackType = "QuickMelee";
+						invert = true;
+					} : AttackTypeHitPrereqCondition, 
+					{
+						hitFlag = "PerfectlyCharged";
+						onlyOncePerShot = true;
+					} : HitFlagHitPrereqCondition
+				];
+			} : IsWeaponRanged
+		];
+	} : ORPrereq;
+	statusEffect = "BaseStatusEffect.EMP";
+}
+
+ThrowMod1_ReturnEffector : ApplyStatusEffectByChanceEffector
+{
+	prereqRecord = 
+	{
+		conditions += 
+		[
+			{
+				attackType = "Thrown";
+			} : AttackTypeHitPrereqCondition, 
+			{
+				hitFlag = "Headshot";
+				invert = false;
+				onlyOncePerShot = true;
+			} : HitFlagHitPrereqCondition
+		];
+	} : IsTargetKilled;
+	statusEffect = "BaseStatusEffect.ThrowMod1_RemoveCooldownsSE";
+}
+
+RangedMod1_CritEffector : ModifyAttackCritChanceEffector
+{
+	prereqRecord = 
+	{
+		conditions += 
+		[
+			{
+				attackType = "QuickMelee";
+				invert = true;
+			} : AttackTypeHitPrereqCondition, 
+			{
+				weaponType = "Ranged";
+			} : WeaponTypeHitPrereqCondition, 
+			{
+				ammoState = "None";
+				ratioToCompare = 0.5f;
+				comparisonType = "LessOrEqual";
+			} : AmmoStateHitPrereqCondition
+		];
+	} : ProcessHitTriggered;
+}
+
+ShotgunMod2_DismemberEffector : ForceDismembermentEffector
+{
+	string woundType = "COARSE";
+	bool isCritical = true;
+	bool shouldKillNPC = true;
+}
+
+BluntMod1_KnockdownEffector : AddStatusEffectToAttackEffector
+{
+	prereqRecord = 
+	{
+		conditions += 
+		[
+			{
+				statusEffect = "Stunned";
+				checkType = "CheckType.Type";
+				invert = false;
+			} : StatusEffectPresentHitPrereqCondition
+		];
+	} : IsWeaponMelee;
+	statusEffect = "BaseStatusEffect.Knockdown";
+}
+
+BluntMod3_DamageEffector : MultiplyDamage
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Knockdown";
+						checkType = "CheckType.Type";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsWeaponMelee, 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Stagger";
+						checkType = "CheckType.Type";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsWeaponMelee, 
+			{
+				conditions += 
+				[
+					{
+						statusEffect = "Stunned";
+						checkType = "CheckType.Type";
+					} : StatusEffectPresentHitPrereqCondition
+				];
+			} : IsWeaponMelee
+		];
+	} : ORPrereq;
+	value = 1f;
+}
+
+ShotgunMod1_DamageEffector : MultiplyDamage
+{
+	prereqRecord = 
+	{
+		conditions += 
+		[
+			{
+				bodyPart = "Torso";
+			} : BodyPartHitPrereqCondition
+		];
+	} : IsWeaponRanged;
+	value = 1f;
+}
+
+ChimeraMeleeMod_BladeDismemberEffector : ForceDismembermentEffector
+{
+	string woundType = "CLEAN";
+	bool isCritical = true;
+	bool shouldKillNPC = true;
+	float dismembermentChance = 0.2f;
+}
+
+ChimeraMeleeMod_BluntDismemberEffector : ChimeraMeleeMod_BladeDismemberEffector
+{
+	string woundType = "COARSE";
+}
+
+ChimeraSmartMods_QuickHackEffector : ApplyQuickhackEffector
+{
+	uploadChance = 0.05f;
+}
+
+MetelKurtMod_DismemberEffector : ChimeraMeleeMod_BluntDismemberEffector
+{
+}
+
+BladeMod1_CritEffector : ModifyAttackCritChanceEffector
+{
+	prereqRecord = 
+	{
+		conditions += 
+		[
+			{
+				hitFlag = "BleedingDot";
+				invert = false;
+			} : HitFlagHitPrereqCondition
+		];
+	} : IsHitTargetAlive;
+}
+
+ChimeraMod_OnExplosiveWeapon_Effector : OverrideRangedAttackPackageEffector
+{
+	prereqRecord = "Prereqs.ChimeraModInstalledPrereq";
+	attackPackage = "Attacks.ChimeraExplodingBulletLightPackage";
+}
+
+InactiveChimeraCoreEffector : AddItemsEffector
+{
+	prereqRecord = 
+	{
+		fact = "chimera_mod_crafted";
+		value = 0;
+		comparisonType = "Equal";
+	} : FactValuePrereq;
+	itemsToAdd = [];
+}
+

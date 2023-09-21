@@ -110,8 +110,13 @@ Vehicle : SpawnableObject
 	fk< VehicleType > type = "";
 	fk< VehicleModel > model = "";
 	fk< VehicleManufacturer > manufacturer = "";
+	fk< IsHackable > isHackable = "Vehicle.Dynamic";
 	fk< RandomPassengerEntry >[] randomPassengers = [];
 	fk< Character >[] preventionPassengers = [];
+	int minVehiclePassengersCount = 1;
+	int maxVehiclePassengersCount = 2;
+	float blockadeRightPassengerOffset = 0.0;
+	float blockadeLeftPassengerOffset = 0.0;
 	fk< AttachmentSlot >[] attachmentSlots = [];
 	fk< VehicleDefaultState > vehDefaultState = "Vehicle.Veh4WDefaultState";
 	bool enableDestruction = false;
@@ -151,7 +156,7 @@ Vehicle : SpawnableObject
 	fk< VehicleTPPCameraParams > tppCameraParams = "Camera.VehicleTPP_DefaultParams";
 	fk< VehicleTPPCameraPresetParams >[] tppCameraPresets = 
 	[
-		"Camera.VehicleTPP_Default_Preset_Low_Close", "Camera.VehicleTPP_Default_Preset_High_Close", "Camera.VehicleTPP_Default_Preset_Low_Far", "Camera.VehicleTPP_Default_Preset_High_Far"
+		"Camera.VehicleTPP_Default_Preset_High_Close", "Camera.VehicleTPP_Default_Preset_High_Medium", "Camera.VehicleTPP_Default_Preset_High_Far", "Camera.VehicleTPP_4w_Preset_High_DriverCombatClose", "Camera.VehicleTPP_4w_Preset_High_DriverCombatMedium", "Camera.VehicleTPP_4w_Preset_High_DriverCombatFar"
 	];
 	fk< VehicleCameraManager > cameraManagerParams = "Camera.VehicleCameraManager_Default";
 	fk< VehicleEngineData > vehEngineData = "";
@@ -160,11 +165,14 @@ Vehicle : SpawnableObject
 	string traffic_audio_resource = "";
 	fk< CrowdSettingsPackageBase > crowdMemberSettings = "Crowds.DefaultCarPackage";
 	fk< VehicleWeapon >[] weapons = [];
+	fk< WeaponSafeModeBounds > weaponSafeModeBounds = "";
 	CName destroyedAppearance = "";
 	ResRef widgetStyleSheetPath = "";
 	Vector3 unmountOffsetPosition = ( 1.65, 5.0, 2.5 );
 	LocKey displayName = "";
 	fk< UIIcon > icon = "UIIcon.ItemIcon";
+	bool usesSecondaryHoodEmitter = false;
+	bool isArmoredVehicle = false;
 	int[] headlightColor = [];
 	int[] brakelightColor = [];
 	int[] leftBlinkerlightColor = [];
@@ -184,6 +192,8 @@ Vehicle : SpawnableObject
 	fk< VehicleImpactTraffic > vehImpactTraffic = "Driving.VehicleImpactTraffic_DefaultParams";
 	fk< VehicleTrafficSuspension > trafficSuspension = "";
 	CName[] queryOnlyExceptions = [];
+	string debugStatusString = "";
+	float hitCooldown = 0.0f;
 }
 
 VehicleType
@@ -204,6 +214,12 @@ VehicleManufacturer
 	string enumComment = "";
 }
 
+IsHackable
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
 VehicleDefaultState
 {
 	bool DisableAllInteractions = false;
@@ -215,6 +231,8 @@ VehicleDefaultState
 	bool SirenSounds = false;
 	bool Thrusters = true;
 	bool SpawnDestroyed = false;
+	bool DefaultLightToggle = false;
+	int[] LightToggleComponents = [];
 	fk< SeatState > seat_front_left = "";
 	fk< SeatState > seat_front_right = "";
 	fk< SeatState > seat_back_left = "";
@@ -240,6 +258,8 @@ VehicleDestruction
 	Vector3 gridDimensions = ( 1.0f, 3.0f, 0.35f );
 	Vector3 gridLocalOffset = ( 0.0f, 0.0f, 0.7f );
 	Vector3 vehicleDimensions = ( 1.0f, 3.0f, 0.35f );
+	Vector3 chargePortCenter = ( 0.0f, 0.0f, 0.0f );
+	float chargePortRadius = 0.08f;
 	float damageThreshold = 0.0f;
 	float damageExponent = 1.0f;
 	float velocityValueMinDamage = 3.0f;
@@ -253,6 +273,7 @@ VehicleDestruction
 	fk< VehicleDestructibleLight >[] lights = [];
 	fk< VehicleDeformablePart >[] deformableParts = [];
 	fk< VehicleDestructionPointDamper >[] pointDampers = [];
+	fk< VehicleDoorDetachRule >[] doorDetachRules = [];
 }
 
 VehicleDestructionPointDamper
@@ -288,6 +309,8 @@ VehicleDestructibleWheel
 	CName name = "";
 	CName intact = "";
 	CName flat = "";
+	int linkedTire = -1;
+	int hitsToFlatten = 1;
 }
 
 VehicleDestructibleLight
@@ -321,6 +344,13 @@ VehicleVisualDestruction
 	float roof = 0.0f;
 }
 
+VehicleDoorDetachRule
+{
+	CName componentToQuery = "";
+	int doorEnumIndex = 0;
+	CName[] partsToDetach = [];
+}
+
 VehicleUIData
 {
 	string productionYear = "";
@@ -330,6 +360,27 @@ VehicleUIData
 	string info = "";
 }
 
+DriverCombatType
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
+WeaponSafeModeBound
+{
+	float pitchMin = 0.f;
+	float pitchMax = 0.f;
+	float yawMin = 0.f;
+	float yawMax = 0.f;
+}
+
+WeaponSafeModeBounds
+{
+	bool enableSafeModeBounds = false;
+	fk< WeaponSafeModeBound > windshieldBound = "";
+	fk< WeaponSafeModeBound > backBound = "";
+}
+
 VehicleDataPackage
 {
 	CName[] boneNames = [];
@@ -337,7 +388,6 @@ VehicleDataPackage
 	CName seatingTemplateOverride = "";
 	CName fppCameraOverride = "";
 	CName[] additionalAnimFeatures = [];
-	bool supportsCombat = true;
 	bool interactiveTrunk = false;
 	bool interactiveHood = false;
 	bool canStoreBody = false;
@@ -345,13 +395,18 @@ VehicleDataPackage
 	float spoilerSpeedToDeploy = 20.0f;
 	float spoilerSpeedToRetract = 10.0f;
 	bool hasTurboCharger = false;
-	bool hasSiren = false;
+	bool useAuxiliary = false;
 	float speedToClose = 2.0f;
 	bool slidingRearDoors = false;
 	bool barnDoorsTailgate = false;
 	float knockOffForce = 13.0f;
 	float parkingAngle = 0.0f;
+	float wheelBumperLengthScalor = 1.0f;
+	float wheelBumperWidthScalor = 1.0f;
+	float wheelBumperVertOffsetScalor = 1.0f;
+	float tireOnVehicleDamageImpulseScalor = 30.0f;
 	fk< VehicleSeatSet > vehSeatSet = "";
+	fk< DriverCombatType > driverCombat = "DriverCombatTypes.Standard";
 	float entering = 1.0f;
 	float stealing = 1.0f;
 	float toCombat = 1.0f;
@@ -359,6 +414,7 @@ VehicleDataPackage
 	float slideDuration = 1.0f;
 	float exitDelay = 0.0f;
 	float switchSeats = 1.9f;
+	float combatEntering = 0.67f;
 	float normal_open = 1.5f;
 	float stealing_open = 3.0f;
 	float open_close_duration = 1.0f;
@@ -436,6 +492,20 @@ VehicleAirControlAxis
 	float maxAngleToCompensateThreshold = 100.f;
 }
 
+VehicleFlatTireSimParams
+{
+	float lateralFrictionDecimation = 0.3f;
+	float longitudinalFrictionDecimation = 0.35f;
+	float rotationResistanceTorque = 340.f;
+	float blowOutImpulse = 600.f;
+}
+
+VehicleFlatTireSimulation
+{
+	fk< VehicleFlatTireSimParams > front = "";
+	fk< VehicleFlatTireSimParams > rear = "";
+}
+
 VehicleBurnOut
 {
 	float maxSpeedToInitiateBurnOut = 15.f;
@@ -466,12 +536,6 @@ VehicleDriveModelData
 	float bankBodyFBTanMultiplier = 0.f;
 	float bankBodyLRTanMultiplier = 0.f;
 	float antiSwaybarDampingScalor = 1.0f;
-	float[] bikeTiltPID = [];
-	float bikeTiltSpeed = 0.f;
-	float bikeTiltReturnSpeed = 0.f;
-	float bikeTiltCustomSpeed = 0.f;
-	float bikeMaxTilt = 0.f;
-	ResRef bikeCurvesPath = "";
 	Vector3 momentOfInertiaScale = ( 1.0f, 1.0f, 1.0f );
 	Vector3 momentOfInertia = ( 0.0f, 0.0f, 0.0f );
 	float turningRollFactor = 1.0f;
@@ -486,6 +550,9 @@ VehicleDriveModelData
 	float turnUpdateMaxSpeedThreshold = 30.f;
 	float turnUpdateMaxSpeedTurnMul = 0.23f;
 	float turnUpdateMaxSpeedTurnChangeMul = 1.5f;
+	float turnUpdateMidSpeedThreshold = 0.f;
+	float turnUpdateMidSpeedTurnMul = 0.5f;
+	float turnUpdateMidSpeedTurnChangeMul = 1.25f;
 	float turnUpdateInputDiffForSlowChange = 0.0f;
 	float turnUpdateInputDiffForFastChange = 1.0f;
 	float turnUpdateInputSlowChangeSpeed = 0.1f;
@@ -508,11 +575,17 @@ VehicleDriveModelData
 	float slipAngleCurveScale = 1.f;
 	float slipRatioMinSpeedThreshold = -1.f;
 	float slipRatioCurveScale = 1.f;
-	float burnOutRotationModifier = 0.0f;
 	float brakingEstimationMagicFactor = 0.5f;
 	fk< VehicleWheelDrivingSetup > wheelSetup = "";
 	fk< VehicleWheelsFrictionMap > wheelsFrictionMap = "";
 	fk< VehicleBurnOut > burnOut = "";
+	fk< VehicleFlatTireSimulation > flatTireSim = "";
+	float[] bikeTiltPID = [];
+	float bikeTiltSpeed = 0.f;
+	float bikeTiltReturnSpeed = 0.f;
+	float bikeTiltCustomSpeed = 0.f;
+	float bikeMaxTilt = 0.f;
+	ResRef bikeCurvesPath = "";
 	Vector2[] tankSpringsLocalPositions = [];
 	float tankSpringStiffness = 50000;
 	float tankSpringDamping = 5000;
@@ -561,6 +634,7 @@ VehicleWheelDrivingPreset
 	float visualSuspensionDroop = 0.1f;
 	float logicalSuspensionCompressionLength = 0.0f;
 	float visualSuspensionCompressionLength = 0.0f;
+	float tenderSpringLength = 0.0f;
 	float wheelsVerticalOffset = 0.0f;
 }
 
@@ -606,6 +680,7 @@ VehicleEngineData
 	float maxRPM = 0.f;
 	float gearChangeTime = 0.f;
 	float gearChangeCooldown = 0.f;
+	float finalGearTorqueDecimationScalor = 1.f;
 	float resistanceTorque = 0.f;
 	float flyWheelMomentOfInertia = 0.f;
 	float wheelsResistanceRatio = 0.f;
@@ -647,9 +722,10 @@ VehicleWeapon
 	int wholeBurstProjectiles = 1;
 	float singleProjectileCycleTime = 1.0f;
 	float attackRange = 15.f;
+	float spread = 0.f;
 	bool genericTick = true;
 	bool genericShoot = true;
-	bool canFiendlyFire = true;
+	bool canFriendlyFire = true;
 }
 
 VehicleFPPCameraParams
@@ -671,6 +747,10 @@ VehicleFPPCameraParams
 	float upperbody_yaw_weight = 0.0f;
 	float is_pitch_off = 0.0f;
 	float is_yaw_off = 0.0f;
+	Vector3 rear_view_offset = ( 0, 0, 0 );
+	bool enable_rear_view = false;
+	float rear_view_yaw_threshold = 40.f;
+	float rear_view_pitch_threshold = 20.f;
 }
 
 VehicleTPPCameraPresetParams
@@ -679,7 +759,8 @@ VehicleTPPCameraPresetParams
 	CName height = "";
 	Vector3 lookAtOffset = ( 0, 0, 0.3 );
 	float defaultRotationPitch = 10;
-	float boomLength = 7.0f;
+	float baseBoomLength = 7.0f;
+	float boomLengthOffset = 0.0f;
 	float airFlowDistortionSpeedMin = 10.0f;
 	float airFlowDistortionSpeedMax = 35.0f;
 	float airFlowDistortionSizeHorizontal = 0.01f;
@@ -689,11 +770,9 @@ VehicleTPPCameraPresetParams
 VehicleTPPCameraParams
 {
 	float fov = 69.0f;
-	float autoCenterStartTimeGamepad = 0.5f;
-	float autoCenterStartTimeMouse = 2.0f;
 	float autoCenterMaxSpeedThreshold = 20.0f;
-	float autoCenterSpeed = 5.0f;
-	float cameraMinPitch = -35.0f;
+	float autoCenterSpeed = 0.0f;
+	float cameraMinPitch = -28.0f;
 	float cameraMaxPitch = 80.0f;
 	float cameraSphereRadius = 1.0f;
 	float cameraBoomExtensionSpeed = 3.0f;
@@ -718,6 +797,7 @@ VehicleTPPCameraParams
 	float elasticBoomSpeedExpansionSpeedMin = 10.0f;
 	float elasticBoomSpeedExpansionSpeedMax = 20.0f;
 	float elasticBoomSpeedExpansionLength = 0.5f;
+	float inverseCameraInputBreakThreshold = 30.0f;
 	float headLookAtMaxYaw = 70.0f;
 	float headLookAtCenterYawThreshold = 100.0f;
 	float headLookAtMaxPitchUp = 0.0f;
@@ -782,5 +862,39 @@ VehicleTrafficSuspension
 	float longPeriod = 1.0f;
 	float latDampingRatio = 1.0f;
 	float latPeriod = 1.0f;
+}
+
+PurchaseOffer
+{
+	string name = "";
+	fk< JournalIcon > previewImage = "";
+	fk< ValueAssignment > price = "";
+}
+
+VehicleOffer : PurchaseOffer
+{
+	CName brandName = "";
+	string description = "";
+	CName availabilityFact = "";
+	CName ownershipFact = "";
+	bool hasMachineGun = false;
+	bool hasRocketLauncher = false;
+	bool discountApplicable = true;
+	fk< VehicleUnlockType > unlockType = "Vehicle.StreetCred";
+}
+
+VehicleUnlockType
+{
+	string enumName = "";
+	string enumComment = "";
+}
+
+VehicleDiscountSettings
+{
+	CName discountFact = "vehicle_metaquest_discount";
+	float[] discountValues = 
+	[
+		0.00f, 0.13f, 0.24f, 0.32f, 0.39f, 0.45f, 0.50f, 0.55f, 0.59f, 0.63f, 0.66f, 0.70f, 0.73f, 0.75f, 0.78f, 0.81f, 0.83f, 0.85f, 0.87f, 0.89f, 0.91f, 0.93f, 0.95f, 0.97f, 0.98f, 1.00f
+	];
 }
 

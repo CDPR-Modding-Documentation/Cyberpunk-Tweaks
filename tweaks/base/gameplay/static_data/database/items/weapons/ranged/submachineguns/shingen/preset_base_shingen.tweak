@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Shingen_Default : Base_Shingen
 {
@@ -26,51 +26,22 @@ Preset_Shingen_Default : Base_Shingen
 			slot = "AttachmentSlots.MagazineEmpty";
 			fk< Item > itemPartPreset = "Items.w_submachinegun__arasaka_shingen__mag_stdr";
 		}, 
-		"Items.RifleScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+		"Items.HandgunAndRevolverScopesPartList", {
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod1";
+		} : Smart_AR_SMG_LMG_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod2";
+		} : Smart_AR_SMG_LMG_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 
 Preset_Shingen_Pimp : Preset_Shingen_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -82,6 +53,10 @@ Preset_Shingen_Neon : Preset_Shingen_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Shingen_Military : Preset_Shingen_Default
@@ -89,6 +64,19 @@ Preset_Shingen_Military : Preset_Shingen_Default
 	CName[] visualTags = 
 	[
 		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Shingen_Military_Unbreakable : Preset_Shingen_Military
+{
+	tags += 
+	[
+		"Unbreakable"
 	];
 }
 
@@ -122,57 +110,63 @@ Craftable_Common_Shingen : Preset_Shingen_Default
 Craftable_Uncommon_Shingen : Craftable_Common_Shingen
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Shingen : Craftable_Common_Shingen
+Craftable_Rare_Shingen : Craftable_Uncommon_Shingen
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Shingen : Craftable_Common_Shingen
+Craftable_Epic_Shingen : Craftable_Uncommon_Shingen
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Shingen : Craftable_Common_Shingen
+Craftable_Legendary_Shingen : Craftable_Uncommon_Shingen
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Shingen_Prototype : Preset_Shingen_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "shingen_prototype_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40585";
 	visualTags = 
 	[
 		"Prototype_Shingen"
 	];
-	quality = "Quality.Legendary";
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
@@ -213,10 +207,144 @@ Preset_Shingen_Prototype : Preset_Shingen_Default
 			itemPartPreset = "Items.PrototypeShingenWeaponMod";
 		}
 	];
-	CraftingData = "Items.Iconic_Big_Legendary_Crafting_Materials_Weapon";
 	statModifierGroups = 
 	[
-		"Items.Base_Shingen_Technical_Stats", "Items.Base_Shingen_Handling_Stats", "Items.Base_Shingen_Recoil_Stats", "Items.Base_Shingen_Spread_Stats", "Items.Base_Shingen_SmartGun_Stats", "Items.Base_Shingen_SmartGun_SmartLink_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats", "Items.Base_Shingen_Flags", "Items.Base_Shingen_Aim_Stats", "Items.Base_Shingen_Constant_Stats", "Items.Base_Smart_Submachinegun_Mult_Stats", "Items.Base_Smart_Submachinegun_RPG_Randomized_Stats", "Items.Base_Smart_Submachinegun_No_Sway_Stats", "Proficiencies.AssaultSMGStats", "Items.Base_Submachinegun_RPG_Stats", "Items.Base_Submachinegun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal"
+		"Items.IconicQualityRandomization", "Items.Base_Shingen_Technical_Stats", "Items.Base_Shingen_Handling_Stats", "Items.Base_Shingen_Recoil_Stats", "Items.Base_Shingen_Spread_Stats", "Items.Base_Shingen_Prototype_SmartGun_Stats", "Items.Base_Shingen_Prototype_SmartGun_SmartLink_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats", "Items.Base_Shingen_Flags", "Items.Base_Shingen_Aim_Stats", "Items.Base_Shingen_Constant_Stats", "Items.Base_Shingen_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Submachinegun_Mult_Stats", "Items.Base_Smart_Submachinegun_No_Sway_Stats", "Items.Base_Submachinegun_RPG_Stats", "Items.Base_Submachinegun_Misc_Stats", "Items.Base_Submachinegun_DeadReckoning_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal"
+	];
+}
+
+Base_Shingen_Prototype_SmartGun_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
+		{
+			value = 1.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.15f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAngleYawModifier, 
+		{
+			value = 3.f;
+		} : SmartGunHipMaxLockedTargetsModifier, 
+		{
+			value = 1.f;
+		} : SmartGunAdsMaxLockedTargetsModifier, 
+		{
+			value = 1.1f;
+		} : SmartGunHipTimeToLockModifier, 
+		{
+			value = 1.1f;
+		} : SmartGunAdsTimeToLockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunHipTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunAdsTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTimeToRemoveOccludedTargetModifier, 
+		{
+			value = 1.f;
+		} : SmartGunUseTimeBasedAccuracyModifier, 
+		{
+			value = 0.5f;
+		} : SmartGunTimeToMaxAccuracyModifier, 
+		{
+			value = 5.0f;
+		} : SmartGunSpreadMultiplierModifier, 
+		{
+			value = 50.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = 0.80f;
+		} : SmartGunHitProbabilityModifier
+	];
+}
+
+Base_Shingen_Prototype_SmartGun_SmartLink_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunHipLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 13.0f;
+			statType = "BaseStats.SmartGunHipLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 13.0f;
+			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 13.0f;
+			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 8.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 13.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.4f;
+			statType = "BaseStats.SmartGunHipTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.4f;
+			statType = "BaseStats.SmartGunAdsTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.4f;
+			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.20f;
+			statType = "BaseStats.SmartGunHitProbability";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 20.f;
+			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+		} : SmartLinkDependentStatModifier
 	];
 }
 

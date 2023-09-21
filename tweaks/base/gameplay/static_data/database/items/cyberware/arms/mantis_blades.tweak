@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, Prereqs
+using RTDB, BaseStats, Prereqs, BaseStatPools, Effectors, Perks
 
 [ notQueryable ]
 MantisBlades : MeleeWeapon
@@ -10,10 +10,24 @@ MantisBlades : MeleeWeapon
 	localizedDescription = "LocKey#3715";
 	iconPath = "cw_arms_mantisblades";
 	crosshair = "Crosshairs.Cyberware_Mantis_Blades";
+	buyPrice = 
+	[
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.BuyPrice_StreetCred_Discount"
+	];
+	sellPrice = 
+	[
+		"Price.BaseWeaponPrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.CyberwareSellMultiplier"
+	];
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.CWMantisblades";
 	itemSecondaryAction = "";
 	friendlyName = "mantis_blade";
 	blueprint = "Items.MantisBladesBlueprint";
+	int specialAttackNumber = 7;
+	float specialAttackCost = -100.;
+	float colliderBoxWidth = 2.0;
+	float colliderBoxHeight = 1.5;
+	float grandFinaleAttackDelay = 0.3;
+	float targetMaxDistanceCheck = 2.0;
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Blade";
 	slotPartList = 
 	[
@@ -41,6 +55,9 @@ MantisBlades : MeleeWeapon
 				}, 
 				{
 					item = "Items.ElectricDamageEdge";
+				}, 
+				{
+					item = "Items.MaxTacEdge";
 				}
 			];
 		}, 
@@ -100,7 +117,7 @@ MantisBlades : MeleeWeapon
 	entityName = "a0_003__mantisblades_ent";
 	tags = 
 	[
-		"MeleeWeapon", "Core", "Melee", "Cyberware", "TakedownWeapon", "Meleeware", "PSM", "WeaponQuickSlots", "FinisherBack", "FinisherFront", "UnequipHolsteredArms", "HideInBackpackUI"
+		"MeleeWeapon", "BladeWeapon", "Core", "Melee", "Cyberware", "ForceDismember", "TakedownWeapon", "Meleeware", "PSM", "WeaponQuickSlots", "FinisherBack", "FinisherFront", "UnequipHolsteredArms", "HideInBackpackUI", "MantisBlades"
 	];
 	placementSlots = 
 	[
@@ -124,11 +141,26 @@ MantisBlades : MeleeWeapon
 	holsteredItem = "Items.MantisBladeHolsteredFists";
 	statModifierGroups = 
 	[
-		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.MantisBladesRPGStats", "Items.MantisBladesHandlingStats", "Items.MantisBladesMiscStats", "Proficiencies.KenjutsuWeaponPassives"
+		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.MantisBladesRPGStats", "Items.MantisBladesHandlingStats", "Items.MantisBladesMiscStats", "Items.MantisBlades_Damage_Stats"
 	];
 	statModifiers += 
 	[
 		"Items.ItemArmorToArmor"
+	];
+	fk< StatPool >[] statPools = 
+	[
+		"BaseStatPools.MantisBladesCharge"
+	];
+	OnAttach += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statGroup = "Items.MantisBladesMiscStatsOnEquip";
+				} : ApplyStatGroupOnWeapon
+			];
+		}
 	];
 	OnEquip = 
 	[
@@ -141,19 +173,13 @@ MantisBlades : MeleeWeapon
 	];
 	attacks = 
 	[
-		"MantisBladesAttacks.MantisBladesComboAttack1", "MantisBladesAttacks.MantisBladesComboAttack2", "MantisBladesAttacks.MantisBladesComboAttack3", "MantisBladesAttacks.MantisBladesComboAttack4", "MantisBladesAttacks.MantisBladesComboAttack5", "MantisBladesAttacks.MantisBladesComboAttack6", "MantisBladesAttacks.MantisBladesComboAttack7", "MantisBladesAttacks.MantisBladesComboAttack8", "MantisBladesAttacks.MantisBladesComboAttack9", "MantisBladesAttacks.MantisBladesComboAttack10", "MantisBladesAttacks.MantisBladesStrongAttack1", "MantisBladesAttacks.MantisBladesStrongAttack2", "MantisBladesAttacks.MantisBladesJumpAttack", "MantisBladesAttacks.MantisBladesBlockAttack", "MantisBladesAttacks.MantisBladesCrouchAttack", "MantisBladesAttacks.MantisBladesDeflectAttack"
+		"MantisBladesAttacks.MantisBladesComboAttack1", "MantisBladesAttacks.MantisBladesComboAttack2", "MantisBladesAttacks.MantisBladesComboAttack3", "MantisBladesAttacks.MantisBladesComboAttack4", "MantisBladesAttacks.MantisBladesComboAttack5", "MantisBladesAttacks.MantisBladesComboAttack6", "MantisBladesAttacks.MantisBladesComboAttack7", "MantisBladesAttacks.MantisBladesComboAttack8", "MantisBladesAttacks.MantisBladesComboAttack9", "MantisBladesAttacks.MantisBladesComboAttack10", "MantisBladesAttacks.MantisBladesStrongAttack1", "MantisBladesAttacks.MantisBladesStrongAttack2", "MantisBladesAttacks.MantisBladesJumpAttack", "MantisBladesAttacks.MantisBladesBlockAttack", "MantisBladesAttacks.MantisBladesCrouchAttack", "MantisBladesAttacks.MantisBladesDeflectAttack", "MantisBladesAttacks.GrandFinaleAttackTargetDamage"
 	];
 	CName cyberwareType = "MantisBlades";
-	buyPrice = 
-	[
-		"Price.Meleeware", "Price.CyberwareQualityMultiplier"
-	];
-	sellPrice = 
-	[
-		"Price.Meleeware", "Price.CyberwareSellMultiplier", "Price.CyberwareQualityMultiplier", "Price.CraftingTraitMultiplier"
-	];
+	counterpart = "Items.AdvancedMantisBladesUncommon";
 }
 
+[ notQueryable ]
 MantisBladesBlueprint : ItemBlueprint
 {
 	fk< ItemBlueprintElement > rootElement = 
@@ -177,63 +203,73 @@ MantisBladesBlueprint : ItemBlueprint
 				{
 					valueToCheck = 3;
 				} : ItemQualityPrereq;
+			}, 
+			{
+				slot = "AttachmentSlots.StatsShardSlot";
 			}
 		];
 	};
 }
 
+[ notQueryable ]
 MantisBladesRPGStats : ArmsCyberwareStatGroupBase
 {
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_meleeware_RPG_stats";
-			column = "power_level_to_mantis_blade_DPS";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 0.925f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.BlockFactor";
 			modifierType = "Additive";
 			value = 7f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.BaseDamage";
+			statType = "BaseStats.ChargeFullMultiplier";
 			modifierType = "Additive";
-			refStat = "BaseStats.DamagePerHit";
+			refStat = "BaseStats.ChargeMultiplier";
 			opSymbol = "*";
-			value = 0.3f;
+			value = 1.0f;
 		} : CombinedStatModifier, 
+		{
+			value = 0.25;
+		} : ChargeMultiplierModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
+}
+
+[ notQueryable ]
+MantisBlades_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
 		{
 			statType = "BaseStats.DPS";
-			modifierType = "Multiplier";
-			float value = 1.2f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			refStat = "BaseStats.Reflexes";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 3.f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.PowerLevel";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 1.f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.Level";
-			modifierType = "Multiplier";
-			value = 0.f;
+			value = 70f;
 		} : ConstantStatModifier
 	];
 }
 
+[ notQueryable ]
+MantisBlades_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
 MantisBladesHandlingStats : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
@@ -256,7 +292,7 @@ MantisBladesHandlingStats : StatModifierGroup
 		{
 			statType = "BaseStats.HitDismembermentFactor";
 			modifierType = "Multiplier";
-			value = 2.f;
+			value = 5.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.AttackSpeed";
@@ -274,6 +310,11 @@ MantisBladesHandlingStats : StatModifierGroup
 			value = 0.41f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "Additive";
+			value = 8f;
+		} : ConstantStatModifier, 
+		{
 			float value = 15.f;
 		} : KnockdownImpulseModifier, 
 		{
@@ -283,20 +324,31 @@ MantisBladesHandlingStats : StatModifierGroup
 			float value = 15.f;
 		} : BaseEvadeImpulseModifier, 
 		{
-			statType = "BaseStats.KnockdownImpulse";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			float value = 0.05f;
-		} : CombinedStatModifier, 
-		{
 			float value = 8.f;
 		} : PhysicalImpulseModifier
 	];
 }
 
+[ notQueryable ]
 MantisBladesMiscStats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		"BaseStats.EquipDurationModifier", "BaseStats.UnequipDurationModifier", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EquipDuration_First";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+MantisBladesMiscStatsOnEquip : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
 	[
@@ -319,24 +371,6 @@ MantisBladesMiscStats : StatModifierGroup
 			statType = "BaseStats.CanMeleeLeapTakedown";
 			modifierType = "Additive";
 			value = 1;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.CanMeleeBerserk";
-			modifierType = "Additive";
-			id = "kenjutsu_passives";
-			column = "to_mantis_berserk";
-			refStat = "BaseStats.Kenjutsu";
-			refObject = "Player";
-		} : CurveStatModifier, 
-		"BaseStats.EquipDurationModifier", "BaseStats.UnequipDurationModifier", {
-			statType = "BaseStats.ZoomLevel";
-			modifierType = "Additive";
-			value = 0.0f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.EquipDuration_First";
-			modifierType = "Additive";
-			value = 0.5f;
 		} : ConstantStatModifier
 	];
 }
@@ -380,14 +414,16 @@ NPC_Mantis_Blades : MeleeWeapon
 	} : Base_Mantis_Blades_NPC_Data;
 }
 
+[ notQueryable ]
 Base_Mantis_Blades_NPC_Data : Base_NPC_RPG_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Mantis_Blades_NPC_Stats"
+		"Items.Base_Mantis_Blades_NPC_Stats", "Items.MantisBlades_NPC_Damage_Stats"
 	];
 }
 
+[ notQueryable ]
 Base_Mantis_Blades_NPC_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -395,7 +431,7 @@ Base_Mantis_Blades_NPC_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.CanGuardBreak";
@@ -425,7 +461,7 @@ Base_Mantis_Blades_NPC_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.HitDismembermentFactor";
 			modifierType = "Multiplier";
-			value = 2.f;
+			value = 5.f;
 		} : ConstantStatModifier, 
 		{
 			float value = 15.f;
@@ -486,9 +522,13 @@ Oda_Mantis_Blades : NPC_Mantis_Blades
 	[
 		"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
 	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
 	fk< Attack >[] attacks += 
 	[
-		"NPCAttacks.OdaStrongAttack", "NPCAttacks.OdaStompAttack", "NPCAttacks.StrongAttackSmokeBomb", "NPCAttacks.StompAttackStagger", "NPCAttacks.StompAttack", "NPCAttacks.StrongAttackStagger", "OneHandBladeAttacks.NPCQuickAttack", "Attacks.Slash"
+		"NPCAttacks.OdaStrongAttack", "NPCAttacks.OdaDashAttack", "NPCAttacks.OdaLeapAttack", "NPCAttacks.OdaStompAttack", "NPCAttacks.OdaStompAttack", "NPCAttacks.StrongAttackSmokeBomb", "NPCAttacks.StompAttackStagger", "NPCAttacks.StompAttack", "NPCAttacks.StrongAttackStagger", "OneHandBladeAttacks.NPCQuickAttack", "Attacks.Slash"
 	];
 }
 
@@ -499,14 +539,32 @@ Troy_Mantis_Blades : Oda_Mantis_Blades
 }
 
 [ notQueryable ]
+MaxTac_2nd_wave_Mantis_Blades : NPC_Mantis_Blades
+{
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationFull", {
+				statType = "BaseStats.StaminaCostToBlock";
+				modifierType = "Multiplier";
+				value = 3f;
+			} : ConstantStatModifier
+		];
+	} : Base_Mantis_Blades_NPC_Data;
+}
+
+[ notQueryable ]
 MantisBladesEpic : MantisBlades
 {
 	quality = "Quality.Epic";
+	counterpart = "Items.AdvancedMantisBladesUncommon";
 }
 
 [ notQueryable ]
 MantisBladesLegendary : MantisBlades
 {
 	quality = "Quality.Legendary";
+	counterpart = "Items.AdvancedMantisBladesUncommon";
 }
 

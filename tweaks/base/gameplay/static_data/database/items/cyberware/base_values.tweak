@@ -6,11 +6,11 @@ Cyberware : Item
 {
 	buyPrice = 
 	[
-		"Price.BasePrice", "Price.BuyMultiplier", "Price.Cyberware", "Price.CyberwareQualityMultiplier", "Price.IconicMultiplier"
+		"Price.BaseCyberwarePrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.BuyPrice_StreetCred_Discount"
 	];
 	sellPrice = 
 	[
-		"Price.BasePrice", "Price.CyberwareSellMultiplier", "Price.Cyberware", "Price.CyberwareQualityMultiplier", "Price.CraftingTraitMultiplier", "Price.IconicMultiplier"
+		"Price.BaseCyberwarePrice", "Price.ItemQualityMultiplier", "Price.PlusTierMultiplier", "Price.CyberwareMultiplier", "Price.CyberwareSellMultiplier"
 	];
 	bool isSingleInstance = false;
 	fk< ItemCategory > itemCategory = "ItemCategory.Cyberware";
@@ -21,10 +21,6 @@ Cyberware : Item
 	];
 	objectActions = [];
 	CName dropObject = "";
-	statModifierGroups = 
-	[
-		"Items.CyberwareAttributeAllocation"
-	];
 }
 
 [ notQueryable ]
@@ -139,305 +135,212 @@ Fragment : Part
 	];
 }
 
+GenericShardableCyberwareBlueprint : ItemBlueprint
+{
+	rootElement = 
+	{
+		slot = "AttachmentSlots.GenericItemRoot";
+		childElements = 
+		[
+			{
+				slot = "AttachmentSlots.StatsShardSlot";
+			}
+		];
+	};
+}
+
+StatsShardSlotPart : SlotItemPartPreset
+{
+	slot = "AttachmentSlots.StatsShardSlot";
+}
+
+GenericItemRootPreset : SlotItemPartPreset
+{
+	slot = "AttachmentSlots.GenericItemRoot";
+	itemPartPreset = "Items.GenericItemRoot";
+}
+
+[ notQueryable ]
+CyberwareStatsShardStatic : Fragment
+{
+	isSingleInstance = false;
+	itemType = "ItemType.CyberwareStatsShard";
+	fk< ParentAttachmentType > parentAttachmentType = "ParentAttachmentType.Slot";
+	placementSlots = 
+	[
+		"AttachmentSlots.StatsShardSlot"
+	];
+	CName[] tags += 
+	[
+		"itemPart", "SkipActivityLog", "HideInBackpackUI"
+	];
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.QualityRequirementMetFlag";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.StaticModifierMultiplier";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_static_modifier_multiplier";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.ControlledRandomPower";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_controlled_random_power";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier
+	];
+	statModifierGroups = 
+	[
+		"ModifierGroups.CyberwareModifierBoosts", "ModifierGroups.TransferCyberwareModifiersToItem"
+	];
+	buyPrice += 
+	[
+		"Price.PostCyberwareTutorialPrice"
+	];
+}
+
+[ notQueryable ]
+CyberwareStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.ControlledRandomPower";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_controlled_random_power";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+		} : CurveStatModifier
+	];
+	statModifierGroups = 
+	[
+		"ModifierGroups.SimpleCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiers", "ModifierGroups.AdvancedCyberwareModifiersDriverUpdate", "ModifierGroups.SpecializedCyberwareModifiers", "ModifierGroups.CyberwareModifierBoosts", "ModifierGroups.TransferCyberwareModifiersToItem"
+	];
+}
+
+[ notQueryable ]
+CyberwareStatsShardCommon : CyberwareStatsShard
+{
+	quality = "Quality.Common";
+}
+
+[ notQueryable ]
+CyberwareStatsShardUncommon : CyberwareStatsShard
+{
+	quality = "Quality.Uncommon";
+}
+
+[ notQueryable ]
+CyberwareStatsShardRare : CyberwareStatsShard
+{
+	quality = "Quality.Rare";
+}
+
+[ notQueryable ]
+CyberwareStatsShardEpic : CyberwareStatsShard
+{
+	quality = "Quality.Epic";
+}
+
+[ notQueryable ]
+CyberwareStatsShardLegendary : CyberwareStatsShard
+{
+	quality = "Quality.Legendary";
+}
+
+[ notQueryable ]
+CyberwareUpgradeShard : MoneyShardScaling
+{
+}
+
+[ notQueryable ]
+CyberwareUpgradeShardUncommon : MoneyShardScaling
+{
+}
+
+[ notQueryable ]
+CyberwareUpgradeShardRare : MoneyShardScaling
+{
+}
+
+[ notQueryable ]
+CyberwareUpgradeShardEpic : MoneyShardScaling
+{
+}
+
+[ notQueryable ]
+CyberwareUpgradeShardLegendary : MoneyShardScaling
+{
+}
+
 CyberwareAttributeAllocation : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			statType = "BaseStats.StrengthAlocated";
+			statType = "BaseStats.StrengthAllocated";
 			modifierType = "Additive";
 			value = 0;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.ReflexesAlocated";
+			statType = "BaseStats.ReflexesAllocated";
 			modifierType = "Additive";
 			value = 0;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.IntelligenceAlocated";
+			statType = "BaseStats.IntelligenceAllocated";
 			modifierType = "Additive";
 			value = 0;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.TechnicalAbilityAlocated";
+			statType = "BaseStats.TechnicalAbilityAllocated";
 			modifierType = "Additive";
 			value = 0;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.CoolAlocated";
+			statType = "BaseStats.CoolAllocated";
 			modifierType = "Additive";
 			value = 0;
 		} : ConstantStatModifier
 	];
 }
 
-Body_RandomizedModifiers : StatModifierGroup
+CyberwareBaseUpgradeCosts
 {
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_att_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Reflexes_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_att_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Intelligence_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_att_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-TechAbility_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_att_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Cool_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_att_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Debuffs_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-CloseDistance_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Melee_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-HighMobility_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Netrunning_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-TankyBoi_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Techie_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Stealth_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-GlassCannon_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-RangedCombat_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Immunities_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-Cooldowns_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
-}
-
-GorillaArms_RandomizedModifiers : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount of_theme_randomized_mods";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = [];
+	float commonPlus = 20;
+	float commonPlus_CoreCW = 30;
+	float uncommon = 15;
+	float uncommonPlus = 20;
+	float uncommonPlus_CoreCW = 30;
+	float rare = 15;
+	float rarePlus = 20;
+	float rarePlus_CoreCW = 30;
+	float epic = 15;
+	float epicPlus = 20;
+	float epicPlus_CoreCW = 30;
+	float legendary = 15;
+	float legendaryPlus = 20;
+	float legendaryPlus_CoreCW = 30;
+	float legendaryPlusPlus = 50;
+	float legendaryPlusPlus_CoreCW = 80;
 }
 

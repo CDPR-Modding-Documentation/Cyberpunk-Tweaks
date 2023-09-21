@@ -83,12 +83,15 @@ Base_Nova : Base_Power_Revolver
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Nova_Technical_Stats"
 		];
-	} : Base_Power_Revolver_NPC_Data;
+	} : Base_Nova_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Nova_Technical_Stats", "Items.Base_Nova_Handling_Stats", "Items.Base_Nova_Recoil_Stats", "Items.Base_Nova_Spread_Stats", "Items.Base_Nova_Aim_Stats", "Items.Base_Nova_Constant_Stats"
+		"Items.Base_Nova_Technical_Stats", "Items.Base_Nova_Handling_Stats", "Items.Base_Nova_Recoil_Stats", "Items.Base_Nova_Spread_Stats", "Items.Base_Nova_Aim_Stats", "Items.Base_Nova_Constant_Stats", "Items.Base_Nova_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	CName audioSwitchName = "audio_data";
 	CName audioSwitchValue = "w_power_corp_handgun_11101_a";
@@ -107,17 +110,17 @@ Base_Nova : Base_Power_Revolver
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
-	baseReloadTime = 1.5f;
-	baseEmptyReloadTime = 1.5f;
-	uninterruptibleReloadStart = 1.1f;
-	uninterruptibleEmptyReloadStart = 1.1f;
+	baseReloadTime = 1.25f;
+	baseEmptyReloadTime = 1.25f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 }
 
 Base_Nova_NPC_Data : Base_Power_Revolver_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Nova_Technical_Stats"
+		"Items.Base_Nova_Technical_Stats", "Items.Base_Nova_NPC_Damage_Stats"
 	];
 }
 
@@ -129,7 +132,7 @@ Base_Nova_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.25f;
+			value = 0.3f;
 		} : CycleTimeModifier, 
 		{
 			value = 6.f;
@@ -141,16 +144,46 @@ Base_Nova_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Nova_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 45f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Nova_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 38f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Nova_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 1.5f;
+			value = 1.25f;
 		} : ReloadTimeModifier, 
 		{
-			value = 1.5f;
+			value = 1.25f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.25f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 0.25f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -165,10 +198,10 @@ Base_Nova_Recoil_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = -20.f;
+			value = -15.f;
 		} : RecoilDirModifier, 
 		{
-			value = 50.f;
+			value = 37.f;
 		} : RecoilAngleModifier, 
 		{
 			value = 0.05f;
@@ -217,10 +250,10 @@ Base_Nova_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 2.5f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.25f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -255,43 +288,49 @@ Base_Nova_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 3.f;
+			value = 1.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.f;
+			value = 0.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 4.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 4.0f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 1.2f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.7f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 3.f;
+			value = 2.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 4.f;
-		} : ConstantStatModifier
+			value = 3.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.125;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

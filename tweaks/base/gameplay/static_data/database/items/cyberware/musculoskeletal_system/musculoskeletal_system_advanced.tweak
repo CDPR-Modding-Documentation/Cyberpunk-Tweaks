@@ -1,0 +1,7205 @@
+package Items
+using RTDB, BaseStats, Perks, Prereqs, Price, Variants, ModifierGroups, Effectors, BaseStatusEffect, Attacks, Attunements, Modifiers
+
+[ notQueryable ]
+AdvancedMusculoskeletalSystemModule : MusculoskeletalSystemModule
+{
+	usesVariants = true;
+	blueprint = "Items.GenericShardableCyberwareBlueprint";
+	slotPartListPreset = 
+	[
+		"Items.GenericItemRootPreset"
+	];
+	statModifiers += 
+	[
+		"Items.ItemArmorToArmor", {
+			statType = "BaseStats.Protection";
+			modifierType = "Additive";
+			refStat = "BaseStats.Armor";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+AdvancedNoPainNoGainCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "NoPainNoGain";
+	displayName = "LocKey#85343";
+	localizedDescription = "LocKey#85344";
+	iconPath = "NoPainNoGain";
+	quality = "Quality.Common";
+	upgradeCostMult = 1.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity20CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.08f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 10f
+				];
+			};
+		}
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedNoPainNoGainStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "NoPainNoGain";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainCommonPlus";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainCommon2";
+}
+
+AdvancedNoPainNoGainStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.Armor", "Modifiers.DamageOverTimeResistance", "Modifiers.DamageOverTimeResistanceQualityToggle", "Modifiers.HealthRegenPercent", "Modifiers.HealthRegenPercentToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainCommon2 : AdvancedNoPainNoGainCommon
+{
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.1f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 12f
+				];
+			};
+		}
+	];
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainCommonPlus : AdvancedNoPainNoGainCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainUncommon";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainCommon2Plus : AdvancedNoPainNoGainCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainUncommon";
+}
+
+AdvancedNoPainNoGainUncommon : AdvancedNoPainNoGainCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.125f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 12.5f
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainUncommon2";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainUncommon2 : AdvancedNoPainNoGainCommon2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.145f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 14.5f
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainUncommonPlus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainUncommonPlus : AdvancedNoPainNoGainUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainRare";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainUncommon2Plus : AdvancedNoPainNoGainUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainRare";
+}
+
+AdvancedNoPainNoGainRare : AdvancedNoPainNoGainCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 15f
+				];
+			};
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainRarePlus";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainRare2";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainRare2 : AdvancedNoPainNoGainCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.17f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 17f
+				];
+			};
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainRarePlus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainRarePlus : AdvancedNoPainNoGainRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainEpic";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainRare2Plus : AdvancedNoPainNoGainRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainEpic";
+}
+
+AdvancedNoPainNoGainEpic : AdvancedNoPainNoGainCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.175f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 17.5f
+				];
+			};
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainEpicPlus";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainEpic2";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainEpic2 : AdvancedNoPainNoGainCommon2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.195f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 19.5f
+				];
+			};
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainEpicPlus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainEpicPlus : AdvancedNoPainNoGainEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGain_Legendary";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainEpic2Plus : AdvancedNoPainNoGainEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGain_Legendary";
+}
+
+AdvancedNoPainNoGain_Legendary : AdvancedNoPainNoGainCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.2f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 20f
+				];
+			};
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainLegendary2";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainLegendary2 : AdvancedNoPainNoGainCommon2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Health";
+						comparisonType = "LessOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 50.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.22f;
+									} : ConstantStatModifier
+								];
+							} : GameplayLogicPackage
+						];
+					} : BaseStatusEffect.NoPainNoGainBuff;
+				} : ApplyStatusEffectEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89015";
+				floatValues = 
+				[
+					50f, 22f
+				];
+			};
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainLegendaryPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainLegendaryPlus : AdvancedNoPainNoGain_Legendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainLegendary2PlusPlus";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedNoPainNoGainLegendary2Plus : AdvancedNoPainNoGainLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedNoPainNoGainLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedNoPainNoGainLegendaryPlusPlus : AdvancedNoPainNoGain_Legendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedNoPainNoGainLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedNoPainNoGainLegendary2PlusPlus : AdvancedNoPainNoGainLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "AgileJoints";
+	displayName = "LocKey#85349";
+	localizedDescription = "LocKey#85350";
+	iconPath = "cw_skeleton_jointlock";
+	quality = "Quality.Common";
+	upgradeCostMult = 1.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity16CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 8;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					8f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedAgileJointsStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "AgileJoints";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsCommonPlus";
+	sideUpgradeItem = "Items.AdvancedAgileJointsCommon2";
+}
+
+AdvancedAgileJointsStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.CarryCapacity", "Modifiers.RecoilPercentBonus", "Modifiers.RecoilPercentBonusQualityToggle", "Modifiers.ADSSpeedPercentBonus", "Modifiers.ADSSpeedPercentBonusToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedAgileJointsCommon2 : AdvancedAgileJointsCommon
+{
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 11;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					11f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage
+	];
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsCommonPlus : AdvancedAgileJointsCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsUncommon";
+	sideUpgradeItem = "Items.AdvancedAgileJointsCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsCommon2Plus : AdvancedAgileJointsCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsUncommon";
+}
+
+AdvancedAgileJointsUncommon : AdvancedAgileJointsCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 10;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					10f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedAgileJointsUncommon2";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsUncommon2 : AdvancedAgileJointsCommon2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 13;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					13f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsUncommonPlus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsUncommonPlus : AdvancedAgileJointsUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsRare";
+	sideUpgradeItem = "Items.AdvancedAgileJointsUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsUncommon2Plus : AdvancedAgileJointsUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsRare";
+}
+
+AdvancedAgileJointsRare : AdvancedAgileJointsCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 12;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					12f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsRarePlus";
+	sideUpgradeItem = "Items.AdvancedAgileJointsRare2";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsRare2 : AdvancedAgileJointsCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 15;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					15f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsRarePlus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsRarePlus : AdvancedAgileJointsRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsEpic";
+	sideUpgradeItem = "Items.AdvancedAgileJointsRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsRare2Plus : AdvancedAgileJointsRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsEpic";
+}
+
+AdvancedAgileJointsEpic : AdvancedAgileJointsCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 14;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					14f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsEpicPlus";
+	sideUpgradeItem = "Items.AdvancedAgileJointsEpic2";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsEpic2 : AdvancedAgileJointsCommon2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 17;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					17f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsEpicPlus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsEpicPlus : AdvancedAgileJointsEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsLegendary";
+	sideUpgradeItem = "Items.AdvancedAgileJointsEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsEpic2Plus : AdvancedAgileJointsEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsLegendary";
+}
+
+AdvancedAgileJointsLegendary : AdvancedAgileJointsCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 16;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					16f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedAgileJointsLegendary2";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsLegendary2 : AdvancedAgileJointsCommon2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.MitigationStrength";
+					modifierType = "Additive";
+					value = 19;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89016";
+				floatValues = 
+				[
+					19f, 90f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89438";
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedAgileJointsLegendaryPlus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsLegendaryPlus : AdvancedAgileJointsLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedAgileJointsLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedAgileJointsLegendary2Plus : AdvancedAgileJointsLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedAgileJointsLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedAgileJointsLegendaryPlusPlus : AdvancedAgileJointsLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedAgileJointsLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedAgileJointsLegendary2PlusPlus : AdvancedAgileJointsLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedT1000Common : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "T1000";
+	displayName = "LocKey#85357";
+	localizedDescription = "LocKey#85358";
+	iconPath = "T_1000";
+	quality = "Quality.Common";
+	upgradeCostMult = 2.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = -30.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 30.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 30.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.TechnicalAbility";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity25CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.1f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					10f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedT1000StatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "T1000";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "veryhigh_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "veryhigh_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedT1000Uncommon";
+	sideUpgradeItem = "Items.AdvancedT1000Common2";
+}
+
+AdvancedT1000StatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.Health", "Modifiers.MeleeResistance", "Modifiers.MeleeResistanceQualityToggle", "Modifiers.ExplosionResistance", "Modifiers.ExplosionResistanceToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedT1000Common2 : AdvancedT1000Common
+{
+	friendlyName = "T1000+";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.12f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					12f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+AdvancedT1000Uncommon : AdvancedT1000Common
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.1f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					10f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedT1000Rare";
+	sideUpgradeItem = "Items.AdvancedT1000Uncommon2";
+}
+
+[ notQueryable ]
+AdvancedT1000Uncommon2 : AdvancedT1000Common2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.12f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					12f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedT1000Rare";
+}
+
+AdvancedT1000Rare : AdvancedT1000Common
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.08f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					8f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedT1000RarePlus";
+	sideUpgradeItem = "Items.AdvancedT1000Rare2";
+}
+
+[ notQueryable ]
+AdvancedT1000Rare2 : AdvancedT1000Common
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.09f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					9f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	nextUpgradeItem = "Items.AdvancedT1000RarePlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedT1000RarePlus : AdvancedT1000Rare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedT1000Epic";
+	sideUpgradeItem = "Items.AdvancedT1000Rare2Plus";
+}
+
+[ notQueryable ]
+AdvancedT1000Rare2Plus : AdvancedT1000Rare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedT1000Epic";
+}
+
+AdvancedT1000Epic : AdvancedT1000Common
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.1f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					10f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedT1000EpicPlus";
+	sideUpgradeItem = "Items.AdvancedT1000Epic2";
+}
+
+[ notQueryable ]
+AdvancedT1000Epic2 : AdvancedT1000Common2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.11f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					11f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedT1000EpicPlus";
+}
+
+[ notQueryable ]
+AdvancedT1000EpicPlus : AdvancedT1000Epic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedT1000Legendary";
+	sideUpgradeItem = "Items.AdvancedT1000Epic2Plus";
+}
+
+[ notQueryable ]
+AdvancedT1000Epic2Plus : AdvancedT1000Epic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedT1000Legendary";
+}
+
+AdvancedT1000Legendary : AdvancedT1000Common
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.12f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					12f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedT1000LegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedT1000Legendary2";
+}
+
+[ notQueryable ]
+AdvancedT1000Legendary2 : AdvancedT1000Common2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.13f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					13f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedT1000LegendaryPlus";
+}
+
+[ notQueryable ]
+AdvancedT1000LegendaryPlus : AdvancedT1000Legendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedT1000LegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedT1000Legendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedT1000Legendary2Plus : AdvancedT1000Legendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedT1000LegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedT1000LegendaryPlusPlus : AdvancedT1000Legendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedT1000Legendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedT1000Legendary2PlusPlus : AdvancedT1000Legendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Common : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "T1000";
+	displayName = "LocKey#94436";
+	localizedDescription = "LocKey#85358";
+	iconPath = "T_1000";
+	quality = "Quality.Common";
+	upgradeCostMult = 3.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.IsItemIconic";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 2f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity60CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.1f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					10f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statusEffect = "BaseStatusEffect.JustLootedIconicCWFromAirdrop";
+					} : StatusEffectPrereq;
+					fact = "iconic_t1000_airdropped";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedT1000StatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "T1000";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "veryhigh_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			value = 2.5f;
+		} : ConstantStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "veryhigh_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			value = 2.5f;
+		} : ConstantStatModifier
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Uncommon";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Common2";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Common2 : IconicAdvancedT1000Common
+{
+	friendlyName = "T1000+";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.12f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					12f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Uncommon : IconicAdvancedT1000Common
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.17f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					17f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Rare";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Uncommon2";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Uncommon2 : IconicAdvancedT1000Common2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.19f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					12f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Rare";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Rare : IconicAdvancedT1000Common
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.26f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					26f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000RarePlus";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Rare2";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Rare2 : IconicAdvancedT1000Common
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.28f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					28f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000RarePlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000RarePlus : IconicAdvancedT1000Rare
+{
+	quality = "Quality.RarePlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.28f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					28f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Epic";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Rare2Plus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Rare2Plus : IconicAdvancedT1000Rare2
+{
+	quality = "Quality.RarePlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.30f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					30f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Epic";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Epic : IconicAdvancedT1000Common
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.31f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					31f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000EpicPlus";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Epic2";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Epic2 : IconicAdvancedT1000Common2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.33f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					33f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000EpicPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000EpicPlus : IconicAdvancedT1000Epic
+{
+	quality = "Quality.EpicPlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.32f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					32f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Legendary";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Epic2Plus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Epic2Plus : IconicAdvancedT1000Epic2
+{
+	quality = "Quality.EpicPlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.34f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					34f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000Legendary";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Legendary : IconicAdvancedT1000Common
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.35f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					35f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000LegendaryPlus";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Legendary2";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Legendary2 : IconicAdvancedT1000Common2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.37f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					37f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000LegendaryPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000LegendaryPlus : IconicAdvancedT1000Legendary
+{
+	quality = "Quality.LegendaryPlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.37f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					37f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000LegendaryPlusPlus";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Legendary2Plus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Legendary2Plus : IconicAdvancedT1000Legendary2
+{
+	quality = "Quality.LegendaryPlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.39f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					39f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "Items.IconicAdvancedT1000LegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000LegendaryPlusPlus : IconicAdvancedT1000Legendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.40f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					40f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.IconicAdvancedT1000Legendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+IconicAdvancedT1000Legendary2PlusPlus : IconicAdvancedT1000Legendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	OnEquip = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ArmorMultBonus";
+					modifierType = "Additive";
+					value = 0.42f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89019";
+				floatValues = 
+				[
+					42f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.BodyHealthT1000"
+	];
+	nextUpgradeItem = "";
+}
+
+AdvancedPainDistributorPrereq : MultiPrereq
+{
+	aggregationType = "OR";
+	nestedPrereqs = 
+	[
+		{
+			checkType = "CheckType.Tag";
+			tagToCheck = "InhalerBuff";
+		} : StatusEffectPrereq, 
+		{
+			checkType = "CheckType.Tag";
+			tagToCheck = "InjectorBuff";
+		} : StatusEffectPrereq
+	];
+}
+
+[ notQueryable ]
+AdvancedPainDistributorCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "PainDistributor";
+	displayName = "LocKey#85341";
+	localizedDescription = "LocKey#85342";
+	iconPath = "cw_circulatory_enhancedbloodvessels";
+	quality = "Quality.Common";
+	upgradeCostMult = 2.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 42.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 24.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 24.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.TechnicalAbility";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity25CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					0f, 0f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedPainDistributorStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "PainDistributor";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "veryhigh_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "veryhigh_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorUncommon";
+	sideUpgradeItem = "Items.AdvancedPainDistributorCommon2";
+}
+
+AdvancedPainDistributorStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.HealingItemsEffectPercentBonus", "Modifiers.HealingItemsChargesRegenMult", "Modifiers.HealingItemsChargesRegenMultQualityToggle", "Modifiers.MeleeResistance", "Modifiers.MeleeResistanceToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedPainDistributorCommon2 : AdvancedPainDistributorCommon
+{
+	friendlyName = "PainDistributor+";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 15.0f;
+		} : ConstantStatModifier
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					0f, 0f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+AdvancedPainDistributorUncommon : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					0f, 0f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorRare";
+	sideUpgradeItem = "Items.AdvancedPainDistributorUncommon2";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorUncommon2 : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					0f, 0f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorRare";
+	sideUpgradeItem = "";
+}
+
+AdvancedPainDistributorRare : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					5f, 15f, 5f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "Items.AdvancedPainDistributorPrereq";
+					removeWithEffector = false;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.05f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AssaultRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AxeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.BatonStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ChainswordStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.CrouchSprintStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DashAttackStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DodgeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DualShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.FistsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.HandgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KatanaStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KnifeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.LightMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MacheteStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MantisBladesStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MonoWiresStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBladeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.PrecisionRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.RevolverStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SniperStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.StrongArmsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SubMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.15f;
+									} : ConstantStatModifier
+								];
+							}
+						];
+					} : BaseStatusEffect.PainDistributorBuff;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorRarePlus";
+	sideUpgradeItem = "Items.AdvancedPainDistributorRare2";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorRare2 : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					6f, 18f, 5f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "Items.AdvancedPainDistributorPrereq";
+					removeWithEffector = false;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.06f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AssaultRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AxeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.BatonStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ChainswordStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.CrouchSprintStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DashAttackStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DodgeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DualShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.FistsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.HandgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KatanaStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KnifeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.LightMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MacheteStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MantisBladesStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MonoWiresStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBladeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.PrecisionRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.RevolverStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SniperStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.StrongArmsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SubMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.18f;
+									} : ConstantStatModifier
+								];
+							}
+						];
+					} : BaseStatusEffect.PainDistributorBuff;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorRarePlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorRarePlus : AdvancedPainDistributorRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedPainDistributorEpic";
+	sideUpgradeItem = "Items.AdvancedPainDistributorRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorRare2Plus : AdvancedPainDistributorRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedPainDistributorEpic";
+}
+
+AdvancedPainDistributorEpic : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					7f, 21f, 5f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "Items.AdvancedPainDistributorPrereq";
+					removeWithEffector = false;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.07f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AssaultRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AxeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.BatonStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ChainswordStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.CrouchSprintStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DashAttackStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DodgeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DualShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.FistsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.HandgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KatanaStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KnifeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.LightMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MacheteStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MantisBladesStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MonoWiresStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBladeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.PrecisionRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.RevolverStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SniperStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.StrongArmsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SubMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.21f;
+									} : ConstantStatModifier
+								];
+							}
+						];
+					} : BaseStatusEffect.PainDistributorBuff;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorEpicPlus";
+	sideUpgradeItem = "Items.AdvancedPainDistributorEpic2";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorEpic2 : AdvancedPainDistributorRare2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					8f, 24f, 5f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "Items.AdvancedPainDistributorPrereq";
+					removeWithEffector = false;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.08f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AssaultRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AxeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.BatonStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ChainswordStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.CrouchSprintStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DashAttackStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DodgeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DualShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.FistsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.HandgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KatanaStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KnifeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.LightMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MacheteStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MantisBladesStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MonoWiresStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBladeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.PrecisionRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.RevolverStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SniperStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.StrongArmsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SubMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.24f;
+									} : ConstantStatModifier
+								];
+							}
+						];
+					} : BaseStatusEffect.PainDistributorBuff;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorEpicPlus";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorEpicPlus : AdvancedPainDistributorEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedPainDistributorLegendary";
+	sideUpgradeItem = "Items.AdvancedPainDistributorEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorEpic2Plus : AdvancedPainDistributorEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedPainDistributorLegendary";
+}
+
+AdvancedPainDistributorLegendary : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					9f, 27f, 5f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "Items.AdvancedPainDistributorPrereq";
+					removeWithEffector = false;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.09f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AssaultRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AxeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.BatonStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ChainswordStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.CrouchSprintStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DashAttackStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DodgeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DualShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.FistsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.HandgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KatanaStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KnifeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.LightMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MacheteStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MantisBladesStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MonoWiresStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBladeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.PrecisionRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.RevolverStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SniperStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.StrongArmsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SubMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.27f;
+									} : ConstantStatModifier
+								];
+							}
+						];
+					} : BaseStatusEffect.PainDistributorBuff;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedPainDistributorLegendary2";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorLegendary2 : AdvancedPainDistributorCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#89009";
+				floatValues = 
+				[
+					10f, 30f, 5f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "Items.AdvancedPainDistributorPrereq";
+					removeWithEffector = false;
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								stats = 
+								[
+									{
+										statType = "BaseStats.ArmorMultBonus";
+										modifierType = "Additive";
+										value = 0.1f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AssaultRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.AxeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.BatonStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ChainswordStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.CrouchSprintStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DashAttackStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DodgeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.DualShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.FistsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.HandgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KatanaStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.KnifeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.LightMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MacheteStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MantisBladesStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.MonoWiresStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBladeStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.OneHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.PrecisionRifleStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.RevolverStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.ShotgunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SniperStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.StrongArmsStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.SubMachinegunStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier, 
+									{
+										statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+										modifierType = "Additive";
+										value = 0.3f;
+									} : ConstantStatModifier
+								];
+							}
+						];
+					} : BaseStatusEffect.PainDistributorBuff;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedPainDistributorLegendaryPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorLegendaryPlus : AdvancedPainDistributorLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedPainDistributorLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedPainDistributorLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedPainDistributorLegendary2Plus : AdvancedPainDistributorLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedPainDistributorLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedPainDistributorLegendaryPlusPlus : AdvancedPainDistributorLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedPainDistributorLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedPainDistributorLegendary2PlusPlus : AdvancedPainDistributorLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+AdvancedBoneMarrowCellsCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "BoneMarrowCells";
+	displayName = "LocKey#85355";
+	localizedDescription = "LocKey#85356";
+	iconPath = "cw_skeleton_microvibrationsgenerator";
+	quality = "Quality.Common";
+	upgradeCostMult = 1.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 17.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 10.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Reflexes";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity16CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 8f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 8f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedBoneMarrowCellsStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "BoneMarrowCells";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsCommonPlus";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsCommon2";
+}
+
+AdvancedBoneMarrowCellsStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.HealthRegenPercent", "Modifiers.HeadshotDamageMultiplier", "Modifiers.HeadshotDamageMultiplierQualityToggle", "Modifiers.RecoilPercentBonus", "Modifiers.RecoilPercentBonusToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsCommon2 : AdvancedBoneMarrowCellsCommon
+{
+	friendlyName = "BoneMarrowCells+";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 10f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 10f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsCommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsCommonPlus : AdvancedBoneMarrowCellsCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsUncommon";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsCommon2Plus : AdvancedBoneMarrowCellsCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsUncommon";
+}
+
+AdvancedBoneMarrowCellsUncommon : AdvancedBoneMarrowCellsCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 10f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 10f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsUncommon2";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsUncommon2 : AdvancedBoneMarrowCellsCommon2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 12f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 12f
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsUncommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsUncommonPlus : AdvancedBoneMarrowCellsUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsRare";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsUncommon2Plus : AdvancedBoneMarrowCellsUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsRare";
+}
+
+AdvancedBoneMarrowCellsRare : AdvancedBoneMarrowCellsCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 12f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 12f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsRarePlus";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsRare2";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsRare2 : AdvancedBoneMarrowCellsCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 12f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 12f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsRarePlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsRarePlus : AdvancedBoneMarrowCellsRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsEpic";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsRare2Plus : AdvancedBoneMarrowCellsRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsEpic";
+	sideUpgradeItem = "";
+}
+
+AdvancedBoneMarrowCellsEpic : AdvancedBoneMarrowCellsCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 14f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 14f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsEpicPlus";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsEpic2";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsEpic2 : AdvancedBoneMarrowCellsCommon2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 16f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 16f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsEpicPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsEpicPlus : AdvancedBoneMarrowCellsEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendary";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsEpic2Plus : AdvancedBoneMarrowCellsEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendary";
+}
+
+AdvancedBoneMarrowCellsLegendary : AdvancedBoneMarrowCellsCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 16f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 16f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendary2";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsLegendary2 : AdvancedBoneMarrowCellsCommon2
+{
+	quality = "Quality.Legendary";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 40.0f;
+		} : ConstantStatModifier
+	];
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statPoolType = "Stamina";
+						comparisonType = "GreaterOrEqual";
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 85.0f;
+							} : ConstantStatModifier
+						];
+					} : StatPoolPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 18f;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#89021";
+				floatValues = 
+				[
+					85f, 18f
+				];
+			};
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendaryPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsLegendaryPlus : AdvancedBoneMarrowCellsLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedBoneMarrowCellsLegendary2Plus : AdvancedBoneMarrowCellsLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedBoneMarrowCellsLegendaryPlusPlus : AdvancedBoneMarrowCellsLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedBoneMarrowCellsLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedBoneMarrowCellsLegendary2PlusPlus : AdvancedBoneMarrowCellsLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+AdvancedTitaniumInfusedBonesCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "TitaniumInfusedBones";
+	displayName = "LocKey#40831";
+	localizedDescription = "LocKey#40832";
+	iconPath = "cw_skeleton_titaniuminfusedbones";
+	quality = "Quality.Common";
+	upgradeCostMult = 0.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity6CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.3f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					30
+				];
+			} : TitaniumInfusedBonesUIData;
+		}
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedTitaniumInfusedBonesStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "TitaniumInfusedBones";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "low_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "low_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesCommonPlus";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesCommon2";
+}
+
+AdvancedTitaniumInfusedBonesStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.Armor", "Modifiers.MeleeDamagePercentBonus", "Modifiers.MeleeDamagePercentBonusQualityToggle", "Modifiers.ExplosionDamagePercentBonus", "Modifiers.ExplosionDamagePercentBonusToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesCommon2 : AdvancedTitaniumInfusedBonesCommon
+{
+	friendlyName = "TitaniumInfusedBones+";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.34f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					34
+				];
+			} : TitaniumInfusedBonesUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesCommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesCommonPlus : AdvancedTitaniumInfusedBonesCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesUncommon";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesCommon2Plus : AdvancedTitaniumInfusedBonesCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesUncommon";
+}
+
+AdvancedTitaniumInfusedBonesUncommon : AdvancedTitaniumInfusedBonesCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.38f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					38
+				];
+			} : TitaniumInfusedBonesUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesUncommon2";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesUncommon2 : AdvancedTitaniumInfusedBonesCommon2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.42f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					42
+				];
+			} : TitaniumInfusedBonesUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesUncommonPlus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesUncommonPlus : AdvancedTitaniumInfusedBonesUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesRare";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesUncommon2Plus : AdvancedTitaniumInfusedBonesUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesRare";
+}
+
+AdvancedTitaniumInfusedBonesRare : AdvancedTitaniumInfusedBonesCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.46f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					46
+				];
+			} : TitaniumInfusedBonesUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesRarePlus";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesRare2";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesRare2 : AdvancedTitaniumInfusedBonesCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.5f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					50
+				];
+			} : TitaniumInfusedBonesUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesRarePlus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesRarePlus : AdvancedTitaniumInfusedBonesRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesEpic";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesRare2Plus : AdvancedTitaniumInfusedBonesRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesEpic";
+}
+
+AdvancedTitaniumInfusedBonesEpic : AdvancedTitaniumInfusedBonesCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.54f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					54
+				];
+			} : TitaniumInfusedBonesUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesEpicPlus";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesEpic2";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesEpic2 : AdvancedTitaniumInfusedBonesCommon2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.58f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					58
+				];
+			} : TitaniumInfusedBonesUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesEpicPlus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesEpicPlus : AdvancedTitaniumInfusedBonesEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendary";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesEpic2Plus : AdvancedTitaniumInfusedBonesEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendary";
+}
+
+AdvancedTitaniumInfusedBonesLegendary : AdvancedTitaniumInfusedBonesCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.62f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					62
+				];
+			} : TitaniumInfusedBonesUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendary2";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesLegendary2 : AdvancedTitaniumInfusedBonesCommon2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CarryCapacity";
+					modifierType = "AdditiveMultiplier";
+					value = 0.66f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					66
+				];
+			} : TitaniumInfusedBonesUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendaryPlus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesLegendaryPlus : AdvancedTitaniumInfusedBonesLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedTitaniumInfusedBonesLegendary2Plus : AdvancedTitaniumInfusedBonesLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedTitaniumInfusedBonesLegendaryPlusPlus : AdvancedTitaniumInfusedBonesLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedTitaniumInfusedBonesLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedTitaniumInfusedBonesLegendary2PlusPlus : AdvancedTitaniumInfusedBonesLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+AdvancedRapidMuscleNurishCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "RapidMuscleNurish";
+	displayName = "LocKey#85321";
+	localizedDescription = "LocKey#85322";
+	iconPath = "cw_skeleton_rapidmusclenurish";
+	quality = "Quality.Common";
+	upgradeCostMult = 1.5f;
+	variants = 
+	[
+		"Variants.Humanity14CostTinkererVariant"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.TechnicalAbility";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					30f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 30f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedRapidMuscleNurishStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "RapidMuscleNurish";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishCommonPlus";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishCommon2";
+}
+
+AdvancedRapidMuscleNurishStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.CarryCapacity", "Modifiers.GrenadesChargesRegenMult", "Modifiers.GrenadesChargesRegenMultQualityToggle", "Modifiers.ADSSpeedPercentBonus", "Modifiers.ADSSpeedPercentBonusToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishCommon2 : AdvancedRapidMuscleNurishCommon
+{
+	friendlyName = "RapidMuscleNurish+";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					50f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 50f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishCommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishCommonPlus : AdvancedRapidMuscleNurishCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishUncommon";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishCommon2Plus : AdvancedRapidMuscleNurishCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishUncommon";
+}
+
+AdvancedRapidMuscleNurishUncommon : AdvancedRapidMuscleNurishCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					50f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 50f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishUncommon2";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishUncommon2 : AdvancedRapidMuscleNurishCommon2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					70f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 70f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishUncommonPlus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishUncommonPlus : AdvancedRapidMuscleNurishUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishRare";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishUncommon2Plus : AdvancedRapidMuscleNurishUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishRare";
+}
+
+AdvancedRapidMuscleNurishRare : AdvancedRapidMuscleNurishCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					70f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 70f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishRarePlus";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishRare2";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishRare2 : AdvancedRapidMuscleNurishCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					90f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 90f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishRarePlus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishRarePlus : AdvancedRapidMuscleNurishRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishEpic";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishRare2Plus : AdvancedRapidMuscleNurishRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishEpic";
+}
+
+AdvancedRapidMuscleNurishEpic : AdvancedRapidMuscleNurishCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					90f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 90f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishEpicPlus";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishEpic2";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishEpic2 : AdvancedRapidMuscleNurishCommon2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					110f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 110f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishEpicPlus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishEpicPlus : AdvancedRapidMuscleNurishEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendary";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishEpic2Plus : AdvancedRapidMuscleNurishEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendary";
+}
+
+AdvancedRapidMuscleNurishLegendary : AdvancedRapidMuscleNurishCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					110f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 110f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendary2";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishLegendary2 : AdvancedRapidMuscleNurishCommon2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#90506";
+				floatValues = 
+				[
+					130f, 20f
+				];
+			};
+			effectors = 
+			[
+				{
+					prereqRecord = "NewPerks.IsPlayerCrouchingOrCrouchSprintingPrereq";
+					statusEffect = 
+					{
+						packages = 
+						[
+							{
+								effectors = 
+								[
+									{
+										statGroup = 
+										{
+											statModifiers = 
+											[
+												{
+													statType = "BaseStats.Armor";
+													modifierType = "Additive";
+													value = 130f;
+												} : ConstantStatModifier, 
+												{
+													statType = "BaseStats.MaxSpeed";
+													modifierType = "AdditiveMultiplier";
+													value = -0.2f;
+												} : ConstantStatModifier
+											];
+										};
+									} : ApplyStatGroupOnPlayer
+								];
+							}
+						];
+					} : StatusEffect;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		"Attunements.TechArmor"
+	];
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendaryPlus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishLegendaryPlus : AdvancedRapidMuscleNurishLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedRapidMuscleNurishLegendary2Plus : AdvancedRapidMuscleNurishLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedRapidMuscleNurishLegendaryPlusPlus : AdvancedRapidMuscleNurishLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedRapidMuscleNurishLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedRapidMuscleNurishLegendary2PlusPlus : AdvancedRapidMuscleNurishLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+AdvancedEndoskeletonEpic : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "Endoskeleton";
+	displayName = "LocKey#3653";
+	localizedDescription = "LocKey#3659";
+	iconPath = "cw_skeleton_endoskeleton";
+	quality = "Quality.Epic";
+	upgradeCostMult = 2.5f;
+	variants = 
+	[
+		"Variants.Humanity40CostTinkererVariant"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 70.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 30.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 30.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Strength";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "AdditiveMultiplier";
+					value = 0.10f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				floatValues = 
+				[
+					10f
+				];
+			} : EndoskeletonUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedEndoskeletonStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "Endoskeleton";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "max_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "max_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedEndoskeletonEpicPlus";
+	sideUpgradeItem = "Items.AdvancedEndoskeletonEpic2";
+}
+
+AdvancedEndoskeletonStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.HealingItemsEffectPercentBonus", "Modifiers.MitigationStrength", "Modifiers.MitigationStrengthQualityToggle", "Modifiers.DamageOverTimeResistance", "Modifiers.DamageOverTimeResistanceToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedEndoskeletonEpic2 : AdvancedEndoskeletonEpic
+{
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "AdditiveMultiplier";
+					value = 0.12f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				floatValues = 
+				[
+					12f
+				];
+			} : EndoskeletonUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedEndoskeletonEpicPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedEndoskeletonEpicPlus : AdvancedEndoskeletonEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedEndoskeletonLegendary";
+	sideUpgradeItem = "Items.AdvancedEndoskeletonEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedEndoskeletonEpic2Plus : AdvancedEndoskeletonEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedEndoskeletonLegendary";
+}
+
+AdvancedEndoskeletonLegendary : AdvancedEndoskeletonEpic
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "AdditiveMultiplier";
+					value = 0.13f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				floatValues = 
+				[
+					13f
+				];
+			} : EndoskeletonUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedEndoskeletonLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedEndoSkeletonLegendary2";
+}
+
+[ notQueryable ]
+AdvancedEndoSkeletonLegendary2 : AdvancedEndoskeletonEpic2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Health";
+					modifierType = "AdditiveMultiplier";
+					value = 0.15f;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				floatValues = 
+				[
+					15f
+				];
+			} : EndoskeletonUIData;
+		}, 
+		"Attunements.BodyHealth"
+	];
+	nextUpgradeItem = "Items.AdvancedEndoskeletonLegendaryPlus";
+}
+
+[ notQueryable ]
+AdvancedEndoskeletonLegendaryPlus : AdvancedEndoskeletonLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedEndoskeletonLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedEndoSkeletonLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedEndoSkeletonLegendary2Plus : AdvancedEndoSkeletonLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedEndoskeletonLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedEndoskeletonLegendaryPlusPlus : AdvancedEndoskeletonLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedEndoSkeletonLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedEndoSkeletonLegendary2PlusPlus : AdvancedEndoSkeletonLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+AdvancedCompilingSkeletonCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "CompilingSkeleton";
+	displayName = "LocKey#91749";
+	localizedDescription = "LocKey#85352";
+	iconPath = "CompilingSkeleton";
+	quality = "Quality.Common";
+	upgradeCostMult = 1.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 6.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Intelligence";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity14CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.02f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.2f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedCompilingSkeletonStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "CompilingSkeleton";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonCommonPlus";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonCommon2";
+}
+
+AdvancedCompilingSkeletonStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.Armor", "Modifiers.RamOnKill", "Modifiers.RamOnKillQualityToggle", "Modifiers.BonusQuickHackDamage", "Modifiers.BonusQuickHackDamageToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonCommon2 : AdvancedCompilingSkeletonCommon
+{
+	friendlyName = "CompilingSkeleton+";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.022f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.22f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonCommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonCommonPlus : AdvancedCompilingSkeletonCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonUncommon";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonCommon2Plus : AdvancedCompilingSkeletonCommon2
+{
+	quality = "Quality.Common";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonUncommon";
+	sideUpgradeItem = "";
+}
+
+AdvancedCompilingSkeletonUncommon : AdvancedCompilingSkeletonCommon
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.022f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.22f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonUncommon2";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonUncommon2 : AdvancedCompilingSkeletonCommon2
+{
+	quality = "Quality.Uncommon";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.024f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.24f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonUncommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonUncommonPlus : AdvancedCompilingSkeletonUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonRare";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonUncommon2Plus : AdvancedCompilingSkeletonUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonRare";
+	sideUpgradeItem = "";
+}
+
+AdvancedCompilingSkeletonRare : AdvancedCompilingSkeletonCommon
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.024f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.24f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 2;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					2
+				];
+			};
+		}, 
+		"Attunements.IntelligenceAllDamage"
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonRarePlus";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonRare2";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonRare2 : AdvancedCompilingSkeletonCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.026f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.26f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonRarePlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonRarePlus : AdvancedCompilingSkeletonRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonEpic";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonRare2Plus : AdvancedCompilingSkeletonRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonEpic";
+	sideUpgradeItem = "";
+}
+
+AdvancedCompilingSkeletonEpic : AdvancedCompilingSkeletonCommon
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.026f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.26f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 2;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					2
+				];
+			};
+		}, 
+		"Attunements.IntelligenceAllDamage"
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonEpicPlus";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonEpic2";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonEpic2 : AdvancedCompilingSkeletonCommon2
+{
+	quality = "Quality.Epic";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.028f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.28f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonEpicPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonEpicPlus : AdvancedCompilingSkeletonEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonLegendary";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonEpic2Plus : AdvancedCompilingSkeletonEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonLegendary";
+	sideUpgradeItem = "";
+}
+
+AdvancedCompilingSkeletonLegendary : AdvancedCompilingSkeletonCommon
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.028f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.28f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 2;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					2
+				];
+			};
+		}, 
+		"Attunements.IntelligenceAllDamage"
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonLegendary2";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonLegendary2 : AdvancedCompilingSkeletonCommon2
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.PostProcessHitReceived";
+					statPoolType = "BaseStatPools.Memory";
+					opSymbol = "Add";
+					value = 0.03f;
+				} : ConvertDamageToStatPoolEffector
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#91750";
+				floatValues = 
+				[
+					0.3f
+				];
+			};
+		} : GameplayLogicPackage, 
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.Memory";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			UIData = 
+			{
+				localizedDescription = "LocKey#92412";
+				floatValues = 
+				[
+					1
+				];
+			};
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonLegendaryPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonLegendaryPlus : AdvancedCompilingSkeletonLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedCompilingSkeletonLegendary2Plus : AdvancedCompilingSkeletonLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedCompilingSkeletonLegendaryPlusPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedCompilingSkeletonLegendaryPlusPlus : AdvancedCompilingSkeletonLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedCompilingSkeletonLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedCompilingSkeletonLegendary2PlusPlus : AdvancedCompilingSkeletonLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "";
+}
+
+AdvancedBionicJointsCommon : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "BionicJoints";
+	displayName = "LocKey#40837";
+	localizedDescription = "LocKey#85338";
+	iconPath = "AgileJoints";
+	quality = "Quality.Common";
+	upgradeCostMult = 1.0f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 25.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 15.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 5.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.TechnicalAbility";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.5f;
+		} : CombinedStatModifier
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedBionicJointsStatsShard";
+		} : StatsShardSlotPart
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#93622";
+			};
+		} : GameplayLogicPackage
+	];
+	variants = 
+	[
+		"Variants.Humanity8CostTinkererVariant"
+	];
+	CName cyberwareType = "BionicJoints";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "mid_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "mid_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedBionicJointsCommonPlus";
+	sideUpgradeItem = "Items.AdvancedBionicJointsCommon2";
+}
+
+AdvancedBionicJointsStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.ReloadSpeedPercentBonus", "Modifiers.VisibilityReduction", "Modifiers.VisibilityReductionQualityToggle", "Modifiers.BonusRicochetDamage", "Modifiers.BonusRicochetDamageToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedBionicJointsCommon2 : AdvancedBionicJointsCommon
+{
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 35.0f;
+		} : ConstantStatModifier
+	];
+	nextUpgradeItem = "Items.AdvancedBionicJointsCommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsCommonPlus : AdvancedBionicJointsCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsUncommon";
+	sideUpgradeItem = "Items.AdvancedBionicJointsCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsCommon2Plus : AdvancedBionicJointsCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsUncommon";
+}
+
+AdvancedBionicJointsUncommon : AdvancedBionicJointsCommon
+{
+	quality = "Quality.Uncommon";
+	nextUpgradeItem = "Items.AdvancedBionicJointsUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedBionicJointsUncommon2";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsUncommon2 : AdvancedBionicJointsCommon2
+{
+	quality = "Quality.Uncommon";
+	nextUpgradeItem = "Items.AdvancedBionicJointsUncommonPlus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsUncommonPlus : AdvancedBionicJointsCommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsRare";
+	sideUpgradeItem = "Items.AdvancedBionicJointsUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsUncommon2Plus : AdvancedBionicJointsCommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsRare";
+}
+
+AdvancedBionicJointsRare : AdvancedBionicJointsCommon
+{
+	quality = "Quality.Rare";
+	OnEquip += 
+	[
+		"Attunements.TechArmorNoLineBreak"
+	];
+	nextUpgradeItem = "Items.AdvancedBionicJointsRarePlus";
+	sideUpgradeItem = "Items.AdvancedBionicJointsRare2";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsRare2 : AdvancedBionicJointsCommon2
+{
+	quality = "Quality.Rare";
+	OnEquip += 
+	[
+		"Attunements.TechArmorNoLineBreak"
+	];
+	nextUpgradeItem = "Items.AdvancedBionicJointsRarePlus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsRarePlus : AdvancedBionicJointsRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsEpic";
+	sideUpgradeItem = "Items.AdvancedBionicJointsRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsRare2Plus : AdvancedBionicJointsRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsEpic";
+}
+
+AdvancedBionicJointsEpic : AdvancedBionicJointsRare
+{
+	quality = "Quality.Epic";
+	nextUpgradeItem = "Items.AdvancedBionicJointsEpicPlus";
+	sideUpgradeItem = "Items.AdvancedBionicJointsEpic2";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsEpic2 : AdvancedBionicJointsRare2
+{
+	quality = "Quality.Epic";
+	nextUpgradeItem = "Items.AdvancedBionicJointsEpicPlus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsEpicPlus : AdvancedBionicJointsRare
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsLegendary";
+	sideUpgradeItem = "Items.AdvancedBionicJointsEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsEpic2Plus : AdvancedBionicJointsRare2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsLegendary";
+}
+
+AdvancedBionicJointsLegendary : AdvancedBionicJointsRare
+{
+	quality = "Quality.Legendary";
+	nextUpgradeItem = "Items.AdvancedBionicJointsLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedBionicJointsLegendary2";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsLegendary2 : AdvancedBionicJointsRare2
+{
+	quality = "Quality.Legendary";
+	nextUpgradeItem = "Items.AdvancedBionicJointsLegendaryPlus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsLegendaryPlus : AdvancedBionicJointsRare
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedBionicJointsLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedBionicJointsLegendary2Plus : AdvancedBionicJointsRare2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedBionicJointsLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedBionicJointsLegendaryPlusPlus : AdvancedBionicJointsRare
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedBionicJointsLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedBionicJointsLegendary2PlusPlus : AdvancedBionicJointsRare2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowBase : AdvancedMusculoskeletalSystemModule
+{
+	string friendlyName = "DenseMarrow";
+	displayName = "LocKey#40840";
+	localizedDescription = "LocKey#40841";
+	iconPath = "cw_skeleton_densemarrow";
+	upgradeCostMult = 1.5f;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			value = 28.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 16.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			refStat = "BaseStats.IsItemPlus";
+			opSymbol = "*";
+			value = 16.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Reflexes";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier
+	];
+	variants = 
+	[
+		"Variants.Humanity16CostTinkererVariant"
+	];
+	OnEquip = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.AxeStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.BatonStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChainswordStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.FistsStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.KatanaStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MacheteStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.KnifeStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MantisBladesStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MonoWiresStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.StrongArmsStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.OneHandBladeStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.OneHandBluntStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+					modifierType = "Additive";
+					value = -0.15f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+	slotPartListPreset += 
+	[
+		{
+			itemPartPreset = "Items.AdvancedDenseMarrowStatsShard";
+		} : StatsShardSlotPart
+	];
+	CName cyberwareType = "DenseMarrow";
+	buyPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+	sellPrice += 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			id = "cyberware_curves";
+			column = "high_humanity_to_price_mult";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier
+	];
+}
+
+AdvancedDenseMarrowStatsShard : CyberwareStatsShardStatic
+{
+	statModifiers += 
+	[
+		"Modifiers.Armor", "Modifiers.StealthHitDamageBonus", "Modifiers.StealthHitDamageBonusQualityToggle", "Modifiers.MeleeResistance", "Modifiers.MeleeResistanceToggle"
+	];
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowCommon : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Common";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.12f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					12, 15
+				];
+			} : DenseMarrowUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowCommonPlus";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowCommon2";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowCommon2 : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.15f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 15
+				];
+			} : DenseMarrowUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowCommonPlus";
+	sideUpgradeItem = "";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowCommonPlus : AdvancedDenseMarrowCommon
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowUncommon";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowCommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowCommon2Plus : AdvancedDenseMarrowCommon2
+{
+	quality = "Quality.CommonPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowUncommon";
+}
+
+AdvancedDenseMarrowUncommon : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Uncommon";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.15f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 15
+				];
+			} : DenseMarrowUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowUncommonPlus";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowUncommon2";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowUncommon2 : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Uncommon";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.18f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 18
+				];
+			} : DenseMarrowUIData;
+		}
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowUncommonPlus";
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowUncommonPlus : AdvancedDenseMarrowUncommon
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowRare";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowUncommon2Plus";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowUncommon2Plus : AdvancedDenseMarrowUncommon2
+{
+	quality = "Quality.UncommonPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowRare";
+}
+
+AdvancedDenseMarrowRare : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Rare";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.18f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 18
+				];
+			} : DenseMarrowUIData;
+		}, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowRarePlus";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowRare2";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowRare2 : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Rare";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.21f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 21
+				];
+			} : DenseMarrowUIData;
+		}, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowRarePlus";
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowRarePlus : AdvancedDenseMarrowRare
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowEpic";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowRare2Plus";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowRare2Plus : AdvancedDenseMarrowRare2
+{
+	quality = "Quality.RarePlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowEpic";
+}
+
+AdvancedDenseMarrowEpic : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Epic";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.21f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 21
+				];
+			} : DenseMarrowUIData;
+		}, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowEpicPlus";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowEpic2";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowEpic2 : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Epic";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.24f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 24
+				];
+			} : DenseMarrowUIData;
+		}, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowEpicPlus";
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowEpicPlus : AdvancedDenseMarrowEpic
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowLegendary";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowEpic2Plus";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowEpic2Plus : AdvancedDenseMarrowEpic2
+{
+	quality = "Quality.EpicPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowLegendary";
+}
+
+AdvancedDenseMarrowLegendary : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Legendary";
+	OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.24f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 24
+				];
+			} : DenseMarrowUIData;
+		}, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowLegendaryPlus";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowLegendary2";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowLegendary2 : AdvancedDenseMarrowBase
+{
+	quality = "Quality.Legendary";
+	OnEquip += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponMelee";
+					value = 1.27f;
+				} : MultiplyDamage
+			];
+			UIData = 
+			{
+				intValues = 
+				[
+					15, 27
+				];
+			} : DenseMarrowUIData;
+		}, 
+		"Attunements.ReflexesCritChance"
+	];
+	nextUpgradeItem = "Items.AdvancedDenseMarrowLegendaryPlus";
+	sideUpgradeItem = "";
+	tags += 
+	[
+		"SkipActivityLog"
+	];
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowLegendaryPlus : AdvancedDenseMarrowLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowLegendaryPlusPlus";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowLegendary2Plus";
+}
+
+[ notQueryable ]
+AdvancedDenseMarrowLegendary2Plus : AdvancedDenseMarrowLegendary2
+{
+	quality = "Quality.LegendaryPlus";
+	nextUpgradeItem = "Items.AdvancedDenseMarrowLegendaryPlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedDenseMarrowLegendaryPlusPlus : AdvancedDenseMarrowLegendary
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+	sideUpgradeItem = "Items.AdvancedDenseMarrowLegendary2PlusPlus";
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+AdvancedDenseMarrowLegendary2PlusPlus : AdvancedDenseMarrowLegendary2
+{
+	quality = "Quality.LegendaryPlusPlus";
+	nextUpgradeItem = "";
+}
+

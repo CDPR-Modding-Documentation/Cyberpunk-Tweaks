@@ -6,6 +6,7 @@ Player_Fists : Base_Fists
 {
 	displayName = "LocKey#50273";
 	fk< Crosshair > crosshair = "Crosshairs.Melee";
+	quality = "Quality.Common";
 	audioWeaponConfiguration = "audio_melee_metadata_fists_normal";
 	fk< Item > holsteredItem = "Items.HolsteredFists";
 	tags += 
@@ -14,7 +15,7 @@ Player_Fists : Base_Fists
 	];
 	statModifierGroups += 
 	[
-		"Items.FleshFistsRPGStats"
+		"Proficiencies.Weapon_StrengthSkill_Passives", "Proficiencies.Fists_StrengthSkill_Passives"
 	];
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Melee_base";
 }
@@ -22,10 +23,40 @@ Player_Fists : Base_Fists
 [ notQueryable ]
 w_melee_004__fists_a : Player_Fists
 {
+}
+
+[ notQueryable ]
+w_melee_004__fists_a_sasquatch : Player_Fists
+{
 	attacks += 
 	[
-		"NPCAttacks.SasquatchStrongAttackFists", "NPCAttacks.SasquatchStrongAttackKnockdownFists", "NPCAttacks.SasquatchStompAttackStaggerFists", "NPCAttacks.SasquatchStrongAttackStompKnockdownFists", "NPCAttacks.SasquatchStrongAttackStaggerFists", "NPCAttacks.SmasherStrongAttackStompKnockdown"
+		"NPCAttacks.SasquatchLightAttackFists", "NPCAttacks.SasquatchStrongAttackFists", "NPCAttacks.SasquatchStrongAttackKnockdownFists", "NPCAttacks.SasquatchStompAttackStaggerFists", "NPCAttacks.SasquatchStrongAttackStompKnockdownFists", "NPCAttacks.SasquatchStrongAttackStaggerFists", "NPCAttacks.SmasherStrongAttackStompKnockdown", "NPCAttacks.SasquatchMeleeExplosion"
 	];
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationMedium"
+		];
+	} : Base_Fists_NPC_Data;
+}
+
+[ notQueryable ]
+w_melee_004__fists_a_oda : Player_Fists
+{
+	attacks += 
+	[
+		"NPCAttacks.SasquatchLightAttackFists", "NPCAttacks.SasquatchStrongAttackFists", "NPCAttacks.SasquatchStrongAttackKnockdownFists", "NPCAttacks.SasquatchStompAttackStaggerFists", "NPCAttacks.SasquatchStrongAttackStompKnockdownFists", "NPCAttacks.SasquatchStrongAttackStaggerFists", "NPCAttacks.SmasherStrongAttackStompKnockdown"
+	];
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationMedium"
+		];
+	} : Base_Fists_NPC_Data;
 }
 
 [ notQueryable ]
@@ -44,13 +75,21 @@ Npc_fists_mm : Base_Fists
 {
 	npcRPGData = 
 	{
-		statModifiers = 
+		statModifiers += 
 		[
 			{
 				statType = "BaseStats.Range";
 				modifierType = "Additive";
 				value = 0.5f;
-			} : ConstantStatModifier
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.Quality";
+				modifierType = "Additive";
+				id = "quality_curves";
+				column = "iconic_level_to_random_range_mult_new";
+				refObject = "Root";
+				refStat = "BaseStats.LootLevel";
+			} : CurveStatModifier
 		];
 	} : Base_Fists_NPC_Data;
 }
@@ -127,13 +166,39 @@ StrongHolsteredFists : BaseHolsteredArms
 }
 
 [ notQueryable ]
-StrongHolsteredFistsEpic : StrongHolsteredFists
+StrongHolsteredFistsBase : BaseHolsteredArms
+{
+	appearanceName = "holstered_strong";
+	tags += 
+	[
+		"Cyberware"
+	];
+	statModifierGroups = 
+	[
+		"Items.StrongArmsInstallBonus"
+	];
+}
+
+[ notQueryable ]
+StrongHolsteredFistsUncommon : StrongHolsteredFistsBase
+{
+	quality = "Quality.Uncommon";
+}
+
+[ notQueryable ]
+StrongHolsteredFistsRare : StrongHolsteredFistsBase
+{
+	quality = "Quality.Rare";
+}
+
+[ notQueryable ]
+StrongHolsteredFistsEpic : StrongHolsteredFistsBase
 {
 	quality = "Quality.Epic";
 }
 
 [ notQueryable ]
-StrongHolsteredFistsLegendary : StrongHolsteredFists
+StrongHolsteredFistsLegendary : StrongHolsteredFistsBase
 {
 	quality = "Quality.Legendary";
 }
@@ -162,34 +227,6 @@ PlayerSilverhandArm : Item
 	tags += 
 	[
 		"HideInBackpackUI", "HideAtVendor"
-	];
-}
-
-[ notQueryable ]
-FleshFistsRPGStats : StatModifierGroup
-{
-	statModifiers = 
-	[
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_fists_RPG_stats";
-			column = "power_level_to_DPS";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 3.f;
-		} : CombinedStatModifier, 
-		"Character.ScaleToPlayerLevel", {
-			statType = "BaseStats.Level";
-			modifierType = "Multiplier";
-			value = 0;
-		} : ConstantStatModifier
 	];
 }
 

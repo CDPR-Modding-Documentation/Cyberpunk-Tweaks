@@ -1,9 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Overture_Default_Left_Hand : Preset_Overture_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Overture_Default : Base_Overture
 {
@@ -31,69 +27,21 @@ Preset_Overture_Default : Base_Overture
 			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+		} : Power_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod2";
+		} : Power_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
 [ notQueryable ]
-Preset_Overture_Default_U : Preset_Overture_Default
+Preset_Overture_Default_Unbreakable : Preset_Overture_Default
 {
-	quality = "Quality.Uncommon";
-}
-
-[ notQueryable ]
-Preset_Overture_Default_R : Preset_Overture_Default
-{
-	quality = "Quality.Rare";
-}
-
-[ notQueryable ]
-Preset_Overture_Default_E : Preset_Overture_Default
-{
-	quality = "Quality.Epic";
-}
-
-[ notQueryable ]
-Preset_Overture_Default_L : Preset_Overture_Default
-{
-	quality = "Quality.Legendary";
-}
-
-Preset_Overture_Pimp_Left_Hand : Preset_Overture_Pimp
-{
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Overture_Pimp : Preset_Overture_Default
@@ -102,10 +50,19 @@ Preset_Overture_Pimp : Preset_Overture_Default
 	[
 		"Pimp"
 	];
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
-Preset_Overture_Neon_Left_Hand : Preset_Overture_Neon
+[ notQueryable ]
+Preset_Overture_Pimp_Unbreakable : Preset_Overture_Pimp
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Overture_Neon : Preset_Overture_Default
@@ -114,15 +71,266 @@ Preset_Overture_Neon : Preset_Overture_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
-Preset_Overture_Military_Left_Hand : Preset_Overture_Military
+[ notQueryable ]
+Preset_Overture_Neon_Unbreakable : Preset_Overture_Neon
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Overture_Military : Preset_Overture_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Military_Unbreakable : Preset_Overture_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Default_U : Preset_Overture_Default
+{
+}
+
+[ notQueryable ]
+Preset_Overture_Default_R : Preset_Overture_Default
+{
+}
+
+[ notQueryable ]
+Preset_Overture_Default_E : Preset_Overture_Default
+{
+}
+
+[ notQueryable ]
+Preset_Overture_Default_L : Preset_Overture_Default
+{
+}
+
+[ notQueryable ]
+Preset_Overture_Default_Left_Hand : Preset_Overture_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Overture_Technical_Stats"
+		];
+	} : Broken_Power_Revolver_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Overture_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Pimp_Left_Hand : Preset_Overture_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Overture_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Neon_Left_Hand : Preset_Overture_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Overture_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Military_Left_Hand : Preset_Overture_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Overture_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Default_Retrofix : Preset_Overture_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_NoMuzzle_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Pimp_Retrofix : Preset_Overture_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Neon_Retrofix : Preset_Overture_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Overture_Military_Retrofix : Preset_Overture_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -158,51 +366,53 @@ Craftable_Common_Overture : Preset_Overture_Default
 Craftable_Uncommon_Overture : Craftable_Common_Overture
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Overture : Craftable_Common_Overture
+Craftable_Rare_Overture : Craftable_Uncommon_Overture
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Overture : Craftable_Common_Overture
+Craftable_Epic_Overture : Craftable_Uncommon_Overture
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Preset_Overture_Legendary : Craftable_Common_Overture
+Preset_Overture_Legendary : Craftable_Uncommon_Overture
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Overture_River : Preset_Overture_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "overture_river_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
 	displayName = "LocKey#40477";
 	visualTags = 
 	[
@@ -210,9 +420,9 @@ Preset_Overture_River : Preset_Overture_Default
 	];
 	tags += 
 	[
-		"Quest"
+		"Quest", "IconicWeapon"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40478";
 	npcRPGData = 
 	{
@@ -254,18 +464,6 @@ Preset_Overture_River : Preset_Overture_Default
 	[
 		"BaseStatPools.WeaponCharge"
 	];
-	CraftingData = "Items.Iconic_Small_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Overture_River_Legendary";
-				}
-			];
-		}
-	];
 	statModifiers += 
 	[
 		"Quality.IconicItem", {
@@ -277,64 +475,42 @@ Preset_Overture_River : Preset_Overture_Default
 	bool scaleToPlayer = true;
 	statModifierGroups = 
 	[
-		"Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Constant_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Power_Revolver_RPG_Randomized_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Constant_Stats", "Items.Base_Overture_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
-}
-
-[ notQueryable ]
-Preset_Overture_River_Legendary : Preset_Overture_River
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.sq029_rivers_gun";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Overture_River_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Overture_River_Legendary";
-	};
 }
 
 [ notQueryable ]
 Preset_Overture_Kerry : Preset_Overture_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "overture_kerry_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
 	displayName = "LocKey#40475";
 	visualTags = 
 	[
 		"Kerry_Overture"
 	];
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	localizedDescription = "LocKey#40476";
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.FullAuto"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.FullAuto";
 	slotPartListPreset = 
 	[
 		{
@@ -358,6 +534,10 @@ Preset_Overture_Kerry : Preset_Overture_Default
 			itemPartPreset = "Items.KerryWeaponMod";
 		}
 	];
+	fk< StatPool >[] statPools = 
+	[
+		"BaseStatPools.WeaponCharge"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem", {
@@ -373,165 +553,112 @@ Preset_Overture_Kerry : Preset_Overture_Default
 			"Quality.IconicItem"
 		];
 	} : Items.Base_Overture_NPC_Data;
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 3;
-			}
-		];
-	};
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Overture_Kerry_Epic";
-				}
-			];
-		}
-	];
 	bool scaleToPlayer = true;
 	statModifierGroups = 
 	[
-		"Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Constant_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Power_Revolver_RPG_Randomized_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
+		"Items.IconicQualityRandomization", "Items.Base_Overture_Kerry_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Kerry_Constant_Stats", "Items.Base_Overture_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
 	];
 }
 
-[ notQueryable ]
-Preset_Overture_Kerry_Epic : Preset_Overture_Kerry
+Base_Overture_Kerry_Technical_Stats : StatModifierGroup
 {
-	quality = "Quality.Epic";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.5357f;
+		} : CycleTimeModifier, 
+		{
+			value = 6.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Overture_Kerry";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 25;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 1;
-			}
-		];
-	};
-	OnLooted = 
+}
+
+Base_Overture_Kerry_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
 	[
 		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Overture_Kerry_Legendary";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Overture_Kerry_Legendary : Preset_Overture_Kerry
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 0.68f;
+		} : ConstantStatModifier, 
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 2.72f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 2.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.938f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 0.846415f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow", {
+			statType = "BaseStats.ReloadTimeBonus";
+			modifierType = "Additive";
+			value = -0.22735577f;
+		} : ConstantStatModifier
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Overture_Kerry_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Overture_Kerry_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Overture_Kerry_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Overture_Kerry_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Overture_Kerry_Legendary";
-	};
 }
 
 [ notQueryable ]
 Preset_Overture_Cassidy : Preset_Overture_Default
 {
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40473";
 	tags += 
 	[
-		"Q114", "Quest"
+		"Q114", "Quest", "IconicWeapon", "StashScaling_Iconic"
 	];
 	visualTags = 
 	[
 		"Cassidy_Overture"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	statModifiers += 
 	[
-		"Quality.IconicItem"
+		"Quality.IconicItem", "Character.ScaleToPlayerLevel"
 	];
 	localizedDescription = "LocKey#40474";
 	npcRPGData = 
@@ -565,65 +692,310 @@ Preset_Overture_Cassidy : Preset_Overture_Default
 		}
 	];
 	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	enableNpcRPGData = false;
 	statModifierGroups = 
 	[
-		"Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Constant_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Power_Revolver_RPG_Randomized_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Constant_Stats", "Items.Base_Overture_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
-	CraftingData = "Items.Iconic_Small_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Overture_Dodger : Preset_Overture_Default
+{
+	OnLooted += 
 	[
 		{
-			items = 
+			effectors = 
 			[
 				{
-					item = "Items.Recipe_Preset_Overture_Cassidy_Legendary";
-				}
+					fact = "overture_dodger_owned";
+					value = 1;
+				} : SetFactEffector
 			];
 		}
 	];
-}
-
-[ notQueryable ]
-Preset_Overture_Cassidy_Legendary : Preset_Overture_Cassidy
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	displayName = "LocKey#87352";
+	localizedDescription = "LocKey#87370";
+	CName[] visualTags = 
+	[
+		"Dodger_Overture"
+	];
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	quality = "Quality.Random";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Overture_NPC_Data;
+	slotPartListPreset = 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.OvertureDodgerWeaponMod";
+		}
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.q114_cassidy_revolver";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 5;
-			}
-		];
-	};
+	bool scaleToPlayer = true;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Dodger_Constant_Stats", "Items.Base_Overture_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Overture_Dodger_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 4.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 2.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 3.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.125f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
 }
 
 [ notQueryable ]
-Recipe_Preset_Overture_Cassidy_Legendary : ItemRecipe
+[ DisabledContent ]
+Preset_Overture_Dante : Preset_Overture_Default
 {
-	displayName = "";
-	craftingResult = 
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "overture_dante_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	displayName = "LocKey#87573";
+	localizedDescription = "LocKey#87578";
+	CName[] visualTags = 
+	[
+		"Cassidy_Overture"
+	];
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	quality = "Quality.Random";
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
 	{
-		item = "Items.Preset_Overture_Cassidy_Legendary";
-	};
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Overture_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__malorian_overture__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.Dante_scope";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.OvertureDanteWeaponMod";
+		}
+	];
+	bool scaleToPlayer = true;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Overture_Technical_Stats", "Items.Base_Overture_Handling_Stats", "Items.Base_Overture_Recoil_Stats", "Items.Base_Overture_Spread_Stats", "Items.Base_Overture_Aim_Stats", "Items.Base_Overture_Dante_Constant_Stats", "Items.Base_Overture_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Overture_Dante_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 3.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 2.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 3.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.938f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Dante_scope : Base_Short_Scope
+{
+	quality = "Quality.Common";
+	visualTags = 
+	[
+		"Default"
+	];
+	CName appearanceResourceName = "w_att__scope_short_05";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	iconPath = "w_att_scope_short_05";
+	tags += 
+	[
+		"DummyPart", "HideInUI", "HideAtVendor"
+	];
 }
 

@@ -1,0 +1,419 @@
+package Attacks
+using RTDB, NPCAttacks
+
+ChimeraRocketProjectilePackage : RangedAttackPackage
+{
+	defaultFire = "Attacks.ChimeraRocketSplash";
+	chargeFire = "Attacks.ChimeraRocketSplash";
+}
+
+ChimeraExplosion : Attack_Melee
+{
+	attackType = "AttackType.Explosion";
+	effectName = "chimera_explosions";
+	effectTag = "default_explosion";
+	range = 4.0f;
+}
+
+ChimeraWeakSpotExplosion : ChimeraExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectTag = "weakspot_explosion";
+	range = 20.f;
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "Chimera.ChimeraWeakSpotDestroyed";
+			applyImmediately = true;
+		}
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraWeakspotExplosionDamage"
+	];
+}
+
+ChimeraWeakspotExplosionDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.Health";
+	refObject = "Self";
+	opSymbol = "*";
+	value = 1.f;
+}
+
+ChimeraStrongAttack : NPCStrongImpact
+{
+	attackName = "NPCStrongAttack";
+	fk< AttackDirection > attackDirection = "AttackDirections.Center";
+	blockCostFactor = 999f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMeleeFrontDamage"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+}
+
+ChimeraMeleeExplosion : ChimeraExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectTag = "chimera_melee_explosion";
+	range = 12.f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMeleeExplosionDamage"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+}
+
+ChimeraMeleeShockwave : ChimeraExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectTag = "chimera_melee_shockwave";
+	range = 12.f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMeleeShockwaveDamage"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+}
+
+ChimeraMeleeShockwave02 : ChimeraExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectTag = "chimera_melee_explosion_02";
+	range = 50.f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMeleeShockwaveDamage02"
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
+}
+
+ChimeraMeleeExplosionDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 1.2f;
+}
+
+ChimeraMeleeFrontDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.9f;
+}
+
+ChimeraMeleeShockwaveDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.3f;
+}
+
+ChimeraMeleeShockwaveDamage02 : CombinedStatModifier
+{
+	statType = "BaseStats.ElectricDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.001f;
+}
+
+ChimeraRocketSplash : RangedAttack
+{
+	playerAttack = "Attacks.ChimeraProjectileSplash";
+	playerTimeDilated = "Attacks.ChimeraProjectileSplash";
+	NPCAttack = "Attacks.ChimeraProjectileSplash";
+	NPCTimeDilated = "Attacks.ChimeraProjectileSplash";
+}
+
+ChimeraRocketProjectile : Attack_Projectile
+{
+	userDataPath = "Attacks.PlasmaProjectile";
+	attackType = "AttackType.Ranged";
+	range = 200.0f;
+	projectileTemplateName = "chimera_projectile_splash";
+	float hitCooldown = 0.5f;
+	fk< StatModifier >[] statModifiers = [];
+}
+
+ChimeraProjectileSplash : Attack_Projectile
+{
+	userDataPath = "Attacks.ChimeraRocketProjectile";
+	attackType = "AttackType.Ranged";
+	range = 200.0f;
+	projectileTemplateName = "chimera_projectile_splash";
+	float hitCooldown = 0.5f;
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraProjectileSplashDamage"
+	];
+}
+
+ChimeraProjectileSplashDamage : CombinedStatModifier
+{
+	statType = "BaseStats.ThermalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.f;
+}
+
+ChimeraSplashExplosion : ChimeraExplosion
+{
+	attackType = "AttackType.Explosion";
+	effectName = "chimera_explosions";
+	effectTag = "chimera_rocket_explosion";
+	range = 5.f;
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraSplashExplosionDamage"
+	];
+}
+
+ChimeraSplashExplosionDamage : CombinedStatModifier
+{
+	statType = "BaseStats.ThermalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.5f;
+}
+
+ChimeraExplodingBullet : RangedAttack
+{
+	playerAttack = "Attacks.Chimera_Exploding_Bullet_GameEffect";
+	playerTimeDilated = "Attacks.ExplodingBulletProjectile";
+	NPCAttack = "Attacks.Chimera_Exploding_Bullet_GameEffect";
+	NPCTimeDilated = "Attacks.ExplodingBulletProjectile";
+	float hitCooldown = 0.1;
+}
+
+ChimeraLaserBeam : Attack_GameEffect
+{
+	userDataPath = "Attacks.PlasmaBeam";
+	className = "Attack_Beam";
+	attackType = "AttackType.Direct";
+	range = 200.0f;
+	float hitCooldown = 0.5f;
+	effectName = "chimera_beams";
+	effectTag = "plasmaBeamChimera_Near";
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraLaserBeamDamage"
+	];
+}
+
+ChimeraLaserBeamTop : Attack_GameEffect
+{
+	userDataPath = "Attacks.PlasmaBeam";
+	className = "Attack_Beam";
+	attackType = "AttackType.Direct";
+	range = 200.0f;
+	float hitCooldown = 0.5f;
+	effectName = "chimera_beams";
+	effectTag = "plasmaBeamChimera";
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraLaserBeamDamage"
+	];
+}
+
+ChimeraLaserBeamDamage : CombinedStatModifier
+{
+	statType = "BaseStats.ThermalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.67f;
+}
+
+ChimeraMetalstormBulletPackage : RangedAttackPackage
+{
+	defaultFire = "Attacks.ChimeraMetalstormPhysicalBullet";
+	chargeFire = "Attacks.ChimeraMetalstormPhysicalBullet";
+}
+
+ChimeraMetalstormPhysicalBullet : RangedAttack
+{
+	playerAttack = "Attacks.ChimeraMetalstormBulletEffect";
+	playerTimeDilated = "Attacks.ChimeraMetalstormBulletProjectile";
+	NPCAttack = "Attacks.ChimeraMetalstormBulletEffect";
+	NPCTimeDilated = "Attacks.ChimeraMetalstormBulletProjectile";
+}
+
+ChimeraMetalstormBulletEffect : Chimera_Bullet_GameEffect
+{
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMetalstormDamage"
+	];
+}
+
+ChimeraMetalstormBulletProjectile : Bullet_Projectile
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMetalstormDamage"
+	];
+}
+
+ChimeraMetalstormDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 0.075f;
+}
+
+ChimeraMetalstormExplodingBulletPackage : RangedAttackPackage
+{
+	defaultFire = "Attacks.ChimeraMetalstormPhysicalExplodingBullet";
+	chargeFire = "Attacks.ChimeraMetalstormPhysicalExplodingBullet";
+}
+
+ChimeraMetalstormPhysicalExplodingBullet : RangedAttack
+{
+	playerAttack = "Attacks.ChimeraMetalstormExplodingBulletEffect";
+	playerTimeDilated = "Attacks.ChimeraMetalstormExplodingBulletProjectile";
+	NPCAttack = "Attacks.ChimeraMetalstormExplodingBulletEffect";
+	NPCTimeDilated = "Attacks.ChimeraMetalstormExplodingBulletProjectile";
+}
+
+ChimeraMetalstormExplodingBulletEffect : Chimera_Exploding_Bullet_GameEffect
+{
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMetalstormExplodingDamage"
+	];
+}
+
+ChimeraMetalstormExplodingBulletProjectile : Bullet_Projectile
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMetalstormExplodingDamage"
+	];
+}
+
+ChimeraMetalstormExplodingDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 1.f;
+}
+
+ChimeraMetalstormRaiseSequenceEffect : Attack_GameEffect
+{
+	className = "Attack_Beam";
+	attackType = "AttackType.Direct";
+	range = 200.0f;
+	float hitCooldown = 0.5f;
+	effectName = "weaponShoot";
+	effectTag = "chimera_ray_raise_sequence";
+	hitFlags = 
+	[
+		"FriendlyFire"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		"Attacks.ChimeraMetalstormRaiseSequenceDamage"
+	];
+}
+
+ChimeraMetalstormRaiseSequenceDamage : CombinedStatModifier
+{
+	statType = "BaseStats.PhysicalDamage";
+	modifierType = "Additive";
+	refStat = "BaseStats.NPCDamage";
+	refObject = "Root";
+	opSymbol = "*";
+	value = 1.f;
+}
+
+ChimeraGasCloud : Attack_Melee
+{
+	userDataPath = "Attacks.ChimeraGasCloud";
+	className = "Attack_Continuous";
+	attackType = "AttackType.Direct";
+	float hitCooldown = 0.2f;
+	effectName = "chimera_dots";
+	effectTag = "default";
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ChemicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.NPCDamage";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+	damageType = "DamageTypes.Chemical";
+	hitFlags = 
+	[
+		"DamageOverTime"
+	];
+}
+

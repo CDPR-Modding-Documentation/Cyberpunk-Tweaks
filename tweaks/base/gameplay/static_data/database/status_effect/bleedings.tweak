@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Prereqs
+using RTDB, Prereqs, Effectors, Attacks
 
 Bleeding : DoTStatusEffect
 {
@@ -102,6 +102,131 @@ Bleeding : DoTStatusEffect
 	};
 }
 
+CocktailBleeding : Bleeding
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 16;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.PhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+MantisBladesGrandFinaleBleeding : Bleeding
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 12;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.HasDoubleJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodgeAir";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+			bool stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.LowPhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
 PlayerBleeding : Bleeding
 {
 	duration = 
@@ -185,7 +310,7 @@ KenjutsuBleeding : Bleeding
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 2;
+				value = 6;
 			} : ConstantStatModifier, 
 			{
 				statType = "BaseStats.MaxDuration";
@@ -270,6 +395,273 @@ NpcMeleeAttackBleeding : Bleeding
 				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
+	];
+}
+
+Tanto_Saburo_Bleeding : Bleeding
+{
+	packages = 
+	[
+		{
+			bool stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = 
+					{
+						hitFlags += 
+						[
+							"SaburoTanto"
+						];
+					} : VeryLowPhysicalDamageOverTime;
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Katana_Saburo_Bleeding : Bleeding
+{
+	packages = 
+	[
+		{
+			bool stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = 
+					{
+						hitFlags += 
+						[
+							"SaburoKatana"
+						];
+					} : VeryLowPhysicalDamageOverTime;
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Saburo_Hemorrhage : Bleeding
+{
+	immunityStats = [];
+	packages = 
+	[
+		{
+			bool stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.BleedingImmunity";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.HighPhysicalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					statusEffects = 
+					[
+						"BaseStatusEffect.Tanto_Saburo_Bleeding", "BaseStatusEffect.Katana_Saburo_Bleeding"
+					];
+				} : RemoveStatusEffectsEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.Defeated";
+								checkType = "CheckType.Type";
+							} : StatusEffectPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Equal";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : ORPrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.Saburo_Hemorrhage"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Reflexes_Master_Perk_5_Bleeding : Bleeding
+{
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.MaxStacksBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 6;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Instigator";
+				refStat = "BaseStats.DurationBonusBleeding";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						valueToCheck = 
+						[
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Additive";
+								value = 1.0f;
+							} : ConstantStatModifier
+						];
+						statPoolType = "Health";
+						comparisonType = "GreaterOrEqual";
+					} : StatPoolPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.PhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanSprint";
+					modifierType = "AdditiveMultiplier";
+					refObject = "Instigator";
+					refStat = "BaseStats.CanBleedingSlowTarget";
+					opSymbol = "*";
+					value = -1f;
+				} : CombinedStatModifier, 
+				{
+					statType = "BaseStats.DismHeadDamageThreshold";
+					modifierType = "Additive";
+					value = 75;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.DismLArmDamageThreshold";
+					modifierType = "Additive";
+					value = 25;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.DismRArmDamageThreshold";
+					modifierType = "Additive";
+					value = 25;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.DismLLegDamageThreshold";
+					modifierType = "Additive";
+					value = 25;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.DismRLegDamageThreshold";
+					modifierType = "Additive";
+					value = 25;
+				} : ConstantStatModifier
+			];
+		}
 	];
 }
 

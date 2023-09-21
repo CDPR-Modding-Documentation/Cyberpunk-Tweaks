@@ -11,7 +11,6 @@ Computer : Device
 	string deviceType = "masterComputer";
 	statModifiers += 
 	[
-		"NPCStatPreset.VeryHighHackingResistMod"
 	];
 }
 
@@ -28,7 +27,6 @@ SmartHouse : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -36,7 +34,6 @@ SmartWindow : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -49,7 +46,6 @@ SecurityAlarm : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -57,7 +53,6 @@ SecurityArea : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -65,7 +60,6 @@ SecuritySystem : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -81,21 +75,78 @@ SecurityTurret : Device
 			statType = "BaseStats.Health";
 			modifierType = "Additive";
 			id = "puppet_powerLevelToHealth";
-			column = "puppet_powerLevelToHealth";
+			column = "puppet_powerLevelToHealth_base";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
-			statType = "BaseStats.NPCDamage";
+			statType = "BaseStats.BonusHealth";
 			modifierType = "Additive";
+			id = "puppet_powerLevelToHealth";
+			column = "puppet_subdermalarmor_health_medium";
+			refObject = "Root";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Health";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.BonusHealth";
+			opSymbol = "*";
+			value = 1.f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.83333f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Armor";
+			modifierType = "Additive";
+			id = "puppet_powerLevelToHealth";
+			column = "puppet_subdermalarmor_armor_medium";
+			refObject = "Root";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Additive";
+			id = "puppet_accuracy";
+			column = "elite_puppet_accuracy";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "AdditiveMultiplier";
+			value = 0.2;
+		} : ConstantStatModifier, 
+		"AttackModifier.TurretMinTBH", "AttackModifier.TurretMinLineOfSight", {
+			statType = "BaseStats.DPS";
+			modifierType = "AdditiveMultiplier";
+			value = -0.4;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "AdditiveMultiplier";
+			value = -0.24;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
 			id = "puppet_powerLevelToDPS";
-			column = "puppet_powerLevelToDPS";
+			column = "turret_quality_to_dps_mult";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_intrinsic_levelToDPS";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.DPS";
-			modifierType = "Additive";
+			modifierType = "Multiplier";
 			id = "puppet_powerLevelToDPS";
-			column = "puppet_powerLevelToDPS";
+			column = "difficulty_to_turret_dps_mult";
 			refStat = "BaseStats.PowerLevel";
 		} : CurveStatModifier, 
 		{
@@ -103,32 +154,36 @@ SecurityTurret : Device
 			modifierType = "Additive";
 			value = 1;
 		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.TBHsBaseSourceMultiplierCoefficient";
+		"BaseStats.DeviceAudioStimRangeMultiplier", "BaseStats.DeviceVisualStimRangeMultiplier", {
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
 			modifierType = "Additive";
-			value = 0.4f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.Accuracy";
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.Health";
-			modifierType = "Multiplier";
-			value = 1.5;
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.NPCDamage";
-			modifierType = "Multiplier";
-			value = 1.5;
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Multiplier";
-			value = 1.5;
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
 		} : ConstantStatModifier, 
-		"BaseStats.DeviceAudioStimRangeMultiplier", "BaseStats.DeviceVisualStimRangeMultiplier", "NPCStatPreset.HighHackingResistMod"
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -137,9 +192,9 @@ SecurityTurret_Weak : SecurityTurret
 	statModifiers += 
 	[
 		{
-			statType = "BaseStats.NPCDamage";
+			statType = "BaseStats.DPS";
 			modifierType = "Multiplier";
-			value = 0.1;
+			value = 0.2;
 		} : ConstantStatModifier
 	];
 }
@@ -162,13 +217,13 @@ SecurityTurret_AlmostIndestructible : SecurityTurret
 	[
 		{
 			statType = "BaseStats.Health";
-			modifierType = "Additive";
-			value = 8000;
+			modifierType = "Multiplier";
+			value = 20;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.Armor";
 			modifierType = "Additive";
-			value = 2;
+			value = 200;
 		} : ConstantStatModifier
 	];
 }
@@ -179,20 +234,24 @@ SecurityTurret_Prevention : SecurityTurret
 	[
 		{
 			statType = "BaseStats.Health";
-			modifierType = "Additive";
-			value = 8000;
+			modifierType = "Multiplier";
+			value = 20;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.Armor";
 			modifierType = "Additive";
-			value = 2;
+			value = 200;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.NPCDamage";
-			modifierType = "Multiplier";
-			value = 10;
+			statType = "BaseStats.CycleTime";
+			modifierType = "Additive";
+			value = -0.05;
 		} : ConstantStatModifier, 
-		"NPCStatPreset.ExtremeHackingResistMod"
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 2;
+		} : ConstantStatModifier
 	];
 }
 
@@ -235,6 +294,93 @@ SecurityTurret_Smasher : SecurityTurret
 	];
 }
 
+SecurityTurret_Q305_Ambush : SecurityTurret
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Multiplier";
+			value = 0.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Multiplier";
+			value = 0.3;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamageAdditiveMultiplier";
+			modifierType = "Additive";
+			value = -0.8f;
+		} : ConstantStatModifier
+	];
+}
+
+SecurityTurret_Q306_Chopper : SecurityTurret
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DPS";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Additive";
+			id = "puppet_accuracy";
+			column = "elite_puppet_accuracy";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Accuracy";
+			modifierType = "Multiplier";
+			value = 2.5;
+		} : ConstantStatModifier, 
+		"AttackModifier.ChopperMinTBH", "AttackModifier.TurretMinLineOfSight", {
+			statType = "BaseStats.DPS";
+			modifierType = "AdditiveMultiplier";
+			value = -0.4;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "AdditiveMultiplier";
+			value = -0.24;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0.275;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "turret_quality_to_dps_mult";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_intrinsic_levelToDPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Detection";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		"BaseStats.DeviceAudioStimRangeMultiplier", "BaseStats.DeviceVisualStimRangeMultiplier"
+	];
+}
+
+SniperNest : SecurityTurret_AlmostIndestructible
+{
+}
+
 SurveillanceCamera : Device
 {
 	statModifiers = 
@@ -249,7 +395,36 @@ SurveillanceCamera : Device
 			modifierType = "Additive";
 			value = 1;
 		} : ConstantStatModifier, 
-		"BaseStats.DeviceAudioStimRangeMultiplier", "BaseStats.DeviceVisualStimRangeMultiplier"
+		"BaseStats.DeviceAudioStimRangeMultiplier", "BaseStats.DeviceVisualStimRangeMultiplier", {
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -274,7 +449,6 @@ RoadBlock : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.VeryHighHackingResistMod"
 	];
 }
 
@@ -282,7 +456,6 @@ MetalDetector : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.VeryHighHackingResistMod"
 	];
 }
 
@@ -290,7 +463,6 @@ PersonnelSystem : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -298,7 +470,6 @@ TrafficZebra : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -368,7 +539,6 @@ ConfessionBooth : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -489,7 +659,7 @@ DrugProductionStation : ExplosiveDevice
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod", {
+		{
 			statType = "BaseStats.PenetrationHealth";
 			modifierType = "Additive";
 			value = 1f;
@@ -501,10 +671,28 @@ Server : ExplosiveDevice
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod", {
+		{
 			statType = "BaseStats.PenetrationHealth";
 			modifierType = "Additive";
 			value = 4f;
+		} : ConstantStatModifier
+	];
+}
+
+[ DisabledContent ]
+ServerQ305 : ExplosiveDevice
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PenetrationHealth";
+			modifierType = "Additive";
+			value = 5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Health";
+			modifierType = "Additive";
+			value = 500f;
 		} : ConstantStatModifier
 	];
 }
@@ -814,7 +1002,6 @@ BraindanceHeadset : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -822,7 +1009,6 @@ NetrunnerChair : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.VeryHighHackingResistMod"
 	];
 }
 
@@ -846,7 +1032,6 @@ PachinkoMachine : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.VeryHighHackingResistMod"
 	];
 }
 
@@ -874,7 +1059,6 @@ Router : AccessPoint
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -882,7 +1066,6 @@ WeaponLocker : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -890,7 +1073,6 @@ BodyScanner : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 
@@ -898,7 +1080,6 @@ SecurityHolotape : Device
 {
 	statModifiers += 
 	[
-		"NPCStatPreset.HighHackingResistMod"
 	];
 }
 

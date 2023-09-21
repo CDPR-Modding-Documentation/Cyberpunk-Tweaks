@@ -1,5 +1,5 @@
 package DroneStatusEffectActions
-using RTDB
+using RTDB, StatusEffectActions
 
 SE_Blind : AIActionSelector
 {
@@ -241,13 +241,7 @@ SE_CommsCallIn : AIAction
 {
 	activationCondition = 
 	{
-		condition = 
-		{
-			OR = 
-			[
-				"Condition.StatusEffectCommsCallIn", "Condition.StatusEffectCommsCallInLevel3"
-			];
-		} : AIActionOR;
+		condition = "Condition.StatusEffectCommsCallIn";
 	};
 	loop = 
 	{
@@ -256,12 +250,9 @@ SE_CommsCallIn : AIAction
 	loopSubActions = 
 	[
 		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.Call";
-			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
+			useCommsCallLogic = true;
 			delay = -1.f;
-		} : AISubActionTriggerStim, 
+		} : AISubActionCallSquadSearchBackUp, 
 		{
 			name = "danger";
 		} : AISubActionPlayVoiceOver, 
@@ -278,27 +269,42 @@ SE_CommsCallIn : AIAction
 	};
 }
 
-SE_CommsCallInCombat : SE_CommsCallIn
+SE_CommsCallInMalfunctionLights : StatusEffectActions.SE_CommsCallInWait
+{
+	subActions = 
+	[
+		{
+			lightPreset = "MechanicalLightPreset.Malfunction";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_CommsCallOut : AIAction
 {
 	activationCondition = 
 	{
 		condition = 
 		{
-			OR = 
+			AND = 
 			[
-				"Condition.StatusEffectCommsCallInLevel3"
+				"Condition.StatusEffectCommsCallOutOnCommsNoise", "Condition.StatusEffectTypeCommsNoise"
 			];
-		} : AIActionOR;
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 4.f;
 	};
 	loopSubActions = 
 	[
 		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.CombatCall";
-			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
+			useCommsCallLogic = true;
+			invert = true;
 			delay = -1.f;
-		} : AISubActionTriggerStim, 
+		} : AISubActionCallSquadSearchBackUp, 
+		{
+			lightPreset = "MechanicalLightPreset.ReactToStimuli";
+		} : AISubActionActivateLightPreset, 
 		{
 			name = "danger";
 		} : AISubActionPlayVoiceOver, 
@@ -306,24 +312,20 @@ SE_CommsCallInCombat : SE_CommsCallIn
 			name = "hacks_overload";
 		} : AISubActionSpawnFX
 	];
+	animData = 
+	{
+		animFeature = "SE_DroneEMP";
+		animSlot = 
+		{
+		};
+	};
 }
 
 SE_Whistle : AIAction
 {
 	activationCondition = 
 	{
-		condition = 
-		{
-			OR = 
-			[
-				"Condition.StatusEffectWhistle", "Condition.StatusEffectWhistleLvl2", {
-					AND = 
-					[
-						"Condition.StatusEffectWhistleLvl3", "Condition.NotInStatesCombat"
-					];
-				} : AIActionAND
-			];
-		} : AIActionOR;
+		condition = "Condition.StatusEffectWhistle";
 	};
 	loop = 
 	{
@@ -335,6 +337,7 @@ SE_Whistle : AIAction
 			stimSource = "AIActionTarget.Player";
 			stimType = "StimTypes.Whistle";
 			direct = true;
+			purelyDirect = true;
 			target = "AIActionTarget.Owner";
 			delay = -1.f;
 		} : AISubActionTriggerStim, 
@@ -354,65 +357,6 @@ SE_Whistle : AIAction
 		animSlot = 
 		{
 		};
-	};
-}
-
-SE_CombatWhistle : SE_Whistle
-{
-	activationCondition = 
-	{
-		condition = 
-		{
-			OR = 
-			[
-				"Condition.StatusEffectWhistleLvl3"
-			];
-		} : AIActionOR;
-	};
-	loop = 
-	{
-		duration = 4.f;
-	};
-	loopSubActions = 
-	[
-		{
-			lightPreset = "MechanicalLightPreset.ReactToStimuli";
-		} : AISubActionActivateLightPreset, 
-		{
-			name = "danger";
-		} : AISubActionPlayVoiceOver, 
-		{
-			name = "hacks_overload";
-		} : AISubActionSpawnFX
-	];
-	animData = 
-	{
-		animFeature = "SE_DroneEMP";
-		animSlot = 
-		{
-		};
-	};
-}
-
-SE_CommsCallInMalfunctionLights : AIAction
-{
-	loop = 
-	{
-		duration = 7.f;
-	};
-	subActions = 
-	[
-		{
-			lightPreset = "MechanicalLightPreset.MalfunctionShort";
-		} : AISubActionActivateLightPreset
-	];
-}
-
-SE_CommsCallOut : AIAction
-{
-	loop = 
-	{
-		duration = 0.1f;
 	};
 }
 
@@ -586,7 +530,7 @@ SE_WeaponJammedSelector : AIActionSelector
 	];
 }
 
-SE_WeaponJammedWithExplosion : SE_WeaponJammed
+SE_WeaponJammedWithExplosion : DroneStatusEffectActions.SE_WeaponJammed
 {
 	activationCondition = 
 	{

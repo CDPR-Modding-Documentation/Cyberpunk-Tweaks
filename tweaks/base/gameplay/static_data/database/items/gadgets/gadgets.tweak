@@ -15,14 +15,6 @@ GrenadeBlueprint : ItemBlueprint
 	};
 }
 
-GrenadeDamageMod : CurveStatModifier
-{
-	modifierType = "Additive";
-	id = "explosions";
-	column = "power_level_to_grenade_damage";
-	refStat = "BaseStats.PowerLevel";
-}
-
 [ notQueryable ]
 GrenadeWithDeliveryMethods : Grenade
 {
@@ -39,6 +31,9 @@ GrenadeWithDeliveryMethods : Grenade
 				}, 
 				{
 					item = "Items.w_flash_core";
+				}, 
+				{
+					item = "Items.w_smoke_core";
 				}, 
 				{
 					item = "Items.w_emp_core";
@@ -78,16 +73,24 @@ GrenadeWithDeliveryMethods : Grenade
 	waterSurfaceImpactImpulseStrength = 0.01f;
 	waterDetonationImpulseRadiusCoef = 0.5f;
 	waterDetonationImpulseStrength = 0.002f;
-	statModifiers += 
-	[
-		"Character.ScaleToPlayerLevel"
-	];
 	tags += 
 	[
-		"Preload"
+		"Preload", "SkipActivityLogOnRemove"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Multiplier";
+			refObject = "Player";
+			refStat = "BaseStats.GrenadeExplosionBonusRange";
+			opSymbol = "*";
+			value = 1;
+		} : CombinedStatModifier
 	];
 }
 
+[ notQueryable ]
 GrenadeCore : ItemWeaponChild
 {
 	fk< ItemType > itemType = "ItemType.Prt_GrenadeCore";
@@ -97,6 +100,7 @@ GrenadeCore : ItemWeaponChild
 	];
 }
 
+[ notQueryable ]
 GrenadeDelivery : ItemWeaponChild
 {
 	fk< ItemType > itemType = "ItemType.Prt_DeliveryMethod";
@@ -116,6 +120,12 @@ w_flash_core : GrenadeCore
 {
 	string friendlyName = "w_flash_core";
 	CName appearanceResourceName = "w_flash_core";
+}
+
+w_smoke_core : GrenadeCore
+{
+	string friendlyName = "w_smoke_core";
+	CName appearanceResourceName = "w_smoke_core";
 }
 
 w_emp_core : GrenadeCore
@@ -171,31 +181,26 @@ Preset_Grenade_Frag_Default : GrenadeWithDeliveryMethods
 {
 	friendlyName = "frag";
 	appearanceResourceName = "Preset_Grenade_Frag_Default";
-	tags += 
+	buyPrice += 
 	[
-		"Disassemblable", "FragGrenade"
+		"Price.DamageGrenade"
 	];
+	displayName = "LocKey#5163";
+	localizedDescription = "LocKey#5179";
+	iconPath = "grenade_frag_normal";
+	deliveryMethod = 
+	{
+	} : RegularGDM;
 	detonationSound = "exploded";
 	detonationStimRadius = 40.f;
 	underwaterDetonationStimRadius = 35.f;
 	detonationStimType = "StimTypes.Explosion";
+	attackRadius = 0.25f;
 	waterDetonationImpulseStrength = 0.005f;
+	sinkingDetonationDelay = 3.f;
 	shallowWaterAttack = "Attacks.FragGrenadeUnderwaterShallow";
 	deepWaterAttack = "Attacks.FragGrenadeUnderwaterDeep";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
+	enhancedPerkAttack = "Attacks.PerkShotFragGrenade";
 	visualTags = 
 	[
 		"Default"
@@ -211,79 +216,286 @@ Preset_Grenade_Frag_Default : GrenadeWithDeliveryMethods
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
-			column = "engineering_to_grenade_dmg";
-		} : EngineeringPassive, 
+			modifierType = "Additive";
+			value = 135f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.PhysicalDamage";
 			modifierType = "Multiplier";
-			value = 1.05f;
-		} : ConstantStatModifier, 
+			refObject = "Player";
+			refStat = "BaseStats.GrenadeExplosionBonusDamage";
+			opSymbol = "*";
+			value = 1;
+		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			value = 4.f;
+			value = 4f;
 		} : ConstantStatModifier, 
 		{
-			float value = 30.f;
-		} : PhysicalImpulseModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			refObject = "Player";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.CanPlayerBoostGrenades";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
+			float value = 15.f;
+		} : PhysicalImpulseModifier
 	];
 }
 
-GrenadeFragRegular : Preset_Grenade_Frag_Default
+[ notQueryable ]
+FragGrenades : Preset_Grenade_Frag_Default
 {
-	displayName = "LocKey#5163";
-	localizedDescription = "LocKey#5179";
-	iconPath = "grenade_frag_normal";
 	tags += 
 	[
-		"OnlyBaseQuality"
+		"FragGrenade"
 	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94489";
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeFragRegular : FragGrenades
+{
 	quality = "Quality.Common";
-	attack = "Attacks.FragGrenade";
+	attack = "Attacks.CommonFragGrenade";
+	detonationStimRadius = 30.f;
+	sinkingDetonationDelay = 2.f;
+	tags += 
+	[
+		"Common"
+	];
+}
+
+[ notQueryable ]
+NPCGrenadeFragRegular : FragGrenades
+{
+	quality = "Quality.Common";
+	attack = "Attacks.NPCFragGrenade";
+	detonationStimRadius = 30.f;
+	sinkingDetonationDelay = 2.f;
+	tags += 
+	[
+		"Common"
+	];
+}
+
+[ notQueryable ]
+GrenadeFragRegular_VeryHard : FragGrenades
+{
+	quality = "Quality.Common";
+	attack = "Attacks.NPCFragGrenade";
+	detonationStimRadius = 30.f;
+	sinkingDetonationDelay = 2.f;
 	deliveryMethod = 
 	{
-		detonationTimer = 2.f;
+		detonationTimer = 4.f;
+		type = "GrenadeDeliveryMethodTypes.Regular";
 	} : RegularGDM;
-	sinkingDetonationDelay = 2.f;
+	tags += 
+	[
+		"Common"
+	];
+}
+
+GrenadeFragCommonPlus : GrenadeFragRegular
+{
+	quality = "Quality.CommonPlus";
+	tags += 
+	[
+		"CommonPlus"
+	];
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
+			modifierType = "Multiplier";
+			value = 1.24f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeFragUncommon : FragGrenades
+{
+	quality = "Quality.Uncommon";
+	attack = "Attacks.UncommonFragGrenade";
+	tags += 
+	[
+		"Uncommon"
+	];
+	statModifiers += 
+	[
 		{
 			statType = "BaseStats.PhysicalDamage";
-		} : GrenadeDamageMod
+			modifierType = "Multiplier";
+			value = 1.3f;
+		} : ConstantStatModifier
 	];
-	fk< CraftingPackage > CraftingData = 
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+}
+
+GrenadeFragUncommonPlus : GrenadeFragUncommon
+{
+	quality = "Quality.UncommonPlus";
+	tags += 
+	[
+		"UncommonPlus"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.27f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeFragSticky : FragGrenades
+{
+	quality = "Quality.Rare";
+	attack = "Attacks.FragGrenade";
+	tags += 
+	[
+		"Rare"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.9f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.RareGrenadeCraftingData";
+}
+
+GrenadeFragRarePlus : GrenadeFragSticky
+{
+	quality = "Quality.RarePlus";
+	tags += 
+	[
+		"RarePlus"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.156f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeFragEpic : FragGrenades
+{
+	quality = "Quality.Epic";
+	attack = "Attacks.EpicFragGrenade";
+	tags += 
+	[
+		"Epic"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 2.6f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+}
+
+GrenadeFragEpicPlus : GrenadeFragEpic
+{
+	quality = "Quality.EpicPlus";
+	tags += 
+	[
+		"EpicPlus"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.22f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeFragLegendary : FragGrenades
+{
+	quality = "Quality.Legendary";
+	attack = "Attacks.LegendaryFragGrenade";
+	tags += 
+	[
+		"Legendary"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 3.4f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+}
+
+GrenadeFragLegendaryPlus : GrenadeFragLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 1.209f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeOzobsNose : Preset_Grenade_Frag_Default
+{
+	displayName = "LocKey#51646";
+	localizedDescription = "LocKey#51647";
+	appearanceResourceName = "Preset_Grenade_Frag_Ozob";
+	iconPath = "ozobs_nose_grenade";
+	quality = "Quality.Legendary";
+	tags += 
+	[
+		"Ozob", "Legendary"
+	];
+	npcHitReactionAttack = "Attacks.GrenadeImpactOnNPC";
+	attack = "Attacks.OzobGrenade";
+	detonationStimRadius = 45.f;
+	deliveryMethod = 
 	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 8;
-			}
-		];
-	};
+	} : RegularGDM;
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 3.4f;
+		} : ConstantStatModifier, 
+		{
+			float value = 30.f;
+		} : PhysicalImpulseModifier, 
+		"Quality.IconicItem"
+	];
 }
 
 [ notQueryable ]
@@ -296,133 +508,15 @@ GrenadeFragRegularHack : GrenadeFragRegular
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
-			refObject = "Player";
-		} : Attacks.HackBaseDamage, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			refObject = "Player";
-		} : Attacks.HackBonusDamage, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Multiplier";
-			value = 1.1f;
-		} : ConstantStatModifier
-	];
-}
-
-GrenadeFragSticky : Preset_Grenade_Frag_Default
-{
-	displayName = "LocKey#5163";
-	localizedDescription = "LocKey#5179";
-	iconPath = "grenade_frag_sticky";
-	quality = "Quality.Uncommon";
-	tags += 
-	[
-		"OnlyBaseQuality"
-	];
-	attack = "Attacks.FragGrenade";
-	deliveryMethod = 
-	{
-	} : StickyGDM;
-	sinkingDetonationDelay = 3.f;
-	bool setStickyTracker = true;
-	float stickyTrackerTimeout = 15.f;
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_sticky_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.PhysicalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 4;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 4;
-			}
-		];
-	};
-}
-
-GrenadeFragHoming : Preset_Grenade_Frag_Default
-{
-	displayName = "LocKey#5163";
-	localizedDescription = "LocKey#5179";
-	iconPath = "grenade_frag_homing_2_Techtronika2";
-	quality = "Quality.Rare";
-	attack = "Attacks.FragGrenade";
-	deliveryMethod = 
-	{
-		trackingRadius = 15.f;
-		bounciness = 0.5f;
-		freezeDelay = 0.7f;
-	} : HomingGDM;
-	sinkingDetonationDelay = 3.f;
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_homing_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
+			modifierType = "Additive";
+			value = 150;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			value = 3f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.CanPlayerBoostGrenades";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
+			value = 1f;
+		} : ConstantStatModifier
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 4;
-			}
-		];
-	};
 }
 
 [ notQueryable ]
@@ -432,8 +526,19 @@ Preset_Grenade_Flash_Default : GrenadeWithDeliveryMethods
 	appearanceResourceName = "Preset_Grenade_Flash_Default";
 	tags += 
 	[
-		"Disassemblable", "FlashGrenade"
+		"FlashGrenade"
 	];
+	buyPrice += 
+	[
+		"Price.EffectGrenade"
+	];
+	displayName = "LocKey#5166";
+	localizedDescription = "LocKey#5182";
+	iconPath = "grenade_flash_normal";
+	deliveryMethod = 
+	{
+		detonationTimer = 1.75f;
+	} : RegularGDM;
 	detonationSound = "exploded";
 	detonationStimRadius = 25.f;
 	underwaterDetonationStimRadius = 3.f;
@@ -442,21 +547,7 @@ Preset_Grenade_Flash_Default : GrenadeWithDeliveryMethods
 	shallowWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	bool additionalAttackOnDetonate = true;
-	additionalAttack = "Attacks.FlashbangMinorFlash";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
+	enhancedPerkAttack = "Attacks.PerkShotFlashbangGrenade";
 	visualTags = 
 	[
 		"Default"
@@ -468,23 +559,200 @@ Preset_Grenade_Flash_Default : GrenadeWithDeliveryMethods
 			fk< Item > itemPartPreset = "Items.w_flash_core";
 		}
 	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 7f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 0.f;
+		} : ConstantStatModifier
+	];
 }
 
+[ notQueryable ]
 GrenadeFlashRegular : Preset_Grenade_Flash_Default
 {
-	displayName = "LocKey#5166";
-	localizedDescription = "LocKey#5182";
-	iconPath = "grenade_flash_normal";
+	quality = "Quality.Common";
+	attack = "Attacks.FlashbangGrenadeCommon";
 	tags += 
 	[
-		"OnlyBaseQuality"
+		"Common"
 	];
-	quality = "Quality.Common";
-	attack = "Attacks.FlashbangGrenadeMinor";
-	deliveryMethod = 
-	{
-		detonationTimer = 2.f;
-	} : RegularGDM;
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					3
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					20, 5
+				];
+			};
+		}
+	];
+}
+
+GrenadeFlashCommonPlus : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.CommonPlus";
+	attack = "Attacks.FlashbangGrenadeCommonPlus";
+	tags += 
+	[
+		"CommonPlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					4
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					20, 5
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeFlashUncommon : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.Uncommon";
+	attack = "Attacks.FlashbangGrenadeUncommon";
+	tags += 
+	[
+		"Uncommon"
+	];
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					4
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					40, 7
+				];
+			};
+		}
+	];
+}
+
+GrenadeFlashUncommonPlus : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.UncommonPlus";
+	attack = "Attacks.FlashbangGrenadeUncommonPlus";
+	tags += 
+	[
+		"UncommonPlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					5
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					40, 7
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeFlashHoming : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.Rare";
+	attack = "Attacks.FlashbangGrenadeRare";
+	detonationStimRadius = 30.f;
+	tags += 
+	[
+		"Rare"
+	];
+	CraftingData = "Items.RareGrenadeCraftingData";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					5
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					60, 9
+				];
+			};
+		}
+	];
+}
+
+GrenadeFlashRarePlus : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.RarePlus";
+	attack = "Attacks.FlashbangGrenadeRarePlus";
+	tags += 
+	[
+		"RarePlus"
+	];
 	OnEquip = 
 	[
 		{
@@ -496,26 +764,154 @@ GrenadeFlashRegular : Preset_Grenade_Flash_Default
 					6
 				];
 			};
-		} : GameplayLogicPackage
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					60, 9
+				];
+			};
+		}
 	];
-	fk< StatModifier >[] statModifiers += 
+}
+
+[ notQueryable ]
+GrenadeFlashEpic : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.Epic";
+	attack = "Attacks.FlashbangGrenadeEpic";
+	tags += 
+	[
+		"Epic"
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+	OnEquip = 
 	[
 		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 6f;
-		} : ConstantStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
+			UIData = 
 			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 8;
-			}
-		];
-	};
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					80, 12
+				];
+			};
+		}
+	];
+}
+
+GrenadeFlashEpicPlus : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.EpicPlus";
+	attack = "Attacks.FlashbangGrenadeEpicPlus";
+	tags += 
+	[
+		"EpicPlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					8
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					80, 12
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeFlashLegendary : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.Legendary";
+	attack = "Attacks.FlashbangGrenadeLegendary";
+	tags += 
+	[
+		"Legendary"
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					9
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					90, 15
+				];
+			};
+		}
+	];
+}
+
+GrenadeFlashLegendaryPlus : Preset_Grenade_Flash_Default
+{
+	quality = "Quality.LegendaryPlus";
+	attack = "Attacks.FlashbangGrenadeLegendaryPlus";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34280";
+				intValues = 
+				[
+					12
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91485";
+				intValues = 
+				[
+					90, 15
+				];
+			};
+		}
+	];
 }
 
 [ notQueryable ]
@@ -524,71 +920,275 @@ GrenadeFlashRegularHack : GrenadeFlashRegular
 	attack = "Attacks.FlashbangGrenadeRegularHack";
 }
 
-GrenadeFlashHoming : Preset_Grenade_Flash_Default
+[ notQueryable ]
+Preset_Grenade_Smoke_Default : GrenadeWithDeliveryMethods
 {
-	displayName = "LocKey#5166";
-	localizedDescription = "LocKey#5182";
-	iconPath = "grenade_flash_homing_2_militech";
-	quality = "Quality.Rare";
-	attack = "Attacks.FlashbangGrenadeMinor";
-	deliveryMethod = 
-	{
-		trackingRadius = 15.f;
-		bounciness = 0.5f;
-		freezeDelay = 0.7f;
-	} : HomingGDM;
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	friendlyName = "smoke";
+	appearanceResourceName = "Preset_Grenade_Smoke_Default";
+	visualTags = 
+	[
+		"Default"
+	];
+	tags += 
+	[
+		"SmokeGrenade"
+	];
+	buyPrice += 
+	[
+		"Price.EffectGrenade"
+	];
+	detonationSound = "grenade_biohazard";
+	detonationStimRadius = 25.f;
+	underwaterDetonationStimRadius = 3.f;
+	detonationStimType = "StimTypes.DeviceExplosion";
+	underwaterDetonationRumbleName = "light_slow";
+	shootCollisionEnableDelay = -1.f;
+	shallowWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
+	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
+	releaseOnDetonation = false;
+	removeMeshOnDetonation = false;
+	float smokeEffectRadius = 4.f;
+	float smokeEffectDuration = 15.f;
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_homing_delivery";
+			slot = "AttachmentSlots.GrenadeCore";
+			fk< Item > itemPartPreset = "Items.w_smoke_core";
 		}
 	];
+}
+
+[ notQueryable ]
+GrenadeSmokeRegular : Preset_Grenade_Smoke_Default
+{
+	displayName = "LocKey#82583";
+	localizedDescription = "LocKey#82584";
+	iconPath = "grenade_smoke_normal";
+	quality = "Quality.Uncommon";
+	tags += 
+	[
+		"Uncommon"
+	];
+	attack = "Attacks.SmokeExplosion";
+	deliveryMethod = 
+	{
+		detonationTimer = 2.f;
+	} : RegularGDM;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 4f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+	smokeEffectDuration = 5.f;
 	OnEquip = 
 	[
 		{
 			UIData = 
 			{
-				localizedDescription = "LocKey#34280";
-				intValues = 
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					5
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeSmokeUncommonPlus : GrenadeSmokeRegular
+{
+	quality = "Quality.UncommonPlus";
+	tags += 
+	[
+		"UncommonPlus"
+	];
+	smokeEffectDuration = 6.f;
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94170";
+				floatValues = 
 				[
 					6
 				];
 			};
 		}
 	];
-	fk< StatModifier >[] statModifiers += 
+}
+
+[ notQueryable ]
+GrenadeSmokeRare : GrenadeSmokeRegular
+{
+	quality = "Quality.Rare";
+	tags += 
+	[
+		"Rare"
+	];
+	CraftingData = "Items.RareGrenadeCraftingData";
+	smokeEffectDuration = 7.f;
+	OnEquip = 
 	[
 		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 6f;
-		} : ConstantStatModifier
+			UIData = 
+			{
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					7
+				];
+			};
+		}
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
+}
+
+[ notQueryable ]
+GrenadeSmokeRarePlus : GrenadeSmokeRegular
+{
+	quality = "Quality.RarePlus";
+	tags += 
+	[
+		"RarePlus"
+	];
+	smokeEffectDuration = 8f;
+	OnEquip = 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 3;
-			}, 
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					8
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeSmokeEpic : GrenadeSmokeRegular
+{
+	quality = "Quality.Epic";
+	tags += 
+	[
+		"Epic"
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+	smokeEffectDuration = 9.f;
+	OnEquip = 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.RareMaterial1";
-				amount = 4;
-			}
-		];
-	};
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					9
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeSmokeEpicPlus : GrenadeSmokeRegular
+{
+	quality = "Quality.EpicPlus";
+	tags += 
+	[
+		"EpicPlus"
+	];
+	smokeEffectDuration = 10f;
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					10
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeSmokeLegendary : GrenadeSmokeRegular
+{
+	quality = "Quality.Legendary";
+	tags += 
+	[
+		"Legendary"
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	smokeEffectDuration = 12.f;
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					12
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeSmokeLegendaryPlus : GrenadeSmokeRegular
+{
+	quality = "Quality.LegendaryPlus";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
+	smokeEffectDuration = 15f;
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94170";
+				floatValues = 
+				[
+					15
+				];
+			};
+		}
+	];
 }
 
 [ notQueryable ]
 Preset_Grenade_EMP_Default : GrenadeWithDeliveryMethods
 {
+	displayName = "LocKey#5169";
+	localizedDescription = "LocKey#5185";
+	iconPath = "grenade_emp_normal";
+	deliveryMethod = 
+	{
+	} : RegularGDM;
+	bool additionalAttackOnDetonate = true;
 	friendlyName = "emp";
 	appearanceResourceName = "Preset_Grenade_EMP_Default";
 	tags += 
 	[
-		"Disassemblable", "EMPGrenade"
+		"EMPGrenade"
+	];
+	buyPrice += 
+	[
+		"Price.DamageGrenade"
 	];
 	visualTags = 
 	[
@@ -599,6 +1199,9 @@ Preset_Grenade_EMP_Default : GrenadeWithDeliveryMethods
 	underwaterDetonationStimRadius = 3.f;
 	detonationStimType = "StimTypes.Explosion";
 	underwaterDetonationRumbleName = "light_slow";
+	attackRadius = 3.0f;
+	attackDuration = 0.8f;
+	enhancedPerkAttack = "Attacks.PerkShotEMPGrenade";
 	shallowWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
@@ -608,71 +1211,8 @@ Preset_Grenade_EMP_Default : GrenadeWithDeliveryMethods
 			fk< Item > itemPartPreset = "Items.w_emp_core";
 		}
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			refObject = "Player";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.CanPlayerBoostGrenades";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ElectricDamage";
-			modifierType = "Multiplier";
-			value = 0.4f;
-		} : ConstantStatModifier, 
-		{
-			float value = 30.f;
-		} : PhysicalImpulseModifier
-	];
-}
-
-GrenadeEMPRegular : Preset_Grenade_EMP_Default
-{
-	displayName = "LocKey#5169";
-	localizedDescription = "LocKey#5185";
-	iconPath = "grenade_emp_normal";
-	quality = "Quality.Uncommon";
-	tags += 
-	[
-		"OnlyBaseQuality"
-	];
-	attack = "Attacks.EMPGrenade";
-	deliveryMethod = 
-	{
-		detonationTimer = 2.f;
-	} : RegularGDM;
 	OnEquip = 
 	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
 		{
 			UIData = 
 			{
@@ -682,39 +1222,294 @@ GrenadeEMPRegular : Preset_Grenade_EMP_Default
 					5
 				];
 			};
-		} : GameplayLogicPackage
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94169";
+			};
+		}
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 4;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 4;
-			}
-		];
-	};
-	fk< StatModifier >[] statModifiers += 
+	statModifiers += 
 	[
 		{
-			statType = "BaseStats.Range";
+			statType = "BaseStats.ElectricDamage";
 			modifierType = "Additive";
-			value = 4f;
+			value = 55f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ElectricDamage";
-		} : GrenadeDamageMod, 
+			modifierType = "Multiplier";
+			refObject = "Player";
+			refStat = "BaseStats.GrenadeExplosionBonusDamage";
+			opSymbol = "*";
+			value = 1;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 3f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeEMPRegular : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Common";
+	attack = "Attacks.EMPGrenadeCommon";
+	tags += 
+	[
+		"Common"
+	];
+}
+
+[ notQueryable ]
+NPCGrenadeEMPRegular : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Common";
+	attack = "Attacks.EMPGrenadeNPC";
+	tags += 
+	[
+		"Common"
+	];
+}
+
+GrenadeEMPCommonPlus : GrenadeEMPRegular
+{
+	quality = "Quality.CommonPlus";
+	attack = "Attacks.EMPGrenadeCommon";
+	tags += 
+	[
+		"CommonPlus"
+	];
+	statModifiers += 
+	[
 		{
 			statType = "BaseStats.ElectricDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
+			modifierType = "Multiplier";
+			value = 1.24f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeEMPRegular_VeryHard : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Common";
+	attack = "Attacks.EMPGrenadeNPC";
+	tags += 
+	[
+		"Common"
+	];
+	deliveryMethod = 
+	{
+		detonationTimer = 4.f;
+		type = "GrenadeDeliveryMethodTypes.Regular";
+	} : RegularGDM;
+}
+
+[ notQueryable ]
+GrenadeEMPUncommon : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Uncommon";
+	attack = "Attacks.EMPGrenadeUncommon";
+	tags += 
+	[
+		"Uncommon"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.3f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+	OnEquip += 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94168";
+				floatValues = 
+				[
+					10
+				];
+			};
+		}
+	];
+}
+
+GrenadeEMPUncommonPlus : GrenadeEMPUncommon
+{
+	quality = "Quality.UncommonPlus";
+	attack = "Attacks.EMPGrenadeUncommon";
+	tags += 
+	[
+		"UncommonPlus"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.27f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeEMPRare : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Rare";
+	tags += 
+	[
+		"Rare"
+	];
+	attack = "Attacks.EMPGrenadeRare";
+	CraftingData = "Items.RareGrenadeCraftingData";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.9f;
+		} : ConstantStatModifier
+	];
+	OnEquip += 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94168";
+				floatValues = 
+				[
+					10
+				];
+			};
+		}
+	];
+}
+
+GrenadeEMPRarePlus : GrenadeEMPRare
+{
+	quality = "Quality.RarePlus";
+	attack = "Attacks.EMPGrenadeRare";
+	tags += 
+	[
+		"RarePlus"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.156f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeEMPSticky : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Epic";
+	attack = "Attacks.EMPGrenadeEpic";
+	tags += 
+	[
+		"Epic"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 2.6f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+	OnEquip += 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94168";
+				floatValues = 
+				[
+					20
+				];
+			};
+		}
+	];
+}
+
+GrenadeEMPEpicPlus : GrenadeEMPSticky
+{
+	quality = "Quality.EpicPlus";
+	attack = "Attacks.EMPGrenadeEpic";
+	tags += 
+	[
+		"EpicPlus"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.22f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeEMPLegendary : Preset_Grenade_EMP_Default
+{
+	quality = "Quality.Legendary";
+	tags += 
+	[
+		"Legendary"
+	];
+	attack = "Attacks.EMPGrenadeLegendary";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 3.4f;
+		} : ConstantStatModifier
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	OnEquip += 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94168";
+				floatValues = 
+				[
+					20
+				];
+			};
+		}
+	];
+}
+
+GrenadeEMPLegendaryPlus : GrenadeEMPLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	attack = "Attacks.EMPGrenadeLegendary";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Multiplier";
+			value = 1.209f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -726,12 +1521,9 @@ GrenadeEMPRegularHack : GrenadeEMPRegular
 	[
 		{
 			statType = "BaseStats.ElectricDamage";
-			refObject = "Player";
-		} : Attacks.HackBaseDamage, 
-		{
-			statType = "BaseStats.ElectricDamage";
-			refObject = "Player";
-		} : Attacks.HackBonusDamage, 
+			modifierType = "Additive";
+			value = 60f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ElectricDamage";
 			modifierType = "Multiplier";
@@ -740,189 +1532,39 @@ GrenadeEMPRegularHack : GrenadeEMPRegular
 	];
 }
 
-GrenadeEMPSticky : Preset_Grenade_EMP_Default
-{
-	displayName = "LocKey#5169";
-	localizedDescription = "LocKey#5185";
-	iconPath = "grenade_emp_sticky";
-	quality = "Quality.Rare";
-	attack = "Attacks.EMPGrenade";
-	deliveryMethod = 
-	{
-	} : StickyGDM;
-	bool setStickyTracker = true;
-	float stickyTrackerTimeout = 15.f;
-	OnEquip = 
-	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34285";
-				intValues = 
-				[
-					5
-				];
-			};
-		} : GameplayLogicPackage
-	];
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_sticky_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 4f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.ElectricDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.ElectricDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 4;
-			}
-		];
-	};
-}
-
-GrenadeEMPHoming : Preset_Grenade_EMP_Default
-{
-	displayName = "LocKey#5169";
-	localizedDescription = "LocKey#5185";
-	iconPath = "grenade_emp_homing_2_tsunami";
-	quality = "Quality.Epic";
-	attack = "Attacks.EMPGrenade";
-	deliveryMethod = 
-	{
-		trackingRadius = 15.f;
-		bounciness = 0.5f;
-		freezeDelay = 0.7f;
-	} : HomingGDM;
-	OnEquip = 
-	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34285";
-				intValues = 
-				[
-					5
-				];
-			};
-		}
-	];
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_homing_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 4f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.ElectricDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.ElectricDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 2;
-			}
-		];
-	};
-}
-
 [ notQueryable ]
 Preset_Grenade_Biohazard_Default : GrenadeWithDeliveryMethods
 {
+	displayName = "LocKey#17913";
+	localizedDescription = "LocKey#17914";
+	iconPath = "grenade_biohazard_normal";
 	friendlyName = "biohazard";
 	appearanceResourceName = "Preset_Grenade_Biohazard_Default";
 	tags += 
 	[
-		"Disassemblable", "BiohazardGrenade"
+		"BiohazardGrenade"
+	];
+	buyPrice += 
+	[
+		"Price.DamageGrenade"
 	];
 	visualTags = 
 	[
 		"Default"
 	];
 	detonationSound = "";
-	detonationStimRadius = 30.f;
+	detonationStimRadius = 25.f;
 	underwaterDetonationStimRadius = 3.f;
 	detonationStimType = "StimTypes.Explosion";
 	underwaterDetonationRumbleName = "light_slow";
 	shallowWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
-	fk< CraftingPackage > CraftingData = 
+	bool additionalAttackOnDetonate = true;
+	attackDuration = 6.5f;
+	enhancedPerkAttack = "Attacks.PerkShotBiotechGrenade";
+	deliveryMethod = 
 	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
+	} : RegularGDM;
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
@@ -930,108 +1572,306 @@ Preset_Grenade_Biohazard_Default : GrenadeWithDeliveryMethods
 			fk< Item > itemPartPreset = "Items.w_biohazard_core";
 		}
 	];
-	fk< StatModifier >[] statModifiers += 
+	statModifiers += 
 	[
 		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
+			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			refObject = "Player";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.CanPlayerBoostGrenades";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ChemicalDamage";
-			modifierType = "Multiplier";
-			value = 0.4f;
+			value = 4f;
 		} : ConstantStatModifier
 	];
-}
-
-GrenadeBiohazardRegular : Preset_Grenade_Biohazard_Default
-{
-	displayName = "LocKey#17913";
-	localizedDescription = "LocKey#17914";
-	iconPath = "grenade_biohazard_normal";
-	quality = "Quality.Uncommon";
-	tags += 
-	[
-		"OnlyBaseQuality"
-	];
-	attack = "Attacks.LightBiotechGrenade";
-	attackDuration = 4.f;
-	deliveryMethod = 
-	{
-		detonationTimer = 2.f;
-	} : RegularGDM;
 	OnEquip = 
 	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34299";
-				intValues = 
-				[
-					5
-				];
-			};
-		}, 
 		{
 			UIData = 
 			{
 				localizedDescription = "LocKey#34300";
 				intValues = 
 				[
-					4
+					6
 				];
 			};
 		}
 	];
-	fk< StatModifier >[] statModifiers += 
+}
+
+[ notQueryable ]
+GrenadeBiohazardRegular : Preset_Grenade_Biohazard_Default
+{
+	quality = "Quality.Rare";
+	attack = "Attacks.RareBiotechGrenade";
+	tags += 
+	[
+		"Rare"
+	];
+	CraftingData = "Items.RareGrenadeCraftingData";
+	OnEquip = 
 	[
 		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 4f;
-		} : ConstantStatModifier, 
+			UIData = 
+			{
+				localizedDescription = "LocKey#34300";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
 		{
-			statType = "BaseStats.ChemicalDamage";
-		} : GrenadeDamageMod, 
+			UIData = 
+			{
+				localizedDescription = "LocKey#91562";
+				floatValues = 
+				[
+					50, 10
+				];
+			};
+		}, 
 		{
-			statType = "BaseStats.ChemicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
+			UIData = 
+			{
+				localizedDescription = "LocKey#91561";
+				floatValues = 
+				[
+					10, 5
+				];
+			};
+		}
 	];
-	fk< CraftingPackage > CraftingData = 
+}
+
+[ notQueryable ]
+GrenadeBiohazardRegular_VeryHard : GrenadeBiohazardRegular
+{
+	deliveryMethod = 
 	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
+		detonationTimer = 4.f;
+		type = "GrenadeDeliveryMethodTypes.Regular";
+	} : RegularGDM;
+}
+
+[ notQueryable ]
+GrenadeBiohazardRarePlus : GrenadeBiohazardRegular
+{
+	quality = "Quality.RarePlus";
+	attack = "Attacks.RarePlusBioGrenadePlus";
+	tags += 
+	[
+		"RarePlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 4;
-			}, 
+				localizedDescription = "LocKey#34300";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
+		{
+			UIData = 
 			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 4;
-			}
-		];
-	};
+				localizedDescription = "LocKey#91562";
+				floatValues = 
+				[
+					50, 10
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91561";
+				floatValues = 
+				[
+					10, 5
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeBiohazardHoming : Preset_Grenade_Biohazard_Default
+{
+	localizedDescription = "LocKey#17916";
+	quality = "Quality.Epic";
+	attack = "Attacks.EpicBiotechGrenade";
+	tags += 
+	[
+		"Epic"
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34300";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91562";
+				floatValues = 
+				[
+					65, 15
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91561";
+				floatValues = 
+				[
+					10, 5
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeBiohazardEpicPlus : GrenadeBiohazardHoming
+{
+	quality = "Quality.EpicPlus";
+	attack = "Attacks.EpicPlusBiotechGrenade";
+	tags += 
+	[
+		"EpicPlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34300";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91562";
+				floatValues = 
+				[
+					65, 15
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91561";
+				floatValues = 
+				[
+					10, 5
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeBiohazardLegendary : Preset_Grenade_Biohazard_Default
+{
+	localizedDescription = "LocKey#17916";
+	quality = "Quality.Legendary";
+	attack = "Attacks.LegendaryBiotechGrenade";
+	tags += 
+	[
+		"Legendary"
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34300";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91562";
+				floatValues = 
+				[
+					80, 20
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91561";
+				floatValues = 
+				[
+					10, 5
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeBiohazardLegendaryPlus : GrenadeBiohazardLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	attack = "Attacks.LegendaryPlusBiotechGrenade";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
+	OnEquip = 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#34300";
+				intValues = 
+				[
+					6
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91562";
+				floatValues = 
+				[
+					95, 25
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#91561";
+				floatValues = 
+				[
+					10, 5
+				];
+			};
+		}
+	];
 }
 
 [ notQueryable ]
@@ -1042,102 +1882,10 @@ GrenadeBiohazardRegularHack : GrenadeBiohazardRegular
 	[
 		{
 			statType = "BaseStats.ChemicalDamage";
-			refObject = "Player";
-		} : Attacks.HackBaseDamage, 
-		{
-			statType = "BaseStats.ChemicalDamage";
-			refObject = "Player";
-		} : Attacks.HackBonusDamage, 
-		{
-			statType = "BaseStats.ChemicalDamage";
 			modifierType = "Multiplier";
 			value = 0.6f;
 		} : ConstantStatModifier
 	];
-}
-
-GrenadeBiohazardHoming : Preset_Grenade_Biohazard_Default
-{
-	displayName = "LocKey#17913";
-	localizedDescription = "LocKey#17914";
-	iconPath = "grenade_biohazard_homing_2_techtronika";
-	quality = "Quality.Rare";
-	attack = "Attacks.LightBiotechGrenade";
-	attackDuration = 4.f;
-	deliveryMethod = 
-	{
-		trackingRadius = 15.f;
-		bounciness = 0.5f;
-		freezeDelay = 0.7f;
-	} : HomingGDM;
-	OnEquip = 
-	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34299";
-				intValues = 
-				[
-					5
-				];
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34300";
-				intValues = 
-				[
-					4
-				];
-			};
-		}
-	];
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_homing_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 4f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.ChemicalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.ChemicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 4;
-			}
-		];
-	};
 }
 
 [ notQueryable ]
@@ -1145,7 +1893,11 @@ Preset_Grenade_Incendiary_Default : GrenadeWithDeliveryMethods
 {
 	tags += 
 	[
-		"Disassemblable", "IncendiaryGrenade"
+		"IncendiaryGrenade"
+	];
+	buyPrice += 
+	[
+		"Price.DamageGrenade"
 	];
 	friendlyName = "incendiary_grenade";
 	appearanceResourceName = "Preset_Grenade_Incendiary_Default";
@@ -1153,27 +1905,35 @@ Preset_Grenade_Incendiary_Default : GrenadeWithDeliveryMethods
 	[
 		"Default"
 	];
+	deliveryMethod = 
+	{
+	} : RegularGDM;
+	displayName = "LocKey#5172";
+	localizedDescription = "LocKey#5188";
+	iconPath = "grenade_incendiary_normal";
 	detonationSound = "";
 	detonationStimRadius = 30.f;
 	underwaterDetonationStimRadius = 3.f;
 	detonationStimType = "StimTypes.Explosion";
 	underwaterDetonationRumbleName = "light_slow";
+	attackRadius = 3.5f;
+	attackDuration = 1.4f;
+	enhancedPerkAttack = "Attacks.PerkShotIncendiaryGrenade";
 	shallowWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
+	OnEquip = 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
+				localizedDescription = "LocKey#34307";
+				intValues = 
+				[
+					5
+				];
+			};
+		}
+	];
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
@@ -1184,105 +1944,129 @@ Preset_Grenade_Incendiary_Default : GrenadeWithDeliveryMethods
 	statModifiers += 
 	[
 		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
+			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			refObject = "Player";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.CanPlayerBoostGrenades";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			modifierType = "Multiplier";
-			value = 0.4f;
+			value = 3.5f;
 		} : ConstantStatModifier
 	];
 }
 
+[ notQueryable ]
 GrenadeIncendiaryRegular : Preset_Grenade_Incendiary_Default
 {
-	displayName = "LocKey#5172";
-	localizedDescription = "LocKey#5188";
-	iconPath = "grenade_incendiary_normal";
 	quality = "Quality.Uncommon";
+	attack = "Attacks.UncommonIncendiaryGrenade";
 	tags += 
 	[
-		"OnlyBaseQuality"
+		"Uncommon"
 	];
-	attack = "Attacks.LightIncendiaryGrenade";
-	attackDuration = 3.f;
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+}
+
+[ notQueryable ]
+GrenadeIncendiaryRegular_VeryHard : Preset_Grenade_Incendiary_Default
+{
+	quality = "Quality.Uncommon";
+	attack = "Attacks.UncommonIncendiaryGrenade";
+	tags += 
+	[
+		"Uncommon"
+	];
 	deliveryMethod = 
 	{
-		detonationTimer = 2.f;
+		detonationTimer = 4.f;
+		type = "GrenadeDeliveryMethodTypes.Regular";
 	} : RegularGDM;
-	OnEquip = 
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+}
+
+[ notQueryable ]
+GrenadeIncendiaryUncommonPlus : Preset_Grenade_Incendiary_Default
+{
+	quality = "Quality.UncommonPlus";
+	attack = "Attacks.UncommonPlusIncendiaryGrenade";
+	tags += 
+	[
+		"UncommonPlus"
+	];
+}
+
+[ notQueryable ]
+GrenadeIncendiaryRare : Preset_Grenade_Incendiary_Default
+{
+	quality = "Quality.Rare";
+	attack = "Attacks.RareIncendiaryGrenade";
+	tags += 
+	[
+		"Rare"
+	];
+	CraftingData = "Items.RareGrenadeCraftingData";
+}
+
+[ notQueryable ]
+GrenadeIncendiaryRarePlus : Preset_Grenade_Incendiary_Default
+{
+	quality = "Quality.RarePlus";
+	attack = "Attacks.RarePlusIncendiaryGrenade";
+	tags += 
+	[
+		"RarePlus"
+	];
+}
+
+[ notQueryable ]
+GrenadeIncendiarySticky : Preset_Grenade_Incendiary_Default
+{
+	quality = "Quality.Epic";
+	attack = "Attacks.EpicIncendiaryGrenade";
+	tags += 
+	[
+		"Epic"
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+	OnEquip += 
 	[
 		{
 			UIData = 
 			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34307";
-				intValues = 
-				[
-					4
-				];
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34308";
-				intValues = 
-				[
-					3
-				];
+				localizedDescription = "LocKey#91559";
 			};
 		}
 	];
-	fk< StatModifier >[] statModifiers += 
+}
+
+[ notQueryable ]
+GrenadeIncendiaryEpicPlus : GrenadeIncendiarySticky
+{
+	quality = "Quality.EpicPlus";
+	attack = "Attacks.EpicPlusIncendiaryGrenade";
+	tags += 
 	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 3f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.ThermalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
+		"EpicPlus"
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 4;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 4;
-			}
-		];
-	};
+}
+
+[ notQueryable ]
+GrenadeIncendiaryLegendary : GrenadeIncendiarySticky
+{
+	quality = "Quality.Legendary";
+	attack = "Attacks.LegendaryIncendiaryGrenade";
+	tags += 
+	[
+		"Legendary"
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+}
+
+[ notQueryable ]
+GrenadeIncendiaryLegendaryPlus : GrenadeIncendiarySticky
+{
+	quality = "Quality.LegendaryPlus";
+	attack = "Attacks.LegendaryPlusIncendiaryGrenade";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
 }
 
 [ notQueryable ]
@@ -1293,199 +2077,27 @@ GrenadeIncendiaryRegularHack : GrenadeIncendiaryRegular
 	[
 		{
 			statType = "BaseStats.ThermalDamage";
-			refObject = "Player";
-		} : Attacks.HackBaseDamage, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			refObject = "Player";
-		} : Attacks.HackBonusDamage, 
-		{
-			statType = "BaseStats.ThermalDamage";
 			modifierType = "Multiplier";
 			value = 0.5f;
 		} : ConstantStatModifier
 	];
 }
 
-GrenadeIncendiarySticky : Preset_Grenade_Incendiary_Default
-{
-	displayName = "LocKey#5172";
-	localizedDescription = "LocKey#5188";
-	iconPath = "grenade_incendiary_sticky_1_militech";
-	quality = "Quality.Rare";
-	attack = "Attacks.LightIncendiaryGrenade";
-	attackDuration = 3.f;
-	deliveryMethod = 
-	{
-	} : StickyGDM;
-	bool setStickyTracker = true;
-	float stickyTrackerTimeout = 15.f;
-	OnEquip = 
-	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34307";
-				intValues = 
-				[
-					4
-				];
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34308";
-				intValues = 
-				[
-					3
-				];
-			};
-		}
-	];
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_sticky_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 3f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.ThermalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 4;
-			}
-		];
-	};
-}
-
-GrenadeIncendiaryHoming : Preset_Grenade_Incendiary_Default
-{
-	displayName = "LocKey#5172";
-	localizedDescription = "LocKey#5188";
-	iconPath = "grenade_incendiary_homing_2_militech";
-	quality = "Quality.Epic";
-	attack = "Attacks.LightIncendiaryGrenade";
-	attackDuration = 3.f;
-	deliveryMethod = 
-	{
-		trackingRadius = 15.f;
-		bounciness = 0.5f;
-		freezeDelay = 0.7f;
-	} : HomingGDM;
-	OnEquip = 
-	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#52984";
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34307";
-				intValues = 
-				[
-					4
-				];
-			};
-		}, 
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34308";
-				intValues = 
-				[
-					3
-				];
-			};
-		}
-	];
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_homing_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 3f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.ThermalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.ThermalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 2;
-			}
-		];
-	};
-}
-
 [ notQueryable ]
 Preset_Grenade_Recon_Default : GrenadeWithDeliveryMethods
 {
+	displayName = "LocKey#5175";
+	localizedDescription = "LocKey#5191";
+	iconPath = "grenade_recon_normal";
 	friendlyName = "recon";
 	appearanceResourceName = "Preset_Grenade_Recon_Default";
 	tags += 
 	[
-		"Disassemblable", "ReconGrenade"
+		"ReconGrenade"
+	];
+	buyPrice += 
+	[
+		"Price.EffectGrenade"
 	];
 	visualTags = 
 	[
@@ -1494,50 +2106,17 @@ Preset_Grenade_Recon_Default : GrenadeWithDeliveryMethods
 	detonationSound = "exploded";
 	detonationStimRadius = 0.f;
 	underwaterDetonationStimRadius = 3.f;
-	detonationStimType = "StimTypes.Explosion";
+	detonationStimType = "StimTypes.SoundDistraction";
 	underwaterDetonationRumbleName = "light_slow";
 	removeMeshOnDetonation = false;
 	shallowWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
+	bool additionalAttackOnDetonate = true;
 	additionalAttack = "Attacks.ReconGrenadeXRay";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	fk< SlotItemPartPreset >[] slotPartListPreset = 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeCore";
-			fk< Item > itemPartPreset = "Items.w_recon_core";
-		}
-	];
-}
-
-GrenadeReconRegular : Preset_Grenade_Recon_Default
-{
-	displayName = "LocKey#5175";
-	localizedDescription = "LocKey#5191";
-	iconPath = "grenade_recon_normal";
-	quality = "Quality.Uncommon";
-	tags += 
-	[
-		"OnlyBaseQuality"
-	];
 	attack = "Attacks.ReconGrenade";
-	attackDuration = 10.f;
+	attackDuration = 15.f;
 	deliveryMethod = 
 	{
-		detonationTimer = 2.f;
 	} : RegularGDM;
 	shootCollisionEnableDelay = -1.f;
 	OnEquip = 
@@ -1545,102 +2124,247 @@ GrenadeReconRegular : Preset_Grenade_Recon_Default
 		{
 			UIData = 
 			{
-				localizedDescription = "LocKey#34318";
-				intValues = 
-				[
-					7
-				];
+				localizedDescription = "LocKey#91560";
 			};
 		}
 	];
-	fk< StatModifier >[] statModifiers += 
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.GrenadeCore";
+			fk< Item > itemPartPreset = "Items.w_recon_core";
+		}
+	];
+	statModifiers += 
 	[
 		{
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			value = 15f;
+			value = 5f;
 		} : ConstantStatModifier
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
+}
+
+[ notQueryable ]
+GrenadeReconRegular : Preset_Grenade_Recon_Default
+{
+	quality = "Quality.Uncommon";
+	tags += 
+	[
+		"ReconGrenade", "Uncommon"
+	];
+	additionalAttack = "Attacks.UncommonReconXRay";
+	attackDuration = 5;
+	attackRadius = 5;
+	CraftingData = "Items.UncommonGrenadeCraftingData";
+	OnEquip += 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 4;
-			}, 
+				localizedDescription = "LocKey#92939";
+				intValues = 
+				[
+					20
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeReconUncommonPlus : GrenadeReconRegular
+{
+	quality = "Quality.UncommonPlus";
+	tags += 
+	[
+		"UncommonPlus"
+	];
+	additionalAttack = "Attacks.UncommonPlusReconXRay";
+	attackDuration = 7;
+	attackRadius = 5.5;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeReconRare : Preset_Grenade_Recon_Default
+{
+	quality = "Quality.Rare";
+	tags += 
+	[
+		"ReconGrenade", "Rare"
+	];
+	CraftingData = "Items.RareGrenadeCraftingData";
+	additionalAttack = "Attacks.RareReconXRay";
+	attackDuration = 7;
+	attackRadius = 6;
+	OnEquip += 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 4;
-			}
-		];
-	};
+				localizedDescription = "LocKey#92939";
+				intValues = 
+				[
+					40
+				];
+			};
+		}
+	];
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeReconRarePlus : GrenadeReconRare
+{
+	quality = "Quality.RarePlus";
+	tags += 
+	[
+		"RarePlus"
+	];
+	additionalAttack = "Attacks.RarePlusReconXRay";
+	attackDuration = 9;
+	attackRadius = 6.5;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeReconSticky : Preset_Grenade_Recon_Default
+{
+	quality = "Quality.Epic";
+	tags += 
+	[
+		"ReconGrenade", "Epic"
+	];
+	CraftingData = "Items.EpicGrenadeCraftingData";
+	additionalAttack = "Attacks.EpicReconXRay";
+	attackDuration = 9;
+	attackRadius = 7;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 2f;
+		} : ConstantStatModifier
+	];
+	OnEquip += 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#92939";
+				intValues = 
+				[
+					60
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeReconEpicPlus : GrenadeReconSticky
+{
+	quality = "Quality.EpicPlus";
+	tags += 
+	[
+		"EpicPlus"
+	];
+	additionalAttack = "Attacks.EpicPlusReconXRay";
+	attackDuration = 11;
+	attackRadius = 7.5;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+GrenadeReconLegendary : Preset_Grenade_Recon_Default
+{
+	quality = "Quality.Legendary";
+	tags += 
+	[
+		"ReconGrenade", "Legendary"
+	];
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	additionalAttack = "Attacks.LegendaryReconXRay";
+	attackDuration = 11;
+	attackRadius = 8;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 3f;
+		} : ConstantStatModifier
+	];
+	OnEquip += 
+	[
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#92939";
+				intValues = 
+				[
+					80
+				];
+			};
+		}
+	];
+}
+
+[ notQueryable ]
+GrenadeReconLegendaryPlus : GrenadeReconLegendary
+{
+	quality = "Quality.LegendaryPlus";
+	tags += 
+	[
+		"LegendaryPlus"
+	];
+	additionalAttack = "Attacks.LegendaryPlusReconXRay";
+	attackDuration = 13;
+	attackRadius = 9;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.Range";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier
+	];
 }
 
 [ notQueryable ]
 GrenadeReconRegularHack : GrenadeReconRegular
 {
 	attack = "Attacks.CuttingGrenadeHack";
-}
-
-GrenadeReconSticky : Preset_Grenade_Recon_Default
-{
-	displayName = "LocKey#5175";
-	localizedDescription = "LocKey#5191";
-	iconPath = "grenade_recon_sticky_1_kang_tao";
-	quality = "Quality.Uncommon";
-	tags += 
-	[
-		"OnlyBaseQuality"
-	];
-	attack = "Attacks.ReconGrenade";
-	attackDuration = 10.f;
-	deliveryMethod = 
-	{
-	} : StickyGDM;
-	shootCollisionEnableDelay = -1.f;
-	OnEquip = 
-	[
-		{
-			UIData = 
-			{
-				localizedDescription = "LocKey#34318";
-				intValues = 
-				[
-					7
-				];
-			};
-		}
-	];
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.GrenadeDelivery";
-			fk< Item > itemPartPreset = "Items.w_sticky_delivery";
-		}
-	];
-	fk< StatModifier >[] statModifiers += 
-	[
-		{
-			statType = "BaseStats.Range";
-			modifierType = "Additive";
-			value = 15f;
-		} : ConstantStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 4;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 4;
-			}
-		];
-	};
 }
 
 [ notQueryable ]
@@ -1650,7 +2374,11 @@ Preset_Grenade_Cutting_Default : GrenadeWithDeliveryMethods
 	appearanceResourceName = "Preset_Grenade_Cutting_Default";
 	tags += 
 	[
-		"Disassemblable", "CuttingGrenade"
+		"CuttingGrenade"
+	];
+	buyPrice += 
+	[
+		"Price.DamageGrenade"
 	];
 	visualTags = 
 	[
@@ -1670,7 +2398,6 @@ Preset_Grenade_Cutting_Default : GrenadeWithDeliveryMethods
 	detonationSound = "exploded";
 	detonationStimRadius = 10.f;
 	underwaterDetonationStimRadius = 3.f;
-	detonationStimType = "StimTypes.Explosion";
 	underwaterDetonationRumbleName = "light_slow";
 	releaseOnDetonation = false;
 	removeMeshOnDetonation = false;
@@ -1678,65 +2405,35 @@ Preset_Grenade_Cutting_Default : GrenadeWithDeliveryMethods
 	deepWaterAttack = "Attacks.DeactivatedGrenadeUnderwater";
 	float stopAttackDelay = 1.f;
 	float freezeDelayAfterBounce = 0.01f;
-	float freezingDuration = 0.3f;
-	float minimumDistanceFromFloor = 2.f;
+	float freezingDuration = 0.2f;
+	float minimumDistanceFromFloor = 3.5f;
 	float addAxisRotationDelay = 0.3f;
-	float addAxisRotationSpeedMin = 25.f;
-	float addAxisRotationSpeedMax = 35.f;
-	float delayToDetonate = 0.5f;
-	float effectCooldown = 1.f;
-	int numberOfHitsForAdditionalAttack = 5;
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	statModifiers += 
-	[
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Multiplier";
-			value = 0.4f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			refObject = "Player";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CraftingBonusGrenadeDamage";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.CanPlayerBoostGrenades";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
+	float addAxisRotationSpeedMin = 55.f;
+	float addAxisRotationSpeedMax = 90.f;
+	float delayToDetonate = 0.4f;
+	float effectCooldown = 0.08f;
+	int numberOfHitsForAdditionalAttack = 4;
 }
 
+[ notQueryable ]
 GrenadeCuttingRegular : Preset_Grenade_Cutting_Default
 {
 	displayName = "LocKey#5177";
 	localizedDescription = "LocKey#5193";
 	iconPath = "grenade_cutting_normal";
-	quality = "Quality.Epic";
+	detonationStimType = "StimTypes.Distract";
+	quality = "Quality.Legendary";
+	tags += 
+	[
+		"Legendary"
+	];
 	attack = "Attacks.CuttingGrenade";
-	additionalAttack = "Attacks.CuttingGrenadeAdditional";
+	additionalAttack = "Attacks.CuttingGrenadeAdditionalAttack";
 	attackDuration = 5.f;
+	attackRadius = 4f;
 	deliveryMethod = 
 	{
-		detonationTimer = 4f;
+		detonationTimer = 1.25f;
 	} : RegularGDM;
 	bool isContinuousEffect = true;
 	shootCollisionEnableDelay = -1.f;
@@ -1748,130 +2445,83 @@ GrenadeCuttingRegular : Preset_Grenade_Cutting_Default
 				localizedDescription = "LocKey#34323";
 				intValues = 
 				[
-					21, 5
+					32, 5
+				];
+			};
+		}, 
+		{
+			UIData = 
+			{
+				localizedDescription = "LocKey#94171";
+				floatValues = 
+				[
+					20
 				];
 			};
 		}
 	];
-	fk< StatModifier >[] statModifiers += 
+	CraftingData = "Items.LegendaryGrenadeCraftingData";
+	statModifiers += 
 	[
 		{
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			value = 4.f;
+			value = 3f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.PhysicalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 1.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 3;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 2;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-GrenadeCuttingRegularHack : GrenadeCuttingRegular
-{
-	attack = "Attacks.CuttingGrenadeHack";
-	statModifiers += 
-	[
-		{
-			statType = "BaseStats.PhysicalDamage";
-			refObject = "Player";
-		} : Attacks.HackBaseDamage, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			refObject = "Player";
-		} : Attacks.HackBonusDamage, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "Multiplier";
-			value = 1.1f;
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			value = 14f;
 		} : ConstantStatModifier
 	];
 }
 
 [ notQueryable ]
-GrenadeOzobsNose : Preset_Grenade_Frag_Default
+CuttingGrenadeLegendaryPlus : GrenadeCuttingRegular
 {
-	displayName = "LocKey#51646";
-	localizedDescription = "LocKey#51647";
-	appearanceResourceName = "Preset_Grenade_Frag_Ozob";
-	iconPath = "ozobs_nose_grenade";
-	quality = "Quality.Legendary";
+	quality = "Quality.LegendaryPlus";
 	tags += 
 	[
-		"Ozob"
+		"LegendaryPlus"
 	];
-	attack = "Attacks.OzobGrenade";
-	deliveryMethod = 
-	{
-		detonationTimer = 1.2f;
-		bounciness = 0.47f;
-		accelerationZ = -13.5;
-	} : RegularGDM;
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
+	attack = "Attacks.CuttingGrenadeLegendaryPlus";
+	attackDuration = 7.f;
+	OnEquip = 
+	[
+		{
+			UIData = 
 			{
-				ingredient = "Items.GrenadeFragRegular";
-				amount = 1;
-			}, 
+				localizedDescription = "LocKey#34323";
+				intValues = 
+				[
+					32, 8
+				];
+			};
+		}, 
+		{
+			UIData = 
 			{
-				ingredient = "Items.RareMaterial1";
-				amount = 4;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 2;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 1;
-			}
-		];
-	};
-	fk< StatModifier >[] statModifiers += 
+				localizedDescription = "LocKey#94171";
+				floatValues = 
+				[
+					30
+				];
+			};
+		}
+	];
+	statModifiers += 
 	[
 		{
 			statType = "BaseStats.Range";
 			modifierType = "Additive";
-			value = 2.5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-		} : GrenadeDamageMod, 
-		{
-			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CraftingBonusGrenadeDamage";
-			value = 3.0f;
-			opSymbol = "*";
-		} : CombinedStatModifier
+			value = 1f;
+		} : ConstantStatModifier
 	];
+}
+
+[ notQueryable ]
+GrenadeCuttingRegularHack : GrenadeWithDeliveryMethods
+{
 }
 
 GrenadeQuantity : ConstantStatModifier
@@ -1943,5 +2593,141 @@ GrenadeSmokeOda : Preset_Grenade_Frag_Default
 	{
 		detonationTimer = 0.1f;
 	} : RegularGDM;
+}
+
+[ notQueryable ]
+GrenadeSmokeOdaHarmless : GrenadeSmokeOda
+{
+	attack = "Attacks.OdaSmokeBombHarmless";
+	attackRadius = 0.f;
+}
+
+[ notQueryable ]
+Kurt_Knife_NPC : Preset_Grenade_Frag_Default
+{
+	displayName = "LocKey#5163";
+	localizedDescription = "LocKey#5179";
+	CName entityName = "kurt_npc_throwable_knife";
+	npcHitReactionAttack = "Attacks.Kurt_Knife_Impact";
+	deliveryMethod = 
+	{
+	} : RegularGDM;
+	attack = "";
+	shallowWaterAttack = "";
+	deepWaterAttack = "";
+	additionalAttack = "";
+	enemyAttack = "";
+	detonationSound = "";
+	detonationStimRadius = 2.f;
+	underwaterDetonationStimRadius = 2.f;
+	detonationStimType = "StimTypes.SilencedGunshot";
+	detonationRumbleName = "";
+	underwaterDetonationRumbleName = "";
+	waterSurfaceImpactImpulseRadius = 0.f;
+	waterSurfaceImpactImpulseStrength = 0.f;
+	waterDetonationImpulseRadiusCoef = 0.f;
+	waterDetonationImpulseStrength = 0.f;
+}
+
+[ notQueryable ]
+Kurt_Knife_NPC_KurtTakedown : Preset_Grenade_Frag_Default
+{
+	tags = 
+	[
+		"following"
+	];
+	displayName = "LocKey#5163";
+	localizedDescription = "LocKey#5179";
+	CName entityName = "kurt_npc_throwable_knife";
+	npcHitReactionAttack = "Attacks.Kurt_Knife_TakedownImpact";
+	deliveryMethod = 
+	{
+	} : KnifeThrowDelivery;
+	attack = "";
+	shallowWaterAttack = "";
+	deepWaterAttack = "";
+	additionalAttack = "";
+	enemyAttack = "";
+	detonationSound = "";
+	detonationStimRadius = 2.f;
+	underwaterDetonationStimRadius = 2.f;
+	detonationStimType = "StimTypes.SilencedGunshot";
+	detonationRumbleName = "";
+	underwaterDetonationRumbleName = "";
+	waterSurfaceImpactImpulseRadius = 0.f;
+	waterSurfaceImpactImpulseStrength = 0.f;
+	waterDetonationImpulseRadiusCoef = 0.f;
+	waterDetonationImpulseStrength = 0.f;
+}
+
+[ notQueryable ]
+Kurt_Knife_NPC_KurtTakedown_Dodgeable : Preset_Grenade_Frag_Default
+{
+	displayName = "LocKey#5163";
+	localizedDescription = "LocKey#5179";
+	CName entityName = "kurt_npc_throwable_knife";
+	npcHitReactionAttack = "Attacks.Kurt_Knife_TakedownImpact";
+	deliveryMethod = 
+	{
+	} : KnifeThrowDelivery;
+	attack = "";
+	shallowWaterAttack = "";
+	deepWaterAttack = "";
+	additionalAttack = "";
+	enemyAttack = "";
+	detonationSound = "";
+	detonationStimRadius = 2.f;
+	underwaterDetonationStimRadius = 2.f;
+	detonationStimType = "StimTypes.SilencedGunshot";
+	detonationRumbleName = "";
+	underwaterDetonationRumbleName = "";
+	waterSurfaceImpactImpulseRadius = 0.f;
+	waterSurfaceImpactImpulseStrength = 0.f;
+	waterDetonationImpulseRadiusCoef = 0.f;
+	waterDetonationImpulseStrength = 0.f;
+}
+
+UncommonGrenadeCraftingData : CraftingPackage
+{
+	fk< RecipeElement >[] craftingRecipe = 
+	[
+		{
+			ingredient = "Items.UncommonMaterial1";
+			amount = 10;
+		}
+	];
+}
+
+RareGrenadeCraftingData : CraftingPackage
+{
+	craftingRecipe = 
+	[
+		{
+			ingredient = "Items.RareMaterial1";
+			amount = 10;
+		}
+	];
+}
+
+EpicGrenadeCraftingData : CraftingPackage
+{
+	craftingRecipe = 
+	[
+		{
+			ingredient = "Items.EpicMaterial1";
+			amount = 10;
+		}
+	];
+}
+
+LegendaryGrenadeCraftingData : CraftingPackage
+{
+	craftingRecipe = 
+	[
+		{
+			ingredient = "Items.LegendaryMaterial1";
+			amount = 10;
+		}
+	];
 }
 

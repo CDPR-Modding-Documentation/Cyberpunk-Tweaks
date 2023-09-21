@@ -1,5 +1,5 @@
 package AnimalsBoss_Hammer
-using RTDB, VehicleActions, SpecialActions, DashAndDodgeActions, MeleeActions, MovementActions, AnimalsBoss_Fists, AnimalsBoss
+using RTDB, VehicleActions, SpecialActions, DashAndDodgeActions, MeleeActions, MovementActions, AnimalsBoss_Fists, AnimalsBoss, AIActionTarget, StatusEffectActions
 
 Map : AINodeMap
 {
@@ -39,11 +39,11 @@ Map : AINodeMap
 		}, 
 		{
 			node = "StatusEffectActions.SE_QuickHackFreezeLocomotion";
-			isOverriddenBy = "AnimalsBoss.SE_QuickHackFreezeLocomotion";
+			isOverriddenBy = "AnimalsBoss.SE_QuickHackStaggerLocomotion";
 		}, 
 		{
 			node = "StatusEffectActions.SE_QuickHackStaggerLocomotion";
-			isOverriddenBy = "AnimalsBoss.SE_QuickHackFreezeLocomotion";
+			isOverriddenBy = "AnimalsBoss.SE_QuickHackStaggerLocomotion";
 		}, 
 		{
 			node = "AnimalsBoss.PatternSequence01";
@@ -96,8 +96,151 @@ Map : AINodeMap
 		{
 			node = "ReactionsActions.OverloadBossCustomAction";
 			isOverriddenBy = "AnimalsBoss.SE_Pain";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SuicideWithGunMech";
+			isOverriddenBy = "AnimalsBoss.SE_SuicideWithGunRifleEquipped";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SuicideWithGunHandgunEquipped";
+			isOverriddenBy = "AnimalsBoss.SE_SuicideWithGunRifleEquipped";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SuicideWithMeleeShortBladeEquipped";
+			isOverriddenBy = "AnimalsBoss.SE_SuicideWithGunRifleEquipped";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SuicideWithMeleeLongWeaponEquipped";
+			isOverriddenBy = "AnimalsBoss.SE_SuicideWithGunRifleEquipped";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SuicideWithGunRifleEquipped";
+			isOverriddenBy = "AnimalsBoss.SE_SuicideWithGunRifleEquipped";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SuicideWithGunUnarmed";
+			isOverriddenBy = "AnimalsBoss.SE_SuicideWithGunRifleEquipped";
+		}, 
+		{
+			node = "ItemHandling.EquipPrimaryWeaponAfterSuicideSequence";
+			isOverriddenBy = "OdaBoss.EquipPrimaryWeaponAfterSuicideSequence";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SystemCollapseAndroid";
+			isOverriddenBy = "AnimalsBoss.SE_SystemCollapse";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SystemCollapseMech";
+			isOverriddenBy = "AnimalsBoss.SE_SystemCollapse";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SystemCollapseBossMitigated";
+			isOverriddenBy = "AnimalsBoss.SE_SystemCollapse";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SystemCollapseBoss";
+			isOverriddenBy = "AnimalsBoss.SE_SystemCollapse";
+		}, 
+		{
+			node = "StatusEffectActions.SE_SystemCollapse";
+			isOverriddenBy = "AnimalsBoss.SE_SystemCollapse";
+		}, 
+		{
+			node = "StatusEffectActions.SuicideWithGrenadeEMP";
+			isOverriddenBy = "AnimalsBoss_Hammer.SE_SuicideWithGrenade";
+		}, 
+		{
+			node = "StatusEffectActions.SuicideWithGrenadeBiohazard";
+			isOverriddenBy = "AnimalsBoss_Hammer.SE_SuicideWithGrenade";
+		}, 
+		{
+			node = "StatusEffectActions.SuicideWithGrenadeFallback";
+			isOverriddenBy = "AnimalsBoss_Hammer.SE_SuicideWithGrenade";
+		}, 
+		{
+			node = "StatusEffectActions.SuicideWithGrenadeIncendiary";
+			isOverriddenBy = "AnimalsBoss_Hammer.SE_SuicideWithGrenade";
+		}, 
+		{
+			node = "GenericArchetype.SE_Madness";
+			isOverriddenBy = "AnimalsBoss.SE_Madness";
+		}, 
+		{
+			node = "StatusEffectActions.SE_BurningArmed";
+			isOverriddenBy = "AnimalsBoss.SE_BurningResidualArmed";
+		}, 
+		{
+			node = "StatusEffectActions.SE_BurningUnarmed";
+			isOverriddenBy = "AnimalsBoss.SE_BurningResidualArmed";
+		}, 
+		{
+			node = "StatusEffectActions.SE_BurningResidualArmedTwitch";
+			isOverriddenBy = "AnimalsBoss.SE_BurningResidualArmed";
+		}, 
+		{
+			node = "StatusEffectActions.SE_BurningResidualUnarmedTwitch";
+			isOverriddenBy = "AnimalsBoss.SE_BurningResidualArmed";
 		}
 	];
+}
+
+SE_SuicideWithGrenade : AIQuickhackDefaultAction
+{
+	startup = 
+	{
+		duration = 1.3f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.96f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.GrenadeRight";
+			name = "fx_beeping";
+			delay = 1.1f;
+		} : AISubActionSpawnFX, 
+		{
+			delay = 0.75f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegularHack";
+		} : AISubActionForceEquip
+	];
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			dropItem = true;
+		} : AISubActionForceUnequip, 
+		{
+			delay = -1f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+		} : AISubActionTriggerItemActivation
+	];
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_SuicideWithGrenade";
+		animSlot = 
+		{
+		};
+	};
 }
 
 PatternSequence01 : AIActionSmartComposite
@@ -331,7 +474,7 @@ DodgeSelectorCondition : AIAction
 	[
 		{
 			name = "DodgeCooldown";
-			duration = 3.f;
+			duration = 10.f;
 		}
 	];
 	activationCondition = 
@@ -353,7 +496,7 @@ GenericDodgeCondition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.NotInStatesAttack", "Condition.TargetAbove3m", "Condition.TargetBelow45deg", "Condition.StatusEffectPainInhibitors", "Condition.NotHackingInterruptedStatusEffects"
+		"Condition.NotInStatesAttack", "Condition.TargetAbove3m", "Condition.TargetBelow45deg", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack", "Condition.NotStatusEffectTypeMadness"
 	];
 }
 
@@ -483,11 +626,27 @@ MeleeLightCombo01 : AIActionSequence
 	];
 }
 
+MeleeLightCombo01Madness : AIActionSequence
+{
+	actions = 
+	[
+		"AnimalsBoss_Hammer.Combo01MeleeAttackLight01InPlace", "AnimalsBoss_Hammer.Combo01MeleeAttackLight01", "AnimalsBoss_Hammer.Combo01MeleeAttackLight02", "AnimalsBoss_Hammer.Combo01MeleeAttackLight03", "AnimalsBoss_Hammer.MeleeLightCombo01Part03RecoverMadness", "GenericArchetype.Success"
+	];
+}
+
 MeleeLightCombo02 : AIActionSequence
 {
 	actions = 
 	[
 		"AnimalsBoss_Hammer.RotateToTarget", "AnimalsBoss_Hammer.SandevistanStartup01", "AnimalsBoss_Hammer.MeleeMoveToAttackRangeSandevistan", "AnimalsBoss_Hammer.MeleeMoveToAttackRange", "AnimalsBoss_Hammer.DashForwardToTarget", "AnimalsBoss_Hammer.MeleeMoveAroundObstacles", "AnimalsBoss_Hammer.Combo02MeleeAttackLight01InPlace", "AnimalsBoss_Hammer.Combo02MeleeAttackLight01", "AnimalsBoss_Hammer.Combo02MeleeAttackLight02", "AnimalsBoss_Hammer.Combo02MeleeAttackLight03", "AnimalsBoss_Hammer.Combo02MeleeAttackLight04", "AnimalsBoss_Hammer.MeleeLightCombo02Part04Recover", "GenericArchetype.Success"
+	];
+}
+
+MeleeLightCombo02Madness : AIActionSequence
+{
+	actions = 
+	[
+		"AnimalsBoss_Hammer.Combo02MeleeAttackLight01", "AnimalsBoss_Hammer.Combo02MeleeAttackLight02", "AnimalsBoss_Hammer.Combo02MeleeAttackLight03", "AnimalsBoss_Hammer.Combo02MeleeAttackLight04", "AnimalsBoss_Hammer.MeleeLightCombo02Part04RecoverMadness", "GenericArchetype.Success"
 	];
 }
 
@@ -535,11 +694,98 @@ MeleeStrongSingle03 : AIActionSequence
 	];
 }
 
+MeleeLocomotionSelector : AIActionSelector
+{
+	actions = 
+	[
+		"AnimalsBoss_Hammer.MeleeMoveAroundObstacles", "AnimalsBoss_Hammer.SprintToTargetMelee", "GenericArchetype.Success"
+	];
+}
+
+MeleeDashLocomotionSelector : AIActionSelector
+{
+	actions = 
+	[
+		"AnimalsBoss_Hammer.MeleeMoveAroundObstacles", "AnimalsBoss_Hammer.SprintToTargetMelee", "GenericArchetype.Success"
+	];
+}
+
+MeleeDashForwardSelector : AIActionSelector
+{
+	actions = 
+	[
+		"AnimalsBoss_Hammer.MeleeMoveAroundObstacles", "AnimalsBoss_Hammer.DashForwardToTarget", "GenericArchetype.Success"
+	];
+}
+
+SprintToTargetMelee : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"AnimalsBoss_Hammer.MeleeMoveToAttackRangeConditions"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.f;
+			attackName = "Move";
+			colliderBoxSize = ( 0, 0, 0 );
+		} : AISubActionAttackWithWeapon
+	];
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow1dot5m", "Condition.NotCalculatePathToTarget", {
+							AND = 
+							[
+								"Condition.TargetBelow3m", "Condition.TargetIsVisible"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
 MeleeStrongSingleSequence : AIActionSequence
 {
 	actions = 
 	[
-		"AnimalsBoss_Hammer.RotateToTarget", "AnimalsBoss_Hammer.SandevistanStartup01", "AnimalsBoss_Hammer.MeleeMoveToJumpAttackRangeSandevistan", "AnimalsBoss_Hammer.MeleeMoveToAttackRangeSandevistan", "AnimalsBoss_Hammer.MeleeMoveToAttackRange", "AnimalsBoss_Hammer.DashForwardToTarget", "AnimalsBoss_Hammer.MeleeMoveAroundObstacles", "AnimalsBoss_Hammer.SingleMeleeAttackStrong03", "AnimalsBoss_Hammer.SingleMeleeAttackStrong03RecoverMiss", "AnimalsBoss_Hammer.SingleMeleeAttackStrong02", "AnimalsBoss_Hammer.SingleMeleeAttackStrong02RecoverMiss", "AnimalsBoss_Hammer.SingleMeleeAttackStrong01", "AnimalsBoss_Hammer.SingleMeleeAttackStrong01RecoverMiss", "GenericArchetype.Success"
+		"AnimalsBoss_Hammer.SingleMeleeAttackStrong03", "AnimalsBoss_Hammer.SingleMeleeAttackStrong03RecoverMiss", "AnimalsBoss_Hammer.SingleMeleeAttackStrong02", "AnimalsBoss_Hammer.SingleMeleeAttackStrong02RecoverMiss", "AnimalsBoss_Hammer.SingleMeleeAttackStrong01", "AnimalsBoss_Hammer.SingleMeleeAttackStrong01RecoverMiss", "GenericArchetype.Success"
 	];
 }
 
@@ -561,6 +807,24 @@ MeleeChargeSingle01Start : AIActionSequence
 	];
 }
 
+MeleeChargeSingleCondition : AIAction
+{
+	cooldowns = 
+	[
+		"AnimalsBoss.MeleeChargeSingleCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove12m"
+			];
+		} : AIActionAND;
+	};
+}
+
 MeleeChargeSingle01 : AIActionSequence
 {
 	activationCondition = 
@@ -575,7 +839,7 @@ MeleeChargeSingle01 : AIActionSequence
 	};
 	actions = 
 	[
-		"AnimalsBoss_Hammer.RotateToTarget", "AnimalsBoss_Hammer.SingleMeleeAttackCharge01Taunt", "AnimalsBoss_Hammer.MeleeMoveToJumpAttackRangeSandevistan", "AnimalsBoss_Hammer.MeleeMoveToChargeAttackRangeSandevistan", "AnimalsBoss_Hammer.MeleeMoveToChargeAttackRange", "AnimalsBoss_Hammer.SingleMeleeAttackCharge01", "AnimalsBoss_Hammer.SingleMeleeAttackCharge01RecoverMiss", "GenericArchetype.Success"
+		"AnimalsBoss_Hammer.SingleMeleeAttackCharge01", "AnimalsBoss_Hammer.SingleMeleeAttackCharge01RecoverMiss", "GenericArchetype.Success"
 	];
 }
 
@@ -593,7 +857,7 @@ MeleeChargeSingle02 : AIActionSequence
 	};
 	actions = 
 	[
-		"AnimalsBoss_Hammer.RotateToTarget", "AnimalsBoss_Hammer.SingleMeleeAttackCharge02Taunt", "AnimalsBoss_Hammer.MeleeMoveToChargeAttackRangeSandevistanNoOverride", "AnimalsBoss_Hammer.MeleeMoveToChargeAttackRange", "AnimalsBoss_Hammer.SingleMeleeAttackCharge02", "AnimalsBoss_Hammer.SingleMeleeAttackCharge02RecoverMiss", "GenericArchetype.Success"
+		"AnimalsBoss_Hammer.SingleMeleeAttackCharge02", "AnimalsBoss_Hammer.SingleMeleeAttackCharge02RecoverMiss", "GenericArchetype.Success"
 	];
 }
 
@@ -768,6 +1032,47 @@ WalkToTarget : AIAction
 	];
 }
 
+WalkToTargetLocomotionMalfunction : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = -1.f;
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			tolerance = 0.f;
+			distance = 2.f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow2m", "Condition.NotStatusEffectTypeLocomotionMalfunction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MeleeCombatLookAtPreset";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
 FindLos : AIAction
 {
 	activationCondition = 
@@ -833,11 +1138,22 @@ MeleeMoveAroundObstacles : AIAction
 	{
 		condition = 
 		{
-			AND = 
+			OR = 
 			[
-				"Condition.NotCalculatePathToTarget", "Condition.NotTargetIsVisible"
+				{
+					AND = 
+					[
+						"Condition.NotCalculatePathToTarget", "Condition.NotTargetIsVisible"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.NotCalculatePathStraight5m", "Condition.NotCalculateStraightPathToTarget"
+					];
+				} : AIActionAND
 			];
-		} : AIActionAND;
+		} : AIActionOR;
 	};
 	loop = 
 	{
@@ -862,7 +1178,7 @@ MeleeMoveAroundObstacles : AIAction
 						"Condition.TargetBelow1dot5m", "Condition.NotCalculatePathToTarget", {
 							AND = 
 							[
-								"Condition.TargetBelow3m", "Condition.TargetIsVisible"
+								"Condition.TargetBelow5m", "Condition.TargetIsVisible"
 							];
 						} : AIActionAND
 					];
@@ -890,7 +1206,7 @@ MeleeMoveToAttackRangeConditions : AIActionAND
 {
 	AND = 
 	[
-		"Condition.TargetAbove8m", "Condition.CalculatePathStraightToTarget"
+		"Condition.TargetAbove5m", "Condition.CalculatePathStraightToTarget"
 	];
 }
 
@@ -1277,7 +1593,7 @@ DashForwardToTarget : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotPreviousAttackNameMove", "Condition.CalculatePathStraightToTarget", "Condition.TargetAbove5m", "Condition.TargetBelow8m"
+				"Condition.NotPreviousAttackNameMove", "Condition.CalculatePathStraightToTarget", "Condition.TargetAbove3m", "Condition.TargetBelow5m"
 			];
 		} : AIActionAND;
 	};
@@ -1330,10 +1646,42 @@ SandevistanStartup01 : AIAction
 		{
 			AND = 
 			[
-				"Condition.AbilityHasSandevistan", "Condition.TargetAbove10m", "Condition.StatusEffectPainInhibitors", "Condition.NotHackingInterruptedStatusEffects"
+				"Condition.AbilityHasSandevistan", "Condition.TargetAbove12m", "Condition.NotHackingInterruptedStatusEffects"
 			];
 		} : AIActionAND;
 	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 1.233f;
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+	};
+	loopSubActions = 
+	[
+		"AnimalsBoss.LowerCovers"
+	];
+	subActions = 
+	[
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animData = 
+	{
+		animFeature = "DashSandevistanStartup";
+		animSlot = 
+		{
+			startupSlide = "AnimalsBoss_Hammer.RotateSlideData";
+			loopSlide = "AnimalsBoss_Hammer.RotateSlideData";
+			recoverySlide = "AnimalsBoss_Hammer.RotateSlideData";
+		};
+	};
+}
+
+DashAttackLocomotionStartup01 : AIAction
+{
 	loop = 
 	{
 		duration = 0.767f;
@@ -1737,6 +2085,14 @@ MeleeMoveToJumpAttackRangeSandevistan : AIAction
 	];
 }
 
+MeleeComboCondition : AIAction
+{
+	cooldowns = 
+	[
+		"AnimalsBoss.MeleeComboCooldown"
+	];
+}
+
 Combo01MeleeAttackLight01 : AIAction
 {
 	activationCondition = 
@@ -1782,7 +2138,7 @@ Combo01MeleeAttackLight01 : AIAction
 			];
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackName = "Combo01MeleeAttackLight01";
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
@@ -1851,7 +2207,7 @@ Combo01MeleeAttackLight01InPlace : AIAction
 			];
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackName = "Combo01MeleeAttackLight01";
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
@@ -1910,7 +2266,7 @@ Combo01MeleeAttackLight02 : AIAction
 			];
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackName = "Combo01MeleeAttackLight02";
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
@@ -1961,7 +2317,7 @@ Combo01MeleeAttackLight03 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			attackName = "Combo01MeleeAttackLight03";
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
@@ -1999,7 +2355,7 @@ MeleeLightCombo01Part03Recover : AIAction
 	};
 	loop = 
 	{
-		duration = 1.5;
+		duration = 3.f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -2036,6 +2392,72 @@ MeleeLightCombo01Part03Recover : AIAction
 		} : AISubActionPlayVoiceOver, 
 		"AnimalsBoss.RaiseCoversAroundShort"
 	];
+	loopSubActions = 
+	[
+		{
+			name = "AttackComboCompleted";
+			value = 1;
+		} : AISubActionSetInt, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.f;
+			attackName = "reset";
+			colliderBoxSize = ( 0, 0, 0 );
+		} : AISubActionAttackWithWeapon
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "AttackComboCompleted";
+			value = 1;
+		} : AISubActionSetInt
+	];
+	animData = 
+	{
+		animFeature = "Combo01MeleeAttackLight03Recover";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeLightCombo01Part03RecoverMadness : AIAction
+{
+	startup = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = true;
+	};
 	loopSubActions = 
 	[
 		{
@@ -2117,7 +2539,7 @@ Combo02MeleeAttackLight01 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
@@ -2188,7 +2610,7 @@ Combo02MeleeAttackLight01InPlace : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
@@ -2240,7 +2662,7 @@ Combo02MeleeAttackLight02 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 			attackName = "Combo02MeleeAttackLight02";
@@ -2295,7 +2717,7 @@ Combo02MeleeAttackLight03 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.5f, 0.3f, 0.05f );
 			attackName = "Combo02MeleeAttackLight03";
@@ -2347,7 +2769,7 @@ Combo02MeleeAttackLight04 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			attackName = "Combo02MeleeAttackLight04";
 			colliderBoxSize = ( 2.5f, 0.3f, 0.05f );
@@ -2385,7 +2807,7 @@ MeleeLightCombo02Part04Recover : AIAction
 	};
 	loop = 
 	{
-		duration = 1.5;
+		duration = 3.f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -2421,6 +2843,65 @@ MeleeLightCombo02Part04Recover : AIAction
 			name = "Info_C_Placide";
 		} : AISubActionPlayVoiceOver
 	];
+	loopSubActions = 
+	[
+		{
+			name = "AttackComboCompleted";
+			value = 1;
+		} : AISubActionSetInt, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.f;
+			attackName = "reset";
+			colliderBoxSize = ( 0, 0, 0 );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "Combo02MeleeAttackLight04Recover";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeLightCombo02Part04RecoverMadness : AIAction
+{
+	startup = 
+	{
+		duration = 2.367f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = true;
+	};
 	loopSubActions = 
 	[
 		{
@@ -2497,7 +2978,7 @@ SingleMeleeAttackStrong01 : AIAction
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
 			attackName = "SingleMeleeAttackStrong01";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.5f );
 		} : AISubActionAttackWithWeapon
@@ -2546,7 +3027,7 @@ SingleMeleeAttackStrong01RecoverMiss : AIAction
 				{
 					AND = 
 					[
-						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove2mPrediction"
+						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove5mPrediction"
 					];
 				} : AIActionAND;
 			}
@@ -2624,7 +3105,7 @@ SingleMeleeAttackStrong02 : AIAction
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
 			attackName = "SingleMeleeAttackStrong02";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -2673,7 +3154,7 @@ SingleMeleeAttackStrong02RecoverMiss : AIAction
 				{
 					AND = 
 					[
-						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove2mPrediction"
+						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove5mPrediction"
 					];
 				} : AIActionAND;
 			}
@@ -2751,7 +3232,7 @@ SingleMeleeAttackStrong03 : AIAction
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
 			attackName = "SingleMeleeAttackStrong03";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -2867,7 +3348,7 @@ SingleMeleeAttackStrong04 : AIAction
 			attackDuration = 0.1f;
 			attack = "NPCAttacks.SasquatchHammerStrongAttack";
 			attackName = "SingleMeleeAttackStrong04";
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 		} : AISubActionAttackWithWeapon
@@ -2916,7 +3397,7 @@ SingleMeleeAttackStrong04RecoverMiss : AIAction
 				{
 					AND = 
 					[
-						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove2mPrediction"
+						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove5mPrediction"
 					];
 				} : AIActionAND;
 			}
@@ -3009,7 +3490,7 @@ SingleMeleeAttackCharge01 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 1.5f );
 			attackName = "SingleMeleeAttackCharge01";
@@ -3057,7 +3538,7 @@ SingleMeleeAttackCharge01RecoverMiss : AIAction
 				{
 					AND = 
 					[
-						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove2mPrediction"
+						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove5mPrediction"
 					];
 				} : AIActionAND;
 			}
@@ -3150,7 +3631,7 @@ SingleMeleeAttackCharge02 : AIAction
 				"AttachmentSlots.WeaponRight"
 			];
 			attackDuration = 0.1f;
-			attackRange = 4.f;
+			attackRange = 5.f;
 			attackTime = 0.f;
 			colliderBoxSize = ( 2.f, 0.3f, 2.f );
 			attackName = "SingleMeleeAttackCharge02";
@@ -3191,7 +3672,7 @@ SingleMeleeAttackCharge02RecoverMiss : AIAction
 				{
 					AND = 
 					[
-						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove2mPrediction"
+						"Condition.TargetPOVAbove180deg", "Condition.TargetAbove5mPrediction"
 					];
 				} : AIActionAND;
 			}
@@ -3288,6 +3769,20 @@ HammerThrowDodgeBack : AIAction
 		animSlot = 
 		{
 		};
+	};
+}
+
+ThrowWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanThrowWeapon", "Condition.AnimalsBossThrowHammerCooldown"
+			];
+		} : AIActionAND;
 	};
 }
 
@@ -3576,7 +4071,7 @@ MeleeAttackLightSlideData : AIActionSlideData
 	duration = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 3.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3587,7 +4082,7 @@ MeleeAttackLight01Part1SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3598,7 +4093,7 @@ MeleeAttackLight01Part1OnPlaceSlideData : AIActionSlideData
 	slideStartDelay = 0.5f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 	useRotationSlide = false;
 }
@@ -3610,7 +4105,7 @@ MeleeAttackLight01Part2SlideData : AIActionSlideData
 	slideStartDelay = 0.2f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 22.5;
 }
 
@@ -3621,7 +4116,7 @@ MeleeAttackLight01Part3SlideData : AIActionSlideData
 	slideStartDelay = 0.3f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 22.5;
 }
 
@@ -3632,7 +4127,7 @@ MeleeAttackLight02Part1SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3643,7 +4138,7 @@ MeleeAttackLight02Part1OnPlaceSlideData : AIActionSlideData
 	slideStartDelay = 0.6f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 	useRotationSlide = false;
 }
@@ -3655,7 +4150,7 @@ MeleeAttackLight02Part2SlideData : AIActionSlideData
 	slideStartDelay = 0.2f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3666,7 +4161,7 @@ MeleeAttackLight02Part3SlideData : AIActionSlideData
 	slideStartDelay = 0.2f;
 	distance = 2.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3677,7 +4172,7 @@ MeleeAttackLight02Part4SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 1.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3685,7 +4180,7 @@ MeleeAttackStrongSlideData : AIActionSlideData
 {
 	target = "AIActionTarget.CombatTarget";
 	distance = 5.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3694,7 +4189,7 @@ MeleeAttackStrongOnPlaceSlideData : AIActionSlideData
 	target = "AIActionTarget.CombatTarget";
 	usePositionSlide = false;
 	distance = 3.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3705,7 +4200,7 @@ MeleeAttackStrong01SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3716,7 +4211,7 @@ MeleeAttackStrong02SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 3.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3727,7 +4222,7 @@ MeleeAttackStrong03SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 1.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 	useRotationSlide = false;
 }
@@ -3739,7 +4234,7 @@ MeleeAttackChargeSlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 3.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3750,7 +4245,7 @@ MeleeAttackCharge01SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 3.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3761,7 +4256,7 @@ MeleeAttackCharge02SlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 3.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3772,7 +4267,7 @@ MeleeAttackJumpSlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 4.f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 
@@ -3782,7 +4277,7 @@ MeleeSlideCollsionPrevention : AIActionSlideData
 	duration = 0.f;
 	distance = 1.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 2.f;
+	offsetToTarget = 1.f;
 }
 
 RotateSlideData : AIActionSlideData
@@ -3801,7 +4296,7 @@ DashForwardSlideData : AIActionSlideData
 	slideStartDelay = 0.f;
 	distance = 5.f;
 	positionSpeed = 2.f;
-	offsetToTarget = 1.6f;
+	offsetToTarget = 1.5f;
 	finalRotationAngle = 90;
 }
 

@@ -1,5 +1,5 @@
 package LootTables
-using RTDB
+using RTDB, Loot, Prereqs, LootPrereqs
 
 ma_bls_ina_se1_01_onscreen_01 : LootItem
 {
@@ -554,14 +554,10 @@ ma_bls_ina_se1_22_onscreen_01 : LootItem
 
 ma_bls_ina_se1_22_onscreen_01_loot_table : LootTable
 {
-	minItemsToLoot = 2;
-	maxItemsToLoot = 2;
+	minItemsToLoot = 1;
+	maxItemsToLoot = 1;
 	fk< LootItem >[] lootItems = 
 	[
-		{
-			dropChance = 1;
-			itemID = "Items.Preset_Psycho_ma_bls_ina_se1_22";
-		}, 
 		"LootTables.ma_bls_ina_se1_22_onscreen_01"
 	];
 }
@@ -2831,15 +2827,15 @@ ma_wat_nid_01_onscreen_02 : LootItem
 
 ma_wat_nid_01_shard_02_loot_table : LootTable
 {
-	minItemsToLoot = 4;
-	maxItemsToLoot = 4;
+	minItemsToLoot = 5;
+	maxItemsToLoot = 5;
 	fk< LootItem >[] lootItems = 
 	[
 		"LootTables.ma_wat_nid_01_onscreen_02"
 	];
 	lootTableInclusions = 
 	[
-		"LootTables.Loot_ma_wat_nid_01"
+		"LootTables.Loot_ma_wat_nid_01", "LootTables.ma_wat_nid_01_Pulsar_Buzzsaw_Recipe_loot_table"
 	];
 }
 
@@ -2883,6 +2879,7 @@ ma_wat_nid_02_combined_loot_table : LootTable
 
 ma_wat_nid_03_onscreen : LootItem
 {
+	dropChance = 1000000;
 	fk< Item > itemID = "Items.ma_wat_nid_03_brick_and_elly_conversation";
 }
 
@@ -4486,9 +4483,25 @@ ma_wat_lch_06_onscreen_01_loot_table : LootTable
 	lootItems = 
 	[
 		{
+			playerPrereqID = "LootPrereqs.CyberpsychoWeaponInLootPrereq_early";
 			dropChance = 1;
-			itemID = "Items.Preset_Psycho_ma_wat_lch_06";
-		}, 
+			itemID = "Items.Preset_Psycho_ma_wat_lch_06_early";
+		} : CyberpsychoWeapon_LootItem, 
+		{
+			playerPrereqID = "LootPrereqs.CyberpsychoWeaponInLootPrereq_mid";
+			dropChance = 1;
+			itemID = "Items.Preset_Psycho_ma_wat_lch_06_mid";
+		} : CyberpsychoWeapon_LootItem, 
+		{
+			playerPrereqID = "LootPrereqs.CyberpsychoWeaponInLootPrereq_late";
+			dropChance = 1;
+			itemID = "Items.Preset_Psycho_ma_wat_lch_06_late";
+		} : CyberpsychoWeapon_LootItem, 
+		{
+			playerPrereqID = "LootPrereqs.CyberpsychoWeaponInLootPrereq_end";
+			dropChance = 1;
+			itemID = "Items.Preset_Psycho_ma_wat_lch_06_end";
+		} : CyberpsychoWeapon_LootItem, 
 		"LootTables.ma_wat_lch_06_onscreen_01", "LootTables.ma_wat_lch_06_onscreen_04"
 	];
 }
@@ -5835,14 +5848,10 @@ ma_cct_dtn_03_onscreen_01 : LootItem
 
 ma_cct_dtn_03_onscreen_01_loot_table : LootTable
 {
-	minItemsToLoot = 2;
-	maxItemsToLoot = 2;
+	minItemsToLoot = 1;
+	maxItemsToLoot = 1;
 	fk< LootItem >[] lootItems = 
 	[
-		{
-			dropChance = 1;
-			itemID = "Items.Preset_Psycho_ma_cct_dtn_03";
-		}, 
 		"LootTables.ma_cct_dtn_03_onscreen_01"
 	];
 }
@@ -5880,14 +5889,10 @@ ma_cct_dtn_07_onscreen_02 : LootItem
 
 ma_cct_dtn_07_onscreen_02_loot_table : LootTable
 {
-	minItemsToLoot = 2;
-	maxItemsToLoot = 2;
+	minItemsToLoot = 1;
+	maxItemsToLoot = 1;
 	fk< LootItem >[] lootItems = 
 	[
-		{
-			dropChance = 1;
-			itemID = "Items.Preset_Psycho_ma_cct_dtn_07";
-		}, 
 		"LootTables.ma_cct_dtn_07_onscreen_02"
 	];
 }
@@ -7400,211 +7405,1291 @@ loc_ma_hey_rey_115_onscreen_01_loot_table : LootTable
 	];
 }
 
-ma_wat_lch_01_Rare_Defender_Recipe : LootItem
+ma_wat_lch_01_Defender_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.RareDefenderRecipe";
-}
-
-ma_wat_lch_01_Rare_Defender_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wat_lch_01_Rare_Defender_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonDefenderRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonDefenderRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonDefenderRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonDefenderRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareDefenderRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareDefenderRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicDefenderRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicDefenderRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryDefenderRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryDefenderRecipe";
+		}
+	];
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonDefenderReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonRangedWeaponRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonDefenderReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonRangedWeaponRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareDefenderReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareRangedWeaponRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicDefenderReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicRangedWeaponRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryDefenderReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryRangedWeaponRecipeQuery";
+		}
 	];
 }
 
-ma_wat_lch_08_Rare_Unity_Recipe : LootItem
+ma_wat_lch_08_Unity_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.RareUnityRecipe";
-}
-
-ma_wat_lch_08_Rare_Unity_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wat_lch_08_Rare_Unity_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonUnityRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonUnityRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonUnityRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonUnityRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareUnityRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareUnityRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicUnityRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicUnityRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryUnityRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryUnityRecipe";
+		}
 	];
-}
-
-ma_wbr_jpn_20_Igla_Sovereign_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Igla_Sovereign";
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonUnityReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonUnityReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareUnityReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicUnityReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryUnityReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseHandgunRecipeQuery";
+		}
+	];
 }
 
 ma_wbr_jpn_20_Igla_Sovereign_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wbr_jpn_20_Igla_Sovereign_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Igla_Sovereign";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Igla_Sovereign";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Igla_Sovereign";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Igla_Sovereign";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Igla_Sovereign";
+		}
 	];
-}
-
-ma_hey_spr_11_Yinglong_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Dian_Yinglong";
 }
 
 ma_hey_spr_11_Yinglong_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_hey_spr_11_Yinglong_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Dian_Yinglong";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Dian_Yinglong";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Dian_Yinglong";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Dian_Yinglong";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Dian_Yinglong";
+		}
 	];
 }
 
-ma_pac_cvi_12_Legendary_Achilles_Recipe : LootItem
+ma_pac_cvi_12_Achilles_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.EpicOmahaRecipe";
-}
-
-ma_pac_cvi_12_Legendary_Achilles_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_pac_cvi_12_Legendary_Achilles_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonAchillesRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonAchillesRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonAchillesRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonAchillesRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareAchillesRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareAchillesRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicAchillesRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicAchillesRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryAchillesRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryAchillesRecipe";
+		}
 	];
-}
-
-ma_wat_nid_02_Copperhead_Genesis_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Copperhead_Genesis";
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonAchillesReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonAchillesReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareAchillesReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicAchillesReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryAchillesReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseRifleRecipeQuery";
+		}
+	];
 }
 
 ma_wat_nid_02_Copperhead_Genesis_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wat_nid_02_Copperhead_Genesis_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Copperhead_Genesis";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Copperhead_Genesis";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Copperhead_Genesis";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Copperhead_Genesis";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Copperhead_Genesis";
+		}
 	];
-}
-
-ma_pac_wwd_02_Ajax_Moron_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Ajax_Moron";
 }
 
 ma_pac_wwd_02_Ajax_Moron_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_pac_wwd_02_Ajax_Moron_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Ajax_Moron";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Ajax_Moron";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Ajax_Moron";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Ajax_Moron";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Ajax_Moron";
+		}
 	];
-}
-
-ma_std_rcr_08_Nekomata_Breakthrough_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Nekomata_Breakthrough";
 }
 
 ma_std_rcr_08_Nekomata_Breakthrough_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_std_rcr_08_Nekomata_Breakthrough_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Nekomata_Breakthrough";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Nekomata_Breakthrough";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Nekomata_Breakthrough";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Nekomata_Breakthrough";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Nekomata_Breakthrough";
+		}
 	];
-}
-
-ma_std_arr_03_comrade_hammer_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Burya_Comrade";
 }
 
 ma_std_arr_03_comrade_hammer_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_std_arr_03_comrade_hammer_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Burya_Comrade";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Burya_Comrade";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Burya_Comrade";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Burya_Comrade";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Burya_Comrade";
+		}
 	];
 }
 
-ma_hey_gle_02_Legendary_Yukimura_Recipe : LootItem
+ma_hey_gle_02_Yukimura_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.LegendaryYukimuraRecipe";
-}
-
-ma_hey_gle_02_Legendary_Yukimura_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_hey_gle_02_Legendary_Yukimura_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonYukimuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonYukimuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonYukimuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonYukimuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareYukimuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareYukimuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicYukimuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicYukimuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryYukimuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryYukimuraRecipe";
+		}
 	];
-}
-
-ma_wbr_nok_05_Tactician_Headsman_recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Tactician_Headsman";
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonYukimuraReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonYukimuraReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareYukimuraReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicYukimuraReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseHandgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryYukimuraReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseHandgunRecipeQuery";
+		}
+	];
 }
 
 ma_wbr_nok_05_Tactician_Headsman_recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wbr_nok_05_Tactician_Headsman_recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Tactician_Headsman";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Tactician_Headsman";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Tactician_Headsman";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Tactician_Headsman";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Tactician_Headsman";
+		}
 	];
-}
-
-ma_wat_nid_01_Pulsar_Buzzsaw_Recipe : LootItem
-{
-	fk< Item > itemID = "Items.Recipe_Preset_Pulsar_Buzzsaw";
 }
 
 ma_wat_nid_01_Pulsar_Buzzsaw_Recipe_loot_table : LootTable
 {
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wat_nid_01_Pulsar_Buzzsaw_Recipe"
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Common";
+			itemID = "Items.Recipe_Common_Pulsar_Buzzsaw";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Uncommon";
+			itemID = "Items.Recipe_Uncommon_Pulsar_Buzzsaw";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Rare";
+			itemID = "Items.Recipe_Rare_Pulsar_Buzzsaw";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Epic";
+			itemID = "Items.Recipe_Epic_Pulsar_Buzzsaw";
+		}, 
+		{
+			playerPrereqID = "LootPrereqs.CraftedIconicWeaponRecipePrereq_Legendary";
+			itemID = "Items.Recipe_Legendary_Pulsar_Buzzsaw";
+		}
 	];
 }
 
-ma_wat_nid_06_Rare_Igla_Recipe : LootItem
+ma_wat_nid_06_Igla_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.RareIglaRecipe";
-}
-
-ma_wat_nid_06_Rare_Igla_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_wat_nid_06_Rare_Igla_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonIglaRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonIglaRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonIglaRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonIglaRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareIglaRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareIglaRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicIglaRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicIglaRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryIglaRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryIglaRecipe";
+		}
+	];
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonIglaReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseShotgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonIglaReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseShotgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareIglaReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseShotgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicIglaReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseShotgunRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryIglaReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseShotgunRecipeQuery";
+		}
 	];
 }
 
-ma_hey_rey_06_Legendary_Dian_Recipe : LootItem
+ma_hey_rey_06_Dian_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.LegendaryDianRecipe";
-}
-
-ma_hey_rey_06_Legendary_Dian_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_hey_rey_06_Legendary_Dian_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonDianRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonDianRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonDianRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonDianRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareDianRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareDianRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicDianRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicDianRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryDianRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryDianRecipe";
+		}
+	];
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonDianReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseSMGRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonDianReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseSMGRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareDianReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseSMGRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicDianReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseSMGRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryDianReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseSMGRecipeQuery";
+		}
 	];
 }
 
-ma_std_rcr_18_Legendary_Ashura_Recipe : LootItem
+ma_std_rcr_18_Ashura_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.LegendaryAshuraRecipe";
-}
-
-ma_std_rcr_18_Legendary_Ashura_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_std_rcr_18_Legendary_Ashura_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonAshuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonAshuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonAshuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonAshuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareAshuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareAshuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicAshuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicAshuraRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryAshuraRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryAshuraRecipe";
+		}
+	];
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonAshuraReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonAshuraReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareAshuraReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicAshuraReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryAshuraReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseRifleRecipeQuery";
+		}
 	];
 }
 
-ma_bls_ina_se1_17_Legendary_Copperhead_Recipe : LootItem
+ma_bls_ina_se1_17_Copperhead_Recipe_loot_table : LootTable
 {
-	fk< Item > itemID = "Items.LegendaryCopperheadRecipe";
-}
-
-ma_bls_ina_se1_17_Legendary_Copperhead_Recipe_loot_table : LootTable
-{
-	fk< LootItem >[] lootItems = 
+	lootItems = 
 	[
-		"LootTables.ma_bls_ina_se1_17_Legendary_Copperhead_Recipe"
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonCopperheadRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.CommonCopperheadRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonCopperheadRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			itemID = "Items.UncommonCopperheadRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareCopperheadRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			itemID = "Items.RareCopperheadRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicCopperheadRecipe";
+					} : PlayerDoesntHaveRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			itemID = "Items.EpicCopperheadRecipe";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryCopperheadRecipe";
+					} : PlayerDoesntHaveRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			itemID = "Items.LegendaryCopperheadRecipe";
+		}
+	];
+	queries = 
+	[
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.CommonCopperheadReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelTrashTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.CommonBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.UncommonCopperheadReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelWeakTierPrereq;
+			query = "Query.UncommonBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.RareCopperheadReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelNormalTierPrereq;
+			query = "Query.RareBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.EpicCopperheadReipe";
+					} : PlayerHasRecipePrereq
+				];
+			} : PlayerLevelRareTierPrereq;
+			query = "Query.EpicBaseRifleRecipeQuery";
+		}, 
+		{
+			playerPrereqID = 
+			{
+				nestedPrereqs += 
+				[
+					{
+						recipe = "Items.LegendaryCopperheadReipe";
+					} : PlayerHasRecipePrereq, 
+					"LootPrereqs.PlayerLevelEliteTierPrereq"
+				];
+			} : ANDPrereq;
+			query = "Query.LegendaryBaseRifleRecipeQuery";
+		}
 	];
 }
 

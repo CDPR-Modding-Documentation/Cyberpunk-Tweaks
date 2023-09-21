@@ -1,17 +1,17 @@
 package Items
-using RTDB, BaseStats, Prereqs, Perks
+using RTDB, BaseStats, Prereqs, Perks, Effectors
 
 [ notQueryable ]
-Base_Two_Hand_Hammer : MeleeWeapon
+Base_Two_Hand_Hammer : Base_Blunt
 {
 	fk< ItemType > itemType = "ItemType.Wea_Hammer";
 	triggerEffectName = "te_wea_melee_swing_heavy";
 	dropObject = "bigItemDrop";
 	displayName = "LocKey#51232";
 	localizedDescription = "LocKey#51233";
+	gameplayDescription = "LocKey#92668";
 	string friendlyName = "w_melee_hammer";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Hammer";
-	evolution = "WeaponEvolution.Blunt";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
 		{
@@ -34,7 +34,7 @@ Base_Two_Hand_Hammer : MeleeWeapon
 	CName audioName = "w_melee_001_katana";
 	CName[] tags += 
 	[
-		"TakedownWeapon", "Two Hand Hammer"
+		"TakedownWeapon", "Two Hand Hammer", "FinisherFront", "FinisherBack"
 	];
 	fk< ConstantStatModifier > price = 
 	{
@@ -49,11 +49,11 @@ Base_Two_Hand_Hammer : MeleeWeapon
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.HammerFxPackage";
 	fk< StatModifierGroup >[] statModifierGroups += 
 	[
-		"Items.Base_Two_Hand_Hammer_RPG_Stats", "Items.Base_Two_Hand_Hammer_RPG_Randomized_Stats", "Items.Base_Two_Hand_Hammer_Handling_Stats", "Items.Base_Two_Hand_Hammer_Misc_Stats", "Proficiencies.BrawlingWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+		"Items.Base_Two_Hand_Hammer_RPG_Stats", "Items.Base_Two_Hand_Hammer_Handling_Stats", "Items.Base_Two_Hand_Hammer_Misc_Stats", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
 	];
 	fk< Attack >[] attacks += 
 	[
-		"TwoHandHammerAttacks.TwoHandHammerComboAttack1", "TwoHandHammerAttacks.TwoHandHammerComboAttack2", "TwoHandHammerAttacks.TwoHandHammerComboAttack3", "TwoHandHammerAttacks.TwoHandHammerComboAttack4", "TwoHandHammerAttacks.TwoHandHammerFinalAttack1", "TwoHandHammerAttacks.TwoHandHammerFinalAttack2", "TwoHandHammerAttacks.TwoHandHammerFinalAttack3", "TwoHandHammerAttacks.TwoHandHammerFinalAttack4", "TwoHandHammerAttacks.TwoHandHammerFinalAttack5", "TwoHandHammerAttacks.TwoHandHammerFinalAttack6", "TwoHandHammerAttacks.TwoHandHammerStrongAttack1", "TwoHandHammerAttacks.TwoHandHammerStrongAttack2", "TwoHandHammerAttacks.TwoHandHammerStrongAttack3", "TwoHandHammerAttacks.TwoHandHammerBlockAttack", "TwoHandHammerAttacks.TwoHandHammerSafeAttack", "TwoHandHammerAttacks.TwoHandHammerJumpAttack", "TwoHandHammerAttacks.TwoHandHammerCrouchAttack", "TwoHandHammerAttacks.TwoHandHammerDeflectAttack"
+		"TwoHandHammerAttacks.TwoHandHammerComboAttack1", "TwoHandHammerAttacks.TwoHandHammerComboAttack2", "TwoHandHammerAttacks.TwoHandHammerComboAttack3", "TwoHandHammerAttacks.TwoHandHammerComboAttack4", "TwoHandHammerAttacks.TwoHandHammerFinalAttack1", "TwoHandHammerAttacks.TwoHandHammerFinalAttack2", "TwoHandHammerAttacks.TwoHandHammerFinalAttack3", "TwoHandHammerAttacks.TwoHandHammerFinalAttack4", "TwoHandHammerAttacks.TwoHandHammerFinalAttack5", "TwoHandHammerAttacks.TwoHandHammerFinalAttack6", "TwoHandHammerAttacks.TwoHandHammerStrongAttack1", "TwoHandHammerAttacks.TwoHandHammerStrongAttack2", "TwoHandHammerAttacks.TwoHandHammerStrongAttack3", "TwoHandHammerAttacks.TwoHandHammerBlockAttack", "TwoHandHammerAttacks.TwoHandHammerSafeAttack", "TwoHandHammerAttacks.TwoHandHammerJumpAttack", "TwoHandHammerAttacks.TwoHandHammerCrouchAttack", "TwoHandHammerAttacks.TwoHandHammerDeflectAttack", "TwoHandHammerAttacks.TwoHandHammerBodySlamLevel1Attack", "TwoHandHammerAttacks.TwoHandHammerBodySlamLevel2Attack", "TwoHandHammerAttacks.TwoHandHammerBodySlamLevel3Attack", "TwoHandHammerAttacks.TwoHandHammerGroundSlamAttack"
 	];
 	audioWeaponConfiguration = "audio_melee_metadata_sledgehammer";
 	fk< Crosshair > crosshair = "Crosshairs.Melee_Hammer";
@@ -86,13 +86,6 @@ Base_Two_Hand_Hammer_RPG_Stats : StatModifierGroup
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_hammer_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
 			value = 6.8f;
@@ -101,66 +94,12 @@ Base_Two_Hand_Hammer_RPG_Stats : StatModifierGroup
 			statType = "BaseStats.BlockFactor";
 			modifierType = "Additive";
 			value = 5f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow", {
+			statType = "BaseStats.VehicleMinHealthPercentWhenDamaged";
+			modifierType = "Multiplier";
+			value = 0f;
 		} : ConstantStatModifier
-	];
-}
-
-Base_Two_Hand_Hammer_RPG_Randomized_Stats : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_randomized_stats";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = 
-	[
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "Additive";
-			id = "item_hammer_RPG_stats";
-			column = "power_level_to_crit_chance";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "Additive";
-			id = "item_hammer_RPG_stats";
-			column = "power_level_to_crit_damage";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "Additive";
-			id = "item_hammer_RPG_stats";
-			column = "power_level_to_bonus_stamina_cost_reduction";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier
 	];
 }
 
@@ -186,7 +125,12 @@ Base_Two_Hand_Hammer_Handling_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.MeleeAttackComboDuration";
 			modifierType = "Additive";
-			value = 0.9f;
+			value = 0.835f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 1.f;
 		} : ConstantStatModifier, 
 		{
 			float value = 25.f;
@@ -201,13 +145,15 @@ Base_Two_Hand_Hammer_Handling_Stats : StatModifierGroup
 			float value = 40.f;
 		} : BaseEvadeImpulseModifier, 
 		{
-			statType = "BaseStats.KnockdownImpulse";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			float value = 0.05f;
-		} : CombinedStatModifier
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Multiplier";
+			value = 1.515f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "Additive";
+			value = 20f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -238,7 +184,7 @@ Base_Two_Hand_Hammer_Misc_Stats : StatModifierGroup
 	];
 }
 
-Base_Two_Hand_Hammer_NPC_Data : Base_NPC_RPG_Data
+Base_Two_Hand_Hammer_NPC_Data : Base_Blunt_NPC_RPG_Data
 {
 	statModifierGroups += 
 	[
@@ -339,7 +285,7 @@ Base_Two_Hand_Hammer_NPC_Stats : StatModifierGroup
 	];
 }
 
-Preset_Kanabo_Default : Preset_Baseball_Bat_Default
+Preset_Kanabo_Default : Base_Two_Hand_Blunt
 {
 	displayName = "LocKey#40219";
 	localizedDescription = "LocKey#40220";
@@ -348,6 +294,7 @@ Preset_Kanabo_Default : Preset_Baseball_Bat_Default
 		"Default"
 	];
 	CName appearanceResourceName = "Preset_Kanabo_Default";
+	audioWeaponConfiguration = "audio_melee_metadata_baseballbat";
 	fk< GameplayLogicPackage >[] OnAttach += 
 	[
 		{
@@ -355,7 +302,8 @@ Preset_Kanabo_Default : Preset_Baseball_Bat_Default
 			[
 				"w_kanabo"
 			];
-		} : GameplayLogicPackage
+		} : GameplayLogicPackage, 
+		"GLP.HoldingKanabo"
 	];
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Kanabo";
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
@@ -363,7 +311,48 @@ Preset_Kanabo_Default : Preset_Baseball_Bat_Default
 		{
 			slot = "AttachmentSlots.Grip";
 			fk< Item > itemPartPreset = "Items.w_hammer_kanabo_grip";
-		}
+		}, 
+		{
+			slot = "AttachmentSlots.Blunt_WeaponMod1";
+		} : BluntModList_Slot1, 
+		{
+			slot = "AttachmentSlots.Blunt_WeaponMod2";
+		} : BluntModList_Slot2
+	];
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Items.Kanabo_Damage_Stats"
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Kanabo_NPC_Damage_Stats"
+		];
+	} : Base_Two_Hand_Hammer_NPC_Data;
+}
+
+Kanabo_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
+	];
+}
+
+Kanabo_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -371,6 +360,13 @@ Preset_Kanabo_Default : Preset_Baseball_Bat_Default
 Craftable_Common_Kanabo : Preset_Kanabo_Default
 {
 	quality = "Quality.Common";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_hammer_kanabo_grip";
+		}
+	];
 	CraftingData = "Items.Big_Common_Crafting_Materials_Weapon";
 }
 
@@ -378,46 +374,35 @@ Craftable_Common_Kanabo : Preset_Kanabo_Default
 Craftable_Uncommon_Kanabo : Craftable_Common_Kanabo
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Blunt_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Kanabo : Craftable_Common_Kanabo
+Craftable_Rare_Kanabo : Craftable_Uncommon_Kanabo
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Kanabo : Craftable_Common_Kanabo
+Craftable_Epic_Kanabo : Craftable_Uncommon_Kanabo
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Kanabo : Craftable_Common_Kanabo
+Craftable_Legendary_Kanabo : Craftable_Uncommon_Kanabo
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 Preset_Hammer_Default : Base_Two_Hand_Hammer
@@ -434,28 +419,66 @@ Preset_Hammer_Default : Base_Two_Hand_Hammer
 		{
 			slot = "AttachmentSlots.Grip";
 			fk< Item > itemPartPreset = "Items.w_hammer_common_grip";
-		}
+		}, 
+		{
+			slot = "AttachmentSlots.Blunt_WeaponMod1";
+		} : BluntModList_Slot1, 
+		{
+			slot = "AttachmentSlots.Blunt_WeaponMod2";
+		} : BluntModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
+	OnAttach = 
+	[
+		"GLP.HoldingBorgMelee"
+	];
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Items.Hammer_Damage_Stats"
+	];
+	npcRPGData = 
 	{
-		fk< RecipeElement >[] craftingRecipe += 
+		statModifierGroups += 
 		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 15;
-			}
+			"Items.Hammer_NPC_Damage_Stats"
 		];
-	};
+	} : Base_Two_Hand_Hammer_NPC_Data;
+}
+
+Hammer_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
+	];
+}
+
+Hammer_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
+	];
 }
 
 [ notQueryable ]
 Craftable_Common_Hammer : Preset_Hammer_Default
 {
 	quality = "Quality.Common";
+	fk< SlotItemPartPreset >[] slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			fk< Item > itemPartPreset = "Items.w_hammer_common_grip";
+		}
+	];
 	CraftingData = "Items.Big_Common_Crafting_Materials_Weapon";
 }
 
@@ -463,46 +486,35 @@ Craftable_Common_Hammer : Preset_Hammer_Default
 Craftable_Uncommon_Hammer : Craftable_Common_Hammer
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Blunt_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Hammer : Craftable_Common_Hammer
+Craftable_Rare_Hammer : Craftable_Uncommon_Hammer
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Hammer : Craftable_Common_Hammer
+Craftable_Epic_Hammer : Craftable_Uncommon_Hammer
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Hammer : Craftable_Common_Hammer
+Craftable_Legendary_Hammer : Craftable_Uncommon_Hammer
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
@@ -535,8 +547,38 @@ w_melee_hammer2h : Preset_Hammer_Default
 [ notQueryable ]
 w_melee_boss_hammer : Base_Two_Hand_Hammer
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "w_melee_boss_hammer_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Melee_Blueprint";
 	displayName = "LocKey#54032";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40223";
+	gameplayDescription = "LocKey#93758";
+	tags += 
+	[
+		"Sasquatch_Hammer", "IconicWeapon"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem", "AttackModifier.WeaponArmorPenetrationLow"
+		];
+		statModifierGroups += 
+		[
+			"Items.Hammer_NPC_Damage_Stats"
+		];
+	} : Items.Base_Two_Hand_Hammer_NPC_Data;
 	CName entityName = "w_melee_boss_hammer";
 	appearanceName = "w_sledge_hammer_boss";
 	fk< ConstantStatModifier > price = 
@@ -547,6 +589,17 @@ w_melee_boss_hammer : Base_Two_Hand_Hammer
 	} : ConstantStatModifier;
 	audioWeaponConfiguration = "audio_melee_metadata_animal_miniboss_hammer";
 	fk< Crosshair > crosshair = "Crosshairs.Melee_Hammer";
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Grip";
+			itemPartPreset = "Items.w_hammer_common_grip";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicMeleeWeaponMod1";
+			itemPartPreset = "Items.Hammer_Sasquatch_Mod";
+		}
+	];
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
@@ -555,26 +608,46 @@ w_melee_boss_hammer : Base_Two_Hand_Hammer
 			value = 2.f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 23.2f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.HitWoundsFactor";
-			modifierType = "Multiplier";
-			value = 0.f;
+			modifierType = "Additive";
+			value = 1;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitDismembermentFactor";
-			modifierType = "Multiplier";
-			value = 0.f;
+			modifierType = "Additive";
+			value = 1;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.PhysicalDamage";
+			statType = "BaseStats.CanWeaponIgnoreArmor";
+			modifierType = "Additive";
+			value = 0.50f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
 			modifierType = "Multiplier";
-			value = 1.f;
-		} : ConstantStatModifier
+			value = 2.19;
+		} : ConstantStatModifier, 
+		"Quality.IconicItem"
 	];
 	CName specific_player_appearance = "w_sledge_hammer_player";
 	fk< Attack >[] attacks += 
 	[
 		"NPCAttacks.SasquatchHammerStrongAttack", "NPCAttacks.SasquatchHammerStrongAttackKnockdown"
 	];
+	fk< StatModifierGroup >[] statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Blunts_Stun_Application_Stats", "Items.Hammer_Damage_Stats", "Items.Base_Two_Hand_Hammer_RPG_Stats", "Items.Base_Two_Hand_Hammer_Handling_Stats", "Items.Base_Two_Hand_Hammer_Misc_Stats", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+	];
+	OnAttach = 
+	[
+		"GLP.HoldingSasquatchHammer"
+	];
+	bool scaleToPlayer = true;
 }
 
 w_hammer_kanabo_grip : ItemWeaponRoot

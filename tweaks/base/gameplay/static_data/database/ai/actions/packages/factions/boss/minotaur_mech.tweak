@@ -56,6 +56,26 @@ Map : ActionMap
 				isOverriddenBy = "MinotaurMech.SE_CommsCallInCombat";
 			}, 
 			{
+				node = "StatusEffectActions.SE_CommsCallOut";
+				isOverriddenBy = "MinotaurMech.SE_CommsCallOut";
+			}, 
+			{
+				node = "StatusEffectActions.SE_CommsCallOutCombat";
+				isOverriddenBy = "MinotaurMech.SE_CommsCallOutCombat";
+			}, 
+			{
+				node = "StatusEffectActions.SE_Whistle";
+				isOverriddenBy = "MinotaurMech.SE_Whistle";
+			}, 
+			{
+				node = "StatusEffectActions.SE_CombatWhistle";
+				isOverriddenBy = "MinotaurMech.SE_CombatWhistle";
+			}, 
+			{
+				node = "StatusEffectActions.SE_WhistleTurnAway";
+				isOverriddenBy = "MinotaurMech.SE_WhistleTurnAway";
+			}, 
+			{
 				node = "GenericArchetype.SE_SetFriendly";
 				isOverriddenBy = "MinotaurMech.SE_SetFriendly";
 			}, 
@@ -76,8 +96,16 @@ Map : ActionMap
 				isOverriddenBy = "MinotaurMech.LookAroundForIntruder";
 			}, 
 			{
+				node = "ReactionsActions.LookAroundForWhistle";
+				isOverriddenBy = "MinotaurMech.LookAroundForWhistle";
+			}, 
+			{
 				node = "ReactionsActions.LookAtExplosionSource";
 				isOverriddenBy = "MechReactionsActions.RotateToStimSource";
+			}, 
+			{
+				node = "ReactionsActions.LookAwayFromWhistle";
+				isOverriddenBy = "MechReactionsActions.LookAwayFromWhistle";
 			}, 
 			{
 				node = "StatusEffectActions.SE_BrainMelt";
@@ -727,6 +755,7 @@ SingleMeleeAttackStrong01 : AIAction
 			upperBodyState = "Attack";
 			locomotionMode = "Static";
 		};
+		forceZeroUpdateInterval = true;
 	};
 	loop = 
 	{
@@ -736,6 +765,7 @@ SingleMeleeAttackStrong01 : AIAction
 			upperBodyState = "Attack";
 			locomotionMode = "Static";
 		};
+		forceZeroUpdateInterval = true;
 	};
 	recovery = 
 	{
@@ -745,6 +775,7 @@ SingleMeleeAttackStrong01 : AIAction
 			upperBodyState = "Attack";
 			locomotionMode = "Static";
 		};
+		forceZeroUpdateInterval = true;
 	};
 	recoverySubActions = 
 	[
@@ -1574,6 +1605,26 @@ LookAroundForIntruder : AIAction
 	};
 }
 
+LookAroundForWhistle : MinotaurMech.LookAroundForIntruder
+{
+	activationCondition = 
+	{
+		condition = "Condition.StatusEffectWhistleTurnAway";
+	};
+	startup = 
+	{
+		duration = 1.1f;
+	};
+	loop = 
+	{
+		duration = 1.1f;
+	};
+	recovery = 
+	{
+		duration = 1.1f;
+	};
+}
+
 SpecialStaggerLeftCondition : AIAction
 {
 	activationCondition = 
@@ -1913,12 +1964,8 @@ SE_CommsCallIn : StatusEffectActions.SE_CommsCallIn
 	loopSubActions = 
 	[
 		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.Call";
-			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
-			delay = 0.f;
-		} : AISubActionTriggerStim, 
+			useCommsCallLogic = true;
+		} : AISubActionCallSquadSearchBackUp, 
 		{
 			lightPreset = "MechanicalLightPreset.MalfunctionShort";
 		} : AISubActionActivateLightPreset
@@ -1930,16 +1977,108 @@ SE_CommsCallInCombat : StatusEffectActions.SE_CommsCallInCombat
 	loopSubActions = 
 	[
 		{
-			stimSource = "AIActionTarget.Owner";
-			stimType = "StimTypes.CombatCall";
+			useCommsCallLogic = true;
+		} : AISubActionCallSquadSearchBackUp, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_CommsCallOut : StatusEffectActions.SE_CommsCallOut
+{
+	subActions = 
+	[
+		{
+			useCommsCallLogic = true;
+			invert = true;
+			delay = 0.5f;
+		} : AISubActionCallSquadSearchBackUp, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+}
+
+SE_CommsCallOutCombat : StatusEffectActions.SE_CommsCallOutCombat
+{
+	subActions = 
+	[
+		{
+			useCommsCallLogic = true;
+			invert = true;
+			delay = 0.5f;
+		} : AISubActionCallSquadSearchBackUp, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+	};
+}
+
+SE_Whistle : StatusEffectActions.SE_Whistle
+{
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.Whistle";
 			direct = true;
-			target = "AIActionTarget.NearestNavigableSquadmate";
-			delay = 0.f;
+			purelyDirect = true;
+			target = "AIActionTarget.Owner";
+			delay = 0.5f;
 		} : AISubActionTriggerStim, 
 		{
 			lightPreset = "MechanicalLightPreset.MalfunctionShort";
 		} : AISubActionActivateLightPreset
 	];
+	animData = 
+	{
+	};
+}
+
+SE_CombatWhistle : StatusEffectActions.SE_CombatWhistle
+{
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.CombatWhistle";
+			direct = true;
+			purelyDirect = true;
+			target = "AIActionTarget.Owner";
+			delay = 0.5f;
+		} : AISubActionTriggerStim, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+	};
+}
+
+SE_WhistleTurnAway : StatusEffectActions.SE_WhistleTurnAway
+{
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Player";
+			stimType = "StimTypes.CombatWhistle";
+			direct = true;
+			purelyDirect = true;
+			target = "AIActionTarget.Owner";
+			delay = 0.5f;
+		} : AISubActionTriggerStim, 
+		{
+			lightPreset = "MechanicalLightPreset.MalfunctionShort";
+		} : AISubActionActivateLightPreset
+	];
+	animData = 
+	{
+	};
 }
 
 SE_SetFriendly : StatusEffectActions.SE_SetFriendly

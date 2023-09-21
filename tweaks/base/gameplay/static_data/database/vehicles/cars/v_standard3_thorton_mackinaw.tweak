@@ -29,24 +29,27 @@ v_standard3_thorton_mackinaw : Vehicle_4w_Default
 	traffic_audio_resource = "v_car_thorton_mackinaw_traffic";
 	vehDataPackage = 
 	{
+		useAuxiliary = true;
 		barnDoorsTailgate = true;
 	} : VehicleDataPackageStandard3;
+	statModifierGroups += 
+	[
+		"VehicleStatPreset.Durable"
+	];
 	destruction = "Vehicle.VehicleDestructionParamsMackinaw";
-	vehPassR_FPPCameraParams = "Vehicle.ZeroedFPPCameraParams";
-	vehPassL_FPPCameraParams = "Vehicle.ZeroedFPPCameraParams";
 	vehWheelDimensionsSetup = 
 	{
 		frontPreset = 
 		{
 			tireRadius = 0.38f;
-			rimRadius = 0.24f;
+			rimRadius = 0.29f;
 			tireWidth = 0.28f;
 			wheelOffset = 0.05f;
 		} : VehicleWheelDimensionsPreset;
 		backPreset = 
 		{
 			tireRadius = 0.38f;
-			rimRadius = 0.24f;
+			rimRadius = 0.27f;
 			tireWidth = 0.53f;
 			wheelOffset = 0.245f;
 		} : VehicleWheelDimensionsPreset;
@@ -61,8 +64,20 @@ v_standard3_thorton_mackinaw : Vehicle_4w_Default
 	crowdMemberSettings = "Crowds.SUV_DrivingPackage";
 	tppCameraPresets = 
 	[
-		"Camera.VehicleTPP_4w_Truck_Preset_Low_Close", "Camera.VehicleTPP_4w_Truck_Preset_High_Close", "Camera.VehicleTPP_4w_Truck_Preset_Low_Far", "Camera.VehicleTPP_4w_Truck_Preset_High_Far"
+		"Camera.VehicleTPP_4w_Truck_Preset_High_Close", "Camera.VehicleTPP_4w_Truck_Preset_High_Medium", "Camera.VehicleTPP_4w_Truck_Preset_High_Far", "Camera.VehicleTPP_4w_Truck_Preset_High_DriverCombatClose", "Camera.VehicleTPP_4w_Truck_Preset_High_DriverCombatMedium", "Camera.VehicleTPP_4w_Truck_Preset_High_DriverCombatFar", "Camera.VehicleTPP_4w_Truck_Preset_Low_Close", "Camera.VehicleTPP_4w_Truck_Preset_Low_Medium", "Camera.VehicleTPP_4w_Truck_Preset_Low_Far", "Camera.VehicleTPP_4w_Truck_Preset_Low_DriverCombatClose", "Camera.VehicleTPP_4w_Truck_Preset_Low_DriverCombatMedium", "Camera.VehicleTPP_4w_Truck_Preset_Low_DriverCombatFar"
 	];
+	vehDriver_FPPCameraParams = 
+	{
+		lookat_offset_vertical = -0.01f;
+		enable_rear_view = true;
+		rear_view_offset = ( 0.0000, -1.1636, 1.6611 );
+	} : VehicleDriverFPPCameraParamsDefault;
+	vehDriverCombat_FPPCameraParams = 
+	{
+		lookat_offset_vertical = 0.0f;
+		is_forward_offset = 1.0f;
+		forward_offset_value = 0.0f;
+	} : VehicleDriverCombatFPPCameraParamsDefault;
 	trafficSuspension = "Vehicle.TrafficSuspension_Standard";
 }
 
@@ -81,6 +96,32 @@ VehicleDriveModelData_Mackinaw : VehicleDriveModelData_Truck_RWDorAWD
 			wheelsVerticalOffset = -0.0f;
 		} : VehicleWheelPreset_Truck_Rear;
 	} : VehicleWheelDrivingSetup_4_RWD;
+	driveHelpers = 
+	[
+		{
+			type = "Vehicle.RotationLimiter_HelperType";
+			maxAngularSpeedRad = 1.8f;
+		} : RotationLimiter, 
+		{
+			type = "Vehicle.RearWheelsFrictionModifier_HelperType";
+		} : RearWheelsFrictionModifier_Truck, 
+		{
+			type = "Vehicle.DriveWheelsAccelerateNoise_HelperType";
+			accelerationBoostReverse = 0.3f;
+		} : DriveWheelsAccelerateNoise_Sport, 
+		{
+			type = "Vehicle.HandbrakeFrictionModifier_HelperType";
+			rearWheelsLatFrictionCoef = 0.85f;
+			rearWheelsLongFrictionCoef = 0.7f;
+			blendOutTime = 0.5f;
+		} : HandbrakeFrictionModifier_Truck, 
+		{
+			type = "Vehicle.UphillDriveHelper_HelperType";
+		} : UphillDriveHelper_Standard, 
+		{
+			type = "Vehicle.InAirGravityModifier_HelperType";
+		} : InAirGravityModifier
+	];
 }
 
 VehicleDriveModelData_MackinawAI : VehicleDriveModelDataAI_Truck
@@ -182,14 +223,14 @@ v_standard3_thorton_mackinaw_country : v_standard3_thorton_mackinaw
 		frontPreset = 
 		{
 			tireRadius = 0.415f;
-			rimRadius = 0.24f;
+			rimRadius = 0.29f;
 			tireWidth = 0.3f;
 			wheelOffset = 0.08f;
 		} : VehicleWheelDimensionsPreset;
 		backPreset = 
 		{
 			tireRadius = 0.415f;
-			rimRadius = 0.24f;
+			rimRadius = 0.29f;
 			tireWidth = 0.3f;
 			wheelOffset = 0.08f;
 		} : VehicleWheelDimensionsPreset;
@@ -214,7 +255,13 @@ v_standard3_thorton_mackinaw_country : v_standard3_thorton_mackinaw
 				wheelsVerticalOffset = -0.0f;
 			} : VehicleWheelPreset_Truck_Rear;
 		} : VehicleWheelDrivingSetup_4_RWD;
-	} : VehicleDriveModelData_Truck_RWDorAWD;
+	} : VehicleDriveModelData_Mackinaw;
+	vehDriver_FPPCameraParams = 
+	{
+		lookat_offset_vertical = -0.01f;
+		enable_rear_view = true;
+		rear_view_offset = ( 0.0000, -2.7522, 0.2071 );
+	} : VehicleDriverFPPCameraParamsDefault;
 }
 
 v_standard3_thorton_mackinaw_country_poor : v_standard3_thorton_mackinaw_country
@@ -249,6 +296,7 @@ VehicleDestructionParamsMackinaw : VehicleDestructionParamsDefault_4w
 {
 	gridDimensions = ( 2.0f, 4.6, 0.4f );
 	gridLocalOffset = ( 0.0f, 0.0f, 1.1f );
+	chargePortCenter = ( -1.07337666f, 1.65898418f, 0.704111218f );
 	glass = 
 	[
 		{
@@ -488,23 +536,21 @@ VehicleDestructionParamsMackinaw : VehicleDestructionParamsDefault_4w
 	[
 		{
 			name = "FrontLeft";
-			intact = "tire_01_fl";
-			flat = "tire_flat_01_fl";
+			intact = "tire_01_fl_a";
 		}, 
 		{
 			name = "FrontRight";
-			intact = "tire_01_fr";
-			flat = "tire_flat_01_fr";
-		}, 
-		{
-			name = "BackLeft";
-			intact = "tire_01_bl";
-			flat = "tire_flat_01_bl";
+			intact = "tire_01_fr_a";
 		}, 
 		{
 			name = "BackRight";
-			intact = "tire_01_br";
-			flat = "tire_flat_01_br";
+			intact = "tire_01_br_a";
+			hitsToFlatten = 2;
+		}, 
+		{
+			name = "BackLeft";
+			intact = "tire_01_bl_a";
+			hitsToFlatten = 2;
 		}
 	];
 	lights = 
@@ -591,7 +637,7 @@ VehicleDestructionParamsMackinaw : VehicleDestructionParamsDefault_4w
 				{
 					shapes = 
 					[
-						0, 1
+						0, 1, 2, 3, 4, 5
 					];
 					gridCells = 
 					[
@@ -608,6 +654,54 @@ VehicleDestructionParamsMackinaw : VehicleDestructionParamsDefault_4w
 					shapes = 
 					[
 						0
+					];
+					gridCells = 
+					[
+						0, 1
+					];
+				}
+			];
+		}, 
+		{
+			component = "bumper_f_01_a";
+			zones = 
+			[
+				{
+					shapes = 
+					[
+						0, 1, 2, 3, 4, 5
+					];
+					gridCells = 
+					[
+						6, 7
+					];
+				}
+			];
+		}, 
+		{
+			component = "bumper_f_01_b";
+			zones = 
+			[
+				{
+					shapes = 
+					[
+						0
+					];
+					gridCells = 
+					[
+						6, 7
+					];
+				}
+			];
+		}, 
+		{
+			component = "bumper_b_01";
+			zones = 
+			[
+				{
+					shapes = 
+					[
+						0, 1, 2, 3
 					];
 					gridCells = 
 					[
@@ -649,6 +743,7 @@ VehicleDestructionParamsMackinawLarimore : VehicleDestructionParamsDefault_4w
 {
 	gridDimensions = ( 2.0f, 4.6, 0.4f );
 	gridLocalOffset = ( 0.0f, 0.0f, 1.1f );
+	chargePortCenter = ( -1.07337666f, 1.65898418f, 0.704111218f );
 	glass = 
 	[
 		{
@@ -909,23 +1004,19 @@ VehicleDestructionParamsMackinawLarimore : VehicleDestructionParamsDefault_4w
 	[
 		{
 			name = "FrontLeft";
-			intact = "tire_01_fl";
-			flat = "tire_flat_01_fl";
+			intact = "tire_01_fl_a";
 		}, 
 		{
 			name = "FrontRight";
-			intact = "tire_01_fr";
-			flat = "tire_flat_01_fr";
-		}, 
-		{
-			name = "BackLeft";
-			intact = "tire_01_bl";
-			flat = "tire_flat_01_bl";
+			intact = "tire_01_fr_a";
 		}, 
 		{
 			name = "BackRight";
-			intact = "tire_01_br";
-			flat = "tire_flat_01_br";
+			intact = "tire_01_br_a";
+		}, 
+		{
+			name = "BackLeft";
+			intact = "tire_01_bl_a";
 		}
 	];
 	lights = 

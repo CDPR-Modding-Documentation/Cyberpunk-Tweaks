@@ -6,18 +6,19 @@ Base_Senkoh : Base_Tech_Submachinegun
 {
 	buyPrice += 
 	[
-		"Price.Arasaka", "Price.TopManufactureQuality"
+		"Price.Arasaka", "Price.TopManufactureQuality", "Price.SenkohMultiplier"
 	];
 	sellPrice += 
 	[
-		"Price.Arasaka", "Price.TopManufactureQuality"
+		"Price.Arasaka", "Price.TopManufactureQuality", "Price.SenkohMultiplier"
 	];
 	displayName = "LocKey#80763";
 	localizedDescription = "LocKey#80764";
+	gameplayDescription = "LocKey#92672";
 	string friendlyName = "w_submachinegun_arasaka_senkoh";
 	CName audioName = "wea_set_senkoh";
-	fk< Crosshair > crosshair = "Crosshairs.Power_Saratoga";
-	fk< UIIcon > hudIcon = "HUDWeaponIcons.Saratoga";
+	fk< Crosshair > crosshair = "Crosshairs.Tech_Simple";
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Senkoh";
 	fk< ConstantStatModifier > price = 
 	{
 		statType = "BaseStats.Price";
@@ -68,7 +69,7 @@ Base_Senkoh : Base_Tech_Submachinegun
 	previewEffectTag = "pierce";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "SMG"
+		"Preload", "Weapon", "SMG", "T3_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -78,31 +79,34 @@ Base_Senkoh : Base_Tech_Submachinegun
 	fk< TriggerMode > secondaryTriggerMode = "TriggerMode.Charge";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Street";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Tech";
-	fk< Item > ammo = "Ammo.RifleAmmo";
+	fk< Item > ammo = "Ammo.HandgunAmmo";
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Senkoh_Technical_Stats"
 		];
-	} : Base_Power_Submachinegun_NPC_Data;
+	} : Base_Senkoh_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Senkoh_Technical_Stats", "Items.Base_Senkoh_Handling_Stats", "Items.Base_Senkoh_Constant_Stats", "Items.Base_Senkoh_Recoil_Stats", "Items.Base_Senkoh_Aim_Stats", "Items.Base_Senkoh_Spread_Stats"
+		"Items.Base_Senkoh_Technical_Stats", "Items.Base_Senkoh_Handling_Stats", "Items.Base_Senkoh_Constant_Stats", "Items.Base_Senkoh_Recoil_Stats", "Items.Base_Senkoh_Aim_Stats", "Items.Base_Senkoh_Spread_Stats", "Items.Base_Senkoh_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	fk< StatPool >[] statPools = 
 	[
-		"BaseStatPools.WeaponCharge"
+		"BaseStatPools.FullAutoTechCharge"
 	];
 	CName audioSwitchName = "";
 	CName audioSwitchValue = "";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.TechRifle";
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 2.3f;
-	baseEmptyReloadTime = 2.3f;
-	uninterruptibleReloadStart = 1.3f;
-	uninterruptibleEmptyReloadStart = 1.4f;
+	baseReloadTime = 1.1f;
+	baseEmptyReloadTime = 1.1f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -119,11 +123,11 @@ Base_Senkoh : Base_Tech_Submachinegun
 	float weaponBlurIntensity_aim = 1.f;
 }
 
-Base_Senkoh_NPC_Data : Base_Power_Submachinegun_NPC_Data
+Base_Senkoh_NPC_Data : Base_Tech_Submachinegun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Senkoh_Technical_Stats"
+		"Items.Base_Senkoh_NPC_Technical_Stats", "Items.Base_Senkoh_NPC_Damage_Stats"
 	];
 }
 
@@ -135,11 +139,14 @@ Base_Senkoh_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.075f;
+			value = 0.13f;
 		} : CycleTimeModifier, 
 		{
-			value = 0.1f;
+			value = 0.06f;
 		} : CycleTime_BurstModifier, 
+		{
+			value = 0.06f;
+		} : CycleTime_BurstSecondaryModifier, 
 		{
 			value = 3.f;
 		} : NumShotsInBurstModifier, 
@@ -153,7 +160,7 @@ Base_Senkoh_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
-			value = 0.1f;
+			value = 0.075f;
 		} : CycleTime_BurstMaxChargeModifier, 
 		{
 			value = 1.f;
@@ -174,12 +181,98 @@ Base_Senkoh_Technical_Stats : StatModifierGroup
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier, 
+			value = 1.f;
+		} : TechPierceEnabledModifier, 
 		{
-			value = 0.9f;
+			value = -0.44f;
+		} : TechPierceDamageFactorModifier, 
+		{
+			value = 0.5f;
+		} : TechPierceChargeLevelModifier
+	];
+}
+
+Base_Senkoh_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 51f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Senkoh_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 37f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Senkoh_NPC_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.13f;
+		} : CycleTimeModifier, 
+		{
+			value = 0.06f;
+		} : CycleTime_BurstModifier, 
+		{
+			value = 0.06f;
+		} : CycleTime_BurstSecondaryModifier, 
+		{
+			value = 3.f;
+		} : NumShotsInBurstModifier, 
+		{
+			value = 3.f;
+		} : NumShotsInBurstSecondaryModifier, 
+		{
+			value = 30.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.075f;
+		} : CycleTime_BurstMaxChargeModifier, 
+		{
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
+		{
+			value = 0.6f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.0f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 0.25f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			value = 0.f;
+		} : TechPierceEnabledModifier, 
+		{
+			value = -0.44f;
+		} : TechPierceDamageFactorModifier, 
+		{
+			value = 0.2f;
 		} : TechPierceChargeLevelModifier
 	];
 }
@@ -189,11 +282,17 @@ Base_Senkoh_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.3f;
+			value = 1.1f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.3f;
+			value = 1.1f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.2f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.2f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -214,16 +313,16 @@ Base_Senkoh_Recoil_Stats : StatModifierGroup
 			value = -5.0f;
 		} : RecoilDirModifier, 
 		{
-			value = 55.0f;
+			value = 20.0f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.15f;
+			value = 0.135f;
 		} : RecoilHoldDurationModifier, 
 		{
-			value = 0.075f;
+			value = 0.07f;
 		} : RecoilTimeModifier, 
 		{
-			value = 0.2f;
+			value = 0.18f;
 		} : RecoilRecoveryTimeModifier, 
 		{
 			value = 1.f;
@@ -266,13 +365,13 @@ Base_Senkoh_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 1.5f;
+			value = 0.0f;
 		} : SpreadAdsMaxXModifier, 
 		{
 			value = 0.0f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			value = 5.5f;
+			value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
 			value = 0.2f;
@@ -285,9 +384,6 @@ Base_Senkoh_Spread_Stats : StatModifierGroup
 		} : SpreadUseCircularSpreadModifier, 
 		{
 			value = 1.f;
-		} : SpreadZeroOnFirstShotModifier, 
-		{
-			value = 1.f;
 		} : SpreadUseEvenDistributionModifier, 
 		{
 			value = 1.f;
@@ -296,11 +392,11 @@ Base_Senkoh_Spread_Stats : StatModifierGroup
 			value = 0.03f;
 		} : SpreadEvenDistributionJitterSizeModifier, 
 		{
-			value = -0.8f;
-		} : SpreadAdsChargeMultModifier, 
+			value = -0.25f;
+		} : SpreadChargeMultModifier, 
 		{
-			value = -0.0f;
-		} : SpreadAdsFullChargeMultModifier
+			value = -0.25f;
+		} : SpreadAdsChargeMultModifier
 	];
 }
 
@@ -328,48 +424,77 @@ Base_Senkoh_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1f;
+			value = 0.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.8f;
+			value = 0.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 14f;
+			value = 2.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 13f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.8f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.FullAutoOnFullCharge";
 			modifierType = "Additive";
 			value = 1.0f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.091f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier
 	];
 }
 

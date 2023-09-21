@@ -1,0 +1,413 @@
+package BaseStatusEffect
+using RTDB, Effectors, Prereqs, Perks
+
+AdvancedBerserk : BuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Berserk";
+	bool replicated = true;
+	CName[] gameplayTags += 
+	[
+		"Berserk", "GameplayRestriction", "Melee", "NoInhalerOrInjector", "NoGrenadeOrGadget", "VehicleNoInteraction", "PreventLowHealthOverlay", "PreventFuryVFX"
+	];
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "weakspotWeak";
+		}, 
+		{
+			name = "energy_off";
+		}
+	];
+}
+
+AdvancedBerserkPlayerBuff : AdvancedBerserk
+{
+	replicated = true;
+	VFX = 
+	[
+		{
+			name = "perk_edgerunner";
+		}
+	];
+	duration = "BaseStats.InfiniteDuration";
+	gameplayTags += 
+	[
+		"BerserkBuff"
+	];
+	packages += 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.BerserkPlayerSFXEffector"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				"BaseStatusEffect.BerserkTimeDilationEffector", {
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.BerserkStaticHealthBonusOnActivation";
+									refStat = "BaseStats.BerserkStaticHealthBonusOnActivation";
+									modifierType = "Additive";
+									opSymbol = "*";
+									value = 1f;
+								} : CombinedStatModifier
+							];
+						} : StatPoolUpdate
+					];
+					usePercent = true;
+				} : ModifyStatPoolValueEffector, 
+				{
+					prereqRecord = "Perks.IsTargetKilled";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.BerserkKillCount";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier
+						];
+					};
+					removeWithEffector = false;
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statPoolType = "BerserkCharge";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.BerserkCooldownBase";
+										modifierType = "Additive";
+										value = 0.0f;
+									} : ConstantStatModifier
+								];
+								comparisonType = "LessOrEqual";
+								comparePercentage = true;
+							} : StatPoolPrereq, 
+							{
+								string stateName = "SceneTier3";
+								bool isInState = true;
+							} : HighLevelPSMPrereq, 
+							{
+								string stateName = "SceneTier4";
+								bool isInState = true;
+							} : HighLevelPSMPrereq, 
+							{
+								string stateName = "SceneTier5";
+								bool isInState = true;
+							} : HighLevelPSMPrereq
+						];
+					} : ORPrereq;
+					effectTypes = 
+					[
+						"Berserk"
+					];
+				} : RemoveStatusEffectsEffector, 
+				{
+					statusEffect = "BaseStatusEffect.OnAdvancedBerserkEndedStatusEffect";
+					inverted = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						statType = "StrengthSkill";
+						valueToCheck = 60;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.NewPerkFinisherReflexes_TargetHealthMax";
+								modifierType = "Additive";
+								value = 30f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.NewPerkFinisherBlunt_TargetHealthMax";
+								modifierType = "Additive";
+								value = 30f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.NewPerkFinisherCool_TargetHealthMax";
+								modifierType = "Additive";
+								value = 30f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.NewPerkFinisherMonowire_TargetHealthMax";
+								modifierType = "Additive";
+								value = 30f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HealthRegainOnKill";
+								modifierType = "AdditiveMultiplier";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer
+			];
+			stats = 
+			[
+				{
+					statType = "BaseStats.BerserkChargesRegenEnabled";
+					modifierType = "Additive";
+					value = -1.0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.BerserkChargesDecayEnabled";
+					modifierType = "Additive";
+					value = 1.0f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.AxeStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.BatonStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChainswordStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.FistsStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.KatanaStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MacheteStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.KnifeStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MantisBladesStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MonoWiresStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.StrongArmsStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.TwoHandHammerStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.OneHandBladeStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.OneHandBluntStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.TwoHandBluntStaminaCostReduction";
+					modifierType = "Additive";
+					value = 2f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HealthInCombatRegenEnabled";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HealthOutOfCombatRegenEnabled";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPerformReflexFinisher";
+					modifierType = "Additive";
+					value = 1f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherReflexes_TargetDistanceMax";
+					modifierType = "Additive";
+					value = 5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherReflexes_TargetHealthMax";
+					modifierType = "Additive";
+					value = 50f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPerformBluntFinisher";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherBlunt_TargetDistanceMax";
+					modifierType = "Additive";
+					value = 4f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherBlunt_TargetHealthMax";
+					modifierType = "Additive";
+					value = 50f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPerformCoolFinisher";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherCool_TargetDistanceMax";
+					modifierType = "Additive";
+					value = 3f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherCool_TargetHealthMax";
+					modifierType = "Additive";
+					value = 50f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanPerformMonowireFinisher";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherMonowire_TargetDistanceMax";
+					modifierType = "Additive";
+					value = 6f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.NewPerkFinisherMonowire_TargetHealthMax";
+					modifierType = "Additive";
+					value = 50f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HealthRegainOnKill";
+					modifierType = "Additive";
+					value = 25f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+
+OnAdvancedBerserkEndedStatusEffect : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Health";
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.BerserkKillCount";
+									refStat = "BaseStats.BerserkKillCount";
+									modifierType = "Additive";
+									opSymbol = "*";
+									value = 25.0f;
+								} : CombinedStatModifier
+							];
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : ModifyStatPoolValueEffector, 
+				{
+					statType = "BaseStats.BerserkKillCount";
+				} : RemoveAllModifiersEffector
+			];
+		}
+	];
+}
+
+AdvancedBerserkDamageBonusStack : BuffStatusEffect
+{
+	gameplayTags += 
+	[
+		"CyberwareBuff"
+	];
+	savable = false;
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.AllDamageDonePercentBonus";
+					modifierType = "Additive";
+					value = 0.01f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+AdvancedBerserkPlayerSFXEffector : Effector
+{
+	CName effectorClassName = "PlaySFXEffector";
+	CName activationSFXName = "w_cyb_berserker_activate";
+	CName deactivationSFXName = "w_cyb_berserker_deactivate";
+	bool unique = true;
+}
+

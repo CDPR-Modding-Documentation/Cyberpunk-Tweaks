@@ -1,0 +1,680 @@
+package Chimera
+using RTDB, BaseStatusEffect, BaseStats, Effectors, QuickHack, Prereqs
+
+InvulnerablePhase2 : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerablePhase3 : InvulnerablePhase2
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+InvulnerableMissileRain : InvulnerablePhase2
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraWeakSpotDestroyed : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"ChimeraWeakSpotDestroyed"
+	];
+}
+
+ChimeraWeakSpotToggle : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraWeakSpotToggle"
+	];
+}
+
+ChimeraInvulnerableWeakspot : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraArenaMode : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraArenaMode"
+	];
+}
+
+ChimeraBlackWallVFXStatusEffect : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "blackwall_loop";
+		}
+	];
+}
+
+Phase1 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraPhase1"
+	];
+}
+
+Phase2 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraPhase2"
+	];
+}
+
+Phase3 : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraPhase3"
+	];
+}
+
+HideBossHealthBar : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+UnlockGasCloud : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"UnlockGasCloud"
+	];
+}
+
+GasCloudTop : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"GasCloudTop"
+	];
+}
+
+GasCloudBottom : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"GasCloudBottom"
+	];
+}
+
+ChimeraRepairing : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"ChimeraRepairing"
+	];
+	packages = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 100.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraHealing : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"Heal"
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"Chimera.ChimeraHealEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraHealEffector : ModifyStatPoolModifierEffector
+{
+	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+	CName effectorClassName = "ModifyStatPoolModifierEffector";
+	fk< PoolValueModifier > poolModifier = 
+	{
+		bool enabled = true;
+		float rangeBegin = 0;
+		float rangeEnd = 90;
+		float startDelay = 0;
+		float valuePerSec = 0.5f;
+		bool delayOnChange = false;
+	} : PoolValueModifier;
+	string statPoolType = "Health";
+	string modificationType = "Regeneration";
+}
+
+Myers_Chimera_Dps_Modifier : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "Multiplier";
+					value = 0.4f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Chimera_Section_01_Dps_Modifier : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "Multiplier";
+					value = 0.1f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraDistracted : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraVentsOn : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 30;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraSelDestruct : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+ChimeraTakeDownOn : StatusEffect
+{
+	bool canReapply = false;
+	CName vfxToStart = "takedown";
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+ChimeraSelfDestructCountdown : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 45;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.ChimeraSelfDestructPhase1", "Effectors.ChimeraSelfDestructPhase2", "Effectors.ChimeraSelfDestructPhase3"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraSelDestructPhases : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.ChimeraSelfDestructPhase1", "Effectors.ChimeraSelfDestructPhase2", "Effectors.ChimeraSelfDestructPhase3"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraScreen1Hacked : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+ChimeraScreen2Hacked : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+ChimeraNoQuickHacks : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+ChimeraBlockQuickHacks : StatusEffect
+{
+	bool canReapply = false;
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.BlockQuickhackMenu";
+					modifierType = "Additive";
+					value = 1.0f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraOverloadWeakspot : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Jam";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"Debuff", "JamWeapon"
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "DestroyWeakspotEffector";
+					int weakSpotIndex = -1;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraOverloadWeakspotEffector : ApplyStatusEffectEffector
+{
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			"BaseStatusEffect.CyberwareMalfunctionWeakspotDestructionAppliedPereq"
+		];
+	} : Prereqs.ANDPrereq;
+	statusEffect = "Chimera.ChimeraOverloadWeakspot";
+	removeWithEffector = false;
+}
+
+ChimeraDetonateWeakspot : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Jam";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags = 
+	[
+		"Debuff", "JamWeapon"
+	];
+	uiData = "BaseStatusEffect.JamWeaponUI";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "DestroyWeakspotEffector";
+					int weakSpotIndex = -1;
+				} : Effector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ChimeraBlinded : DebuffStatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraSuicide : StatusEffect
+{
+	CName[] gameplayTags = 
+	[
+		"ChimeraSuicide"
+	];
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraCameraHeavyShake : StatusEffect
+{
+	CName[] gameplayTags += 
+	[
+		"ChimeraCameraHeavyShake"
+	];
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraForcePhase2 : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraForcePhase3 : StatusEffect
+{
+	bool canReapply = false;
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ChimeraWaitForMyers : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraWaitForMyers"
+	];
+}
+
+ChimeraFocusMyers : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	CName[] gameplayTags += 
+	[
+		"ChimeraFocusMyers"
+	];
+}
+
+ChimeraSignalMyersToRun : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"ChimeraSignalMyersToRun"
+	];
+}
+
+ChimeraSignalMyersToGrenade : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	CName[] gameplayTags += 
+	[
+		"ChimeraSignalMyersToGrenade"
+	];
+}
+
+MyersNoOffmeshLink : Crippled
+{
+	gameplayTags += 
+	[
+		"CrippledLeg"
+	];
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.CanJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasChargeJump";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseLegs";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+

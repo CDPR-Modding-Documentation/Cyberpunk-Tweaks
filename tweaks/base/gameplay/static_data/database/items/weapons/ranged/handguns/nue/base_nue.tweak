@@ -78,7 +78,11 @@ Base_Nue : Base_Power_Handgun
 	fk< Item > ammo = "Ammo.HandgunAmmo";
 	fk< StatModifierGroup >[] statModifierGroups += 
 	[
-		"Items.Base_Nue_Technical_Stats", "Items.Base_Nue_Handling_Stats", "Items.Base_Nue_Recoil_Stats", "Items.Base_Nue_Spread_Stats", "Items.Base_Nue_Aim_Stats", "Items.Base_Nue_Constant_Stats", "Items.Base_PlayerState_Spread_Stats"
+		"Items.Base_Nue_Technical_Stats", "Items.Base_Nue_Handling_Stats", "Items.Base_Nue_Recoil_Stats", "Items.Base_Nue_Spread_Stats", "Items.Base_Nue_Aim_Stats", "Items.Base_Nue_Constant_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Nue_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	statModifiers += 
 	[
@@ -93,14 +97,13 @@ Base_Nue : Base_Power_Handgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Nue_Technical_Stats"
 		];
-	} : Base_Power_Handgun_NPC_Data;
+	} : Base_Nue_NPC_Data;
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerHandgun";
-	baseReloadTime = 2.f;
-	baseEmptyReloadTime = 2.8f;
-	uninterruptibleReloadStart = 1.4f;
-	uninterruptibleEmptyReloadStart = 1.5f;
+	baseReloadTime = 1.5f;
+	baseEmptyReloadTime = 1.5f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 11.0f;
 	float weaponFarPlane = 21.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -121,7 +124,7 @@ Base_Nue_NPC_Data : Base_Power_Handgun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Nue_Technical_Stats"
+		"Items.Base_Nue_Technical_Stats", "Items.Base_Nue_NPC_Damage_Stats"
 	];
 }
 
@@ -133,7 +136,7 @@ Base_Nue_Technical_Stats : StatModifierGroup
 			float value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			float value = 0.3f;
+			float value = 0.35f;
 		} : CycleTimeModifier, 
 		{
 			float value = 10.f;
@@ -145,18 +148,48 @@ Base_Nue_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Nue_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 57f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Nue_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Nue_Handling_Stats : StatModifierGroup
 {
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			float value = 1.5f;
+			float value = 1.125f;
 		} : ReloadTimeModifier, 
 		{
-			float value = 2.3f;
+			float value = 1.232f;
 		} : EmptyReloadTimeModifier, 
 		{
-			float value = 1.1f;
+			float value = 0.375f;
+		} : ReloadEndTimeModifier, 
+		{
+			float value = 1.068f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			float value = 1.4f;
 		} : ZoomLevelModifier, 
 		{
 			float value = 2.7f;
@@ -175,16 +208,16 @@ Base_Nue_Recoil_Stats : StatModifierGroup
 			float value = 10.f;
 		} : RecoilAngleModifier, 
 		{
-			float value = 0.05f;
+			float value = 0.125f;
 		} : RecoilHoldDurationModifier, 
 		{
 			float value = 0.1f;
 		} : RecoilTimeModifier, 
 		{
-			float value = 0.05f;
+			float value = 0.07f;
 		} : RecoilDelayModifier, 
 		{
-			float value = 0.2f;
+			float value = 0.225f;
 		} : RecoilRecoveryTimeModifier, 
 		{
 			float value = 1.f;
@@ -230,10 +263,10 @@ Base_Nue_Spread_Stats : StatModifierGroup
 			float value = 0.375f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			float value = 4.0f;
+			float value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			float value = 0.1f;
+			float value = 0.25f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			float value = 0.f;
@@ -268,38 +301,69 @@ Base_Nue_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 2.5f;
+			value = 0.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.125f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 5.0f;
+			value = 2.64f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 2.0f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 2.f;
+			value = 2.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 2.5f;
-		} : ConstantStatModifier
+			value = 2.66f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 1.1667f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.KnockdownImpulse";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalImpulse";
+			modifierType = "Additive";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.667f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

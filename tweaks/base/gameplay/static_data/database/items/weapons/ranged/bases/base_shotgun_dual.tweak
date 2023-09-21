@@ -6,9 +6,16 @@ Base_Dual_Shotgun : Base_Weapon
 {
 	CName[] tags += 
 	[
-		"inventoryDoubleSlot"
+		"inventoryDoubleSlot", "ShotgunWeapon"
 	];
-	fk< ItemBlueprint > blueprint = "Items.Base_Dual_Shotgun_Blueprint";
+	buyPrice += 
+	[
+		"Price.ShotgunMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.ShotgunMultiplier"
+	];
 	fk< AttachmentSlot >[] placementSlots += 
 	[
 		"AttachmentSlots.ItemSlotTechRifle"
@@ -19,7 +26,7 @@ Base_Dual_Shotgun : Base_Weapon
 	[
 		"TriggerMode.SemiAuto"
 	];
-	CName effectiveRangeCurve = "ShotgunRange";
+	CName effectiveRangeFalloffCurve = "ShotgunRange";
 	forcedMinHitReaction = 1;
 	shootingPatternPackages = 
 	[
@@ -27,7 +34,7 @@ Base_Dual_Shotgun : Base_Weapon
 	];
 	statModifierGroups += 
 	[
-		"Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Shotgun_Sway_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Proficiencies.DemolitionDualShotgunStats", "Items.Base_PlayerState_Spread_Stats"
+		"Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Shotgun_Sway_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats"
 	];
 	Vector3 position = ( 0.01f, 0.0f, 0.06f );
 	float offset = -0.1f;
@@ -44,86 +51,10 @@ Base_Dual_Shotgun : Base_Weapon
 	useForcedTBHZOffset = true;
 }
 
-Base_Dual_Shotgun_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.PowerModRareElement", "Items.PowerModEpicElement", "Items.PowerModLegendaryElement", "Items.IconicWeaponModElement", {
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-				fk< ItemBlueprintElement >[] childElements = 
-				[
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-					}
-				];
-			}
-		];
-	};
-}
-
-Base_Tech_Dual_Shotgun_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.TechModRareElement", "Items.TechModEpicElement", "Items.TechModLegendaryElement", "Items.IconicWeaponModElement", {
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-				fk< ItemBlueprintElement >[] childElements = 
-				[
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-					}
-				];
-			}
-		];
-	};
-}
-
-Base_Smart_Dual_Shotgun_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.SmartModRareElement", "Items.SmartModEpicElement", "Items.SmartModLegendaryElement", "Items.IconicWeaponModElement", {
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-				fk< ItemBlueprintElement >[] childElements = 
-				[
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-					}
-				];
-			}
-		];
-	};
-}
-
 Base_Dual_Shotgun_RPG_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_shotguns_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
@@ -132,8 +63,21 @@ Base_Dual_Shotgun_RPG_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.HeadshotDamageMultiplier";
 			modifierType = "Additive";
-			value = 1.f;
-		} : ConstantStatModifier
+			value = 0.85f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponTypeToStaminaCost";
+			modifierType = "Multiplier";
+			value = 230f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostReduction";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.DualShotgunStaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
 	];
 }
 
@@ -158,7 +102,7 @@ Base_Dual_Shotgun_Misc_Stats : StatModifierGroup
 			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
-			float value = 20.f;
+			float value = 15.f;
 		} : EffectiveRangeModifier, 
 		{
 			float value = 1.f;
@@ -200,8 +144,35 @@ Base_Dual_Shotgun_Misc_Stats : StatModifierGroup
 			value = 0.33;
 		} : ConstantStatModifier, 
 		{
-			value = 35.f;
+			value = 50.f;
 		} : MaximumRangeModifier
+	];
+}
+
+Base_Dual_Shotgun_DeadReckoning_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.BulletDeadReckoningEnabled";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMinimumSpeed";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMaxRange";
+			modifierType = "Additive";
+			value = 40.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMaxAngleCorrection";
+			modifierType = "Additive";
+			value = 25.f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -410,12 +381,17 @@ Base_Power_Dual_Shotgun : Base_Dual_Shotgun
 	[
 		"Price.PowerWeapon"
 	];
+	tags += 
+	[
+		"PowerWeapon"
+	];
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Shotgun_NoAttachments_Blueprint";
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "ricochet";
 	rangedAttacks = "Attacks.PowerBuckshotsBulletPackage";
 	statModifierGroups += 
 	[
-		"Items.Base_Power_Shotgun_Stats", "Items.Base_Power_Shotgun_Mult_Stats", "Items.Base_Power_Shotgun_RPG_Randomized_Stats"
+		"Items.Base_Power_Shotgun_Stats", "Items.Base_Power_Shotgun_Mult_Stats", "Items.Base_Dual_Shotgun_DeadReckoning_Stats"
 	];
 }
 
@@ -437,10 +413,14 @@ Base_Tech_Dual_Shotgun : Base_Dual_Shotgun
 	[
 		"Price.TechWeapon"
 	];
-	blueprint = "Items.Base_Tech_Dual_Shotgun_Blueprint";
+	tags += 
+	[
+		"TechWeapon"
+	];
+	blueprint = "Items.Base_Tech_Shotgun_NoAttachments_Blueprint";
 	statModifierGroups += 
 	[
-		"Items.Base_Tech_Stats", "Items.Base_Tech_Shotgun_Mult_Stats", "Items.Base_Tech_Shotgun_RPG_Randomized_Stats", "Proficiencies.EngineeringWeaponPassives"
+		"Items.Base_Tech_Stats", "Items.Base_Tech_Shotgun_Mult_Stats", "Items.Base_Dual_Shotgun_DeadReckoning_Stats"
 	];
 }
 
@@ -456,7 +436,7 @@ Base_Smart_Dual_Shotgun : Base_Dual_Shotgun
 {
 	tags += 
 	[
-		"Smart"
+		"Smart", "SmartWeapon"
 	];
 	buyPrice += 
 	[
@@ -466,10 +446,10 @@ Base_Smart_Dual_Shotgun : Base_Dual_Shotgun
 	[
 		"Price.SmartWeapon"
 	];
-	blueprint = "Items.Base_Smart_Dual_Shotgun_Blueprint";
+	blueprint = "Items.Base_Smart_Shotgun_NoAttachments_Blueprint";
 	statModifierGroups = 
 	[
-		"Items.Base_Smart_Shotgun_Mult_Stats", "Items.Base_Smart_Dual_Shotgun_No_Sway_Stats", "Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Proficiencies.DemolitionDualShotgunStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Randomization", "Items.QualityRandomization"
+		"Items.Base_Smart_Stats", "Items.Base_Smart_Shotgun_Mult_Stats", "Items.Base_Smart_Dual_Shotgun_No_Sway_Stats", "Items.Base_Dual_Shotgun_RPG_Stats", "Items.Base_Dual_Shotgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical", "Items.QualityRandomization", "Items.ItemPlusRandomizer_MaxQuality", "Items.ItemPlusRandomizer_Below_MaxQuality", "Items.WeaponModsWeights_On_Tier2Plus", "Items.WeaponModsWeights_On_Tier3Plus", "Items.WeaponModsWeights_On_Tier4Plus", "Items.WeaponModsWeights_On_Tier5Plus", "Items.WeaponModsWeights_On_Tier5PlusPlus"
 	];
 }
 

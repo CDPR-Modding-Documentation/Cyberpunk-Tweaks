@@ -1,27 +1,40 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Effectors
 
 [ notQueryable ]
 Preset_Shovel_Caretaker : Base_Two_Hand_Hammer
 {
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Melee_Blueprint";
 	displayName = "LocKey#40465";
+	localizedDescription = "LocKey#40466";
 	visualTags = 
 	[
 		"Caretaker_Shovel"
 	];
 	appearanceResourceName = "Preset_Shovel_Caretaker";
-	quality = "Quality.Legendary";
+	quality = "Quality.Random";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.ShovelCaretaker";
+	tags += 
+	[
+		"IconicWeapon"
+	];
 	statModifiers += 
 	[
-		"Quality.IconicItem", "Character.ScaleToPlayerLevel"
+		"Quality.IconicItem"
 	];
-	localizedDescription = "LocKey#40466";
+	OnAttach = 
+	[
+		"GLP.HoldingBorgMelee"
+	];
 	npcRPGData = 
 	{
 		statModifiers += 
 		[
 			"Quality.IconicItem"
+		];
+		statModifierGroups += 
+		[
+			"Items.Hammer_NPC_Damage_Stats"
 		];
 	} : Items.Base_Two_Hand_Hammer_NPC_Data;
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.QuickMeleeFxPackage";
@@ -39,13 +52,46 @@ Preset_Shovel_Caretaker : Base_Two_Hand_Hammer
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.Base_Two_Hand_Hammer_RPG_Stats", "Items.Base_Two_Hand_Hammer_RPG_Randomized_Stats", "Items.Base_Two_Hand_Hammer_Handling_Stats", "Items.Base_Two_Hand_Hammer_Misc_Stats", "Proficiencies.BrawlingWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+		"Items.IconicQualityRandomization", "Items.Blunts_Stun_Application_Stats", "Items.Base_Two_Hand_Hammer_RPG_Stats", "Items.Base_Two_Hand_Hammer_Handling_Stats", "Items.Base_Two_Hand_Hammer_Misc_Stats", "Items.Hammer_Damage_Stats", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
 	];
-	CraftingData = "Items.Iconic_Big_Legendary_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
 w_melee_shovel : Preset_Shovel_Caretaker
 {
+}
+
+[ notQueryable ]
+Preset_Shovel_Caretaker_Stash : Preset_Shovel_Caretaker
+{
+	tags += 
+	[
+		"StashScaling_Iconic"
+	];
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						fact = "endgame_reward_shovel_caretaker_owned";
+						value = 0;
+						comparisonType = "Equal";
+					} : FactValuePrereq;
+					fact = "endgame_reward_shovel_caretaker_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	enableNpcRPGData = false;
 }
 

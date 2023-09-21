@@ -1,0 +1,311 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage, AttachmentSlots, Perks, Prereqs, Effectors
+
+[ notQueryable ]
+Base_Arasaka3D_Gun : Silverhand_Malorian
+{
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.SilverhandBulletPackage";
+	fk< Item > ammo = "Ammo.HandgunAmmo";
+	fk< SlotItemPartListElement >[] slotPartList = [];
+	fk< WeaponFxPackage > fxPackage = "";
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Level";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ThermalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.DamagePerHit";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	statModifierGroups = 
+	[
+		"Items.Base_Weapon_Damage_Type_Min_Max", "Items.Arasaka3D_Gun_Handling_Stats", "Items.Arasaka3D_Gun_Constant_Stats", "Items.Base_Silverhand_Recoil_Stats", "Items.Base_Silverhand_Spread_Stats", "Items.Base_Silverhand_Aim_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Handgun_DeadReckoning_Stats"
+	];
+	audioName = "";
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						fk< IPrereq >[] nestedPrereqs = 
+						[
+							{
+								string stateName = "Shoot";
+							} : Prereqs.RangedWeaponPSMPrereq, 
+							"Perks.IsPlayer"
+						];
+					} : RTDB.MultiPrereq;
+					CName fact = "mws_se5_03_weapon_shot";
+				} : Effectors.ToggleFactEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								CName weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : IsHitTargetAlive;
+					statusEffect = "BaseStatusEffect.mws_se5_03_damage_vfx";
+					isRandom = false;
+				} : AddStatusEffectToAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.SemiAuto";
+	fk< TriggerMode > secondaryTriggerMode = "TriggerMode.SemiAuto";
+}
+
+[ notQueryable ]
+Arasaka3DEnemyWeapon : Preset_Masamune_Arasaka_2020
+{
+	audioName = "";
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.RetroArcadeNPCGun";
+	statModifiers = 
+	[
+		{
+			value = 99999.f;
+		} : MagazineCapacityModifier
+	];
+}
+
+[ notQueryable ]
+Arasaka3DEnemyKatana : Preset_Katana_Arasaka_2020
+{
+	audioName = "";
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.RetroArcadeNPCKatana";
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						fk< IPrereq >[] nestedPrereqs = 
+						[
+							{
+								stateName = "Attack";
+								isInState = true;
+							} : UpperBodyNPCStatePrereq
+						];
+					} : RTDB.MultiPrereq;
+					CName fact = "mws_se5_03_weapon_npc_katana_hit";
+				} : Effectors.ToggleFactEffector, 
+				{
+					prereqRecord = 
+					{
+						fk< IPrereq >[] nestedPrereqs = 
+						[
+							{
+								stateName = "Attack";
+								isInState = true;
+							} : UpperBodyNPCStatePrereq
+						];
+					} : RTDB.MultiPrereq;
+					statusEffect = "BaseStatusEffect.mws_se5_03_katana_vfx";
+					applicationTarget = "Owner";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Arasaka3D_Gun_Handling_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.4f;
+		} : CycleTimeModifier, 
+		{
+			value = 800.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.5f;
+		} : ReloadTimeModifier, 
+		{
+			value = 2.5f;
+		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.2f;
+		} : ZoomLevelModifier, 
+		{
+			value = 0.1f;
+		} : AimInTimeModifier, 
+		{
+			value = 0.2f;
+		} : AimOutTimeModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		{
+			value = 10.f;
+		} : AmmoPerQuickMeleeModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.f;
+		} : EquipDuration_FirstModifier, 
+		{
+			value = 1.f;
+		} : RicochetChanceModifier, 
+		{
+			value = 1.f;
+		} : RicochetCountModifier, 
+		{
+			value = 15.f;
+		} : RicochetTargetSearchAngleModifier, 
+		{
+			value = 0.f;
+		} : RicochetMinAngleModifier, 
+		{
+			value = 75.f;
+		} : RicochetMaxAngleModifier, 
+		{
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 0f;
+		} : ConstantStatModifier
+	];
+}
+
+Arasaka3D_Gun_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 2.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 1.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			value = 1.f;
+		} : SwayResetOnAimStartModifier, 
+		{
+			value = 3.f;
+		} : SwayTraversalTimeModifier, 
+		{
+			value = 0.4f;
+		} : SwaySideMaximumAngleDistanceModifier, 
+		{
+			value = 0.3f;
+		} : SwaySideMinimumAngleDistanceModifier, 
+		{
+			value = 70.f;
+		} : SwaySideTopAngleLimitModifier, 
+		{
+			value = 25.f;
+		} : SwaySideBottomAngleLimitModifier, 
+		{
+			value = 0.25f;
+		} : SwaySideStepChangeMaximumFactorModifier, 
+		{
+			value = 0.0f;
+		} : SwaySideStepChangeMinimumFactorModifier, 
+		{
+			value = 0.7f;
+		} : SwayCurvatureMaximumFactorModifier, 
+		{
+			value = 0.5f;
+		} : SwayCurvatureMinimumFactorModifier, 
+		{
+			value = 0.3f;
+		} : SwayCenterMaximumAngleOffsetModifier, 
+		{
+			value = 0.0f;
+		} : SwayInitialOffsetRandomFactorModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilMagForFullDrift";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.515f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
+}
+

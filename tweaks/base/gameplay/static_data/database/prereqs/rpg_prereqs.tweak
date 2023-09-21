@@ -7,13 +7,14 @@ FactValuePrereq : IPrereq
 	CName fact = "";
 	int value = 0;
 	CName comparisonType = "";
+	bool repeated = false;
 }
 
 SampleStatPoolPrereq : StatPoolPrereq
 {
-	float valueToCheck = 0f;
-	CName statPoolType = "";
-	CName comparisonType = "";
+	valueToCheck = [];
+	statPoolType = "";
+	comparisonType = "";
 }
 
 SampleStatPrereq : StatPrereq
@@ -67,6 +68,7 @@ SampleHitTriggeredPrereq : IPrereq
 	bool isSynchronous = false;
 	string callbackType = "HitTriggered";
 	string pipelineStage = "Process";
+	string pipelineType = "Damage";
 }
 
 SampleTargetKilledPrereq : IPrereq
@@ -87,6 +89,19 @@ SampleAmmoStatePrereq : IPrereq
 {
 	prereqClassName = "AmmoStateHitTriggeredPrereq";
 	string ammoState = "";
+	float ratioToCompare = 0.0f;
+	string comparisonType = "";
+}
+
+SampleWeaponShootPrereq : IPrereq
+{
+	prereqClassName = "WeaponShootPrereq";
+	int howManyShots = 0;
+}
+
+SampleWeaponFirstReloadStatePrereq : IPrereq
+{
+	prereqClassName = "WeaponFirstReloadStatePrereq";
 }
 
 SampleHitStatusEffectPresentPrereq : IPrereq
@@ -109,6 +124,7 @@ HitAttackTypePrereq : IPrereq
 	string pipelineStage = "PreProcess";
 	string attackType = "Melee";
 	bool isSynchronous = true;
+	bool ignoreSelfInflictedPressureWave = true;
 }
 
 HitAttackSubtypePrereq : IPrereq
@@ -261,6 +277,13 @@ TechnicalAbilityAllocationPrereq : StatPrereq
 	comparisonType = "GreaterOrEqual";
 }
 
+HumanityAllocationPrereq : StatPrereq
+{
+	valueToCheck = 0;
+	statType = "HumanityAvailable";
+	comparisonType = "GreaterOrEqual";
+}
+
 AnyTakedown : MultiPrereq
 {
 	aggregationType = "OR";
@@ -285,7 +308,21 @@ AnyTakedownOrKill : AnyTakedown
 {
 	nestedPrereqs += 
 	[
-		"Perks.IsTargetKilled", {
+		{
+			isSynchronous = false;
+			conditions = 
+			[
+				{
+					onlyOncePerShot = true;
+				} : TargetKilledHitPrereqCondition, 
+				{
+					invert = true;
+					statusEffect = "Defeated";
+					checkType = "CheckType.Type";
+				} : StatusEffectPresentHitPrereqCondition
+			];
+		} : PostProcessHitTriggered, 
+		{
 			conditions = 
 			[
 				{
@@ -294,5 +331,133 @@ AnyTakedownOrKill : AnyTakedown
 			];
 		} : PostProcessHitTriggered
 	];
+}
+
+AnyNonCivilianTakedownOrKill : AnyTakedown
+{
+	nestedPrereqs += 
+	[
+		{
+			isSynchronous = false;
+			conditions = 
+			[
+				{
+					onlyOncePerShot = true;
+				} : TargetKilledHitPrereqCondition, 
+				{
+					invert = true;
+					statusEffect = "Defeated";
+					checkType = "CheckType.Type";
+				} : StatusEffectPresentHitPrereqCondition, 
+				{
+					invert = true;
+					reactionPreset = "Civilian";
+				} : ReactionPresetHitPrereqCondition
+			];
+		} : PostProcessHitTriggered, 
+		{
+			conditions = 
+			[
+				{
+					hitFlag = "FinisherTriggered";
+				} : HitFlagHitPrereqCondition
+			];
+		} : PostProcessHitTriggered
+	];
+}
+
+AnyTakedownOrKillOnBleedingTarget : AnyTakedown
+{
+	nestedPrereqs += 
+	[
+		{
+			isSynchronous = false;
+			conditions = 
+			[
+				{
+					onlyOncePerShot = true;
+				} : TargetKilledHitPrereqCondition, 
+				{
+					invert = true;
+					statusEffect = "Defeated";
+					checkType = "CheckType.Type";
+				} : StatusEffectPresentHitPrereqCondition, 
+				{
+					statusEffect = "Bleeding";
+					checkType = "CheckType.Type";
+					objectToCheck = "Target";
+				} : StatusEffectPresentHitPrereqCondition
+			];
+		} : PostProcessHitTriggered, 
+		{
+			conditions = 
+			[
+				{
+					hitFlag = "FinisherTriggered";
+				} : HitFlagHitPrereqCondition, 
+				{
+					statusEffect = "Bleeding";
+					checkType = "CheckType.Type";
+					objectToCheck = "Target";
+				} : StatusEffectPresentHitPrereqCondition
+			];
+		} : PostProcessHitTriggered
+	];
+}
+
+IsNewPerkBoughtPrereq : IPrereq
+{
+	CName prereqClassName = "IsNewPerkBoughtPrereq";
+	int level = 0;
+	bool intert = false;
+	string perkType = "";
+}
+
+StatPoolChangeOverTimePrereq : IPrereq
+{
+	prereqClassName = "StatPoolChangeOverTimePrereq";
+	CName statPoolType = "";
+	float valueToCheck = 0.0f;
+	float timeFrame = 0.0f;
+	bool comparePercentage = true;
+	bool checkGain = false;
+}
+
+HealthLostOverTimePrereq : StatPoolChangeOverTimePrereq
+{
+	statPoolType = "Health";
+}
+
+ChargedItemsPrereq : IPrereq
+{
+	CName prereqClassName = "ChargedItemsPrereq";
+	string howManyCharges = "";
+	string typeOfItem = "";
+}
+
+EntitiesWithStatusEffectPrereq : IPrereq
+{
+	prereqClassName = "gameEntitiesWithStatusEffectPrereq";
+	fk< StatusEffect > statusEffect = "";
+	fk< CheckType > checkType = "";
+	CName tagToCheck = "";
+	CName comparisonType = "";
+	int count = 0;
+	float range = 0.0f;
+}
+
+IsPlayerControlsDevicePrereq : IPrereq
+{
+	prereqClassName = "IsPlayerControlsDevicePrereq";
+}
+
+UsedHealingItemOrCyberwarePrereq : IPrereq
+{
+	prereqClassName = "UsedHealingItemOrCyberwarePrereq";
+}
+
+StartedUsingHealingItemOrCyberwarePrereq : IPrereq
+{
+	prereqClassName = "StartedUsingHealingItemOrCyberwarePrereq";
 }
 

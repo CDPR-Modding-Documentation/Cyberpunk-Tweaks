@@ -49,7 +49,7 @@ CoverBehaviorComposite : AIActionSmartComposite
 	disableActionsLimit = true;
 	nodes = 
 	[
-		"GenericArchetype.Wait0dot2Second", "SpecialActions.CoverUseCombatStimConsumable", "GenericArchetype.CoverReloadSelector", "CoverActions.WaitInCoverSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "CoverActions.CommandCoverThrowGrenadeSelector", "CoverActions.CoverThrowGrenadeSelector", "CoverActions.CoverGetOutSelector", "CoverActions.CoverCommandForceShootSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverShootSelector", "CoverActions.CoverGetBackSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
+		"GenericArchetype.Wait0dot2Second", "SpecialActions.CoverUseCombatStimConsumable", "GenericArchetype.CoverReloadSelector", "CoverActions.WaitInCoverSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "CoverActions.CoverThrowGrenadeSelector_VeryHard", "CoverActions.CoverThrowGrenadeSelector_Hard", "CoverActions.CommandCoverThrowGrenadeSelector", "CoverActions.CoverThrowGrenadeSelector", "CoverActions.CoverGetOutSelector", "CoverActions.CoverCommandForceShootSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverShootSelector", "CoverActions.CoverGetBackSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
 	];
 	type = "AISmartCompositeType.Sequence";
 }
@@ -122,7 +122,23 @@ CoverThrowGrenadeSelectorCondition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.CoverThrowGrenadeSelectorCondition", "Condition.NotAIThrowGrenadeCommand", "Condition.TargetBetween10and30m", "Condition.NotCalculatePathStraightToTarget10mForwardOffset", "Condition.CalculatePathStraightToTarget1mBack"
+		"Condition.CoverThrowGrenadeSelectorCondition", "Condition.NotAIThrowGrenadeCommand", "Condition.TargetBetween10and30m", "Condition.CalculatePathStraightToTarget1mBack"
+	];
+}
+
+CoverThrowGrenadeSelectorCondition_VeryHard : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CoverThrowGrenadeSelectorCondition_VeryHard", "Condition.NotAIThrowGrenadeCommand", "Condition.TargetBetween10and30m", "Condition.CalculatePathStraightToTarget1mBack"
+	];
+}
+
+CoverThrowGrenadeSelectorCondition_Hard : AIActionAND
+{
+	AND = 
+	[
+		"Condition.CoverThrowGrenadeSelectorCondition_Hard", "Condition.NotAIThrowGrenadeCommand", "Condition.TargetBetween10and30m", "Condition.CalculatePathStraightToTarget1mBack"
 	];
 }
 
@@ -140,7 +156,50 @@ CoverThrowGrenadeSelector : AIActionSelector
 	};
 	actions = 
 	[
-		"CoverActions.ThrowGrenadeCoverFrag", "CoverActions.ThrowGrenadeCoverFlash", "CoverActions.ThrowGrenadeCoverEMP", "CoverActions.ThrowGrenadeCoverBiohazard", "CoverActions.ThrowGrenadeCoverIncendiary", "CoverActions.ThrowGrenadeCoverRecon", "CoverActions.ThrowGrenadeCoverCutting", "CoverActions.ThrowGrenadeCover"
+		"CoverActions.ThrowGrenadeCoverSmokeNear", "CoverActions.ThrowGrenadeCoverSmoke", "CoverActions.ThrowGrenadeCoverFrag", "CoverActions.ThrowGrenadeCoverFlash", "CoverActions.ThrowGrenadeCoverEMP", "CoverActions.ThrowGrenadeCoverBiohazard", "CoverActions.ThrowGrenadeCoverIncendiary", "CoverActions.ThrowGrenadeCoverRecon", "CoverActions.ThrowGrenadeCoverCutting"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+CoverThrowGrenadeSelector_VeryHard : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsPlayer", "Condition.NotIsFollower", "Condition.NotTargetInVehicle", "Condition.AbilityCanUseGrenades", "Condition.NotIsBossNPCRarity", "CoverActions.CoverThrowGrenadeSelectorCondition_VeryHard", "Condition.NotAIAimAtTargetCommand", "Condition.IsImpossibleGameDifficulty", "Condition.NotIsBossNPCRarity"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.ThrowGrenadeCoverBiohazard_VeryHard", "CoverActions.ThrowGrenadeCoverEMP_VeryHard", "CoverActions.ThrowGrenadeCoverIncendiary_VeryHard", "CoverActions.ThrowGrenadeCoverFrag_VeryHard"
+	];
+	defaultAction = "CoverActions.ImmediateSuccess";
+}
+
+CoverThrowGrenadeSelector_Hard : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetIsPlayer", "Condition.NotIsFollower", "Condition.NotTargetInVehicle", "Condition.AbilityCanUseGrenades", "CoverActions.CoverThrowGrenadeSelectorCondition_Hard", "Condition.NotAIAimAtTargetCommand", "Condition.IsHardGameDifficulty", {
+					OR = 
+					[
+						"Condition.IsRareNPCRarity", "Condition.IsEliteNPCRarity"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"CoverActions.ThrowGrenadeCoverBiohazard_VeryHard", "CoverActions.ThrowGrenadeCoverEMP_VeryHard", "CoverActions.ThrowGrenadeCoverIncendiary_VeryHard", "CoverActions.ThrowGrenadeCoverFrag_VeryHard"
 	];
 	defaultAction = "CoverActions.ImmediateSuccess";
 }
@@ -159,15 +218,15 @@ CommandCoverThrowGrenadeSelector : AIActionSelector
 	{
 		condition = 
 		{
-			AND = 
+			OR = 
 			[
-				"CoverActions.CommandCoverThrowGrenadeSelectorCondition"
+				"Condition.AIThrowGrenadeForcedCommand", "CoverActions.CommandCoverThrowGrenadeSelectorCondition"
 			];
-		} : AIActionAND;
+		} : AIActionOR;
 	};
 	actions = 
 	[
-		"CoverActions.CommandThrowGrenadeCoverFrag", "CoverActions.CommandThrowGrenadeCoverFlash", "CoverActions.CommandThrowGrenadeCoverEMP", "CoverActions.CommandThrowGrenadeCoverBiohazard", "CoverActions.CommandThrowGrenadeCoverIncendiary", "CoverActions.CommandThrowGrenadeCoverRecor", "CoverActions.CommandThrowGrenadeCoverCutting", "CoverActions.CommandThrowGrenadeCover"
+		"CoverActions.CommandThrowGrenadeCoverFrag", "CoverActions.CommandThrowGrenadeCoverFlash", "CoverActions.CommandThrowGrenadeCoverEMP", "CoverActions.CommandThrowGrenadeCoverBiohazard", "CoverActions.CommandThrowGrenadeCoverIncendiary", "CoverActions.CommandThrowGrenadeCoverRecor", "CoverActions.CommandThrowGrenadeCoverCutting", "CoverActions.ThrowGrenadeCoverSmokeNear", "CoverActions.ThrowGrenadeCoverSmoke"
 	];
 	defaultAction = "CoverActions.ImmediateSuccess";
 }
@@ -1293,7 +1352,7 @@ ThrowGrenadeCover : AIAction
 		{
 			delay = 0.3f;
 			attachmentSlot = "AttachmentSlots.WeaponLeft";
-			itemID = "Items.GrenadeFragRegular";
+			itemID = "Items.NPCGrenadeFragRegular";
 		} : AISubActionForceEquip
 	];
 	subActions = 
@@ -1333,7 +1392,7 @@ ThrowGrenadeCoverFrag : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseFragGrenades"
+				"Condition.AbilityCanUseFragGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1342,7 +1401,7 @@ ThrowGrenadeCoverFrag : CoverActions.ThrowGrenadeCover
 		{
 			delay = 0.3f;
 			attachmentSlot = "AttachmentSlots.WeaponLeft";
-			itemID = "Items.GrenadeFragRegular";
+			itemID = "Items.NPCGrenadeFragRegular";
 		} : AISubActionForceEquip
 	];
 }
@@ -1355,7 +1414,7 @@ ThrowGrenadeCoverFlash : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseFlashbangGrenades"
+				"Condition.AbilityCanUseFlashbangGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1377,7 +1436,7 @@ ThrowGrenadeCoverEMP : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseEMPGrenades"
+				"Condition.AbilityCanUseEMPGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1386,7 +1445,117 @@ ThrowGrenadeCoverEMP : CoverActions.ThrowGrenadeCover
 		{
 			delay = 0.3f;
 			attachmentSlot = "AttachmentSlots.WeaponLeft";
-			itemID = "Items.GrenadeEMPRegular";
+			itemID = "Items.NPCGrenadeEMPRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverEMP_VeryHard : CoverActions.ThrowGrenadeCover
+{
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade_VeryHard";
+			duration = 10.f;
+		}
+	];
+	tickets = [];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Succeed15PercentOfTimes"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeEMPRegular_VeryHard";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverBiohazard_VeryHard : CoverActions.ThrowGrenadeCover
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade_VeryHard";
+			duration = 10.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.TargetInCover", "Condition.Succeed15PercentOfTimes"
+			];
+		} : AIActionOR;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular_VeryHard";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverIncendiary_VeryHard : CoverActions.ThrowGrenadeCover
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade_VeryHard";
+			duration = 10.f;
+		}
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Succeed15PercentOfTimes"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeIncendiaryRegular_VeryHard";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverFrag_VeryHard : CoverActions.ThrowGrenadeCover
+{
+	tickets = [];
+	cooldowns = 
+	[
+		{
+			name = "ThrowGrenade_VeryHard";
+			duration = 10.f;
+		}
+	];
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFragRegular_VeryHard";
 		} : AISubActionForceEquip
 	];
 }
@@ -1399,7 +1568,7 @@ ThrowGrenadeCoverBiohazard : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseBiohazardGrenades"
+				"Condition.AbilityCanUseBiohazardGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1421,7 +1590,7 @@ ThrowGrenadeCoverIncendiary : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseIncendiaryGrenades"
+				"Condition.AbilityCanUseIncendiaryGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1443,7 +1612,7 @@ ThrowGrenadeCoverRecon : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseReconGrenades"
+				"Condition.AbilityCanUseReconGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1465,7 +1634,7 @@ ThrowGrenadeCoverCutting : CoverActions.ThrowGrenadeCover
 		{
 			AND = 
 			[
-				"Condition.AbilityCanUseCuttingGrenades"
+				"Condition.AbilityCanUseCuttingGrenades", "Condition.NotCalculatePathStraightToTarget10mForwardOffset"
 			];
 		} : AIActionAND;
 	};
@@ -1476,6 +1645,77 @@ ThrowGrenadeCoverCutting : CoverActions.ThrowGrenadeCover
 			attachmentSlot = "AttachmentSlots.WeaponLeft";
 			itemID = "Items.GrenadeCuttingRegular";
 		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeCoverSmokeNear : CoverActions.ThrowGrenadeCoverSmoke
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseSmokeGrenades", "Condition.TargetPOVBelow10deg", "Condition.HealthBelow100perc"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.867f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem, 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
+	];
+}
+
+ThrowGrenadeCoverSmoke : CoverActions.ThrowGrenadeCover
+{
+	tickets = 
+	[
+		"AITicketType.SmokeGrenadeThrow"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanUseSmokeGrenades", {
+					OR = 
+					[
+						"Condition.AbilityIsReckless", "Condition.AbilityIsAggressive"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.3f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeSmokeRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.867f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_offensive";
+		} : AISubActionThrowItem, 
+		{
+			coverExposureMethods = [];
+		} : AISubActionCover
 	];
 }
 

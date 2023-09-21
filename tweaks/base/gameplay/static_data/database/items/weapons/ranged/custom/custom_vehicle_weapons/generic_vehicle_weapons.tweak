@@ -19,7 +19,7 @@ Missile_Launcher : Base_Weapon
 	];
 	statModifierGroups += 
 	[
-		"Items.Base_Missile_Launcher_RPG_Stats", "Items.Base_Missile_Launcher_Technical_Stats"
+		"Items.Base_Missile_Launcher_RPG_Stats", "Items.Base_Missile_Launcher_Technical_Stats", "Items.Base_Missile_Launcher_Damage_Stats"
 	];
 	fk< StatModifier >[] statModifiers += 
 	[
@@ -44,7 +44,7 @@ Missile_Launcher : Base_Weapon
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Missile_Launcher_Technical_Stats", "Items.Base_Missile_Launcher_RPG_Stats", {
+			"Items.Base_Missile_Launcher_Technical_Stats", "Items.Base_Missile_Launcher_RPG_Stats", "Items.Base_Missile_Launcher_NPC_Damage_Stats", {
 				statModifiers = 
 				[
 					{
@@ -61,7 +61,14 @@ Missile_Launcher : Base_Weapon
 						statType = "BaseStats.HitDismembermentFactor";
 						modifierType = "Additive";
 						value = 1;
-					} : ConstantStatModifier
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.LootLevel";
+						modifierType = "Additive";
+						id = "puppet_preset_elite_mods";
+						column = "power_level_to_loot_level";
+						refStat = "BaseStats.PowerLevel";
+					} : CurveStatModifier
 				];
 			} : StatModifierGroup
 		];
@@ -72,21 +79,31 @@ Base_Missile_Launcher_RPG_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
+		"Character.ScaleToPlayerLevel"
+	];
+}
+
+Base_Missile_Launcher_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
 		{
 			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			id = "item_rifles_RPG_stats";
-			column = "power_level_to_DPS";
-			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier, 
+			value = 500f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Missile_Launcher_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
 		{
-			statType = "BaseStats.PowerLevel";
+			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 1.f;
-		} : CombinedStatModifier
+			value = 500f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -127,6 +144,306 @@ Base_Missile_Launcher_Technical_Stats : StatModifierGroup
 			value = 3.3f;
 		} : ReloadTimeModifier, 
 		"AttackModifier.HMGMinTBH", "AttackModifier.HMGMinLineOfSight", "AttackModifier.HMGDamageMultiplier"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Missile_Launcher : Base_Weapon
+{
+	string friendlyName = "w_panzer_missile_launcher";
+	displayName = "LocKey#50344";
+	localizedDescription = "LocKey#50344";
+	CName audioName = "wea_set_missile_vehicle";
+	CName entityName = "blank_weapon";
+	CName[] tags += 
+	[
+		"Preload", "Weapon", "Unique", "HeavyWeapon", "HideInUI", "SkipActivityLog"
+	];
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.FullAuto"
+	];
+	fk< ItemType > itemType = "ItemType.Wea_VehicleMissileLauncher";
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.PanzerHomingMissiles"
+	];
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.VehicleMissileLauncherRainMissile"
+	];
+	rangedAttacks = "Attacks.RainMissilePackage";
+	fk< Crosshair > crosshair = "Crosshairs.Driver_Combat_Missile_Launcher";
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.VehicleMissileLauncher";
+	CName audioEventName = "VehicleMissileLauncher";
+	fk< Quality > quality = "";
+	fk< StatModifierGroup >[] statModifierGroups += 
+	[
+		"Items.Base_Vehicle_Missle_Launcher_Damage_Stats"
+	];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Multiplier";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Multiplier";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Multiplier";
+			value = 3.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Vehicle_Missle_Launcher_Damage_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "iconic_level_to_random_range_mult_new";
+			refStat = "BaseStats.Level";
+			refObject = "Player";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			id = "quality_curves";
+			column = "quality_to_dps_multiplier_new";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 266.f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Vehicle_Missile_Launcher_A : Vehicle_Missile_Launcher
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehicleMissileLauncherA"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Missile_Launcher_B : Vehicle_Missile_Launcher
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehicleMissileLauncherB"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Missile_Launcher_C : Vehicle_Missile_Launcher
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehicleMissileLauncherC"
+	];
+}
+
+[ notQueryable ]
+Base_Vehicle_Power_Weapon : Base_Power_Lightmachinegun
+{
+	CName audioName = "wea_set_vehicle";
+	CName[] tags += 
+	[
+		"Preload", "Weapon", "LMG", "HideInUI", "SkipActivityLog"
+	];
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.FullAuto"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.FullAuto";
+	fk< ItemCategory > itemCategory = "ItemCategory.Weapon";
+	fk< Item > ammo = "Ammo.RifleAmmo";
+	displayName = "LocKey#836";
+	localizedDescription = "LocKey#837";
+	fk< UIIcon > hudIcon = "HUDWeaponIcons.Defender";
+	fk< Crosshair > crosshair = "Crosshairs.Driver_Combat_Power_Weapon";
+	previewEffectName = "weaponPreview";
+	previewEffectTag = "vehicle_power_weapon_preview";
+	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.VehiclePowerWeapon";
+	fk< Attack >[] attacks = 
+	[
+		"Attacks.VehicleTurretProjectile"
+	];
+	fk< ItemType > itemType = "ItemType.Wea_VehiclePowerWeapon";
+	entityName = "blank_weapon";
+	visualTags = 
+	[
+		"none"
+	];
+	appearanceResourceName = "";
+	npcRPGData = "";
+	enableNpcRPGData = false;
+	fk< Quality > quality = "";
+	statModifierGroups = 
+	[
+		"Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical", "Items.Base_Lightmachinegun_RPG_Stats", "Items.Base_Lightmachinegun_Misc_Stats", "Items.Base_Lightmachinegun_DeadReckoning_Stats", "Items.Base_Lightmachinegun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Lightmachinegun_Mult_Stats", "Items.Base_Power_Lightmachinegun_Stats", "Items.Base_Vehicle_Power_Weapon_Damage_Stats", "Items.Base_Vehicle_Power_Weapon_Technical_Stats", "Items.Base_Vehicle_Power_Weapon_Handling_Stats"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_Left_A : Base_Vehicle_Power_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponLeftA"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_Right_A : Base_Vehicle_Power_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponRightA"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_Left_B : Base_Vehicle_Power_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponLeftB"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_Right_B : Base_Vehicle_Power_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponRightB"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_Left_C : Base_Vehicle_Power_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponLeftC"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_Right_C : Base_Vehicle_Power_Weapon
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponRightC"
+	];
+}
+
+Base_Vehicle_Power_Weapon_Damage_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "iconic_level_to_random_range_mult_new";
+			refStat = "BaseStats.Level";
+			refObject = "Player";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 60.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Multiplier";
+			value = 0.422f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Vehicle_Power_Weapon_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.1f;
+		} : CycleTimeModifier, 
+		{
+			value = 50.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Vehicle_Power_Weapon_Handling_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 5.f;
+		} : ReloadTimeModifier, 
+		{
+			value = 5.f;
+		} : EmptyReloadTimeModifier, 
+		{
+			value = 1.f;
+		} : ZoomLevelModifier, 
+		{
+			value = 0.f;
+		} : EquipDuration_FirstModifier
+	];
+}
+
+[ notQueryable ]
+Base_Vehicle_Power_Weapon_OutlawHeist : Base_Vehicle_Power_Weapon
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 1.35f;
+		} : ConstantStatModifier
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_OutlawHeist_Left_A : Base_Vehicle_Power_Weapon_OutlawHeist
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponLeftA"
+	];
+}
+
+[ notQueryable ]
+Vehicle_Power_Weapon_OutlawHeist_Right_A : Base_Vehicle_Power_Weapon_OutlawHeist
+{
+	fk< AttachmentSlot >[] placementSlots = 
+	[
+		"AttachmentSlots.VehiclePowerWeaponRightA"
 	];
 }
 

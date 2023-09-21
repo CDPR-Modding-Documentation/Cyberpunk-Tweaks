@@ -1,8 +1,9 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Zhuo_Default : Base_Zhuo
 {
+	CName appearanceResourceName = "Preset_Zhuo_Default";
 	CName[] visualTags = 
 	[
 		"Default"
@@ -26,51 +27,21 @@ Preset_Zhuo_Default : Base_Zhuo
 			fk< Item > itemPartPreset = "Items.w_shotgun__kang_tao_zhuo__mag_stdr";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+			slot = "AttachmentSlots.Smart_Shotgun_WeaponMod1";
+		} : Smart_Shotgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_Shotgun_WeaponMod2";
+		} : Smart_Shotgun_ModList_Slot2
 	];
-	CName appearanceResourceName = "Preset_Zhuo_Default";
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
 Preset_Zhuo_Pimp : Preset_Zhuo_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -82,11 +53,19 @@ Preset_Zhuo_Neon : Preset_Zhuo_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Zhuo_Military : Preset_Zhuo_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -131,74 +110,90 @@ Craftable_Common_Zhuo : Preset_Zhuo_Default
 Craftable_Uncommon_Zhuo : Craftable_Common_Zhuo
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_Shotgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Zhuo : Craftable_Common_Zhuo
+Craftable_Rare_Zhuo : Craftable_Uncommon_Zhuo
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Zhuo : Craftable_Common_Zhuo
+Craftable_Epic_Zhuo : Craftable_Uncommon_Zhuo
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Zhuo : Craftable_Common_Zhuo
+Craftable_Legendary_Zhuo : Craftable_Uncommon_Zhuo
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Zhuo_Eight_Star : Preset_Zhuo_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "zhuo_eight_star_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40607";
 	visualTags = 
 	[
 		"Star_Cannon_Zhuo"
 	];
-	quality = "Quality.Legendary";
-	localizedDescription = "LocKey#40608";
-	equipPrereqs = 
+	quality = "Quality.Random";
+	tags += 
 	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+		"IconicWeapon", "CraftableIconic"
 	];
+	localizedDescription = "LocKey#40608";
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	fk< Attack >[] attacks += 
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Zhuo_NPC_Data;
+	rangedAttacks = "Attacks.ZhuoBulletHighExplosivePackage";
+	attacks += 
 	[
-		"Attacks.SmartBulletHighExplosive"
+		"Attacks.ZhuoBulletHighExplosive"
 	];
-	fk< RangedAttackPackage > rangedAttacks = "Attacks.SmartBulletHighExplosivePackage";
-	CraftingData = "Items.Iconic_Big_Legendary_Crafting_Materials_Weapon";
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.HeavyStaminaDelay", "EquipmentGLP.HeavyLMGWeapon", "Items.SmartWeaponTargetsPriorityQueues"
+	];
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	fk< TriggerMode > primaryTriggerMode = "TriggerMode.SemiAuto";
+	CraftingData = "Items.Craftable_Iconic_Weapon";
 	slotPartListPreset = 
 	[
 		{
@@ -224,7 +219,370 @@ Preset_Zhuo_Eight_Star : Preset_Zhuo_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Zhuo_Technical_Stats", "Items.Base_Zhuo_Handling_Stats", "Items.Base_Zhuo_Recoil_Stats", "Items.Base_Zhuo_Spread_Stats", "Items.Base_Zhuo_SmartGun_Stats", "Items.Base_Zhuo_SmartGun_SmartLink_Stats", "Items.Base_Zhuo_SmartGun_Projectile_Stats", "Items.Base_Zhuo_Flags", "Items.Base_Zhuo_Aim_Stats", "Items.Base_Zhuo_Constant_Stats", "Items.Base_Smart_Shotgun_Mult_Stats", "Items.Base_Smart_Shotgun_RPG_Randomized_Stats", "Items.Base_Smart_Shotgun_No_Sway_Stats", "Items.Base_Shotgun_RPG_Stats", "Items.Base_Shotgun_Misc_Stats", "Proficiencies.DemolitionShotgunStats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Zhuo_Eight_Star_Technical_Stats", "Items.Base_Zhuo_Handling_Stats", "Items.Base_Zhuo_Recoil_Stats", "Items.Base_Zhuo_Eight_Star_Spread_Stats", "Items.Base_Zhuo_Eight_Star_SmartGun_Stats", "Items.Base_Zhuo_Eight_Star_SmartLink_Stats", "Items.Base_Zhuo_Eight_Star_SmartGun_Projectile_Stats", "Items.Base_Zhuo_Flags", "Items.Base_Zhuo_Aim_Stats", "Items.Base_Zhuo_Eight_Star_Constant_Stats", "Items.Base_Zhuo_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Shotgun_Mult_Stats", "Items.Base_Smart_Shotgun_No_Sway_Stats", "Items.Base_Shotgun_RPG_Stats", "Items.Base_Shotgun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal"
 	];
+}
+
+Base_Zhuo_Eight_Star_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.5f;
+		} : CycleTimeModifier, 
+		{
+			value = 0.2f;
+		} : CycleTime_BurstModifier, 
+		{
+			value = 0.2f;
+		} : CycleTime_BurstSecondaryModifier, 
+		{
+			value = 2.f;
+		} : NumShotsInBurstModifier, 
+		{
+			value = 2.f;
+		} : NumShotsInBurstSecondaryModifier, 
+		{
+			value = 2.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 4.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Zhuo_Eight_Star_Spread_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : SpreadUseInAdsModifier, 
+		{
+			value = 1.25f;
+		} : SpreadResetSpeedModifier, 
+		{
+			value = 0.3f;
+		} : SpreadResetTimeThresholdModifier, 
+		{
+			value = 0.f;
+		} : SpreadRandomizeOriginPointModifier, 
+		{
+			value = 0.f;
+		} : SpreadUseCircularSpreadModifier, 
+		{
+			value = 1.f;
+		} : SpreadUseEvenDistributionModifier, 
+		{
+			value = 4.f;
+		} : SpreadEvenDistributionRowCountModifier, 
+		{
+			value = 0.9f;
+		} : SpreadEvenDistributionJitterSizeModifier
+	];
+}
+
+Base_Zhuo_Eight_Star_SmartGun_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
+		{
+			value = 1.f;
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsLockingAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunHipTargetableAngleYawModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAnglePitchModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunAdsTargetableAngleYawModifier, 
+		{
+			value = 6.f;
+		} : SmartGunHipMaxLockedTargetsModifier, 
+		{
+			value = 6.f;
+		} : SmartGunAdsMaxLockedTargetsModifier, 
+		{
+			value = 1.2f;
+		} : SmartGunHipTimeToLockModifier, 
+		{
+			value = 1.2f;
+		} : SmartGunAdsTimeToLockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunHipTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunAdsTimeToUnlockModifier, 
+		{
+			value = 0.f;
+		} : SmartGunTimeToRemoveOccludedTargetModifier, 
+		{
+			value = 0.f;
+		} : SmartGunUseTimeBasedAccuracyModifier, 
+		{
+			value = 0.5f;
+		} : SmartGunTimeToMaxAccuracyModifier, 
+		{
+			value = 0.2f;
+		} : SmartGunStartingAccuracyModifier, 
+		{
+			value = 0.1f;
+		} : SmartGunSpreadMultiplierModifier, 
+		{
+			value = 20.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = -0.65f;
+		} : SmartGunHitProbabilityModifier
+	];
+}
+
+Base_Zhuo_Eight_Star_SmartLink_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 10.0f;
+			statType = "BaseStats.SmartGunHipLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 18.0f;
+			statType = "BaseStats.SmartGunHipLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 10.0f;
+			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 18.0f;
+			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 9.0f;
+			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 17.0f;
+			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 9.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 17.0f;
+			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.6f;
+			statType = "BaseStats.SmartGunHipTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.6f;
+			statType = "BaseStats.SmartGunAdsTimeToUnlock";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 1.6f;
+			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 20.f;
+			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.35f;
+			statType = "BaseStats.SmartGunHitProbability";
+		} : SmartLinkDependentStatModifier
+	];
+}
+
+Base_Zhuo_Eight_Star_SmartGun_Projectile_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.2f;
+		} : SmartGunProjectileVelocityVarianceModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunAddSpiralTrajectoryModifier, 
+		{
+			value = 0.1f;
+		} : SmartGunSpiralRadiusModifier, 
+		{
+			value = 0.1f;
+		} : SmartGunSpiralCycleTimeMinModifier, 
+		{
+			value = 0.25f;
+		} : SmartGunSpiralCycleTimeMaxModifier, 
+		{
+			value = 0.0f;
+		} : SmartGunSpiralRampDistanceStartModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunSpiralRampDistanceEndModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunSpiralRandomizeDirectionModifier, 
+		{
+			value = 1.0f;
+		} : SmartGunHitProbabilityModifier, 
+		{
+			value = 9.0f;
+		} : SmartGunMissRadiusModifier
+	];
+}
+
+Base_Zhuo_Eight_Star_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadDefaultY";
+			modifierType = "Additive";
+			value = 6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultY";
+			modifierType = "Additive";
+			value = 6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxY";
+			modifierType = "Additive";
+			value = 6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxY";
+			modifierType = "Additive";
+			value = 6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 2.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.574f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Multiplier";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 2.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 2.5;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTimeBonus";
+			modifierType = "Additive";
+			value = 0.15f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
+}
+
+[ notQueryable ]
+Common_Zhuo_Eight_Star : Preset_Zhuo_Eight_Star
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Zhuo_Eight_Star : Preset_Zhuo_Eight_Star
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Zhuo_Eight_Star : Preset_Zhuo_Eight_Star
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Zhuo_Eight_Star : Preset_Zhuo_Eight_Star
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Legendary_Zhuo_Eight_Star : Preset_Zhuo_Eight_Star
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
 }
 

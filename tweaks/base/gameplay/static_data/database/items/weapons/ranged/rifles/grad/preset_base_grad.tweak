@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Grad_Default : Base_Grad
 {
@@ -31,54 +31,21 @@ Preset_Grad_Default : Base_Grad
 			itemPartPreset = "Items.w_att_scope_sniper_01";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+			slot = "AttachmentSlots.Power_Precision_Sniper_Rifle_WeaponMod1";
+		} : Power_PR_SR_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_Precision_Sniper_Rifle_WeaponMod2";
+		} : Power_PR_SR_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.CommonMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 10;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
 Preset_Grad_Pimp : Preset_Grad_Default
 {
 	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -90,6 +57,10 @@ Preset_Grad_Neon : Preset_Grad_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 Preset_Grad_Military : Preset_Grad_Default
@@ -98,12 +69,269 @@ Preset_Grad_Military : Preset_Grad_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
 [ notQueryable ]
-Craftable_Common_Grad : Preset_Grad_Default
+[ DisabledContent ]
+Preset_Grad_AirDrop : Preset_Grad_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "grad_airdrop_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	CName[] visualTags = 
+	[
+		"AirDrop_Weapon"
+	];
+	tags += 
+	[
+		"AirDrop_Burn", "IconicWeapon", "AirDropWeapon"
+	];
+	quality = "Quality.Random";
+	displayName = "LocKey#93441";
+	localizedDescription = "LocKey#93445";
+	gameplayDescription = "LocKey#92678";
+	rangedAttacks = "Attacks.ExplodingBulletLightPackage";
+	attacks += 
+	[
+		"Attacks.ExplodingBulletLightEffect", "Attacks.ExplodingBulletLightProjectile"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.GradAirDropWeaponMod";
+		}, 
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.AirDrop_scope";
+		}
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Grad_NPC_Data;
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Grad_AirDrop_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_AirDrop_Constant_Stats", "Items.Base_Grad_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Sniper_Rifle_Mult_Stats", "Items.Base_Power_Sniper_Rifle_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.AirDrop_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal"
+	];
+}
+
+Base_Grad_AirDrop_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 2.7f;
+		} : CycleTimeModifier, 
+		{
+			value = 5.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Multiplier";
+			value = 1.5f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Grad_AirDrop_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.15f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 7.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 6.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 8.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMinADS";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMaxADS";
+			modifierType = "Additive";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.763;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.125f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.667f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RicochetCount";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 2.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.25f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.SwaySideMaximumAngleDistance";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwaySideMaximumAngleDistance";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = -0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.SwaySideMinimumAngleDistance";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwaySideMinimumAngleDistance";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = -0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.SwayTraversalTime";
+			modifierType = "AdditiveMultiplier";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SwayTraversalTime";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = -0.05f;
+		} : CombinedStatModifier
+	];
+}
+
+[ notQueryable ]
+AirDrop_scope : Base_Long_Scope
 {
 	quality = "Quality.Common";
+	visualTags = 
+	[
+		"Default"
+	];
+	CName appearanceResourceName = "w_att__scope_long_04";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	iconPath = "w_att__scope_long_04";
+	tags += 
+	[
+		"DummyPart", "HideInUI", "HideAtVendor"
+	];
+}
+
+[ notQueryable ]
+Craftable_Base_Grad : Preset_Grad_Default
+{
 	slotPartListPreset = 
 	[
 		{
@@ -123,66 +351,153 @@ Craftable_Common_Grad : Preset_Grad_Default
 			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__mag_stdr";
 		}
 	];
+}
+
+[ notQueryable ]
+Craftable_Common_Grad : Craftable_Base_Grad
+{
+	quality = "Quality.Common";
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_01_Common";
+		}
+	];
 	CraftingData = "Items.Big_Common_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Uncommon_Grad : Craftable_Common_Grad
+Craftable_Uncommon_Grad : Craftable_Base_Grad
 {
 	quality = "Quality.Uncommon";
+	slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_01_Uncommon";
+		}, 
+		{
+			slot = "AttachmentSlots.Power_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Proficiency_Craftable_Rare_Grad : Craftable_Common_Grad
+Proficiency_Craftable_Rare_Grad : Craftable_Base_Grad
 {
 	quality = "Quality.Rare";
-	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	slotPartListPreset += 
 	[
 		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_01_Rare";
+		}, 
+		{
+			slot = "AttachmentSlots.Power_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
 	];
+	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Epic_Grad : Craftable_Common_Grad
+Craftable_Epic_Grad : Craftable_Base_Grad
 {
 	quality = "Quality.Epic";
-	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	slotPartListPreset += 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_01_Epic";
+		}, 
+		{
+			slot = "AttachmentSlots.Power_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
 	];
+	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Legendary_Grad : Craftable_Common_Grad
+Craftable_Legendary_Grad : Craftable_Base_Grad
 {
 	quality = "Quality.Legendary";
-	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
+	slotPartListPreset += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_01_Epic";
+		}, 
+		{
+			slot = "AttachmentSlots.Power_Precision_Sniper_Rifle_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
 	];
+	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_01_Common : w_att_scope_sniper_01
+{
+	quality = "Quality.Common";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_01_Uncommon : w_att_scope_sniper_01
+{
+	quality = "Quality.Uncommon";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_01_Rare : w_att_scope_sniper_01
+{
+	quality = "Quality.Rare";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_01_Epic : w_att_scope_sniper_01
+{
+	quality = "Quality.Epic";
+}
+
+[ notQueryable ]
+w_att_scope_sniper_01_Legendary : w_att_scope_sniper_01
+{
+	quality = "Quality.Legendary";
 }
 
 [ notQueryable ]
 Preset_Grad_Panam : Preset_Grad_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "grad_panam_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
 	audioName = "wea_set_grad_panam";
 	displayName = "LocKey#40573";
 	visualTags = 
 	[
 		"Panam_Grad"
 	];
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	localizedDescription = "LocKey#40574";
+	gameplayDescription = "";
+	tags += 
+	[
+		"IconicWeapon", "Grad_Panam"
+	];
 	slotPartListPreset = 
 	[
 		{
@@ -203,7 +518,7 @@ Preset_Grad_Panam : Preset_Grad_Default
 		}, 
 		{
 			slot = "AttachmentSlots.Scope";
-			fk< Item > itemPartPreset = "Items.w_att_scope_sniper_01";
+			fk< Item > itemPartPreset = "Items.Panam_scope";
 		}, 
 		{
 			slot = "AttachmentSlots.IconicWeaponModLegendary";
@@ -230,139 +545,142 @@ Preset_Grad_Panam : Preset_Grad_Default
 			"Quality.IconicItem"
 		];
 	} : Items.Base_Grad_NPC_Data;
-	CraftingData = "Items.Iconic_Big_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
+	fk< GameplayLogicPackage >[] OnAttach = 
 	[
-		{
-			items = 
+		"EquipmentGLP.PanamWeaponLight", "EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", {
+			animationWrapperOverrides = 
 			[
-				{
-					item = "Items.Recipe_Preset_Grad_Panam_Epic";
-				}
+				"w_base_rifle_sniper"
 			];
-		}
+		} : GameplayLogicPackage
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Grad_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_Constant_Stats", "Items.Base_Power_Sniper_Rifle_Mult_Stats", "Items.Base_Power_Sniper_Rifle_Stats", "Items.Base_Power_Sniper_Rifle_RPG_Randomized_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Proficiencies.AssaultSniperRifleStats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.IconicQualityRandomization", "Items.Base_Grad_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_Panam_Constant_Stats", "Items.Base_Grad_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Sniper_Rifle_Mult_Stats", "Items.Base_Power_Sniper_Rifle_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
 	bool scaleToPlayer = true;
 }
 
-[ notQueryable ]
-Preset_Grad_Panam_Epic : Preset_Grad_Panam
+Base_Grad_Panam_Constant_Stats : StatModifierGroup
 {
-	quality = "Quality.Epic";
-	equipPrereqs = 
+	statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.125f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 4.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 4.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 5.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMinADS";
+			modifierType = "Additive";
+			value = 1.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMaxADS";
+			modifierType = "Additive";
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.053f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 2.75f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.25f;
+		} : CombinedStatModifier
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Grad_Panam";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	OnLooted = 
+}
+
+[ notQueryable ]
+Panam_scope : Base_Sniper_Scope
+{
+	quality = "Quality.Common";
+	fk< StatModifier >[] statModifiers += 
 	[
 		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Grad_Panam_Legendary";
-				}
-			];
-		}
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
 	];
-}
-
-[ notQueryable ]
-Preset_Grad_Panam_Legendary : Preset_Grad_Panam
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	iconPath = "kanone_max_default";
+	tags += 
 	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+		"DummyPart", "HideInUI", "HideAtVendor"
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Grad_Panam_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Grad_Panam : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Grad_Panam";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Grad_Panam_Epic : Recipe_Preset_Grad_Panam
-{
-	craftingResult = 
-	{
-		item = "Items.Preset_Grad_Panam_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Grad_Panam_Legendary : Recipe_Preset_Grad_Panam
-{
-	craftingResult = 
-	{
-		item = "Items.Preset_Grad_Panam_Legendary";
-	};
+	buyPrice += 
+	[
+		"Price.LowManufactureQuality"
+	];
+	sellPrice += 
+	[
+		"Price.LowManufactureQuality"
+	];
 }
 
 [ notQueryable ]
 Preset_Grad_Buck : Preset_Grad_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "grad_buck_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
 	displayName = "LocKey#40575";
 	visualTags = 
 	[
@@ -370,14 +688,15 @@ Preset_Grad_Buck : Preset_Grad_Default
 	];
 	tags += 
 	[
-		"Buck_Grad"
+		"Buck_Grad", "IconicWeapon"
 	];
-	quality = "Quality.Epic";
+	quality = "Quality.Random";
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
 	localizedDescription = "LocKey#40576";
+	gameplayDescription = "LocKey#93758";
 	npcRPGData = 
 	{
 		statModifiers += 
@@ -388,11 +707,11 @@ Preset_Grad_Buck : Preset_Grad_Default
 	rangedAttacks = "Attacks.RocketProjectilePackage";
 	attacks += 
 	[
-		"Attacks.RocketProjectile", "Attacks.RocketChargedProjectile"
+		"Attacks.RocketEffect"
 	];
 	fk< GameplayLogicPackage >[] OnAttach = 
 	[
-		"EquipmentGLP.BuckWeaponHeavy", {
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", "EquipmentGLP.BuckWeaponHeavy", {
 			animationWrapperOverrides = 
 			[
 				"w_base_rifle_sniper"
@@ -427,21 +746,9 @@ Preset_Grad_Buck : Preset_Grad_Default
 		}
 	];
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerLargeCaliber";
-	CraftingData = "Items.Iconic_Big_Epic_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Grad_Buck_Legendary";
-				}
-			];
-		}
-	];
 	statModifierGroups = 
 	[
-		"Items.Base_Buck_Rifle_RPG_Stats", "Items.Base_Buck_Technical_Stats", "Items.Base_Buck_Handling_Stats", "Items.Base_Buck_Aim_Stats", "Items.Base_Buck_Constant_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Power_Sniper_Rifle_Mult_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Proficiencies.AssaultSniperRifleStats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal"
+		"Items.IconicQualityRandomization", "Items.Base_Buck_Rifle_RPG_Stats", "Items.Base_Buck_Technical_Stats", "Items.Base_Buck_Handling_Stats", "Items.Base_Buck_Aim_Stats", "Items.Base_Buck_Constant_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Sniper_Rifle_Mult_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Thermal"
 	];
 }
 
@@ -449,13 +756,6 @@ Base_Buck_Rifle_RPG_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_sniper_rifles_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
@@ -465,7 +765,25 @@ Base_Buck_Rifle_RPG_Stats : StatModifierGroup
 			statType = "BaseStats.HeadshotDamageMultiplier";
 			modifierType = "Multiplier";
 			value = 0.f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponTypeToStaminaCost";
+			modifierType = "Multiplier";
+			value = 190f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Additive";
+			value = 1.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaminaCostReduction";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.SniperStaminaCostReduction";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
 	];
 }
 
@@ -486,19 +804,6 @@ Base_Buck_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : ProjectilesPerShotModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
-			statType = "BaseStats.Strength";
-			modifierType = "Additive";
-			value = 20.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.Strength";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanUseStrongArms";
-			refObject = "Player";
-			opSymbol = "*";
-			value = -1f;
-		} : CombinedStatModifier, 
-		{
 			statType = "BaseStats.DamagePerHit";
 			modifierType = "Multiplier";
 			value = 1.4f;
@@ -506,13 +811,14 @@ Base_Buck_Technical_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.EffectiveDPS";
 			modifierType = "Multiplier";
-			value = 0.714f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.EffectiveRange";
 			modifierType = "Multiplier";
 			value = 0.5f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 
@@ -521,11 +827,17 @@ Base_Buck_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 3.5f;
+			value = 3.0f;
 		} : ReloadTimeModifier, 
 		{
-			value = 6.2f;
+			value = 4.7f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.5f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.5f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.0f;
 		} : ZoomLevelModifier, 
@@ -559,57 +871,52 @@ Base_Buck_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 2.f;
+			value = 1.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 2.0f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadDefaultY";
-			modifierType = "Additive";
-			value = 0.f;
+			value = 0.66f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 3.0f;
+			value = 7.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 3.0f;
+			value = 2.64f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 12.f;
+			value = 5.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 18.f;
+			value = 8.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMinADS";
 			modifierType = "Additive";
-			value = 10.f;
+			value = 6.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMaxADS";
 			modifierType = "Additive";
-			value = 15.f;
+			value = 9.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.AimInTime";
@@ -620,27 +927,68 @@ Base_Buck_Constant_Stats : StatModifierGroup
 			statType = "BaseStats.AimOutTime";
 			modifierType = "Multiplier";
 			value = 0.95f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 2.105f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DamagePerHit";
+			modifierType = "Multiplier";
+			value = 1.7981f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.667;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
 	];
 }
 
 [ notQueryable ]
-Buck_scope : Base_Sniper_Scope
+Buck_scope : Base_Short_Scope
 {
-	displayName = "LocKey#3797";
-	localizedDescription = "LocKey#3806";
+	quality = "Quality.Common";
 	fk< StatModifier >[] statModifiers += 
 	[
 		{
-			statType = "BaseStats.ZoomLevel";
+			statType = "BaseStats.Quality";
 			modifierType = "Additive";
-			value = 0.333f;
-		} : ConstantStatModifier
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
 	];
 	iconPath = "grandstand_default";
 	tags += 
 	[
-		"EarlyGameWeaponAttachments", "MidGameWeaponAttachments", "EndGameWeaponAttachments", "DummyPart"
+		"DummyPart", "HideInUI", "HideAtVendor"
 	];
 	buyPrice += 
 	[
@@ -653,45 +1001,206 @@ Buck_scope : Base_Sniper_Scope
 }
 
 [ notQueryable ]
-Preset_Grad_Buck_Legendary : Preset_Grad_Buck
+[ DisabledContent ]
+Preset_Grad_Scav : Preset_Grad_Default
 {
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	OnLooted += 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			effectors = 
+			[
+				{
+					fact = "grad_scav_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
 	];
-	CraftingData = 
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	displayName = "LocKey#87364";
+	localizedDescription = "LocKey#87377";
+	gameplayDescription = "";
+	CName[] visualTags = 
+	[
+		"Scav_Grad"
+	];
+	quality = "Quality.Random";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_rifle_sniper__techtronika_grad__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.Scope";
+			fk< Item > itemPartPreset = "Items.Scav_scope";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.GradScavWeaponMod";
+		}
+	];
+	npcRPGData = 
 	{
-		craftingRecipe = 
+		statModifiers += 
 		[
-			{
-				ingredient = "Items.mq025_buck_gun";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
+			"Quality.IconicItem"
 		];
-	};
+	} : Items.Base_Grad_NPC_Data;
+	fk< GameplayLogicPackage >[] OnAttach = 
+	[
+		"EquipmentGLP.PanamWeaponLight", "EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", {
+			animationWrapperOverrides = 
+			[
+				"w_base_rifle_sniper"
+			];
+		} : GameplayLogicPackage
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Grad_Technical_Stats", "Items.Base_Grad_Handling_Stats", "Items.Base_Grad_Recoil_Stats", "Items.Base_Grad_Spread_Stats", "Items.Base_Grad_Aim_Stats", "Items.Base_Grad_Scav_Constant_Stats", "Items.Base_Grad_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Sniper_Rifle_Mult_Stats", "Items.Base_Power_Sniper_Rifle_Stats", "Items.Base_Sniper_Rifle_Sway_Stats", "Items.Base_Sniper_Rifle_RPG_Stats", "Items.Base_Sniper_Rifle_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Sniper_Rifle_DeadReckoning_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
+	];
+	bool scaleToPlayer = true;
+}
+
+Base_Grad_Scav_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 6.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 4.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 6.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMinADS";
+			modifierType = "Additive";
+			value = 1.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMaxADS";
+			modifierType = "Additive";
+			value = 2.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.411f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.667;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
 }
 
 [ notQueryable ]
-Recipe_Preset_Grad_Buck_Legendary : ItemRecipe
+Scav_scope : Base_Short_Scope
 {
-	craftingResult = 
-	{
-		item = "Items.Preset_Grad_Buck_Legendary";
-	};
+	quality = "Quality.Common";
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			refObject = "Root";
+			opSymbol = "*";
+			value = 1f;
+		} : CombinedStatModifier
+	];
+	iconPath = "grandstand_default";
+	tags += 
+	[
+		"DummyPart", "HideInUI", "HideAtVendor"
+	];
+	buyPrice += 
+	[
+		"Price.LowManufactureQuality"
+	];
+	sellPrice += 
+	[
+		"Price.LowManufactureQuality"
+	];
 }
 

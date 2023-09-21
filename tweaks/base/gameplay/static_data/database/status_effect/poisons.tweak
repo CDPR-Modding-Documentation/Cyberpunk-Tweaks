@@ -5,7 +5,7 @@ Poisoned : DoTStatusEffect
 {
 	gameplayTags += 
 	[
-		"Quickhack"
+		"Poison"
 	];
 	statusEffectType = "BaseStatusEffectTypes.Poisoned";
 	bool replicated = true;
@@ -79,8 +79,8 @@ Poisoned : DoTStatusEffect
 						statModifiers = 
 						[
 							{
-								statType = "BaseStats.Armor";
-								modifierType = "AdditiveMultiplier";
+								statType = "BaseStats.ArmorMultBonus";
+								modifierType = "Additive";
 								refStat = "BaseStats.CanPoisonLowerArmor";
 								refObject = "Instigator";
 								opSymbol = "*";
@@ -296,8 +296,8 @@ PlayerPoisoned : Poisoned
 						statModifiers = 
 						[
 							{
-								statType = "BaseStats.Armor";
-								modifierType = "AdditiveMultiplier";
+								statType = "BaseStats.ArmorMultBonus";
+								modifierType = "Additive";
 								refStat = "BaseStats.CanPoisonLowerArmor";
 								refObject = "Instigator";
 								opSymbol = "*";
@@ -586,6 +586,811 @@ HeavyPoision : Poisoned
 							} : ConstantStatModifier
 						];
 					};
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Hercules_Poison : Poisoned
+{
+}
+
+BioGrenade : Poisoned
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"GrenadeStatusEffect", "BIO"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				"BaseStatusEffect.PoisonedSFX"
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 0;
+								comparisonType = "LessOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							"Prereqs.NPCIsHuman"
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ArmorMultBonus";
+								modifierType = "Additive";
+								refStat = "BaseStats.CanPoisonLowerArmor";
+								refObject = "Instigator";
+								opSymbol = "*";
+								value = -0.25f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.HasDoubleJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDodge";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDodgeAir";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanPoisonSlow";
+								modifierType = "Additive";
+								refObject = "Player";
+								refStat = "BaseStats.CanPoisonSlow";
+								opSymbol = "*";
+								value = 1f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.HasDodgeAir";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasChargeJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanSprint";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasKerenzikov";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasSandevistan";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "HasPoisonHeal";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : MultiPrereq;
+					effectorClassName = "ModifyStatPoolModifierEffector";
+					fk< PoolValueModifier > poolModifier = 
+					{
+						bool enabled = true;
+						float rangeBegin = 0;
+						float rangeEnd = 100;
+						float startDelay = 0;
+						float valuePerSec = 2;
+						bool delayOnChange = false;
+					} : PoolValueModifier;
+					string statPoolType = "Health";
+					string modificationType = "Regeneration";
+				} : ModifyStatPoolModifierEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+RareBioGrenade : BioGrenade
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.4;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.48;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.PlayerPoisonSlow";
+					count = 1;
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.LongLastingPoisonDebuff";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+RarePlusBioGrenade : BioGrenade
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.38;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.48;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.PlayerPoisonSlow";
+					count = 1;
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.LongLastingPoisonDebuff";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EpicBioGrenade : BioGrenade
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.34;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.48;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.PlayerPoisonSlow";
+					count = 1;
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.LongerLastingPoisonDebuff";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EpicPlusBioGrenade : BioGrenade
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.27;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.48;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.PlayerPoisonSlow";
+					count = 1;
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.LongerLastingPoisonDebuff";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LegendaryBioGrenade : BioGrenade
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.22;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.48;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.PlayerPoisonSlow";
+					count = 1;
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.StrongLongLastingPoisonDebuff";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LegendaryPlusBioGrenade : BioGrenade
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.20;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ChemicalDamageOverTime";
+					delayTime = 0.48;
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.PlayerPoisonSlow";
+					count = 1;
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					statusEffect = "BaseStatusEffect.StrongerLongLastingPoisonDebuff";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+PlayerPoisonSlow : DebuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"GrenadeStatusEffect", "PlayerBioGrenade"
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MaxSpeed";
+								modifierType = "Additive";
+								value = -0.8;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.StaminaRegenRateMult";
+								modifierType = "Additive";
+								value = -0.1;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer
+			];
+		}
+	];
+}
+
+LongLastingPoisonDebuff : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			bool stackable = true;
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "IsStrongMeleeArchetype";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							{
+								statType = "IsFastMeleeArchetype";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							{
+								statType = "IsGenericMeleeArchetype";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq
+						];
+					} : Prereqs.ORPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.DPS";
+								modifierType = "Multiplier";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LongerLastingPoisonDebuff : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			bool stackable = true;
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "IsStrongMeleeArchetype";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							{
+								statType = "IsFastMeleeArchetype";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							{
+								statType = "IsGenericMeleeArchetype";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq
+						];
+					} : Prereqs.ORPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.DPS";
+								modifierType = "Multiplier";
+								value = 0.35f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+StrongLongLastingPoisonDebuff : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 20;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			bool stackable = true;
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									{
+										statType = "IsStrongMeleeArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq, 
+									{
+										statType = "IsFastMeleeArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq, 
+									{
+										statType = "IsGenericMeleeArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.DPS";
+								modifierType = "Multiplier";
+								value = 0.20f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+StrongerLongLastingPoisonDebuff : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 25;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			bool stackable = true;
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									{
+										statType = "IsStrongMeleeArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq, 
+									{
+										statType = "IsFastMeleeArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq, 
+									{
+										statType = "IsGenericMeleeArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.DPS";
+								modifierType = "Multiplier";
+								value = 0.05f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
 				} : ApplyStatGroupEffector
 			];
 		} : GameplayLogicPackage

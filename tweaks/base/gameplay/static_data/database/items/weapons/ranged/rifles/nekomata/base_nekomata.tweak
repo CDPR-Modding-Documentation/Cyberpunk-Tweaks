@@ -15,17 +15,19 @@ Base_Nekomata : Base_Tech_Sniper_Rifle
 	displayName = "LocKey#3609";
 	string friendlyName = "w_rifle_sniper_tsunami_nekomata";
 	localizedDescription = "LocKey#3610";
+	gameplayDescription = "LocKey#92671";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Tsunami_Nekomata";
 	CName audioName = "wea_set_nekomata";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Sniper"
+		"Preload", "Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
 		"TriggerMode.Charge"
 	];
 	fk< TriggerMode > primaryTriggerMode = "TriggerMode.Charge";
+	fk< TriggerMode > secondaryTriggerMode = "TriggerMode.Charge";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Corporation";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Tech";
 	fk< Item > ammo = "Ammo.SniperRifleAmmo";
@@ -75,7 +77,7 @@ Base_Nekomata : Base_Tech_Sniper_Rifle
 				}
 			];
 		}, 
-		"Items.SniperPossibleScopesList"
+		"Items.NekomataPossibleScopesList"
 	];
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "pierce";
@@ -86,12 +88,15 @@ Base_Nekomata : Base_Tech_Sniper_Rifle
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Nekomata_Technical_Stats"
 		];
-	} : Base_Tech_Sniper_Rifle_NPC_Data;
+	} : Base_Nekomata_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Nekomata_Technical_Stats", "Items.Base_Nekomata_Handling_Stats", "Items.Base_Nekomata_Recoil_Stats", "Items.Base_Nekomata_Spread_Stats", "Items.Base_Nekomata_Aim_Stats", "Items.Base_Nekomata_Constant_Stats"
+		"Items.Base_Nekomata_Technical_Stats", "Items.Base_Nekomata_Handling_Stats", "Items.Base_Nekomata_Recoil_Stats", "Items.Base_Nekomata_Spread_Stats", "Items.Base_Nekomata_Aim_Stats", "Items.Base_Nekomata_Constant_Stats", "Items.Base_Nekomata_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.HeavyStaminaDelay", "EquipmentGLP.HeavyWeapon"
 	];
 	fk< ConstantStatModifier > price = 
 	{
@@ -100,10 +105,10 @@ Base_Nekomata : Base_Tech_Sniper_Rifle
 		value = 120;
 	} : ConstantStatModifier;
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 2.3f;
-	baseEmptyReloadTime = 3.8f;
-	uninterruptibleReloadStart = 1.8f;
-	uninterruptibleEmptyReloadStart = 3.f;
+	baseReloadTime = 2.0f;
+	baseEmptyReloadTime = 2.6f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -120,48 +125,11 @@ Base_Nekomata : Base_Tech_Sniper_Rifle
 	float weaponBlurIntensity_aim = 1.f;
 }
 
-Base_Nekomata_NPC_Technical_Stats : StatModifierGroup
+Base_Nekomata_NPC_Data : Base_Tech_Sniper_Rifle_NPC_Data
 {
-	statModifiers = 
+	statModifierGroups += 
 	[
-		{
-			value = 1.f;
-		} : NumShotsToFireModifier, 
-		{
-			value = 0.5f;
-		} : CycleTimeModifier, 
-		{
-			value = 5.f;
-		} : MagazineCapacityModifier, 
-		{
-			value = 1.f;
-		} : ProjectilesPerShotModifier, 
-		"BaseStats.ProjectilesPerShotCombinedModifier", {
-			value = 1.f;
-		} : ChargeDischargeTimeModifier, 
-		{
-			value = 0.0f;
-		} : ChargeMaxTimeInChargedStateModifier, 
-		{
-			value = 1.f;
-		} : ChargeReadyPercentageModifier, 
-		{
-			value = 1.0f;
-		} : ChargeTimeModifier, 
-		{
-			value = 0.05f;
-		} : ShotDelayModifier, 
-		{
-			value = 100.f;
-		} : ChargeModifier, 
-		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier, 
-		{
-			value = 0.9f;
-		} : TechPierceChargeLevelModifier
+		"Items.Base_Nekomata_NPC_Technical_Stats", "Items.Base_Nekomata_NPC_Damage_Stats"
 	];
 }
 
@@ -200,10 +168,75 @@ Base_Nekomata_Technical_Stats : StatModifierGroup
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			statType = "BaseStats.TechPierceEnabled";
+			value = 1.f;
+		} : TechPierceEnabledModifier, 
+		{
+			value = 0.9f;
+		} : TechPierceChargeLevelModifier
+	];
+}
+
+Base_Nekomata_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
 			modifierType = "Additive";
-			value = 1f;
-		} : ConstantStatModifier, 
+			value = 42f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Nekomata_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 15f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Nekomata_NPC_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.6f;
+		} : CycleTimeModifier, 
+		{
+			value = 4.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 1.f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.0f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 1.f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 0.5f;
+		} : ChargeTimeModifier, 
+		{
+			value = 0.05f;
+		} : ShotDelayModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			value = 0.f;
+		} : TechPierceEnabledModifier, 
 		{
 			value = 0.9f;
 		} : TechPierceChargeLevelModifier
@@ -215,13 +248,19 @@ Base_Nekomata_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.3f;
+			value = 2.0f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.8f;
+			value = 2.6f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.1f;
+			value = 0.3f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.2f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.5f;
 		} : ZoomLevelModifier, 
 		{
 			value = 5.f;
@@ -300,7 +339,7 @@ Base_Nekomata_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadMinYModifier, 
 		{
-			value = 1.f;
+			value = 0.f;
 		} : SpreadUseInAdsModifier, 
 		{
 			value = 0.f;
@@ -309,10 +348,10 @@ Base_Nekomata_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 3.2f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.3f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -321,10 +360,10 @@ Base_Nekomata_Spread_Stats : StatModifierGroup
 			value = 1.f;
 		} : SpreadUseCircularSpreadModifier, 
 		{
-			value = -0.5f;
+			value = -0.25f;
 		} : SpreadChargeMultModifier, 
 		{
-			value = -0.f;
+			value = -0.25f;
 		} : SpreadAdsChargeMultModifier
 	];
 }
@@ -353,7 +392,7 @@ Base_Nekomata_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 5.f;
+			value = 1.33f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
@@ -363,43 +402,49 @@ Base_Nekomata_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 8.0f;
+			value = 5.32f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 8.f;
+			value = 6.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 9.f;
+			value = 7.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMinADS";
 			modifierType = "Additive";
-			value = 3.5f;
+			value = 2.45f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMaxADS";
 			modifierType = "Additive";
-			value = 4.f;
-		} : ConstantStatModifier
+			value = 2.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.766f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 

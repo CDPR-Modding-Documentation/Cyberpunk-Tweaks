@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Dian_Default : Base_Dian
 {
@@ -26,46 +26,22 @@ Preset_Dian_Default : Base_Dian
 			slot = "AttachmentSlots.MagazineEmpty";
 			fk< Item > itemPartPreset = "Items.w_smg__kang_tao_dian__mag_stdr";
 		}, 
-		"Items.RifleScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericSmartModList, 
+		"Items.HandgunAndRevolverScopesPartList", {
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod1";
+		} : Smart_AR_SMG_LMG_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModRare";
-		} : RareDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModEpic";
-		} : EpicDedicatedSmartModList, 
-		{
-			slot = "AttachmentSlots.SmartWeaponModLegendary";
-		} : LegendaryDedicatedSmartModList
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod2";
+		} : Smart_AR_SMG_LMG_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 5;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
+}
+
+[ notQueryable ]
+Preset_Dian_Default_Unbreakable : Preset_Dian_Default
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Dian_Pimp : Preset_Dian_Default
@@ -73,6 +49,19 @@ Preset_Dian_Pimp : Preset_Dian_Default
 	CName[] visualTags = 
 	[
 		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Dian_Pimp_Unbreakable : Preset_Dian_Pimp
+{
+	tags += 
+	[
+		"Unbreakable"
 	];
 }
 
@@ -82,6 +71,19 @@ Preset_Dian_Neon : Preset_Dian_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Dian_Neon_Unbreakable : Preset_Dian_Neon
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Dian_Military : Preset_Dian_Default
@@ -90,14 +92,30 @@ Preset_Dian_Military : Preset_Dian_Default
 	[
 		"Military"
 	];
+	tags += 
+	[
+		"Military"
+	];
 }
 
 [ notQueryable ]
+Preset_Dian_Military_Unbreakable : Preset_Dian_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
 Preset_Dian_Trauma : Preset_Dian_Default
 {
 	CName[] visualTags = 
 	[
 		"Trauma"
+	];
+	tags += 
+	[
+		"Courier_RareFind"
 	];
 }
 
@@ -131,69 +149,76 @@ Craftable_Common_Dian : Preset_Dian_Default
 Craftable_Uncommon_Dian : Craftable_Common_Dian
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Smart_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Dian : Craftable_Common_Dian
+Craftable_Rare_Dian : Craftable_Uncommon_Dian
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Dian : Craftable_Common_Dian
+Craftable_Epic_Dian : Craftable_Uncommon_Dian
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Dian : Craftable_Common_Dian
+Craftable_Legendary_Dian : Craftable_Uncommon_Dian
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Dian_Yinglong : Preset_Dian_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "dian_yinglong_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoAttachments_Blueprint";
 	displayName = "LocKey#40613";
 	visualTags = 
 	[
 		"Yinglong_Dian"
 	];
-	quality = "Quality.Legendary";
-	localizedDescription = "LocKey#40614";
-	equipPrereqs = 
+	quality = "Quality.Random";
+	tags += 
 	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+		"IconicWeapon", "CraftableIconic"
 	];
+	localizedDescription = "LocKey#40614";
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	CraftingData = "Items.Iconic_Big_Legendary_Crafting_Materials_Weapon";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Dian_NPC_Data;
+	CraftingData = "Items.Craftable_Iconic_Weapon";
 	slotPartListPreset = 
 	[
 		{
@@ -219,7 +244,42 @@ Preset_Dian_Yinglong : Preset_Dian_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Dian_Technical_Stats", "Items.Base_Dian_Handling_Stats", "Items.Base_Dian_Recoil_Stats", "Items.Base_Dian_SmartGun_Stats", "Items.Base_Dian_SmartGun_SmartLink_Stats", "Items.Base_Dian_SmartGun_Projectile_Stats", "Items.Base_Dian_Flags", "Items.Base_Dian_SpreadStats", "Items.Base_Dian_Aim_Stats", "Items.Base_Dian_Constant_Stats", "Items.Base_Smart_Submachinegun_Mult_Stats", "Items.Base_Smart_Submachinegun_RPG_Randomized_Stats", "Items.Base_Smart_Submachinegun_No_Sway_Stats", "Proficiencies.AssaultSMGStats", "Items.Base_Submachinegun_RPG_Stats", "Items.Base_Submachinegun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Dian_Technical_Stats", "Items.Base_Dian_Handling_Stats", "Items.Base_Dian_Recoil_Stats", "Items.Base_Dian_SmartGun_Stats", "Items.Base_Dian_SmartGun_SmartLink_Stats", "Items.Base_Dian_SmartGun_Projectile_Stats", "Items.Base_Dian_Flags", "Items.Base_Dian_SpreadStats", "Items.Base_Dian_Aim_Stats", "Items.Base_Dian_Constant_Stats", "Items.Base_Dian_Damage_Stats", "Items.Base_Smart_Stats", "Items.Base_Smart_Submachinegun_Mult_Stats", "Items.Base_Smart_Submachinegun_No_Sway_Stats", "Items.Base_Submachinegun_DeadReckoning_Stats", "Items.Base_Submachinegun_RPG_Stats", "Items.Base_Submachinegun_Misc_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Electric"
 	];
+}
+
+[ notQueryable ]
+Common_Dian_Yinglong : Preset_Dian_Yinglong
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Dian_Yinglong : Preset_Dian_Yinglong
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Dian_Yinglong : Preset_Dian_Yinglong
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Dian_Yinglong : Preset_Dian_Yinglong
+{
+	quality = "Quality.Epic";
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Legendary_Dian_Yinglong : Preset_Dian_Yinglong
+{
+	quality = "Quality.Legendary";
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
 }
 

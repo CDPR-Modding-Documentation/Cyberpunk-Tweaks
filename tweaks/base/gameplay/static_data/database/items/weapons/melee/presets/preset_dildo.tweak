@@ -1,20 +1,33 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 [ notQueryable ]
 Preset_Dildo_Stout : Base_One_Hand_Blunt
 {
 	tags += 
 	[
-		"MeleeRumblingWeapon"
+		"DildoFinisher", "FinisherFront", "FinisherBack", "MeleeRumblingWeapon", "IconicWeapon"
 	];
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "dildo_stout_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Melee_Blueprint";
 	displayName = "LocKey#40309";
 	visualTags = 
 	[
 		"Stout_Dildo"
 	];
 	appearanceResourceName = "Preset_Dildo_Stout";
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.DildoStout";
 	statModifiers += 
 	[
@@ -26,6 +39,10 @@ Preset_Dildo_Stout : Base_One_Hand_Blunt
 		statModifiers += 
 		[
 			"Quality.IconicItem"
+		];
+		statModifierGroups += 
+		[
+			"Items.Dildo_NPC_Damage_Stats"
 		];
 	} : Items.Base_One_Hand_Blunt_NPC_Data;
 	fk< GameplayLogicPackage >[] OnAttach += 
@@ -43,7 +60,7 @@ Preset_Dildo_Stout : Base_One_Hand_Blunt
 		( -0.0365f, -0.0369f, -0.042f ), ( 0.036f, 0.034f, 0.268f )
 	];
 	audioWeaponConfiguration = "audio_melee_metadata_dildo";
-	slotPartListPreset += 
+	slotPartListPreset = 
 	[
 		{
 			slot = "AttachmentSlots.Grip";
@@ -56,123 +73,8 @@ Preset_Dildo_Stout : Base_One_Hand_Blunt
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.Base_One_Hand_Blunt_RPG_Stats", "Items.Base_One_Hand_Blunt_RPG_Randomized_Stats", "Items.Base_One_Hand_Blunt_Handling_Stats", "Items.Base_One_Hand_Blunt_Misc_Stats", "Proficiencies.BrawlingWeaponPassives", "Items.Dildo_Elemental_Damage_Type_Stats", "Items.Base_Melee_Elemental_Damage_Type_Min_Max"
+		"Items.IconicQualityRandomization", "Items.Blunts_Stun_Application_Stats", "Items.Base_One_Hand_Blunt_RPG_Stats", "Items.Base_One_Hand_Blunt_Handling_Stats", "Items.Base_One_Hand_Blunt_Misc_Stats", "Items.Dildo_Elemental_Damage_Type_Stats", "Items.Base_Melee_Elemental_Damage_Type_Min_Max", "Items.Dildo_Damage_Stats"
 	];
-	CraftingData = "Items.Iconic_Big_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Dildo_Stout_Epic";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Dildo_Stout_Epic : Preset_Dildo_Stout
-{
-	quality = "Quality.Epic";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Dildo_Stout";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Dildo_Stout_Legendary";
-				}
-			];
-		}
-	];
-}
-
-[ notQueryable ]
-Preset_Dildo_Stout_Legendary : Preset_Dildo_Stout
-{
-	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Dildo_Stout_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Dildo_Stout_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Dildo_Stout_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Dildo_Stout_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Dildo_Stout_Legendary";
-	};
 }
 
 [ notQueryable ]
@@ -189,7 +91,7 @@ Dildo_Elemental_Damage_Type_Stats : StatModifierGroup
 			modifierType = "Additive";
 			refStat = "BaseStats.DamagePerHit";
 			opSymbol = "*";
-			value = 0.35f;
+			value = 0.15f;
 		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.ElectricDamage";
@@ -210,7 +112,7 @@ Dildo_Elemental_Damage_Type_Stats : StatModifierGroup
 			modifierType = "Additive";
 			refStat = "BaseStats.DamagePerHit";
 			opSymbol = "*";
-			value = 0.35f;
+			value = 0.15f;
 		} : CombinedStatModifier, 
 		{
 			statType = "BaseStats.PhysicalDamage";
@@ -226,6 +128,30 @@ Dildo_Elemental_Damage_Type_Stats : StatModifierGroup
 			opSymbol = "*";
 			value = 1f;
 		} : CombinedStatModifier
+	];
+}
+
+Dildo_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 69f;
+		} : ConstantStatModifier
+	];
+}
+
+Dildo_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 69f;
+		} : ConstantStatModifier
 	];
 }
 

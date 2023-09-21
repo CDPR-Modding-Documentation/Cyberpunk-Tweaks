@@ -6,7 +6,14 @@ QuickHackUploadingPrereq : ObjectActionPrereq
 	failureConditionPrereq = 
 	[
 		{
-			valueToCheck = 0;
+			valueToCheck = 
+			[
+				{
+					statType = "BaseStats.QuickHackUpload";
+					modifierType = "Additive";
+					value = 0.0f;
+				} : ConstantStatModifier
+			];
 			statPoolType = "QuickHackUpload";
 			comparisonType = "LessOrEqual";
 		} : StatPoolPrereq
@@ -17,7 +24,7 @@ QuickHackUploadingPrereq : ObjectActionPrereq
 QuickHackActivePrereq : ObjectActionPrereq
 {
 	failureConditionPrereq = [];
-	failureExplanation = "LocKey#43808";
+	failureExplanation = "LocKey#27694";
 }
 
 QuickHackTargetMortalPrereq : QuickHackActivePrereq
@@ -76,22 +83,74 @@ IsPlayerReachable : IPrereq
 	prereqClassName = "IsPlayerReachablePrereq";
 	bool invert = false;
 	bool checkForRMA = false;
+	bool canCheckProxy = false;
 }
 
-IsPlayerNotReachableWhistleAction : IPrereq
+IsPlayerReachableWhistleAction : IPrereq
 {
 	prereqClassName = "IsPlayerReachablePrereq";
 	bool invert = false;
-	bool checkForRMA = true;
+	bool checkForRMA = false;
+	bool canCheckProxy = false;
+	float horizontalTolerance = 4.f;
+	float verticalTolerance = 8.f;
 }
 
 PlayerReachableActionPrereq : ObjectActionPrereq
 {
 	failureConditionPrereq = 
 	[
-		"Prereqs.IsPlayerNotReachableWhistleAction"
+		"Prereqs.IsPlayerReachableWhistleAction"
 	];
 	failureExplanation = "LocKey#77351";
+}
+
+PlayerOrCameraReachableActionPrereq : ObjectActionPrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			bool canCheckProxy = true;
+		} : Prereqs.IsPlayerReachableWhistleAction
+	];
+	failureExplanation = "LocKey#77351";
+}
+
+BossNoInterruptPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			fk< StatusEffect > statusEffect = "BaseStatusEffect.BossNoInterrupt";
+		} : StatusEffectPrereq
+	];
+}
+
+ChimeraNoQuickHackPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			fk< StatusEffect > statusEffect = "Chimera.ChimeraNoQuickHacks";
+		} : StatusEffectPrereq
+	];
+}
+
+NPCTypeChimeraPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			CName prereqClassName = "NPCTypePrereq";
+			fk< NPCType >[] allowedTypes = 
+			[
+				"NPCType.Chimera"
+			];
+			invert = true;
+		} : NPCTypePrereq
+	];
 }
 
 WeaponMalfunctionPrereq : QuickHackActivePrereq
@@ -116,6 +175,60 @@ GrenadeExplodePrereq : QuickHackActivePrereq
 			checkType = "CheckType.Tag";
 		} : StatusEffectPrereq
 	];
+}
+
+CanBossGrenadeQuickhackedPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			prereqClassName = "gameMultiPrereq";
+			aggregationType = "AND";
+			nestedPrereqs = 
+			[
+				{
+					invert = true;
+					statusEffect = "AdamSmasher.Phase2";
+				} : StatusEffectPrereq, 
+				{
+					invert = true;
+					statusEffect = "AdamSmasher.Phase3";
+				} : StatusEffectPrereq, 
+				{
+					invert = true;
+					statusEffect = "Royce.Phase2";
+				} : StatusEffectPrereq, 
+				{
+					invert = true;
+					statusEffect = "Sasquatch.Phase2";
+				} : StatusEffectPrereq
+			];
+		} : MultiPrereq
+	];
+	failureExplanation = "LocKey#51710";
+}
+
+CanChimeraGrenadeQuickhackedPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			prereqClassName = "gameMultiPrereq";
+			aggregationType = "AND";
+			nestedPrereqs = 
+			[
+				{
+					invert = true;
+					statusEffect = "Chimera.Phase2";
+				} : StatusEffectPrereq, 
+				{
+					invert = true;
+					statusEffect = "Chimera.Phase3";
+				} : StatusEffectPrereq
+			];
+		} : MultiPrereq
+	];
+	failureExplanation = "LocKey#51710";
 }
 
 CanNpcUseGrenadesPrereq : QuickHackActivePrereq
@@ -271,6 +384,23 @@ WhistlePrereq : QuickHackActivePrereq
 	];
 }
 
+WhistlePrereqCombatOnly : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			nestedPrereqs = 
+			[
+				"Prereqs.TargetInCombatPrereq", {
+					invert = true;
+					CName tagToCheck = "Whistle";
+					checkType = "CheckType.Tag";
+				} : StatusEffectPrereq
+			];
+		} : ORPrereq
+	];
+}
+
 CommsNoisePrereq : QuickHackActivePrereq
 {
 	failureConditionPrereq = 
@@ -279,19 +409,15 @@ CommsNoisePrereq : QuickHackActivePrereq
 			invert = true;
 			CName tagToCheck = "CommsNoise";
 			checkType = "CheckType.Tag";
-		} : StatusEffectPrereq
-	];
-}
-
-CommsCallOutPrereq : QuickHackActivePrereq
-{
-	failureConditionPrereq = 
-	[
+		} : StatusEffectPrereq, 
 		{
+			CName prereqClassName = "NPCTypePrereq";
+			fk< NPCType >[] allowedTypes = 
+			[
+				"NPCType.Chimera"
+			];
 			invert = true;
-			CName tagToCheck = "CommsCallOut";
-			checkType = "CheckType.Tag";
-		} : StatusEffectPrereq
+		} : NPCTypePrereq
 	];
 }
 
@@ -305,6 +431,32 @@ CyberwareMalfunctionPrereq : QuickHackActivePrereq
 			checkType = "CheckType.Tag";
 		} : StatusEffectPrereq
 	];
+}
+
+CyberwareMalfunctionNotBlockedPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			statType = "CyberWareMalfunctionBlocked";
+			valueToCheck = 0;
+			comparisonType = "LessOrEqual";
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+CyberwareMalfunctionNotBlockedMaxStacksPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			statType = "CyberWareMalfunctionBlockedMaxStacks";
+			valueToCheck = 0;
+			comparisonType = "LessOrEqual";
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#92753";
 }
 
 OverheatPrereq : QuickHackActivePrereq
@@ -343,6 +495,21 @@ MemoryWipePrereq : QuickHackActivePrereq
 	];
 }
 
+MemoryWipeChimeraPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			CName prereqClassName = "NPCTypePrereq";
+			fk< NPCType >[] allowedTypes = 
+			[
+				"NPCType.Chimera"
+			];
+			invert = true;
+		} : NPCTypePrereq
+	];
+}
+
 MemoryWipeImmunityStatusEffect : QuickHackActivePrereq
 {
 	failureConditionPrereq = 
@@ -378,5 +545,64 @@ PingPrereq : QuickHackActivePrereq
 			checkType = "CheckType.Tag";
 		} : StatusEffectPrereq
 	];
+}
+
+BlackwallPrereq : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			invert = true;
+			tagToCheck = "BlackWallHack";
+			checkType = "CheckType.Tag";
+		} : StatusEffectPrereq, 
+		{
+			invert = true;
+			tagToCheck = "BlackWallUploadActive";
+			checkType = "CheckType.Tag";
+			objectToCheck = "Player";
+		} : StatusEffectPrereq
+	];
+	failureExplanation = "LocKey#94472";
+}
+
+IsNotBoss : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			rarity = "Boss";
+			invert = true;
+		} : NPCRarityPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+IsNotExo : QuickHackActivePrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			statType = "IsExo";
+			valueToCheck = 1;
+			comparisonType = "Less";
+		} : StatPrereq
+	];
+	failureExplanation = "LocKey#78386";
+}
+
+IsNotMechanical : ObjectActionPrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			allowedTypes = 
+			[
+				"NPCType.Android", "NPCType.Mech", "NPCType.Drone"
+			];
+			bool invert = true;
+		} : NPCTypePrereq
+	];
+	failureExplanation = "LocKey#78386";
 }
 

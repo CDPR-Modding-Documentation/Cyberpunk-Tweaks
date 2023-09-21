@@ -70,7 +70,7 @@ deviceControlContext : abstractForcedContext
 
 uiQuickHackPanelContext : abstractForcedContext
 {
-	CName forceInputContext = "UI_QuickHackPanel";
+	CName forceInputContext = "UI_QuickHackPanelLocomotion";
 	bool hasOnEnter = true;
 	string[] transitionTo = 
 	[
@@ -80,6 +80,25 @@ uiQuickHackPanelContext : abstractForcedContext
 	[
 		"", "ExitCondition"
 	];
+}
+
+uiQuickHackPanelContextDriving : uiQuickHackPanelContext
+{
+	CName forceInputContext = "UI_QuickHackPanelDriving";
+	bool hasOnExit = true;
+}
+
+uiQuickHackPanelContextDriverCombat : uiQuickHackPanelContext
+{
+	CName forceInputContext = "UI_QuickHackPanelDriverCombat";
+	bool forceInputContextDirectBlend = true;
+	bool hasOnExit = true;
+}
+
+uiQuickHackPanelContextRemoteControl : uiQuickHackPanelContext
+{
+	CName forceInputContext = "UI_QuickHackPanelRemoteControl";
+	bool hasOnExit = true;
 }
 
 gameplayContext : inputContextStateBase
@@ -127,11 +146,11 @@ baseContext : abstractGameplayContext
 	];
 	string[] transitionTo = 
 	[
-		"allForcedContexts", "allUIContexts", "vehicleGameplayContext", "allGameplayContexts"
+		"vehicleRemoteControlDriverContext", "allForcedContexts", "allUIContexts", "vehicleGameplayContext", "allGameplayContexts"
 	];
 	string[] transitionCondition = 
 	[
-		"", "", "", ""
+		"=", "", "", "", ""
 	];
 }
 
@@ -229,6 +248,7 @@ abstractVehicleContext : inputContextStateBase
 	[
 		"allVehicleContexts"
 	];
+	bool forceInputContextDirectBlend = false;
 	bool hasEnterCondition = true;
 	bool hasOnEnter = true;
 	bool hasOnExit = true;
@@ -261,6 +281,11 @@ vehicleDriverContext : abstractVehicleContext
 	CName forceInputContext = "VehicleDrive";
 }
 
+vehicleDriverMountedWeaponsContext : vehicleDriverContext
+{
+	CName forceInputContext = "VehicleDriveMountedWeapons";
+}
+
 vehicleNoDriveContext : abstractVehicleContext
 {
 	CName forceInputContext = "VehicleNoDrive";
@@ -270,6 +295,44 @@ vehiclePassengerContext : abstractVehicleContext
 {
 	bool hasOnUpdate = true;
 	CName forceInputContext = "VehiclePassenger";
+	string[] transitionTo = 
+	[
+		"vehiclePassengerRemoteControlDriverContext", "allForcedContexts", "allUIContexts", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "ExitCondition"
+	];
+}
+
+vehiclePassengerRemoteControlDriverContext : vehiclePassengerContext
+{
+	CName forceInputContext = "VehiclePassengerRemoteControlDrive";
+	string[] transitionTo = 
+	[
+		"vehiclePassengerContext", "allForcedContexts", "allUIContexts", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", "", "ExitCondition"
+	];
+}
+
+vehicleRemoteControlDriverContext : gameplayContext
+{
+	bool hasEnterCondition = true;
+	bool hasOnEnter = true;
+	bool hasOnExit = true;
+	bool hasOnUpdate = true;
+	CName forceInputContext = "VehicleRemoteControlDrive";
+	string[] transitionTo = 
+	[
+		"baseContext", "allForcedContexts", "allUIContexts"
+	];
+	string[] transitionCondition = 
+	[
+		"=", "", ""
+	];
 }
 
 vehicleQuestRestrictedContext : abstractVehicleContext
@@ -280,6 +343,50 @@ vehicleQuestRestrictedContext : abstractVehicleContext
 vehicleDriverCombatContext : abstractVehicleContext
 {
 	CName forceInputContext = "VehicleDriverCombat";
+	forceInputContextDirectBlend = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "vehicleDriverCombatTPPContext", "vehicleDriverCombatAimContext", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "ExitCondition"
+	];
+}
+
+vehicleDriverCombatTPPContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleDriverCombatTPP";
+	forceInputContextDirectBlend = true;
+	bool hasOnUpdate = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "vehicleDriverCombatContext", "vehicleDriverCombatAimContext", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "ExitCondition"
+	];
+}
+
+vehicleDriverCombatAimContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleDriverCombatAim";
+	forceInputContextDirectBlend = true;
+	string[] transitionTo = 
+	[
+		"allForcedContexts", "allUIContexts", "vehicleDriverCombatContext", "vehicleDriverCombatTPPContext", "gameplayContext"
+	];
+	string[] transitionCondition = 
+	[
+		"", "", "", "", "ExitCondition"
+	];
+}
+
+vehicleDriverCombatMountedWeaponsContext : abstractVehicleContext
+{
+	CName forceInputContext = "VehicleDriverCombatMountedWeapons";
 }
 
 vehicleNoDriveCombatContext : abstractVehicleContext

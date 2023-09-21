@@ -20,12 +20,13 @@ KiroshiOpticsBaseFragment : Fragment
 	];
 	CName[] tags += 
 	[
-		"itemPart"
+		"itemPart", "DummyPart", "SkipActivityLog", "HideInBackpackUI", "HideInUI", "HideAtVendor"
 	];
 	bool isSingleInstance = false;
 	bool isPart = true;
 }
 
+[ notQueryable ]
 KiroshiOpticsFragment1 : KiroshiOpticsBaseFragment
 {
 	displayName = "LocKey#40884";
@@ -57,23 +58,34 @@ KiroshiOpticsFragment1 : KiroshiOpticsBaseFragment
 								value = 0f;
 							} : ConstantStatModifier, 
 							{
-								statType = "BaseStats.CanWeaponSnapToLimbs";
-								modifierType = "Additive";
-								value = 1f;
-							} : ConstantStatModifier, 
+								modifierType = "Multiplier";
+								value = 3f;
+							} : SmartGunTrackLegComponentsModifier, 
 							{
-								statType = "BaseStats.SmartGunTrackAllBodyparts";
+								modifierType = "Multiplier";
+								value = 2f;
+							} : SmartGunTrackChestComponentsModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon, 
+				{
+					prereqRecord = "Prereqs.SmartWeaponHeldPrereq";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HasKiroshiOpticsFragment";
 								modifierType = "Additive";
 								value = 1f;
 							} : ConstantStatModifier
 						];
 					};
-				} : ApplyStatGroupOnWeapon, 
+				} : ApplyStatGroupOnPlayer, 
 				{
 					prereqRecord = "Prereqs.PreProcessHitTriggered";
-					CName effectorClassName = "AddHitFlagToAttackEffector";
-					string hitFlag = "Nonlethal";
-				} : Effector
+					hitFlag = "Nonlethal";
+				} : AddHitFlagToAttackEffector
 			];
 			UIData = 
 			{
@@ -97,6 +109,7 @@ KiroshiOpticsFragment1 : KiroshiOpticsBaseFragment
 	};
 }
 
+[ notQueryable ]
 KiroshiOpticsFragment2 : KiroshiOpticsBaseFragment
 {
 	displayName = "LocKey#40887";
@@ -141,6 +154,7 @@ KiroshiOpticsFragment3 : KiroshiOpticsFragment1
 {
 }
 
+[ notQueryable ]
 KiroshiOpticsFragment4 : KiroshiOpticsBaseFragment
 {
 	displayName = "LocKey#43403";
@@ -180,6 +194,7 @@ KiroshiOpticsFragment4 : KiroshiOpticsBaseFragment
 	};
 }
 
+[ notQueryable ]
 KiroshiOpticsFragment5 : KiroshiOpticsBaseFragment
 {
 	displayName = "LocKey#43406";
@@ -237,6 +252,7 @@ KiroshiOpticsFragment5 : KiroshiOpticsBaseFragment
 	};
 }
 
+[ notQueryable ]
 KiroshiOpticsFragment6 : KiroshiOpticsBaseFragment
 {
 	displayName = "LocKey#43408";
@@ -281,59 +297,68 @@ KiroshiOpticsFragment6 : KiroshiOpticsBaseFragment
 	};
 }
 
+[ notQueryable ]
 KiroshiOpticsFragment7 : KiroshiOpticsBaseFragment
 {
-	displayName = "LocKey#54013";
+	fk< ItemType > itemType = "ItemType.Prt_HandgunMod";
+	displayName = "LocKey#89192";
+	iconPath = "Mod_Pyro";
 	quality = "Quality.Rare";
-	iconPath = "cwf_kiroshioptics7";
+	tags += 
+	[
+		"DummyPart", "HideInBackpackUI", "HideAtVendor", "SkipActivityLog"
+	];
+	OnLooted = 
+	[
+		{
+			items = 
+			[
+				{
+					item = "Items.HGMod2_Rare";
+				}
+			];
+		}
+	];
 	statModifiers += 
 	[
 		{
-			statType = "BaseStats.MitigationChance";
+			statType = "BaseStats.HGMod2_CritChance";
 			modifierType = "Additive";
-			value = 2f;
-		} : ConstantStatModifier
-	];
-	OnEquip = 
-	[
+			id = "weapon_mods";
+			column = "hgmod2_critchance";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
 		{
-			bool stackable = true;
-			stats = 
-			[
-				{
-					statType = "BaseStats.MitigationChance";
-					modifierType = "Additive";
-					value = 2f;
-				} : ConstantStatModifier
-			];
-		}
+			statType = "BaseStats.HGMod2_Spread";
+			modifierType = "Additive";
+			id = "weapon_mods";
+			column = "hgmod2_spread";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.HGMod2_Swap";
+			modifierType = "Additive";
+			id = "weapon_mods";
+			column = "hgmod2_swap";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier
 	];
 	OnAttach = 
 	[
 		{
 			UIData = 
 			{
-				localizedDescription = "LocKey#79522";
+				localizedDescription = "LocKey#89213";
 				stats = 
 				[
-					"BaseStats.MitigationChance"
+					"BaseStats.HGMod2_CritChance", "BaseStats.HGMod2_Spread", "BaseStats.HGMod2_Swap"
+				];
+				floatValues = 
+				[
+					5
 				];
 			};
 		}
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 20;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}
-		];
-	};
 }
 

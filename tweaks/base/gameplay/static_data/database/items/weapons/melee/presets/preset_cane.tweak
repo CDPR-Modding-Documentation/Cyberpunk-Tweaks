@@ -1,17 +1,38 @@
 package Items
-using RTDB, BaseStats, Prereqs, Perks
+using RTDB, BaseStats, Prereqs, Perks, Effectors
 
 [ notQueryable ]
 Preset_Cane_Fingers : Base_One_Hand_Blunt
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "cane_fingers_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Melee_Blueprint";
 	displayName = "LocKey#40470";
 	visualTags = 
 	[
 		"Fingers_Cane"
 	];
 	appearanceResourceName = "Preset_Cane_Fingers";
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.CaneFingers";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	OnAttach = 
+	[
+		"GLP.HoldingSlowMelee"
+	];
 	statModifiers += 
 	[
 		"Quality.IconicItem"
@@ -22,6 +43,10 @@ Preset_Cane_Fingers : Base_One_Hand_Blunt
 		statModifiers += 
 		[
 			"Quality.IconicItem"
+		];
+		statModifierGroups += 
+		[
+			"Items.Fingers_Cane_NPC_Damage_Stats"
 		];
 	} : Items.Base_One_Hand_Blunt_NPC_Data;
 	audioWeaponConfiguration = "audio_melee_metadata_baseballbat";
@@ -38,123 +63,32 @@ Preset_Cane_Fingers : Base_One_Hand_Blunt
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Melee_Status_Effect_Application_Stats", "Items.Base_One_Hand_Blunt_RPG_Stats", "Items.Base_One_Hand_Blunt_RPG_Randomized_Stats", "Items.Base_One_Hand_Blunt_Handling_Stats", "Items.Base_One_Hand_Blunt_Misc_Stats", "Proficiencies.BrawlingWeaponPassives", "Items.Cane_Elemental_Damage_Type_Stats", "Items.Base_Melee_Elemental_Damage_Type_Min_Max"
-	];
-	CraftingData = "Items.Iconic_Big_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Cane_Fingers_Epic";
-				}
-			];
-		}
+		"Items.IconicQualityRandomization", "Items.Base_Melee_Status_Effect_Application_Stats", "Items.Blunts_Stun_Application_Stats", "Items.Base_One_Hand_Blunt_RPG_Stats", "Items.Base_One_Hand_Blunt_Handling_Stats", "Items.Base_One_Hand_Blunt_Misc_Stats", "Items.Cane_Elemental_Damage_Type_Stats", "Items.Base_Melee_Elemental_Damage_Type_Min_Max", "Items.Fingers_Cane_Damage_Stats"
 	];
 }
 
-[ notQueryable ]
-Preset_Cane_Fingers_Epic : Preset_Cane_Fingers
+Fingers_Cane_Damage_Stats : StatModifierGroup
 {
-	quality = "Quality.Epic";
-	equipPrereqs = 
+	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Cane_Fingers";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Cane_Fingers_Legendary";
-				}
-			];
-		}
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
 	];
 }
 
-[ notQueryable ]
-Preset_Cane_Fingers_Legendary : Preset_Cane_Fingers
+Fingers_Cane_NPC_Damage_Stats : StatModifierGroup
 {
-	quality = "Quality.Legendary";
-	equipPrereqs = 
+	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 67f;
+		} : ConstantStatModifier
 	];
-	CraftingData = 
-	{
-		craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Cane_Fingers_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Cane_Fingers_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Cane_Fingers_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Cane_Fingers_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Cane_Fingers_Legendary";
-	};
 }
 
 Cane_Elemental_Damage_Type_Stats : StatModifierGroup

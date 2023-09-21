@@ -1,0 +1,6301 @@
+package MilitechChimeraBoss
+using RTDB, AIActionTarget, LookatPreset, StatusEffectActions
+
+Map : ActionMap
+{
+	defaultMap = 
+	{
+		map = 
+		[
+			{
+				node = "ReactionsActions.OverloadBossCustomAction";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "GenericArchetype.SE_EMP";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "GenericArchetype.SE_EMPResidual";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_EMPArmed";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_EMPUnarmed";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackStaggerCyberware";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_WeaponJammed";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_WeaponJammedBlowUpWeapon";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackStaggerLocomotion";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackFreezeLocomotion";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlindDefault";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlindQuickhackCombat";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlindQuickhackStealth";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SystemCollapseSelector";
+				isOverriddenBy = "MilitechChimeraBoss.SystemCollapseSelector";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseAndroid";
+				isOverriddenBy = "MilitechChimeraBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseMech";
+				isOverriddenBy = "MilitechChimeraBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBossMitigated";
+				isOverriddenBy = "MilitechChimeraBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBoss";
+				isOverriddenBy = "MilitechChimeraBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapse";
+				isOverriddenBy = "MilitechChimeraBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "GenericArchetype.SE_Madness";
+				isOverriddenBy = "MilitechChimeraBoss.SE_Madness";
+			}
+		];
+	};
+}
+
+SE_Disable : AIAction
+{
+}
+
+SE_Madness : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeMadness"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_Madness";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ChimeraMadnessCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeMadness"
+			];
+		} : AIActionOR;
+	};
+}
+
+RemoveCyberpsychosis : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraSuicide"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+SystemCollapseSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.SE_SystemCollapse"
+	];
+}
+
+SE_SystemCollapse : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectSystemCollapse"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 6.f;
+		useDurationFromAnimSlot = true;
+	};
+	recovery = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = true;
+	};
+	subActions = 
+	[
+		{
+			name = "destruction_failstate";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SystemCollapse";
+		animSlot = 
+		{
+		};
+	};
+}
+
+ChimeraBlindedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeBlind"
+			];
+		} : AIActionOR;
+	};
+}
+
+SE_BlindDefault : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedRegular"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraBlinded"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_Blind";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_BlindQuickhackCombat : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCBlindedFromQuickhack", "Condition.InStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	subActions = 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Call";
+		} : AISubActionTriggerStim, 
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Attention";
+		} : AISubActionTriggerStim
+	];
+	animData = 
+	{
+		animFeature = "SE_Blind";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_QuickHackStaggerLocomotion : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectLocomotionMalfunction", "Condition.StatusEffectLocomotionMalfunctionLevel2", "Condition.StatusEffectLocomotionMalfunctionLevel3", "Condition.StatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	animData = 
+	{
+		animFeature = "LocomotionMalfunctionStagger";
+	};
+}
+
+ChimeraJammedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeWeaponMalfunction"
+			];
+		} : AIActionAND;
+	};
+}
+
+SE_WeaponJammed : StatusEffectActions.AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						"Condition.StatusEffectWeaponMalfunction", "Condition.StatusEffectWeaponMalfunctionLvl2", "Condition.StatusEffectWeaponMalfunctionLvl3", "Condition.StatusEffectWeaponMalfunctionLvl4"
+					];
+				} : AIActionOR, 
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	animData = 
+	{
+		animFeature = "SE_WeaponJammed";
+	};
+}
+
+SE_EMP : AIActionSelector
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.SE_ShortCircuit"
+	];
+}
+
+SE_EMPResidual : AIActionSelector
+{
+}
+
+SE_ShortCircuit : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotChimeraRepairing", "Condition.NotChimeraSelfDestructCountdown"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "OverloadStagger";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+PlayerOnTopFloor : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.TargetAbove2dot5mZDiff"
+			];
+		} : AIActionOR;
+	};
+}
+
+PlayerOnBottomFloor : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.TargetUpTo1dot4mZDiff"
+			];
+		} : AIActionOR;
+	};
+}
+
+SE_QuickHackStaggerCyberware : StatusEffectActions.AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl1", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3", "Condition.StatusEffectCyberwareMalfunctionLvl4", "Condition.StatusEffectCyberwareMalfunctionLvl4PlusPlus"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "CyberwareMalfunctionStagger";
+		animVariation = 0;
+		animSlot = 
+		{
+		};
+	};
+}
+
+InitalCombatActions : AIActionSequence
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.EquipRainProjectileLauncherInstantly", "MilitechChimeraBoss.EquipChandelierProjectileLauncherInstantly", "MilitechChimeraBoss.EquipMetalStormInstantly", "MilitechChimeraBoss.EquipMetalStormExplosiveInstantly", "MilitechChimeraBoss.EquipMetalStormRaiseSequenceInstantly", "MilitechChimeraBoss.EquipCannonLauncherInstantly", "MilitechChimeraBoss.EquipMeleeWeaponInstantly", "MilitechChimeraBoss.EquipGasCloudInstantly", "MilitechChimeraBoss.EquipLaserInstantly", "MilitechChimeraBoss.EquipCannonLaserInstantly", "MilitechChimeraBoss.SetAimMetalstormCooldown", "MilitechChimeraBoss.SetMeleeAttackStompCooldown", "GenericArchetype.Success"
+	];
+}
+
+InitalPhase1Actions : AIActionSequence
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.SendPhase1Fact", "MilitechChimeraBoss.IdleMedium", "GenericArchetype.Success"
+	];
+}
+
+InitalPhase2Actions : AIActionSequence
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.SendPhase2Fact", "MilitechChimeraBoss.Phase1Transition", "MilitechChimeraBoss.EquipTrackProjectileLauncherInstantly", "MilitechChimeraBoss.SetGasCloudCooldown", "GenericArchetype.Success"
+	];
+}
+
+InitalPhase3Actions : AIActionSequence
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.Phase3Broken", "GenericArchetype.Success"
+	];
+}
+
+ApplyBlackwallArenaVFXStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotChimeraBlackWallVFXStatusEffect", "Condition.ChimeraArenaModeStatusEffect"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraBlackWallVFXStatusEffect"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+Phase1Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"MilitechChimeraBoss.BlockPhase1SwitchCondition"
+			];
+		} : AIActionOR;
+	};
+}
+
+BlockPhase1SwitchCondition : AIActionOR
+{
+	OR = 
+	[
+		"Condition.ChimeraPhase1"
+	];
+}
+
+Phase2Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"MilitechChimeraBoss.BlockPhase2SwitchCondition"
+			];
+		} : AIActionOR;
+	};
+}
+
+BlockPhase2SwitchCondition : AIActionOR
+{
+	OR = 
+	[
+		"Condition.ChimeraPhase2"
+	];
+}
+
+Phase3Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"MilitechChimeraBoss.BlockPhase3SwitchCondition"
+			];
+		} : AIActionOR;
+	};
+}
+
+BlockPhase3SwitchCondition : AIActionOR
+{
+	OR = 
+	[
+		"Condition.ChimeraPhase3"
+	];
+}
+
+SendPhase1Fact : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+	subActions = 
+	[
+		{
+			name = "chimera_phase1_fact";
+		} : AISubActionAddFact
+	];
+}
+
+SendPhase2Fact : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+	subActions = 
+	[
+		{
+			name = "chimera_phase2_fact";
+		} : AISubActionAddFact
+	];
+}
+
+SendPhase3Fact : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+	};
+	subActions = 
+	[
+		{
+			name = "chimera_phase3_fact";
+		} : AISubActionAddFact
+	];
+}
+
+EquipRainProjectileLauncherInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraRainRocketLauncherLeftEquipped", "Condition.NotHasChimeraRainRocketLauncherRightEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulder";
+			itemID = "Items.Chimera_Launcher_Rain_Left";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.RightShoulder";
+			itemID = "Items.Chimera_Launcher_Rain_Right";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulderTrack";
+			itemID = "Items.Chimera_Launcher_Track_Left";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.RightShoulderTrack";
+			itemID = "Items.Chimera_Launcher_Track_Right";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulderSelf";
+			itemID = "Items.Chimera_Launcher_Self_Left";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.RightShoulderSelf";
+			itemID = "Items.Chimera_Launcher_Self_Right";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulderMine";
+			itemID = "Items.Chimera_Launcher_Mine_Left";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.RightShoulderMine";
+			itemID = "Items.Chimera_Launcher_Mine_Right";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipTrackProjectileLauncherInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraTrackRocketLauncherLeftEquipped", "Condition.NotHasChimeraTrackRocketLauncherRightEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulderTrack";
+			itemID = "Items.Chimera_Launcher_Track_Left";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.RightShoulderTrack";
+			itemID = "Items.Chimera_Launcher_Track_Right";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipChandelierProjectileLauncherInstantly : AIAction
+{
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulderChandelier";
+			itemID = "Items.Chimera_Launcher_Chandelier_Left";
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.RightShoulderChandelier";
+			itemID = "Items.Chimera_Launcher_Chandelier_Right";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipCannonLauncherInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraCannonEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.Cannon";
+			itemID = "Items.chimera_cannon";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipLaserInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraLaserEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.Laser";
+			itemID = "Items.chimera_plasma_cutter";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipCannonLaserInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraCannonLaserEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.CannonLaser";
+			itemID = "Items.chimera_plasma_cutter_cannon";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipMetalStormInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraMetalstormEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.MetalstormWeapon";
+			itemID = "Items.Chimera_Metalstorm";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipMetalStormExplosiveInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraMetalstormExplosiveEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.MetalstormWeaponExplosive";
+			itemID = "Items.Chimera_Metalstorm_Explosive";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipMetalStormRaiseSequenceInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraMetalstormRaiseSequenceEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.MetalstormWeaponRaiseSequence";
+			itemID = "Items.Chimera_Metalstorm_Raise_Sequence";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipMeleeWeaponInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraMeleeWeaponEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.ChimeraMelee";
+			itemID = "Items.chimera_melee";
+		} : AISubActionForceEquip
+	];
+}
+
+EquipGasCloudInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotHasChimeraGasCloudEquipped"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.ChimeraGasCloud";
+			itemID = "Items.chimera_gas_cloud";
+		} : AISubActionForceEquip
+	];
+}
+
+Walk : AIAction
+{
+	loop = 
+	{
+		duration = 6.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Walk";
+		animSlot = 
+		{
+		};
+	};
+}
+
+IdleVeryLong : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 3.f;
+	};
+}
+
+IdleLong : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 2.5f;
+	};
+}
+
+IdleMedium : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 2.f;
+	};
+}
+
+IdleShort : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 1.f;
+	};
+}
+
+IdleVerySHort : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 0.2f;
+	};
+}
+
+Phase1Transition : AIAction
+{
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotChimeraRepairing"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "chimera_transition_animation_end";
+		} : AISubActionAddFact
+	];
+	startupSubActions = 
+	[
+		{
+			name = "transition_explosion";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "TransitionPhase01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+Phase3Broken : AIAction
+{
+	startup = 
+	{
+		duration = 5.767f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotChimeraSelfDestructCountdown"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "chimera_self_destruct_fact";
+			delay = 5.f;
+		} : AISubActionAddFact, 
+		{
+			name = "chimera_enable_takedown";
+			delay = 5.f;
+		} : AISubActionAddFact
+	];
+	startupSubActions = 
+	[
+		{
+			name = "transition_explosion";
+			delay = 0.33f;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraSelfDestructCountdown"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Chimera.InvulnerablePhase3"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			name = "chimera_phase3_fact";
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraTakeDownOn"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraSelDestruct"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "DeathCollapse";
+		animSlot = 
+		{
+		};
+	};
+}
+
+Phase3BrokenStartup : AIAction
+{
+	subActions = 
+	[
+		{
+			name = "explode_death";
+		} : AISubActionSpawnFX
+	];
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "TransitionPhase01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+Phase3BrokenLoop : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = -1.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "TransitionPhase01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+Phase3BrokenRecovery : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.f;
+		useDurationFromAnimSlot = true;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "TransitionPhase01";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateToTargetMetalstormCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove120deg", "Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionAND;
+	};
+}
+
+RotateToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove120deg", "Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 2.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow45deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RotateToTargetCommandCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove90deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+RotateToCustomWorldPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositionAbove45deg", "Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 2.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CustomWorldPosition";
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CustomWorldPositionBelow45deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RotateLeft : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetLeft"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	animData = 
+	{
+		animFeature = "Rotate30L";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateRight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	animData = 
+	{
+		animFeature = "Rotate30R";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateLeft90 : RotateLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove90deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.75f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	animData = 
+	{
+		animFeature = "Rotate90L";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateRight90 : RotateRight
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove90deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 3.75f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	animData = 
+	{
+		animFeature = "Rotate90R";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateLeft120 : RotateLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove180deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Rotate120L";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateRight120 : RotateRight
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove180deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Rotate120R";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateLeft180 : RotateLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove140deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Rotate180L";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateRight180 : RotateRight
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove140deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Rotate180R";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateLeftCustomWorldPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositionLeft"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Rotate30L";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateRightCustomWorldPosition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositionRight"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	animData = 
+	{
+		animFeature = "Rotate30R";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateLeft90CustomWorldPosition : RotateLeft
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositiontAbove90deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Rotate90L";
+		animSlot = 
+		{
+		};
+	};
+}
+
+RotateRight90CustomWorldPosition : RotateRight
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CustomWorldPositiontAbove90deg"
+			];
+		} : AIActionAND;
+	};
+	animData = 
+	{
+		animFeature = "Rotate90R";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeAttackStompConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.MeleeAttackStompCooldown"
+	];
+}
+
+MeleeAttackStompCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow10m"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackStompConditionTop : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow10m", "Condition.TargetAbove3mZDiff"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackStomp : AIAction
+{
+	startup = 
+	{
+		duration = 2.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	recovery = 
+	{
+		duration = 2.633f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "thrusters";
+			delay = 0.f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_melee_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraCameraHeavyShake"
+			];
+			delay = 0.2f;
+		} : AISubActionStatusEffect, 
+		{
+			name = "shockwave";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.ChimeraMelee"
+			];
+			attackDuration = 0.2f;
+			attack = "Attacks.ChimeraMeleeExplosion";
+			attackRange = 15.f;
+			attackName = "Stomp";
+			attackTime = 0.1f;
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeAttack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeAttackStrongCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow90deg", "Condition.TargetBelow13m"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackFront : AIAction
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	recovery = 
+	{
+		duration = 1.8f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "stomp";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "spidertank_break_wall";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraCameraHeavyShake"
+			];
+			delay = 0.2f;
+		} : AISubActionStatusEffect, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.ChimeraMelee"
+			];
+			attackDuration = 0.2f;
+			attack = "Attacks.ChimeraStrongAttack";
+			attackRange = 15.f;
+			attackName = "StrongAttack";
+			attackTime = 0.1f;
+			colliderBoxSize = ( 5.f, 0.3f, 2.f );
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeAttackFront";
+		animSlot = 
+		{
+			startupSlide = "MilitechChimeraBoss.RotateSlideData";
+		};
+	};
+}
+
+MeleeAttackShockwaveConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.MeleeAttackShockwaveCooldown"
+	];
+}
+
+MeleeAttackShockwaveCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo1dot4mZDiff"
+			];
+		} : AIActionAND;
+	};
+}
+
+MeleeAttackShockwave : MeleeAttackStomp
+{
+	startupSubActions = 
+	[
+		{
+			name = "thrusters";
+			delay = 0.f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "self_destruction_stage_3";
+			delay = 0.f;
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			name = "stomp";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "shockwave";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraCameraHeavyShake"
+			];
+			delay = 0.2f;
+		} : AISubActionStatusEffect, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.ChimeraMelee"
+			];
+			attackDuration = 0.2f;
+			attack = "Attacks.ChimeraMeleeExplosion";
+			attackRange = 15.f;
+			attackName = "Stomp";
+			attackTime = 0.1f;
+		} : AISubActionAttackWithWeapon, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.ChimeraMelee"
+			];
+			attack = "Attacks.ChimeraMeleeShockwave";
+			attackName = "Stomp";
+			attackTime = 0.1f;
+			attackDuration = 0.2f;
+			attackRange = 50.f;
+			attackInitRange = 5.f;
+			attackWidth = 7.5f;
+			axisLowerMargin = -2.f;
+			axisUpperMargin = 0.4f;
+			coneHalfAngle = 180.f;
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeAttack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MeleeAttackShockwave02 : MeleeAttackStomp
+{
+	startup = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "thrusters";
+			delay = 0.f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "self_destruction_stage_3";
+			delay = 0.f;
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			name = "stomp";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			name = "shockwave";
+			delay = 0.2f;
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraCameraHeavyShake"
+			];
+			delay = 0.2f;
+		} : AISubActionStatusEffect, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.ChimeraMelee"
+			];
+			attackDuration = 0.2f;
+			attack = "Attacks.ChimeraMeleeShockwave02";
+			attackRange = 50.f;
+			attackName = "Stomp";
+			attackTime = 0.1f;
+		} : AISubActionAttackWithWeapon, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.ChimeraMelee"
+			];
+			attackDuration = 0.2f;
+			attack = "Attacks.ChimeraMeleeExplosion";
+			attackRange = 15.f;
+			attackName = "Stomp";
+			attackTime = 0.1f;
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "MeleeAttack";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.SwipeAttackCooldown"
+	];
+}
+
+SwipeAttackCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChimeraCannonLaserEquipped", "Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4", "Condition.NotStatusEffectCyberwareMalfunction", "Condition.NotStatusEffectCyberwareMalfunctionLvl1", "Condition.NotStatusEffectCyberwareMalfunctionLvl2", "Condition.NotStatusEffectCyberwareMalfunctionLvl3", "Condition.NotStatusEffectCyberwareMalfunctionLvl4", "Condition.NotStatusEffectCyberwareMalfunctionLvl4PlusPlus"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwipeAttackMalfunctionCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl1", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3", "Condition.StatusEffectCyberwareMalfunctionLvl4", "Condition.StatusEffectCyberwareMalfunctionLvl4PlusPlus"
+			];
+		} : AIActionOR;
+	};
+}
+
+SwipeAttackCommandCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow90deg", "Condition.AIThrowGrenadeCommand", "Condition.HasChimeraCannonLaserEquipped", "Condition.TargetBelow12m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SwipeAttackDown : AIAction
+{
+	activationCondition = 
+	{
+	};
+	startup = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+			locomotionMode = "Static";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+			locomotionMode = "Static";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	recovery = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+			locomotionMode = "Static";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "laser_muzzle";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_laser_low_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "swipe_charge_tpp";
+		} : AISubActionSpawnFX, 
+		{
+			name = "blazsma_beam_end";
+			delay = 3.f;
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.Laser"
+			];
+			attackDuration = 3.f;
+			attack = "Attacks.ChimeraLaserBeam";
+			attackRange = 200.f;
+			attackName = "SwipedDown";
+			stopContinuousAttackOnDurationEnd = false;
+		} : AISubActionAttackWithWeapon
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "laser_muzzle";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SwipeLToRLow";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackDownLToR : SwipeAttackDown
+{
+	animData = 
+	{
+		animFeature = "SwipeLToRLow";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackDownRToL : SwipeAttackDown
+{
+	animData = 
+	{
+		animFeature = "SwipeRToLLow";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackDownLToRCommand : SwipeAttackDown
+{
+	animData = 
+	{
+		animFeature = "SwipeLToRLow";
+		animSlot = 
+		{
+		};
+	};
+	subActions = [];
+}
+
+SwipeAttackDownRToLCommand : SwipeAttackDown
+{
+	animData = 
+	{
+		animFeature = "SwipeRToLLow";
+		animSlot = 
+		{
+		};
+	};
+	subActions = [];
+}
+
+SwipeAttackDownLToRMalfunction : SwipeAttackDown
+{
+	animData = 
+	{
+		animFeature = "SwipeLToRLow";
+		animSlot = 
+		{
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "laser_charge";
+		} : AISubActionSpawnFX
+	];
+}
+
+SwipeAttackDownRToLMalfunction : SwipeAttackDown
+{
+	animData = 
+	{
+		animFeature = "SwipeRToLLow";
+		animSlot = 
+		{
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "laser_charge";
+		} : AISubActionSpawnFX
+	];
+}
+
+SwipeAttackUp : AIAction
+{
+	activationCondition = 
+	{
+	};
+	startup = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+			locomotionMode = "Static";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+			locomotionMode = "Static";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	recovery = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchNone";
+			locomotionMode = "Static";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "laser_muzzle_canon";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_laser_up_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "swipe_charge_tpp";
+		} : AISubActionSpawnFX, 
+		{
+			name = "blazsma_beam_end";
+			delay = 3.f;
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.CannonLaser"
+			];
+			attackDuration = 3.f;
+			attack = "Attacks.ChimeraLaserBeamTop";
+			attackRange = 200.f;
+			attackName = "SwipedUp";
+			stopContinuousAttackOnDurationEnd = false;
+		} : AISubActionAttackWithWeapon
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "laser_muzzle_canon";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SwipeLToRHigh";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackUpLToR : SwipeAttackUp
+{
+	animData = 
+	{
+		animFeature = "SwipeLToRHigh";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackUpRToL : SwipeAttackUp
+{
+	animData = 
+	{
+		animFeature = "SwipeRToLHigh";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SwipeAttackUpLToRMalfunction : SwipeAttackUp
+{
+	animData = 
+	{
+		animFeature = "SwipeLToRHigh";
+		animSlot = 
+		{
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "laser_charge_cannon";
+		} : AISubActionSpawnFX
+	];
+}
+
+SwipeAttackUpRToLMalfunction : SwipeAttackUp
+{
+	animData = 
+	{
+		animFeature = "SwipeRToLHigh";
+		animSlot = 
+		{
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			name = "laser_charge_cannon";
+		} : AISubActionSpawnFX
+	];
+}
+
+MissileRainConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.MissileRainCooldown"
+	];
+}
+
+MissileRainCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectTypeWeaponMalfunction", "Condition.HasChimeraRainRocketLauncherLeftEquipped", "Condition.HasChimeraRainRocketLauncherRightEquipped"
+			];
+		} : AIActionAND;
+	};
+}
+
+MissileRain01 : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StatusEffectTypeWeaponMalfunction", "Condition.StatusEffectTypeBlind"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_shoots_rockets";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 11;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.5f, 1, 0 ), ( 1.5f, -1, 0 ), ( -1.5f, 1, 0 ), ( -1.5f, -1, 0 ), ( -1.5f, -3, 0 ), ( 1.5f, 3, 0 ), ( -1.5f, 3, 0 ), ( 1.5f, 3, 0 ), ( 0, 1.5f, 0 ), ( 0, -1.5f, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_left";
+		} : AISubActionMissileRainGrid, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.5f, 1, 0 ), ( 1.5f, -1, 0 ), ( -1.5f, 1, 0 ), ( -1.5f, -1, 0 ), ( -1.5f, -3, 0 ), ( 1.5f, 3, 0 ), ( -1.5f, 3, 0 ), ( 1.5f, 3, 0 ), ( 0, 1.5f, 0 ), ( 0, -1.5f, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionMissileRainGrid
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.InvulnerableMissileRain"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+MissileRain02 : MissileRain01
+{
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 5.f, 2.5f, 0 ), ( 5.f, -2.5f, 0 ), ( -6.f, 3, 0 ), ( -6.f, -3, 0 ), ( 0, 6.f, 0 ), ( 0, -6.f, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionMissileRainGrid
+	];
+}
+
+MissileRain02Blind : MissileRain02
+{
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 6, -5, 0 ), ( -6, -5, 0 ), ( 6, -2.5f, 0 ), ( -6, -2.5f, 0 ), ( 0, -5, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionMissileRainGrid
+	];
+}
+
+MissileRain03 : MissileRain01
+{
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_left";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 6, -5, 0 ), ( -6, -5, 0 ), ( 6, -2.5f, 0 ), ( -6, -2.5f, 0 ), ( 0, -5, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_left";
+		} : AISubActionMissileRainGrid
+	];
+}
+
+MissileRain03Blind : MissileRain03
+{
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_left";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.5f, 1, 0 ), ( 1.5f, -1, 0 ), ( -1.5f, 1, 0 ), ( -1.5f, -1, 0 ), ( 0, 1.5f, 0 ), ( 0, -1.5f, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_left";
+		} : AISubActionMissileRainGrid
+	];
+}
+
+MissileRainSelf : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_missile_self_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderSelf"
+			];
+			target = "AIActionTarget.Owner";
+			numberOfShots = 16;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 8, 0, 0 ), ( -8, 0, 0 ), ( 0, 8, 0 ), ( 0, -8, 0 ), ( 12, 0, 0 ), ( -12, 0, 0 ), ( 0, 12, 0 ), ( 0, -12, 0 ), ( 16, 0, 0 ), ( -16, 0, 0 ), ( 0, 16, 0 ), ( 0, -16, 0 ), ( 20, 0, 0 ), ( -20, 0, 0 ), ( 0, 20, 0 ), ( 0, -20, 0 )
+			];
+		} : AISubActionMissileRainGrid, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderSelf"
+			];
+			target = "AIActionTarget.Owner";
+			numberOfShots = 16;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 3, 5.5f, 0 ), ( 3, 1, 0 ), ( 3, 3.5f, 0 ), ( 3, -1.5f, 0 ), ( 3, 1, 0 ), ( 3, -6.5f, 0 ), ( 3, -4f, 0 ), ( 3, -11.5f, 0 ), ( 3, -9f, 0 ), ( 3, -14, 0 ), ( 3, -16.5f, 0 ), ( 3, -19f, 0 ), ( 3, -21.5f, 0 ), ( 3, -24f, 0 ), ( 5.5f, 1, 0 ), ( 5.5f, 3.5f, 0 ), ( 5.5f, -1.5f, 0 ), ( 5.5f, 1, 0 ), ( 5.5f, -6.5f, 0 ), ( 5.5f, -4f, 0 ), ( 5.5f, -11.5f, 0 ), ( 5.5f, -9f, 0 ), ( 5.5f, -14, 0 ), ( 5.5f, -16.5f, 0 ), ( 5.5f, -19f, 0 ), ( 5.5f, -21.5f, 0 ), ( 5.5f, -24f, 0 ), ( 8f, 1, 0 ), ( 8f, 3.5f, 0 ), ( 8f, -1.5f, 0 ), ( 8f, 1, 0 ), ( 8f, -6.5f, 0 ), ( 8f, -4f, 0 ), ( 8f, -11.5f, 0 ), ( 8f, -9f, 0 ), ( 8f, -14, 0 ), ( 8f, -16.5f, 0 ), ( 8f, -19f, 0 ), ( 8f, -21.5f, 0 ), ( 8f, -24f, 0 ), ( -7f, -14f, 0 ), ( -4.5f, -14f, 0 ), ( 0.5f, -14f, 0 ), ( -2f, -14f, 0 ), ( -7f, -16.5f, 0 ), ( -4.5f, -16.5f, 0 ), ( 0.5f, -16.5f, 0 ), ( -2f, -16.5f, 0 ), ( -7f, -19f, 0 ), ( -4.5f, -19f, 0 ), ( 0.5f, -19f, 0 ), ( -2f, -19f, 0 ), ( -7f, -21.5f, 0 ), ( -4.5f, -21.5f, 0 ), ( 0.5f, -21.5f, 0 ), ( -2f, -21.5f, 0 ), ( -7f, -24f, 0 ), ( -4.5f, -24f, 0 ), ( 0.5f, -24f, 0 ), ( -2f, -24f, 0 ), ( -10, 3.5f, 0 ), ( -10, 1, 0 ), ( -10, -1.5f, 0 ), ( -10f, -4, 0 ), ( -10f, -6.5f, 0 ), ( -10f, -9f, 0 ), ( -10f, -11.5f, 0 ), ( -10f, -14f, 0 ), ( -10f, -16.5f, 0 ), ( -10f, -19f, 0 ), ( -10f, -21.5f, 0 ), ( -10f, -24f, 0 ), ( -12.5f, 3.5f, 0 ), ( -12.5f, 1, 0 ), ( -12.5f, -1.5f, 0 ), ( -12.5f, -4, 0 ), ( -12.5f, -6.5f, 0 ), ( -12.5f, -9f, 0 ), ( -12.5f, -11.5f, 0 ), ( -12.5f, -14f, 0 ), ( -12.5f, -16.5f, 0 ), ( -12.5f, -19f, 0 ), ( -12.5f, -21.5f, 0 ), ( -12.5f, -24f, 0 ), ( -15f, 3.5f, 0 ), ( -15f, -4, 0 ), ( -15f, -11f, 0 ), ( -15f, -14f, 0 ), ( -15f, -16.5f, 0 ), ( -15f, -19f, 0 ), ( -15f, -21.5f, 0 ), ( -15f, -24f, 0 ), ( 0, 3, 0 ), ( -2.5, 3, 0 ), ( -5, 3, 0 ), ( -7.5f, 3, 0 ), ( 0, 5.5f, 0 ), ( -2.5, 5.5f, 0 ), ( -5, 5.5f, 0 ), ( -7.5f, 5.5f, 0 ), ( 0, 8, 0 ), ( -2.5, 8, 0 ), ( -5, 8, 0 ), ( -7.5f, 8, 0 )
+			];
+		} : AISubActionMissileRainGrid
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.InvulnerableMissileRain"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+MissileRainSelfJammed : MissileRainSelf
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_missile_self_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderSelf"
+			];
+			target = "AIActionTarget.Owner";
+			numberOfShots = 16;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 8, 0, 0 ), ( -8, 0, 0 ), ( 0, 8, 0 ), ( 0, -8, 0 ), ( 12, 0, 0 ), ( -12, 0, 0 ), ( 0, 12, 0 ), ( 0, -12, 0 ), ( 16, 0, 0 ), ( -16, 0, 0 ), ( 0, 16, 0 ), ( 0, -16, 0 ), ( 20, 0, 0 ), ( -20, 0, 0 ), ( 0, 20, 0 ), ( 0, -20, 0 )
+			];
+		} : AISubActionMissileRainGrid, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderSelf"
+			];
+			target = "AIActionTarget.Owner";
+			numberOfShots = 16;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 3, 5.5f, 0 ), ( 3, 1, 0 ), ( 3, 3.5f, 0 ), ( 3, -1.5f, 0 ), ( 3, 1, 0 ), ( 3, -6.5f, 0 ), ( 3, -4f, 0 ), ( 3, -11.5f, 0 ), ( 3, -9f, 0 ), ( 3, -14, 0 ), ( 3, -16.5f, 0 ), ( 3, -19f, 0 ), ( 3, -21.5f, 0 ), ( 3, -24f, 0 ), ( 5.5f, 1, 0 ), ( 5.5f, 3.5f, 0 ), ( 5.5f, -1.5f, 0 ), ( 5.5f, 1, 0 ), ( 5.5f, -6.5f, 0 ), ( 5.5f, -4f, 0 ), ( 5.5f, -11.5f, 0 ), ( 5.5f, -9f, 0 ), ( 5.5f, -14, 0 ), ( 5.5f, -16.5f, 0 ), ( 5.5f, -19f, 0 ), ( 5.5f, -21.5f, 0 ), ( 5.5f, -24f, 0 ), ( 8f, 1, 0 ), ( 8f, 3.5f, 0 ), ( 8f, -1.5f, 0 ), ( 8f, 1, 0 ), ( 8f, -6.5f, 0 ), ( 8f, -4f, 0 ), ( 8f, -11.5f, 0 ), ( 8f, -9f, 0 ), ( 8f, -14, 0 ), ( 8f, -16.5f, 0 ), ( 8f, -19f, 0 ), ( 8f, -21.5f, 0 ), ( 8f, -24f, 0 ), ( 0, 3, 0 ), ( -2.5, 3, 0 ), ( -5, 3, 0 ), ( -7.5f, 3, 0 ), ( 0, 5.5f, 0 ), ( -2.5, 5.5f, 0 ), ( -5, 5.5f, 0 ), ( -7.5f, 5.5f, 0 ), ( 0, 8, 0 ), ( -2.5, 8, 0 ), ( -5, 8, 0 ), ( -7.5f, 8, 0 )
+			];
+		} : AISubActionMissileRainGrid
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.InvulnerableMissileRain"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+MissileTrackConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.MissileTrackCooldown"
+	];
+}
+
+MissileTrackCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.HasChimeraRainRocketLauncherLeftEquipped", "Condition.HasChimeraRainRocketLauncherRightEquipped"
+			];
+		} : AIActionOR;
+	};
+}
+
+MissileTrack01 : AIAction
+{
+	startup = 
+	{
+		duration = 2.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = -1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StatusEffectTypeWeaponMalfunction", "Condition.StatusEffectTypeBlind"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_missile_track_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderTrack"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraMissileTrackRightShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionShootToPoint, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderTrack"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraMissileTrackLeftShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_left";
+		} : AISubActionShootToPoint
+	];
+}
+
+MissileTrackJammed : MissileTrack01
+{
+	loop = 
+	{
+		duration = -1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotStatusEffectTypeWeaponMalfunction", "Condition.StatusEffectTypeBlind"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderTrack"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraMissileTrackRightJammedShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionShootToPoint, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderTrack"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraMissileTrackLeftJammedShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionShootToPoint
+	];
+}
+
+MissileTrackBlinded : MissileTrack01
+{
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderTrack"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraMissileTrackRightJammedShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( -2.5, -5, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionShootToPoint, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderTrack"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraMissileTrackLeftJammedShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 2.5, -5, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionShootToPoint
+	];
+}
+
+MissileMineConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.MissileMineCooldown"
+	];
+}
+
+MissileMineCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.HasChimeraRainRocketLauncherLeftEquipped", "Condition.HasChimeraRainRocketLauncherRightEquipped"
+			];
+		} : AIActionOR;
+	};
+}
+
+MissileMine01 : AIAction
+{
+	startup = 
+	{
+		duration = 2.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX, 
+		{
+			name = "explode_phase3";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_missile_mine_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderMine"
+			];
+			target = "AIActionTarget.Owner";
+			numberOfShots = 59;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainWideShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.1f, 0.80f, -0.45f ), ( 3.10f, 3.80f, -0.45f ), ( 2.58f, -1.93f, -0.45f ), ( 2.89f, 0.66f, -0.45f ), ( 3.55f, -1.21f, -0.45f ), ( 2.29f, -12.16f, -0.45f ), ( 3.02f, -11.20f, -0.45f ), ( 2.39f, -13.33f, -0.45f ), ( 2.81f, -17.10f, -0.45f ), ( 5.64f, 1.55f, -0.45f ), ( 4.63f, 4.36f, -0.45f ), ( 4.92f, -1.28f, -0.45f ), ( 5.10f, 0.94f, -0.45f ), ( 6.37f, -1.16f, -0.45f ), ( 5.84f, -10.62f, -0.45f ), ( 4.73f, -11.25f, -0.45f ), ( 5.33f, -14.04f, -0.45f ), ( 5.08f, -15.68f, -0.45f ), ( 8.79f, -0.72f, -0.45f ), ( 8.46f, -11.15f, -0.45f ), ( 7.92f, -9.70f, -0.45f ), ( -7.26f, -14.31f, -0.45f ), ( -5.38f, -14.64f, -0.45f ), ( 0.88f, -13.18f, -0.45f ), ( -1.47f, -13.79f, -0.45f ), ( -7.45f, -16.13f, -0.45f ), ( -5.00f, -17.33f, -0.45f ), ( 0.09f, -16.55f, -0.45f ), ( -2.45f, -16.81f, -0.45f ), ( -4.56f, -19.86f, -0.45f ), ( 0.67f, -19.42f, -0.45f ), ( -1.91f, -19.26f, -0.45f ), ( -7.72f, -18.84f, -0.40f ), ( -9.57f, 2.69f, -0.45f ), ( -10.27f, 1.61f, -0.45f ), ( -10.59f, -1.48f, -0.45f ), ( -10.19f, -4.14f, -0.45f ), ( -9.26f, -6.30f, -0.45f ), ( -9.71f, -14.78f, -0.45f ), ( -9.65f, -15.78f, -0.45f ), ( -12.31f, 3.17f, -0.45f ), ( -12.22f, 0.32f, -0.45f ), ( -13.33f, -1.62f, -0.45f ), ( -12.18f, -3.35f, -0.45f ), ( -12.60f, -5.78f, -0.45f ), ( -12.66f, -14.85f, -0.45f ), ( -12.38f, -16.14f, -0.45f ), ( -14.56f, -1.30f, -0.45f ), ( -14.12f, -6.67f, -0.45f ), ( -14.84f, -3.62f, -0.45f ), ( -15.82f, -6.30f, -0.45f ), ( -0.80f, 3.65f, -0.45f ), ( -2.34f, 2.56f, -0.45f ), ( -5.04f, 2.20f, -0.45f ), ( -8.14f, 2.87f, -0.45f ), ( 0.04f, 5.11f, -0.45f ), ( -2.68f, 5.79f, -0.45f ), ( -5.59f, 5.84f, -0.45f ), ( -7.19f, 5.45f, -0.45f )
+			];
+		} : AISubActionMissileRainGrid
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.InvulnerableMissileRain"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+MissileChandelierConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.MissileRainCooldown"
+	];
+}
+
+MissileChandelierCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIMeleeAttackCommand", "Condition.NotBossNoInterrupt"
+			];
+		} : AIActionAND;
+	};
+}
+
+MissileChandelierConditionInverted : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAIMeleeAttackCommand"
+			];
+		} : AIActionAND;
+	};
+}
+
+MissileChandelier01 : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "charging_missile_right";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_shoots_rockets_chandelier";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			name = "missle_muzzle_left";
+		} : AISubActionSpawnFX, 
+		{
+			name = "missle_muzzle_right";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderChandelier"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			CName[] waypointTag = 
+			[
+				"MissileChandelierSpot01"
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionShootToPoint, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulderChandelier"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 19;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.5f, 1, 0 ), ( 1.5f, -1, 0 ), ( -1.5f, 1, 0 ), ( -1.5f, -1, 0 ), ( -1.5f, -3, 0 ), ( 1.5f, 3, 0 ), ( -1.5f, 3, 0 ), ( 1.5f, 3, 0 ), ( 0, 1.5f, 0 ), ( 0, -1.5f, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_Left";
+		} : AISubActionMissileRainGrid, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulderChandelier"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 19;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherLauncherDualLeftShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.5f, 1, 0 ), ( 1.5f, -1, 0 ), ( -1.5f, 1, 0 ), ( -1.5f, -1, 0 ), ( -1.5f, -3, 0 ), ( 1.5f, 3, 0 ), ( -1.5f, 3, 0 ), ( 1.5f, 3, 0 ), ( 0, 1.5f, 0 ), ( 0, -1.5f, 0 )
+			];
+			weaponCustomEvent = "add_missle_fire_right";
+		} : AISubActionMissileRainGrid
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.InvulnerableMissileRain"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+AimMetalstormConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.AimMetalstormCooldown"
+	];
+}
+
+ChimeraShootCommandCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AIShootCommand", "Condition.NotBossNoInterrupt"
+			];
+		} : AIActionAND;
+	};
+}
+
+ChimeraShootCommandConditionInverted : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotAIShootCommand", "Condition.BossNoInterrupt"
+			];
+		} : AIActionOR;
+	};
+}
+
+ChimeraShootCommandScreen1Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectChimeraScreen1Hacked"
+			];
+		} : AIActionOR;
+	};
+}
+
+ChimeraShootCommandScreen2Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectChimeraScreen2Hacked"
+			];
+		} : AIActionOR;
+	};
+}
+
+AimAttackMetalstormJammedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectTypeWeaponMalfunction"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackMetalstorm : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChimeraMetalstormEquipped", "Condition.NotStatusEffectTypeWeaponMalfunction"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = -1;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StatusEffectTypeWeaponMalfunction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	startupSubActions = 
+	[
+		{
+			name = "red_flare";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_shoots_metalstorm";
+			resetValue = true;
+		} : AISubActionAddFact, 
+		{
+			name = "spider_attack_metalstorm_start";
+		} : AISubActionPlaySound
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.MetalstormWeapon"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 150;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraFullAutoShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			delay = 0;
+			weaponCustomEvent = "add_turret_fire";
+		} : AISubActionChimeraMetalstorm, 
+		{
+			name = "turret_light";
+		} : AISubActionSpawnFX
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "spider_attack_metalstorm_stop";
+		} : AISubActionPlaySound
+	];
+	recovery = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = true;
+	};
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+AimAttackMetalstormJam : AimAttackMetalstorm
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.MetalstormWeapon"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 10;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherAutoShotgunSemiAutoShootingMalfunctionPackage"
+			];
+			delay = 0;
+			weaponCustomEvent = "add_turret_fire";
+		} : AISubActionShootWithWeapon
+	];
+}
+
+AimAttackMetalstormCommand : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChimeraMetalstormEquipped", "Condition.TargetBelow45deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "spider_attack_metalstorm_start";
+		} : AISubActionPlaySound, 
+		{
+			name = "red_flare";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_shoots_metalstorm";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.MetalstormWeaponExplosive"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 150;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraFullAutoShootingPackage"
+			];
+			delay = 0;
+			tbhCoefficient = 0.f;
+			weaponCustomEvent = "add_turret_fire";
+		} : AISubActionChimeraMetalstorm, 
+		{
+			name = "turret_light";
+		} : AISubActionSpawnFX
+	];
+	recoverySubActions = 
+	[
+		{
+			name = "spider_attack_metalstorm_stop";
+		} : AISubActionPlaySound, 
+		{
+			name = "chimera_shoot_command_end";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+AimAttackMetalstormRaiseSequence : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChimeraMetalstormRaiseSequenceEquipped", "Condition.TargetBelow45deg"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 5.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.MetalstormWeaponRaiseSequence"
+			];
+			attackDuration = 5.f;
+			attack = "Attacks.ChimeraLaserBeam";
+			attackRange = 200.f;
+			attackName = "SwipedDown";
+			stopContinuousAttackOnDurationEnd = false;
+		} : AISubActionAttackWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+AimAttackMetalstormCommandScreen1 : AIAction
+{
+	startup = 
+	{
+		duration = 5.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "spider_attack_metalstorm_start";
+		} : AISubActionPlaySound, 
+		{
+			name = "spider_attack_metalstorm_stop";
+			delay = -1.f;
+		} : AISubActionPlaySound
+	];
+	startupSubActions = 
+	[
+		{
+			name = "red_flare";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.MetalstormWeapon"
+			];
+			target = "AIActionTarget.CustomWorldPosition";
+			numberOfShots = 150;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.ChimeraFullAutoShootingPackage"
+			];
+			delay = 0;
+			tbhCoefficient = 0.f;
+			weaponCustomEvent = "add_turret_fire";
+		} : AISubActionChimeraMetalstorm, 
+		{
+			name = "turret_light";
+		} : AISubActionSpawnFX
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraScreen1Hacked"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+AimAttackMetalstormCommandScreen2 : AimAttackMetalstormCommandScreen1
+{
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraScreen2Hacked"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+AimAttackCannonSequence : AIActionSequence
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.AimAttackCannon", "MilitechChimeraBoss.AimAttackCannonRecovery", "GenericArchetype.Success"
+	];
+}
+
+AimAttackCannonConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.AimAttackCannonCooldown"
+	];
+}
+
+AimAttackCannonCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChimeraCannonEquipped"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackCannonBase : AIAction
+{
+	startup = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loop = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_grenade";
+		} : AISubActionSpawnFX, 
+		{
+			name = "chimera_cannon_fact";
+			resetValue = true;
+		} : AISubActionAddFact, 
+		{
+			name = "spider_attack_cannon_aim";
+		} : AISubActionPlaySound
+	];
+	animData = 
+	{
+		animFeature = "ShootAttack";
+	};
+}
+
+AimAttackCannon : AimAttackCannonBase
+{
+}
+
+AimAttackCannonFast : AimAttackCannonBase
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonTop : AimAttackCannon
+{
+}
+
+AimAttackCannonFastTop : AimAttackCannonTop
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonMyers : AimAttackCannon
+{
+	startup = 
+	{
+		duration = 2.35f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonMyersTop : AimAttackCannonTop
+{
+	startup = 
+	{
+		duration = 2.35f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonMyersFast : AimAttackCannonMyers
+{
+	startup = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonMyersFastTop : AimAttackCannonMyersTop
+{
+	startup = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonCyberpsychosis : AimAttackCannon
+{
+	startup = 
+	{
+		duration = 4.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "blackwall";
+		} : AISubActionSpawnFX
+	];
+}
+
+AimAttackCannonRecovery : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+	};
+	loop = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.Cannon"
+			];
+			target = "AIActionTarget.CustomWorldPosition";
+			rangedAttack = "Attacks.ChimeraRocketSplash";
+			triggerMode = "TriggerMode.SemiAuto";
+			delay = 0;
+			predictionTime = 0.5f;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.PulseChargeShootingPackage"
+			];
+			numberOfShots = 1;
+			weaponCustomEvent = "add_canon_fire";
+		} : AISubActionShootWithWeapon, 
+		{
+			name = "add_canon_fire";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "spider_attack_cannon_fire";
+		} : AISubActionPlaySound
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+AimAttackCannonRecoveryTop : AimAttackCannonRecovery
+{
+}
+
+AimAttackCannonRecoveryCyberpsychosis : AimAttackCannonRecovery
+{
+	recovery = 
+	{
+		duration = 0.6f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow3mPrediction"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "blackwall";
+		} : AISubActionSpawnFX, 
+		{
+			name = "spider_attack_cannon_fire";
+		} : AISubActionPlaySound
+	];
+}
+
+AimAttackCannonRecoveryJammed : AimAttackCannonRecovery
+{
+	recoverySubActions = [];
+}
+
+AimAttackCannonRecoveryTopJammed : AimAttackCannonRecoveryTop
+{
+	recoverySubActions = [];
+}
+
+AimAttackCannonAcquiringTimer : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonAcquiringTimerFast : AIAction
+{
+	loop = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonAcquiringTimerMyers : AIAction
+{
+	loop = 
+	{
+		duration = 2.35f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonAcquiringTimerMyersFast : AIAction
+{
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+AimAttackCannonAcquiringTimerCyberpsychosis : AIAction
+{
+	loop = 
+	{
+		duration = 100.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "UnstoppableTwitchNone";
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow5m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+GasCloudCondition : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.GasCloudCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasChimeraGasCloudEquipped"
+			];
+		} : AIActionAND;
+	};
+}
+
+ChimeraGasCloudContinuousCheckCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotChimeraVentsOn"
+			];
+		} : AIActionOR;
+	};
+}
+
+GasCloudSubAction : AISubActionAttackWithWeapon
+{
+	weaponSlots = 
+	[
+		"AttachmentSlots.ChimeraGasCloud"
+	];
+	attackDuration = 45.f;
+	attack = "Attacks.ChimeraGasCloud";
+	colliderBoxSize = ( 100.f, 100.f, 3.f );
+	attackName = "GasCloud";
+}
+
+GasCloudBottomSubAction : GasCloudSubAction
+{
+	positionOffset = ( 0.f, -50.f, -1.f );
+}
+
+GasCloudTopSubAction : GasCloudSubAction
+{
+	positionOffset = ( 0.f, -50.f, 5.f );
+}
+
+GasCloudBottom : AIAction
+{
+	startup = 
+	{
+		duration = 8.267f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 2.133f;
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 2.067f;
+		useDurationFromAnimSlot = false;
+	};
+	loopSubActions = 
+	[
+		{
+		} : GasCloudBottomSubAction
+	];
+	startupSubActions = 
+	[
+		{
+			name = "gas_release_bottom";
+		} : AISubActionSpawnFX
+	];
+	subActions = 
+	[
+		{
+			name = "chimera_gas_bottom_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	animData = 
+	{
+		animFeature = "GasCloudGround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+GasCloudBottomContinuous : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 10.f;
+		useDurationFromAnimSlot = false;
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ChimeraVentsOn"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loopSubActions = 
+	[
+		{
+		} : GasCloudBottomSubAction
+	];
+}
+
+GasCloudBottomContinuousEmpty : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 10.f;
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+}
+
+GasCloudTop : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		useDurationFromAnimSlot = true;
+	};
+	loop = 
+	{
+		duration = 11.f;
+		useDurationFromAnimSlot = true;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		useDurationFromAnimSlot = true;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "gas_release_top";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+		} : GasCloudTopSubAction
+	];
+	subActions = 
+	[
+		{
+			name = "chimera_gas_top_fact";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+	animData = 
+	{
+		animFeature = "GasCloud";
+		animSlot = 
+		{
+		};
+	};
+}
+
+GasCloudTopContinuous : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 10.f;
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ChimeraVentsOn"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loopSubActions = 
+	[
+		{
+		} : GasCloudTopSubAction
+	];
+}
+
+GasCloudTopContinuousEmpty : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 10.f;
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+}
+
+GasCloudLoop : AIAction
+{
+	startup = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 30.f;
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		useDurationFromAnimSlot = false;
+	};
+	loopSubActions = 
+	[
+		{
+			attackTime = 0.f;
+		} : GasCloudBottomSubAction, 
+		{
+			attackTime = 15.f;
+		} : GasCloudTopSubAction
+	];
+}
+
+SetMissileRainCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.MissileRainCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MissileRainCooldown : AIActionCooldown
+{
+	name = "MissileRainCooldown";
+	duration = 0.f;
+}
+
+SetMissileTrackCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.MissileTrackCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MissileTrackCooldown : AIActionCooldown
+{
+	name = "MissileTrackCooldown";
+	duration = 10.f;
+}
+
+SetMissileMineCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.MissileMineCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MissileMineCooldown : AIActionCooldown
+{
+	name = "MissileMineCooldown";
+	duration = 10.f;
+}
+
+SetAimMetalstormCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.AimMetalstormCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+AimMetalstormCooldown : AIActionCooldown
+{
+	name = "AimMetalstormCooldown";
+	duration = 45.f;
+}
+
+SetAimAttackCannonCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.AimAttackCannonCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+AimAttackCannonCooldown : AIActionCooldown
+{
+	name = "AimAttackCannonCooldown";
+	duration = 0.f;
+}
+
+SetMeleeAttackStompCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.MeleeAttackStompCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetMeleeAttackShockwaveCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.MeleeAttackShockwaveCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MeleeAttackStompCooldown : AIActionCooldown
+{
+	name = "MeleeAttackStompCooldown";
+	duration = 7.5f;
+}
+
+MeleeAttackShockwaveCooldown : AIActionCooldown
+{
+	name = "MeleeAttackStompCooldown";
+	duration = 30.f;
+}
+
+SetSwipeAttackCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.SwipeAttackCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SwipeAttackCooldown : AIActionCooldown
+{
+	name = "SwipeAttackCooldown";
+	duration = 15.f;
+}
+
+SetGasCloudCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.GasCloudCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+GasCloudCooldown : AIActionCooldown
+{
+	name = "GasCloudCooldown";
+	duration = 45.f;
+}
+
+SetAimAttackMyersCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.AimAttackMyersCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+SetAimAttackMyersStartCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MilitechChimeraBoss.AimAttackMyersStartCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+AimAttackMyersCooldown : AIActionCooldown
+{
+	name = "AimAttackMyersCooldown";
+	duration = 60.f;
+}
+
+AimAttackMyersStartCooldown : AIActionCooldown
+{
+	name = "AimAttackMyersCooldown";
+	duration = 45.f;
+}
+
+RotateSlideData : AIActionSlideData
+{
+	target = "AIActionTarget.CombatTarget";
+	duration = 1.f;
+	distance = 0.f;
+	offsetToTarget = 1.5f;
+	finalRotationAngle = 0.f;
+	usePositionSlide = false;
+	useRotationSlide = true;
+}
+
+MyersFindInitialPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraWaypoint";
+			rangeFromOwner = ( 3.f, 30.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Closest";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindTopPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraWaypoint";
+			rangeFromOwner = ( 3.f, 15.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindTopPositionFailsafe : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraWaypoint";
+			rangeFromOwner = ( 5.f, 50.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindBottomPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraWayPointBottom";
+			rangeFromOwner = ( 3.f, 20.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindBottomPositionFailsafe : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraWayPointBottom";
+			rangeFromOwner = ( 5.f, 100.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindTauntPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraTaunSpot";
+			rangeFromOwner = ( 7.5f, 100.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Closest";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindEscapePosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraTaunSpot";
+			rangeFromOwner = ( 30.f, 200.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Closest";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersFindEscapePositionBackup : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "myersChimeraTaunSpot";
+			rangeFromOwner = ( 10.f, 200.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+MyersSprintToMovementDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "MilitechChimeraBoss.MyersSprintToMovementDestinationLoopPhase";
+}
+
+MyersSprintToMovementDestinationLoopPhase : AIActionPhase
+{
+	duration = 15.f;
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+MyersSprintToTauntDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "MilitechChimeraBoss.MyersSprintToTauntDestinationLoopPhase";
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.MyersNoOffmeshLink"
+			];
+			apply = true;
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+MyersSprintToTauntDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+MyersStrafeToMovementDestination : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "MilitechChimeraBoss.MyersStrafeToMovementDestinationLoopPhase";
+}
+
+MyersStrafeToMovementDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Walk";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+		strafingTarget = "AIActionTarget.CombatTarget";
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+MyersAimAttackOnPlace : AIAction
+{
+	startup = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		conditionSuccessDuration = 0.15f;
+		toNextPhaseConditionCheckInterval = 0.15f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 30;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherHMGCoverShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+MyersAimAttackOnPlaceWait : MyersAimAttackOnPlace
+{
+	startup = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		conditionSuccessDuration = 0.15f;
+		toNextPhaseConditionCheckInterval = 0.15f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.ChimeraSignalMyersToRun"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 30;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherHMGCoverShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+MyersAimAttackStrafe : AIAction
+{
+	startup = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+			upperBodyState = "Attack";
+		};
+		conditionSuccessDuration = 0.15f;
+		toNextPhaseConditionCheckInterval = 0.15f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+			upperBodyState = "Attack";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Moving";
+			upperBodyState = "Attack";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 40;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherHMGCoverShootingPackage"
+			];
+			delay = 0;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+	};
+	allowBlendDuration = 0.4f;
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Corpo_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Corpo_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+MyersPlayerOnBottomFloor : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.PlayerUpTo1dot4mZDiffFromCombatTarget"
+			];
+		} : AIActionOR;
+	};
+}
+
+MyersOnBottomFloor : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.TargetUpTo1dot4mZDiff"
+			];
+		} : AIActionOR;
+	};
+}
+
+MyersRotateToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove120deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 5.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow75deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MyersThrowGrenade : AIAction
+{
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.NPCGrenadeFragRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.29f;
+			dropItemOnInterruption = false;
+			target = "AIActionTarget.CombatTarget";
+			checkThrowQuery = false;
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenade";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MyersTauntGrenade : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "Taunt";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "KerenzikovActivation";
+		animVariation = 0;
+		animSlot = 
+		{
+			loopSlide = "AnimalsBoss_Fists.RotateSlideData";
+		};
+	};
+}
+
+AimAttackMyersConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MilitechChimeraBoss.AimAttackMyersCooldown"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCombatTargetChimeraPhase3", "Condition.NotCombatTargetChimeraPhase2", "Condition.NotChimeraRepairing"
+			];
+		} : AIActionAND;
+	};
+}
+
+AimAttackMyersCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ChimeraWaitForMyers"
+			];
+		} : AIActionAND;
+	};
+}
+
+InitalMyersActions : AIActionSequence
+{
+	actions = 
+	[
+		"MilitechChimeraBoss.SetAimAttackMyersStartCooldown", "GenericArchetype.Success"
+	];
+}
+
+WaitForCombatTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotCombatTarget"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RemoveAimAttackMyersStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.ChimeraWaitForMyers", "Condition.ChimeraFocusMyers"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraFocusMyers"
+			];
+			apply = false;
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraWaitForMyers"
+			];
+			apply = false;
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveChimeraWaitForMyersStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraWaitForMyers"
+			];
+			apply = false;
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveWaitForMyersStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraWaitForMyers"
+			];
+			apply = false;
+			remove = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyWaitForMyersStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraWaitForMyers"
+			];
+			apply = true;
+			remove = false;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyChimeraFocusMyersStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.NotChimeraFocusMyers"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraFocusMyers"
+			];
+			apply = true;
+			remove = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyChimeraSignalMyersToRunStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraSignalMyersToRun"
+			];
+			apply = true;
+			remove = false;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyChimeraSignalMyersToGrenadeStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.ChimeraSignalMyersToGrenade"
+			];
+			apply = true;
+			remove = false;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyChimeraGasCloudTopStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.GasCloudTop"
+			];
+			apply = true;
+			remove = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyChimeraGasCloudBottomStatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.GasCloudBottom"
+			];
+			apply = true;
+			remove = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveChimeraGasCloudstatusEffect : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Chimera.GasCloudTop"
+			];
+			apply = false;
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Chimera.GasCloudBottom"
+			];
+			apply = false;
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+}
+
+HasChimeraWaitForMyersStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.ChimeraWaitForMyers"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = -1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotChimeraWaitForMyers"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+HasChimeraSignalMyersToGrenadeStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.ChimeraSignalMyersToGrenade"
+			];
+		} : AIActionOR;
+	};
+}
+
+HasChimeraFocusMyersStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.ChimeraFocusMyers"
+			];
+		} : AIActionOR;
+	};
+}
+
+HasChimeraSignalMyersToRunStatusEffect : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.ChimeraSignalMyersToRun"
+			];
+		} : AIActionOR;
+	};
+}
+
+ChimeraCombatTargetInPhase3 : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CombatTargetChimeraPhase3"
+			];
+		} : AIActionOR;
+	};
+}
+
+ChimeraCombatTargetgascloudTop : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CombatTargetChimeraGasCloudTop"
+			];
+		} : AIActionOR;
+	};
+}
+
+ChimeraCombatTargetgascloudBottom : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CombatTargetChimeraGasCloudBottom"
+			];
+		} : AIActionOR;
+	};
+}
+
+ChimeraCombatTargetRepairing : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.ChimeraRepairingCombatTarget"
+			];
+		} : AIActionOR;
+	};
+}
+
+CoverPresetDecoratorCompositeMyers : AIActionSmartComposite
+{
+	nodes = 
+	[
+		"GenericArchetype.CoverPresetDecoratorSelector", "GenericArchetype.Success"
+	];
+}
+
+SetDesiredCoverMyersAll : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			setDesiredCover = 1;
+			insideCoverReselectionCooldown = "CoverActions.SetDesiredCoverCooldown";
+			commandCoverConditions = 
+			[
+				"CoverActions.CommandCoverCondition"
+			];
+		} : AISubActionCover
+	];
+}
+
+MyersEquipRifle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Rifle";
+			animationTime = 1.5f;
+		} : AISubActionForceEquip
+	];
+}
+

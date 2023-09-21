@@ -937,7 +937,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 		{
 			AND = 
 			[
-				"Condition.FollowerPOVAbove270deg", "Condition.NotFollowerInVehicle", "Condition.NotIsUsingOffMeshLink", "Condition.IsFollowerOnNavmesh", {
+				"Condition.FollowerPOVAbove270deg", "Condition.NotFollowerInVehicle", "Condition.NotIsUsingOffMeshLink", "Condition.IsFollowerOnNavmesh", "Condition.NotStatusEffectMyersNoTeleport", {
 					OR = 
 					[
 						"Condition.PathFindingFailed", {
@@ -1027,10 +1027,20 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	{
 		AND = 
 		[
-			"Condition.NotHasAnyWeapon", "Condition.SwitchWeaponCooldown", "Condition.FriendlyTargetHasWeapon", {
+			"Condition.NotHasAnyWeapon", "Condition.SwitchWeaponCooldown", {
 				OR = 
 				[
-					"Condition.TopThreat", "Condition.NotFriendlyTargetInStatesPublic", "Condition.StatusEffectNPCForceEquipPrimaryWeapon", "Condition.StatusEffectNPCForceEquipSecondaryWeapon"
+					"Condition.StatusEffectNPCForceEquipPrimaryWeapon", "Condition.StatusEffectNPCForceEquipSecondaryWeapon", {
+						AND = 
+						[
+							"Condition.FriendlyTargetHasWeapon", {
+								OR = 
+								[
+									"Condition.TopThreat", "Condition.NotFriendlyTargetInStatesPublic"
+								];
+							} : AIActionOR
+						];
+					} : AIActionAND
 				];
 			} : AIActionOR
 		];
@@ -1720,7 +1730,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 		{
 			AND = 
 			[
-				"Condition.InStatesStealth", "Condition.NotInCover"
+				"Condition.InStatesStealth", "Condition.NotInCover", "Condition.NotStatusEffectFollowerDontLeaveStealth"
 			];
 		} : AIActionAND;
 	};
@@ -1846,6 +1856,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 		{
 			vehicle = "AIActionTarget.FriendlyTarget";
 			mountInstantly = false;
+			ignoreFlatTires = true;
 		} : AISubActionMountVehicle
 	];
 }
@@ -1871,5 +1882,33 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 			name = "ExitVehicle";
 		} : AISubActionQueueAIEvent
 	];
+}
+
+0x144C472E4B : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectMyersNoCarCombat"
+			];
+		} : AIActionAND;
+	};
+}
+
+0x20709ED0AE : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectFollowerDontLeaveStealth"
+			];
+		} : AIActionAND;
+	};
 }
 

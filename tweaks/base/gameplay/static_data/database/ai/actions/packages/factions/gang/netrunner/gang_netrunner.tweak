@@ -1,10 +1,22 @@
 package GangNetrunner
-using RTDB, ItemType, MovementActions, CombatDecorator, ItemHandling, NetrunnerActions, CoverActions
+using RTDB, ItemType, MovementActions, CombatDecorator, ItemHandling, NetrunnerActions, CoverActions, ShootActions
 
 DefaultNodeMap : AINodeMap
 {
 	map = 
 	[
+		{
+			node = "MovementActions.RangedAvoidLOSCondition";
+			isOverriddenBy = "GangNetrunner.RangedAvoidLOSCondition";
+		}, 
+		{
+			node = "MovementActions.RangedAvoidLOSSequence";
+			isOverriddenBy = "GangNetrunner.RangedAvoidLOSSequence";
+		}, 
+		{
+			node = "MovementActions.RangedAvoidLOSHoldPosition";
+			isOverriddenBy = "GangNetrunner.RangedAvoidLOSHoldPosition";
+		}, 
 		{
 			node = "GenericArchetype.RingSelector";
 			isOverriddenBy = "GangNetrunner.RingSelector";
@@ -28,6 +40,22 @@ DefaultNodeMap : AINodeMap
 		{
 			node = "GenericArchetype.WeaponHandlingComposite";
 			isOverriddenBy = "GangNetrunner.WeaponHandlingComposite";
+		}, 
+		{
+			node = "GenericArchetype.ShootSelector";
+			isOverriddenBy = "GangNetrunner.ShootSelector";
+		}, 
+		{
+			node = "GenericArchetype.ChargedShoot";
+			isOverriddenBy = "GangNetrunner.ChargedShoot";
+		}, 
+		{
+			node = "GenericArchetype.CrouchPreciseShoot";
+			isOverriddenBy = "GangNetrunner.CrouchPreciseShoot";
+		}, 
+		{
+			node = "GenericArchetype.Shoot";
+			isOverriddenBy = "GangNetrunner.Shoot";
 		}, 
 		{
 			node = "ItemHandling.ShootingSpotBehaviorComposite";
@@ -153,6 +181,10 @@ Map : ActionMap
 			map = "Gang_Katana.Map";
 		}, 
 		{
+			itemType = "ItemType.Wea_Sword";
+			map = "Gang_Katana.Map";
+		}, 
+		{
 			itemType = "ItemType.Wea_Knife";
 			map = "Gang_Knife.Map";
 		}, 
@@ -228,11 +260,57 @@ Map : ActionMap
 	defaultMap = "GangNetrunner.DefaultNodeMap";
 }
 
+RangedAvoidLOSCondition : MovementActions.RangedAvoidLOSCondition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AvoidLOSMovePolicyCooldown", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsInWorkspot", "Condition.NotIsUsingOffMeshLink", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotTicketTakeCover", "Condition.NotInCover", "Condition.NotTicketCatchUp", "Condition.NotTicketCharge"
+			];
+		} : AIActionAND;
+	};
+}
+
+RangedAvoidLOSSequence : MovementActions.RangedAvoidLOSSequence
+{
+	actions = 
+	[
+		"MovementActions.SuccessWhileHacking", "MovementActions.RangedAvoidLOSWalk", "CorpoNetrunner.RangedAvoidLOSHoldPosition"
+	];
+}
+
+RangedAvoidLOSHoldPosition : MovementActions.RangedAvoidLOSHoldPosition
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetIsVisible", "Condition.TicketTakeCover", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
 RingSelector : MovementActions.RingSelector
 {
 	actions = 
 	[
-		"GangNetrunner.ExtremeRing2ndFilterCoverAny", "GangNetrunner.FarRing2ndFilterCoverAny", "GangNetrunner.ExtremeRing2ndFilterNoLimit", "GangNetrunner.FarRing2ndFilterNoLimit", "GangNetrunner.MediumRing2ndFilterNoLimit", "MovementActions.CloseRing2ndFilterNoLimit", "GangNetrunner.SquadRingDefault"
+		"GangNetrunner.FarRing2ndFilterCoverAny", "GangNetrunner.FarRing2ndFilterNoLimit", "GangNetrunner.MediumRing2ndFilterNoLimit", "MovementActions.CloseRing2ndFilterNoLimit", "GangNetrunner.SquadRingDefault"
 	];
 }
 
@@ -301,7 +379,7 @@ CoverBehaviorComposite : AIActionSmartComposite
 {
 	nodes = 
 	[
-		"SpecialActions.CoverUseCombatStimConsumable", "CoverActions.WaitInCoverSelector", "NetrunnerActions.CoverHackSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverThrowGrenadeSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
+		"SpecialActions.CoverUseCombatStimConsumable", "CoverActions.WaitInCoverSelector", "NetrunnerActions.CoverHackSelector_VeryHard", "NetrunnerActions.CoverHackSelector_Hard", "NetrunnerActions.CoverHackSelector", "CoverActions.CoverDecisionSelector", "CoverActions.CoverPeekSelector", "SpecialActions.TauntHiddenPlayer", "CoverActions.CoverThrowGrenadeSelector", "GenericArchetype.CoverReloadSelector", "CoverActions.ExitCoverSelector", "CoverActions.ImmediateSuccess"
 	];
 	type = "AISmartCompositeType.Sequence";
 }
@@ -345,8 +423,109 @@ WeaponHandlingComposite : ItemHandling.WeaponHandlingComposite
 {
 	nodes = 
 	[
-		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "CoverActions.RegularCoverActivationCheckSuccess", "NetrunnerActions.HackActionSelector", "ItemHandling.CommandThrowGrenadeSelector", "ItemHandling.ThrowGrenadeSelector", "MeleeActions.QuickMelee", "SpecialActions.UseCombatStimConsumable", "GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GenericArchetype.ShootSelector", "GenericArchetype.Success"
+		"ItemHandling.SuccessIfSprinting", "ItemHandling.SuccessIfEquipping", "CoverActions.RegularCoverActivationCheckSuccess", "NetrunnerActions.HackActionSelector_VeryHard", "NetrunnerActions.HackActionSelector_Hard", "NetrunnerActions.HackActionSelector", "ItemHandling.CommandThrowGrenadeSelector", "ItemHandling.ThrowGrenadeSelector", "MeleeActions.QuickMelee", "SpecialActions.UseCombatStimConsumable", "GenericArchetype.ReloadSelector", "GenericArchetype.CommandForceShootSelector", "GangNetrunner.ShootSelector", "GenericArchetype.Success"
 	];
+}
+
+ShootSelector : ShootActions.ShootSelector
+{
+	actions = 
+	[
+		"ShootActions.WoundedShoot", "GenericArchetype.WoundedShootLeg", "GangNetrunner.ChargedShoot", "GangNetrunner.CrouchPreciseShoot", "GangNetrunner.Shoot"
+	];
+}
+
+ChargedShoot : ShootActions.ChargedShoot
+{
+	loop = 
+	{
+		duration = 3.f;
+		useDurationFromAnimSlot = false;
+		repeat = 0;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.MinAccuracyValue0dot95", "Condition.AmmoCount0", "Condition.ShootInterruptionCondition", "Condition.HackSelectorCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CrouchPreciseShoot : ShootActions.CrouchPreciseShoot
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			stanceState = "Crouch";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionOrAimCommandCondition", "Condition.PreciseShootDeactivationCondition", "Condition.ShootingInterruptedByCoverConditions", "Condition.IsMoving", "Condition.HackSelectorCondition", {
+							AND = 
+							[
+								"Condition.NotOptimalDistance5mTolerance", "Condition.NotAIHoldPositionCommand", "Condition.DestinationCalculated", "Condition.DestinationChanged"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+Shoot : ShootActions.Shoot
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetOrAimCommandCondition", "Condition.AmmoCount0", "Condition.ShootDeactivationCondition", "Condition.ShootInterruptionCondition", "Condition.HackSelectorCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
 }
 
 ShootingSpotBehaviorComposite : ItemHandling.ShootingSpotBehaviorComposite
@@ -481,7 +660,13 @@ CoverActivationCondition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.CurrentCoverToTargetAbove9mPrediction", "Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotDesiredCoverChanged", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption", "Condition.NotCompanionAway"
+		{
+			OR = 
+			[
+				"Condition.CurrentCoverToTargetAbove9mPrediction", "Condition.TargetStatusEffectOpticalCamo"
+			];
+		} : AIActionOR, 
+		"Condition.CoverIsProtectingHorizontallyAgainstTarget", "Condition.NotCatchUpFromCoverCondition", "Condition.NotDesiredCoverChanged", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotGracefulCombatInterruption", "Condition.NotCompanionAway"
 	];
 }
 
@@ -495,10 +680,10 @@ CoverDeactivationCondition : AIActionAND
 				{
 					AND = 
 					[
-						"Condition.CurrentCoverToTargetBelow9mPrediction", "Condition.MinAccuracySharedValue0dot85"
+						"Condition.CurrentCoverToTargetBelow4mPrediction", "Condition.NotTargetStatusEffectOpticalCamo"
 					];
 				} : AIActionAND, 
-				"Condition.NotCoverIsProtectingHorizontallyAgainstTarget", "Condition.DesiredCoverChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruption", "Condition.CompanionAway"
+				"Condition.CatchUpFromCoverCondition", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruption", "Condition.CompanionAway"
 			];
 		} : AIActionOR, 
 		"Condition.NotTicketGrenadeThrow"

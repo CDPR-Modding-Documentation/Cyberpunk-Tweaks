@@ -1,0 +1,152 @@
+package Items
+using RTDB, BaseStats, Perks, Prereqs, Price, Variants, ModifierGroups
+
+[ notQueryable ]
+AdvancedImmuneSystemModule : ImmuneSystemModule
+{
+	usesVariants = true;
+	blueprint = "Items.GenericShardableCyberwareBlueprint";
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.GenericItemRoot";
+			itemPartPreset = "Items.GenericItemRoot";
+		}
+	];
+	statModifiers += 
+	[
+		"Items.ItemArmorToArmor", {
+			statType = "BaseStats.Protection";
+			modifierType = "Additive";
+			refStat = "BaseStats.Armor";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+}
+
+AdvancedReversePowerInductor : AdvancedImmuneSystemModule
+{
+	displayName = "LocKey#40796";
+	localizedDescription = "LocKey#40797";
+	iconPath = "cw_immunesystem_reversepowerinductor";
+	quality = "Quality.Epic";
+	variants = 
+	[
+		"Variants.Humanity8Cost"
+	];
+	fk< GameplayLogicPackage >[] OnEquip = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "StatusEffectPrereq";
+						statusEffect = "BaseStatusEffect.Electrocuted";
+						checkType = "CheckType.Type";
+					} : StatusEffectPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ArmorMultBonus";
+								modifierType = "Additive";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "StatusEffectPrereq";
+						statusEffect = "BaseStatusEffect.EMP";
+						checkType = "CheckType.Type";
+					} : StatusEffectPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ArmorMultBonus";
+								modifierType = "Additive";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								dotType = "Electrocuted";
+							} : DamageOverTimeTypeHitPrereqCondition
+						];
+					} : ProcessHitReceived;
+					effectorClassName = "ModifyDamageEffector";
+					string operationType = "Multiply";
+					float value = 0f;
+				}, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								statusEffect = "EMP";
+								checkType = "CheckType.Type";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : ProcessHitReceived;
+					effectorClassName = "ModifyDamageEffector";
+					string operationType = "Multiply";
+					float value = 0f;
+				}
+			];
+			UIData = 
+			{
+				iconPath = "ability_silenced";
+				localizedDescription = "LocKey#40795";
+				intValues = 
+				[
+					50
+				];
+			};
+		} : GameplayLogicPackage
+	];
+	CName cyberwareType = "ReversePowerInductor";
+	buyPrice = 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_price_medium_energy";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier, 
+		"Price.BuyPrice_StreetCred_Discount"
+	];
+	sellPrice = 
+	[
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Additive";
+			id = "cyberware_curves";
+			column = "quality_to_price_medium_energy";
+			refStat = "BaseStats.Quality";
+			refObject = "Item";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.Price";
+			modifierType = "Multiplier";
+			value = 0.2f;
+		} : ConstantStatModifier
+	];
+}
+

@@ -1,5 +1,5 @@
 package DeviceAction
-using RTDB, QuickHack, Prereqs
+using RTDB, QuickHack, Prereqs, BaseStatusEffect
 
 ActionEngineering : ObjectAction
 {
@@ -32,7 +32,7 @@ DisposeBody : ObjectAction
 	actionName = "DisposeBody";
 	rewards = 
 	[
-		"RPGActionRewards.Stealth"
+		"RPGActionRewards.Dispose"
 	];
 }
 
@@ -68,7 +68,7 @@ DeviceQuickHack : QuickHack
 			costMods += 
 			[
 				{
-					value = 1;
+					value = 4;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
@@ -82,11 +82,15 @@ DeviceQuickHack : QuickHack
 			value = 0.5f;
 		} : ConstantStatModifier
 	];
-	rewards = 
-	[
-		"RPGActionRewards.CombatHacking"
-	];
-	hackCategory = "HackCategories.DeviceHack";
+	hackCategory = "HackCategory.DeviceHack";
+	awarenessCost = "";
+}
+
+VehicleQuickHack : QuickHack
+{
+	interactionLayer = "any";
+	objectActionType = "ObjectActionType.VehicleQuickHack";
+	hackCategory = "HackCategory.VehicleHack";
 }
 
 MalfunctionClassHack : DeviceQuickHack
@@ -94,6 +98,28 @@ MalfunctionClassHack : DeviceQuickHack
 	actionName = "MalfunctionClassHack";
 	gameplayCategory = "ActionCategories.Malfunction";
 	fk< InteractionBase > objectActionUI = "Interactions.MalfunctionHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 3;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
+	hackTier = "DeviceHacks.Tier1DeviceHack";
+}
+
+[ DisabledContent ]
+FanMalfunctionClassHack : DeviceQuickHack
+{
+	priority = 2.f;
+	actionName = "MalfunctionClassHack";
+	gameplayCategory = "ActionCategories.Malfunction";
+	fk< InteractionBase > objectActionUI = "Interactions.FanMalfunctionHack";
 }
 
 BroadcastClassHack : DeviceQuickHack
@@ -109,11 +135,104 @@ EndMalfunction : ObjectAction
 	fk< InteractionBase > objectActionUI = "Interactions.MalfunctionHack";
 }
 
+HighPitchNoiseQuickHack : DeviceQuickHack
+{
+	actionName = "HighPitchNoiseQuickHack";
+	fk< ObjectActionEffect >[] startEffects += 
+	[
+		{
+			statusEffect = "BaseStatusEffect.HighPitchNoiseCooldown";
+			recipient = "ObjectActionReference.Instigator";
+		}
+	];
+	fk< InteractionBase > objectActionUI = "Interactions.CommsNoiseHack";
+	deviceHackCategory = "DeviceHacks.DamageHack";
+	hackTier = "DeviceHacks.Tier2DeviceHack";
+}
+
 ToggleStateClassHack : DeviceQuickHack
 {
 	actionName = "ToggleStateClassHack";
 	gameplayCategory = "ActionCategories.ToggleState";
 	fk< InteractionBase > objectActionUI = "Interactions.ToggleStateHack";
+	durationTime = 
+	[
+		{
+			value = -1.0f;
+		} : BaseDurationMod
+	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
+	hackTier = "DeviceHacks.Tier1DeviceHack";
+}
+
+TurretToggleStateClassHack : DeviceQuickHack
+{
+	actionName = "TurretToggleStateClassHack";
+	gameplayCategory = "ActionCategories.ToggleState";
+	fk< InteractionBase > objectActionUI = "Interactions.ToggleStateHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
+	hackTier = "DeviceHacks.Tier1DeviceHack";
+}
+
+TurretToggleStateClassLvl2Hack : TurretToggleStateClassHack
+{
+	priority = 2.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+TurretToggleStateClassLvl3Hack : TurretToggleStateClassLvl2Hack
+{
+	priority = 3.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+TurretToggleStateClassLvl4Hack : TurretToggleStateClassLvl3Hack
+{
+	priority = 4.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+TurretToggleStateClassLvl5Hack : TurretToggleStateClassLvl4Hack
+{
+	priority = 5.f;
+	durationTime = 
+	[
+		{
+			value = -1.0f;
+		} : BaseDurationMod
+	];
 }
 
 OverloadClassHack : DeviceQuickHack
@@ -127,11 +246,80 @@ OverloadClassHack : DeviceQuickHack
 			costMods += 
 			[
 				{
+					value = 1;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	deviceHackCategory = "DeviceHacks.DamageHack";
+	hackTier = "DeviceHacks.Tier1DeviceHack";
+}
+
+TurretOverloadClassHack : OverloadClassHack
+{
+	actionName = "TurretOverloadClassHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 4;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	hackTier = "DeviceHacks.Tier2DeviceHack";
+}
+
+[ DisabledContent ]
+ServerOverloadClassHack : DeviceQuickHack
+{
+	actionName = "ServerOverloadClassHack";
+	gameplayCategory = "ActionCategories.OverLoad";
+	fk< InteractionBase > objectActionUI = "Interactions.ServerOverloadHack";
+	activationTime += 
+	[
+		{
+			value = 2.5;
+		} : UploadTimeModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 35;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	deviceHackCategory = "DeviceHacks.DamageHack";
+	hackTier = "DeviceHacks.Tier4DeviceHack";
+}
+
+[ DisabledContent ]
+ServerSingleOverloadClassHack : OverloadClassHack
+{
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
 					value = 6;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
 	];
+	priority = 3.f;
+}
+
+OverloadClassLvl4Hack : OverloadClassHack
+{
+	actionName = "OverloadClassHack";
+	priority = 4.f;
 }
 
 TakeControlClassHack : DeviceQuickHack
@@ -139,17 +327,25 @@ TakeControlClassHack : DeviceQuickHack
 	actionName = "TakeControlClassHack";
 	gameplayCategory = "ActionCategories.TakeControl";
 	fk< InteractionBase > objectActionUI = "Interactions.TakeControlHack";
+	activationTime += 
+	[
+		{
+			value = 1.0;
+		} : UploadTimeModifier
+	];
 	costs = 
 	[
 		{
 			costMods += 
 			[
 				{
-					value = 10;
+					value = 4;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
 	];
+	deviceHackCategory = "DeviceHacks.ControlHack";
+	hackTier = "DeviceHacks.Tier2DeviceHack";
 }
 
 TakeControlCameraClassHack : DeviceQuickHack
@@ -157,17 +353,131 @@ TakeControlCameraClassHack : DeviceQuickHack
 	actionName = "TakeControlCameraClassHack";
 	gameplayCategory = "ActionCategories.TakeControl";
 	fk< InteractionBase > objectActionUI = "Interactions.TakeControlCameraHack";
+	activationTime += 
+	[
+		{
+			value = 1.5;
+		} : UploadTimeModifier
+	];
 	costs = 
 	[
 		{
 			costMods += 
 			[
 				{
-					value = 2;
+					value = 4;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
 	];
+	deviceHackCategory = "DeviceHacks.ControlHack";
+	hackTier = "DeviceHacks.Tier1DeviceHack";
+}
+
+TakeControlVehicleClassHack : VehicleQuickHack
+{
+	actionName = "TakeControlVehicleClassHack";
+	gameplayCategory = "ActionCategories.TakeControl";
+	fk< InteractionBase > objectActionUI = "Interactions.TakeControlVehicleHack";
+	activationTime += 
+	[
+		{
+			value = 1.5;
+		} : UploadTimeModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 6;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	durationTime = 
+	[
+		{
+			value = -1.0f;
+		} : BaseDurationMod
+	];
+	hackTier = "DeviceHacks.Tier3DeviceHack";
+}
+
+VehicleForceBrakesClassHack : VehicleQuickHack
+{
+	actionName = "VehicleForceBrakesClassHack";
+	gameplayCategory = "ActionCategories.OverrideAttitude";
+	fk< InteractionBase > objectActionUI = "Interactions.VehicleForceBrakesClassHack";
+	activationTime += 
+	[
+		{
+			value = 0.5;
+		} : UploadTimeModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 5;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	hackTier = "DeviceHacks.Tier1DeviceHack";
+}
+
+VehicleExplodeClassHack : VehicleQuickHack
+{
+	actionName = "VehicleExplodeClassHack";
+	gameplayCategory = "ActionCategories.OverrideAttitude";
+	fk< InteractionBase > objectActionUI = "Interactions.VehicleExplodeClassHack";
+	activationTime += 
+	[
+		{
+			value = 5;
+		} : UploadTimeModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 14;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	hackTier = "DeviceHacks.Tier4DeviceHack";
+}
+
+VehicleAccelerateClassHack : VehicleQuickHack
+{
+	actionName = "VehicleAccelerateClassHack";
+	gameplayCategory = "ActionCategories.OverrideAttitude";
+	fk< InteractionBase > objectActionUI = "Interactions.VehicleAccelerateClassHack";
+	activationTime += 
+	[
+		{
+			value = 0.5;
+		} : UploadTimeModifier
+	];
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 5;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	hackTier = "DeviceHacks.Tier2DeviceHack";
 }
 
 OverrideAttitudeClassHack : DeviceQuickHack
@@ -175,32 +485,149 @@ OverrideAttitudeClassHack : DeviceQuickHack
 	actionName = "OverrideAttitudeClassHack";
 	gameplayCategory = "ActionCategories.OverrideAttitude";
 	fk< InteractionBase > objectActionUI = "Interactions.OverrideAttitudeHack";
+	activationTime += 
+	[
+		{
+			value = 1.5;
+		} : UploadTimeModifier
+	];
 	costs = 
 	[
 		{
 			costMods += 
 			[
 				{
-					value = 2;
+					value = 4;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
+	];
+	durationTime += 
+	[
+		{
+			value = 20.0f;
+		} : BaseDurationMod
+	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
+	hackTier = "DeviceHacks.Tier2DeviceHack";
+}
+
+OverrideAttitudeClassLvl2Hack : OverrideAttitudeClassHack
+{
+	priority = 2.f;
+	durationTime += 
+	[
+		{
+			value = 0.0f;
+		} : BaseDurationMod
+	];
+}
+
+OverrideAttitudeClassLvl3Hack : OverrideAttitudeClassLvl2Hack
+{
+	priority = 3.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+OverrideAttitudeClassLvl4Hack : OverrideAttitudeClassLvl3Hack
+{
+	priority = 4.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+OverrideAttitudeClassLvl5Hack : OverrideAttitudeClassLvl4Hack
+{
+	priority = 5.f;
+	durationTime = 
+	[
+		{
+			value = -1.0f;
+		} : BaseDurationMod
 	];
 }
 
 TurretOverrideAttitudeClassHack : OverrideAttitudeClassHack
 {
 	actionName = "TurretOverrideAttitudeClassHack";
+	fk< InteractionBase > objectActionUI = "Interactions.TurretOverrideAttitudeHack";
+	activationTime += 
+	[
+		{
+			value = 2.0;
+		} : UploadTimeModifier
+	];
 	costs = 
 	[
 		{
 			costMods += 
 			[
 				{
-					value = 8;
+					value = 6;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
+	];
+	durationTime += 
+	[
+		{
+			value = 20.0f;
+		} : BaseDurationMod
+	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
+	hackTier = "DeviceHacks.Tier4DeviceHack";
+}
+
+TurretOverrideAttitudeClassLvl2Hack : TurretOverrideAttitudeClassHack
+{
+	priority = 2.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+TurretOverrideAttitudeClassLvl3Hack : TurretOverrideAttitudeClassLvl2Hack
+{
+	priority = 3.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+TurretOverrideAttitudeClassLvl4Hack : TurretOverrideAttitudeClassLvl3Hack
+{
+	priority = 4.f;
+	durationTime += 
+	[
+		{
+			value = 10.0f;
+		} : BaseDurationMod
+	];
+}
+
+TurretOverrideAttitudeClassLvl5Hack : TurretOverrideAttitudeClassLvl4Hack
+{
+	priority = 5.f;
+	durationTime = 
+	[
+		{
+			value = -1.0f;
+		} : BaseDurationMod
 	];
 }
 
@@ -209,6 +636,14 @@ DataExtractionClassHack : DeviceQuickHack
 	actionName = "DataExtractionClassHack";
 	gameplayCategory = "ActionCategories.DataExtraction";
 	fk< InteractionBase > objectActionUI = "Interactions.DataExtractionHack";
+	activationTime += 
+	[
+		{
+			value = 0.5;
+		} : UploadTimeModifier
+	];
+	deviceHackCategory = "DeviceHacks.ControlHack";
+	hackTier = "DeviceHacks.Tier1DeviceHack";
 }
 
 SuicideClassHack : BroadcastClassHack
@@ -296,18 +731,53 @@ GlitchScreenSuicide : SuicideClassHack
 {
 	actionName = "GlitchScreenSuicide";
 	fk< InteractionBase > objectActionUI = "Interactions.BroadcastSuicideHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 6;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	deviceHackCategory = "DeviceHacks.DamageHack";
 }
 
 GlitchScreenJamWeapon : JamWeaponClassHack
 {
 	actionName = "GlitchScreenJamWeapon";
 	fk< InteractionBase > objectActionUI = "Interactions.BroadcastJamWeaponAction";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 6;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
 }
 
 GlitchScreenBlind : BlindClassHack
 {
 	actionName = "GlitchScreenBlind";
 	fk< InteractionBase > objectActionUI = "Interactions.BroadcastBlindHack";
+	costs = 
+	[
+		{
+			costMods += 
+			[
+				{
+					value = 6;
+				} : QuickHack.MemoryMod
+			];
+		} : QuickHack.DeviceMemoryCost
+	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
 }
 
 GlitchScreenHeartAttack : HeartAttackClassHack
@@ -326,11 +796,12 @@ GlitchScreenGrenade : GrenadeClassHack
 			costMods += 
 			[
 				{
-					value = 7;
+					value = 4;
 				} : QuickHack.MemoryMod
 			];
 		} : QuickHack.DeviceMemoryCost
 	];
+	deviceHackCategory = "DeviceHacks.DamageHack";
 }
 
 SetDeviceAttitude : OverrideAttitudeClassHack
@@ -342,18 +813,15 @@ SetDeviceAttitude : OverrideAttitudeClassHack
 SetDeviceTagKillMode : OverrideAttitudeClassHack
 {
 	actionName = "SetDeviceTagKillMode";
-	fk< InteractionBase > objectActionUI = "Interactions.SetDeviceSupprotMode";
-	costs = 
+	fk< InteractionBase > objectActionUI = "Interactions.SetDeviceSupportMode";
+	durationTime = 
 	[
 		{
-			costMods += 
-			[
-				{
-					value = 4;
-				} : QuickHack.MemoryMod
-			];
-		} : QuickHack.DeviceMemoryCost
+			value = -1.0f;
+		} : BaseDurationMod
 	];
+	deviceHackCategory = "DeviceHacks.CovertHack";
+	hackTier = "DeviceHacks.Tier3DeviceHack";
 }
 
 ForceIgnoreTargets : OverrideAttitudeClassHack

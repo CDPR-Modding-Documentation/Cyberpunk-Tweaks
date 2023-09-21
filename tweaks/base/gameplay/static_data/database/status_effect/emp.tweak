@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Effectors, Prereqs
+using RTDB, Effectors, Prereqs, BaseStats, Perks
 
 BaseEMP : DebuffStatusEffect
 {
@@ -173,7 +173,12 @@ BaseEMP : DebuffStatusEffect
 			{
 				invert = true;
 				stateName = "Combat";
-			} : CurrentHighLevelNPCStatePrereq
+			} : CurrentHighLevelNPCStatePrereq, 
+			{
+				statType = "IsExo";
+				valueToCheck = 1;
+				comparisonType = "Less";
+			} : StatPrereq
 		];
 		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
 		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
@@ -242,6 +247,10 @@ EmpVeryLowDamage : BaseEMP
 
 EmpVeryLowDamageQuickhack : BaseEMP
 {
+	gameplayTags += 
+	[
+		"DoT"
+	];
 	packages += 
 	[
 		{
@@ -274,7 +283,7 @@ EmpLowDamage : BaseEMP
 	];
 }
 
-EmpHighDamage : EMP
+EmpHighDamage : BaseEMP
 {
 	packages += 
 	[
@@ -289,6 +298,643 @@ EmpHighDamage : EMP
 			];
 		}
 	];
+}
+
+EmpVeryHighDamage : BaseEMP
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.VeryHighElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+EnemyNetrunnerEmpHighDamage : BaseEMP
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.EnemyNetrunnerHighElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+BaseEmpGrenade : BaseEMP
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5f;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"GrenadeStatusEffect", "EMP"
+	];
+	packages = [];
+}
+
+CommonEmpGrenade : BaseEmpGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									"Prereqs.NPCIsMechanical", {
+										statType = "IsNetrunnerArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					attackRecord = "Attacks.EmpGrenadeCommon";
+					playerAsInstigator = true;
+					attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.62f;
+					attackRecord = "Attacks.LowElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.6f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+UncommonEmpGrenade : BaseEmpGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									"Prereqs.NPCIsMechanical", {
+										statType = "IsNetrunnerArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					attackRecord = "Attacks.EmpGrenadeCommon";
+					playerAsInstigator = true;
+					attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.52f;
+					attackRecord = "Attacks.LowElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : ANDPrereq;
+					statusEffect = "BaseStatusEffect.EmpCyberwareTurnedOff";
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.6f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+RareEmpGrenade : BaseEmpGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									"Prereqs.NPCIsMechanical", {
+										statType = "IsNetrunnerArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					attackRecord = "Attacks.EmpGrenadeCommon";
+					playerAsInstigator = true;
+					attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.47f;
+					attackRecord = "Attacks.LowElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : ANDPrereq;
+					statusEffect = "BaseStatusEffect.EmpCyberwareTurnedOff";
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.6f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EpicEmpGrenade : BaseEmpGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									"Prereqs.NPCIsMechanical", {
+										statType = "IsNetrunnerArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					attackRecord = "Attacks.EmpGrenadeCommon";
+					playerAsInstigator = true;
+					attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.35f;
+					attackRecord = "Attacks.LowElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : ANDPrereq;
+					statusEffect = "BaseStatusEffect.LongEmpCyberwareTurnedOff";
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.6f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LegendaryEmpGrenade : BaseEmpGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								nestedPrereqs = 
+								[
+									"Prereqs.NPCIsMechanical", {
+										statType = "IsNetrunnerArchetype";
+										valueToCheck = 1;
+										comparisonType = "Equal";
+									} : StatPrereq
+								];
+							} : Prereqs.ORPrereq, 
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					attackRecord = "Attacks.EmpGrenadeCommon";
+					playerAsInstigator = true;
+					attackPositionSlotName = "Chest";
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq
+						];
+					} : ANDPrereq;
+					statusEffect = "BaseStatusEffect.LongEmpCyberwareTurnedOff";
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.6f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EmpCyberwareTurnedOff : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				"BaseStatusEffect.DeactivateCloakedtatusEffects", "BaseStatusEffect.DeactivateCloakedOdatatusEffects", "BaseStatusEffect.EmpSFX", {
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					effectorClassName = "RemoveStatusEffectsEffector";
+					string[] statusEffects = 
+					[
+						"BaseStatusEffect.SandevistanBuff", "AIQuickHackStatusEffect.BuffCamo", "AIQuickHackStatusEffect.BuffSturdiness", "BaseStatusEffect.CamoEffector"
+					];
+				} : Effector, 
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HasSandevistan";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasSandevistanTier2";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanSprintHarass";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SandevistanDashShoot";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasKerenzikov";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasKerenzikovSlide";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasSuperheroFall";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasBerserk";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanUseStrongArms";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanUseOpticalCamo";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanUseTerrainCamo";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanUseOverclock";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasCybereye";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanQuickhack";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasCyberdeck";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasAirHover";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasDoubleJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasChargeJump";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanUseCoolingSystem";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasGlowingTattoos";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasThermovision";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasInfravision";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasSpiderBotControl";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasSelfHealingSkin";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasHealthMonitorBomb";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanUseRetractableShield";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.IsAggressive";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.IsReckless";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupEffector
+			];
+		}
+	];
+}
+
+LongEmpCyberwareTurnedOff : EmpCyberwareTurnedOff
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 20;
+			} : ConstantStatModifier
+		];
+	};
 }
 
 EmpJamWeaponChance : EMP
@@ -311,7 +957,12 @@ EmpJamWeaponChance : EMP
 			[
 				{
 					statusEffect = "BaseStatusEffect.WeaponMalfunction";
-					float effectorChance = 0.8f;
+					effectorChance = 
+					[
+						{
+							value = 0.8f;
+						} : EffectorChanceModifier
+					];
 				} : ApplyStatusEffectByChanceEffector
 			];
 		}
@@ -338,7 +989,12 @@ EmpJamWeaponAccuracyDebuff : EMP
 			[
 				{
 					statusEffect = "BaseStatusEffect.WeaponMalfunction";
-					float effectorChance = 0.8f;
+					effectorChance = 
+					[
+						{
+							value = 0.8f;
+						} : EffectorChanceModifier
+					];
 				} : ApplyStatusEffectByChanceEffector
 			];
 		}
@@ -351,5 +1007,87 @@ EmpSFX : Effector
 	CName activationSFXName = "nme_fx_emp_start";
 	CName deactivationSFXName = "nme_fx_emp_stop";
 	bool unique = true;
+}
+
+EMPReed : DebuffStatusEffect
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_emp";
+		}
+	];
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.DamageReductionExplosion";
+					modifierType = "Additive";
+					value = -0.7f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.DamageReductionBulletExplosion";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.BlockCyberwareBreaches";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasMeleeHitReactionAndTakedownResistance";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "status_electrocuted";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					activationSFXName = "status_emp";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					activationSFXName = "quickhack_shortcircuit";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					activationSFXName = "hacks_cyberware_malfunction";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					activationSFXName = "status_disabled_comms";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					activationSFXName = "status_emp";
+				} : PlaySFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"AutoTag", "DoT"
+	];
 }
 

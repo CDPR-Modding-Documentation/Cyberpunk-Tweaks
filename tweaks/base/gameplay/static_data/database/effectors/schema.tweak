@@ -12,8 +12,8 @@ Effector
 	fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
 	CName effectorClassName = "";
 	bool removeAfterActionCall = false;
+	bool removeAfterPrereqCheck = false;
 	fk< StatModifierGroup >[] statModifierGroups = [];
-	fk< StatPoolUpdate >[] statPoolUpdates = [];
 }
 
 ContinuousEffector : Effector
@@ -31,6 +31,7 @@ StatPoolUpdate
 {
 	fk< StatPool > statPoolType = "";
 	float statPoolValue = 0;
+	fk< StatModifier >[] statModifiers = [];
 }
 
 ApplyStatusEffectEffector : Effector
@@ -41,6 +42,21 @@ ApplyStatusEffectEffector : Effector
 	bool removeWithEffector = true;
 	bool inverted = false;
 	float count = 1f;
+	string instigator = "";
+	bool useCountWhenRemoving = false;
+}
+
+ApplyStatusEffectByChanceEffector : ApplyStatusEffectEffector
+{
+	CName effectorClassName = "ApplyStatusEffectByChanceEffector";
+	fk< StatModifier >[] effectorChance = 
+	[
+		{
+			statType = "BaseStats.EffectorChance";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier
+	];
 }
 
 ApplyStatGroupEffector : Effector
@@ -48,6 +64,30 @@ ApplyStatGroupEffector : Effector
 	CName effectorClassName = "ApplyStatGroupEffector";
 	fk< StatModifierGroup > statGroup = "";
 	CName applicationTarget = "";
+	bool removeWithEffector = true;
+}
+
+RemoveAllModifiersEffector : Effector
+{
+	CName effectorClassName = "RemoveAllModifiersEffector";
+	fk< Stat > statType = "";
+	CName applicationTarget = "";
+}
+
+ModifyStatPoolValueEffector : Effector
+{
+	CName effectorClassName = "ModifyStatPoolValueEffector";
+	fk< StatPoolUpdate >[] statPoolUpdates = [];
+	bool setValue = false;
+	bool usePercent = false;
+}
+
+ModifyStatPoolCustomLimitEffector : Effector
+{
+	CName effectorClassName = "ModifyStatPoolCustomLimitEffector";
+	fk< StatPool > statPoolType = "";
+	float value = 0.0f;
+	bool usePercent = false;
 }
 
 ApplyEffectorEffector : Effector
@@ -62,7 +102,14 @@ AddStatusEffectToAttackEffector : Effector
 	CName effectorClassName = "AddStatusEffectToAttackEffector";
 	fk< StatusEffect > statusEffect = "";
 	bool isRandom = true;
-	float applicationChance = 1f;
+	fk< StatModifier >[] applicationChance = 
+	[
+		{
+			statType = "BaseStats.ApplicationChance";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier
+	];
 	float stacks = 1f;
 }
 
@@ -128,6 +175,15 @@ SpreadInitEffector : Effector
 	int spreadCount = -1;
 	int spreadDistance = -1;
 	int bonusJumps = 0;
+	bool applyOverclock = true;
+}
+
+SpreadAreaEffector : Effector
+{
+	effectorClassName = "SpreadAreaEffector";
+	fk< ObjectAction >[] objectActions = [];
+	int maxTargetNum = -1;
+	float range = -1;
 }
 
 AddItemsEffector : Effector
@@ -142,5 +198,59 @@ BroadcastStimEffector : ContinuousEffector
 	fk< StimType > type = "";
 	float radius = 0.f;
 	float delayTime = 1.f;
+}
+
+ModifyAttackCritChanceEffector : Effector
+{
+	CName effectorClassName = "ModifyAttackCritChanceEffector";
+	fk< StatModifier >[] critChance = [];
+}
+
+OverrideRangedAttackPackageEffector : Effector
+{
+	CName effectorClassName = "OverrideRangedAttackPackageEffector";
+	fk< RangedAttackPackage > attackPackage = "";
+}
+
+SetAttackHitTypeEffector : Effector
+{
+	CName effectorClassName = "SetAttackHitTypeEffector";
+	CName hitType = "";
+}
+
+AddHitFlagToAttackEffector : Effector
+{
+	CName effectorClassName = "AddHitFlagToAttackEffector";
+	string hitFlag = "";
+}
+
+UseConsumableEffector : Effector
+{
+	CName effectorClassName = "UseConsumableEffector";
+}
+
+ConvertDamageToStatPoolEffector : Effector
+{
+	CName effectorClassName = "ConvertDamageToStatPoolEffector";
+	fk< StatPool > statPoolType = "";
+	CName opSymbol = "";
+	float value = 1.f;
+}
+
+PropagateStatusEffectInAreaEffector : Effector
+{
+	CName effectorClassName = "PropagateStatusEffectInAreaEffector";
+	fk< StatusEffect > statusEffect = "";
+	float range = 0.0f;
+	float duration = 0.0f;
+	CName applicationTarget = "";
+	bool propagateToInstigator = false;
+}
+
+AddDevelopmentPointEffector : Effector
+{
+	CName effectorClassName = "AddDevelopmentPointEffector";
+	int amountOfPoints = 0;
+	string pointsType = "";
 }
 

@@ -1,0 +1,550 @@
+package MaxTacSniperBoss
+using RTDB, AIActionTarget, ItemHandling, MovementActions, MeleeActions, DashAndDodgeActions, ShootActions
+
+EquipRangedWeaponInstantly : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			itemID = "Items.Preset_Ashura_Prevention_MaxTac";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+SniperShoot : AIAction
+{
+	cooldowns = 
+	[
+		"ShootActions.PreciseShootCooldown"
+	];
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.SniperShootInterruptionCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.SniperShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		"ShootActions.SniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+	subActions += 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+SniperShootWhileMoving : ShootActions.SniperShoot
+{
+	cooldowns = [];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ValidTargetPositionCheckFromChestOrAimCommandCondition", "Condition.TargetBelow120deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		repeat = 0;
+		duration = 4.5f;
+		useDurationFromAnimSlot = false;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		notRepeatPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotValidTargetPositionCheckFromChestOrAimCommandCondition", {
+							AND = 
+							[
+								"Condition.SniperShootActivationCondition", {
+									OR = 
+									[
+										"Condition.AIHoldPositionCommand", "Condition.InShootingSpot", "Condition.TargetAbove9m", "Condition.DestinationReached"
+									];
+								} : AIActionOR
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.ShootDeactivationCondition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		"ShootActions.InaccurateSniperShootSubActionShootWithWeapon", "ShootActions.ChargedShootSubActionAttackWithWeapon"
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+}
+
+DashAwayCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow10m"
+			];
+		} : AIActionAND;
+	};
+}
+
+RetreatCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanRetreat", "Condition.TargetBelow7m"
+			];
+		} : AIActionAND;
+	};
+}
+
+RetreatCooldownCondition : AIAction
+{
+	cooldowns = 
+	[
+		"MaxTacSniperBoss.RetreatCooldown"
+	];
+}
+
+SetRetreatCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MaxTacSniperBoss.RetreatCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+RetreatCooldown : AIActionCooldown
+{
+	name = "RetreatCooldown";
+	duration = 10.f;
+}
+
+ThrowGrenadeFlash_Close : ItemHandling.ThrowGrenade
+{
+	tickets = 
+	[
+		"AITicketType.GrenadeThrow"
+	];
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.667f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+CanRetreatCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanRetreat"
+			];
+		} : AIActionAND;
+	};
+}
+
+AddStatusEffectInvulnerable : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.InvulnerableShort"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+DodgeKerenzikovBackDefinition : AIAction
+{
+	startup = 
+	{
+		duration = 0.4f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			multiplier = 1.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 1.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			multiplier = 1.3f;
+			overrideMultiplerWhenPlayerInTimeDilation = 0.75f;
+			easeIn = "";
+			easeOut = "SandevistanEaseOut";
+		} : AISubActionApplyTimeDilation, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "DodgeBackKerenzikov";
+		animSlot = 
+		{
+			useDynamicObjectsCheck = false;
+			startupSlide = "DashAndDodgeActions.StepsSlideData";
+			loopSlide = "DashAndDodgeActions.StepsSlideData";
+		};
+	};
+	allowBlendDuration = 0.4f;
+}
+
+MaxTac_Sniper_Retreat : SquadRingDefault
+{
+	tickets = [];
+	loop = 
+	{
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			ring = "AIRingType.MaxTacSniper";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = false;
+			avoidObstacleWithinTolerance = true;
+			avoidThreatIgnoringDirection = true;
+			avoidThreat = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove30m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			multiplier = 6.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+			remove = true;
+			apply = true;
+		} : AISubActionStatusEffect, 
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			name = "fx_sandevistan_trails";
+		} : AISubActionSpawnFX, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+}
+
+EquipSniperRifle : AIAction
+{
+	loop = 
+	{
+		duration = 1.5;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_SniperRifle";
+			animationTime = 1.5f;
+		} : AISubActionForceEquip
+	];
+}
+
+UnequipAnyWeapon : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasSniperWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			name = "BladesOff";
+		} : AISubActionQueueAIEvent
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = -1.f;
+			animationTime = 1.667f;
+		} : AISubActionForceUnequip
+	];
+}
+

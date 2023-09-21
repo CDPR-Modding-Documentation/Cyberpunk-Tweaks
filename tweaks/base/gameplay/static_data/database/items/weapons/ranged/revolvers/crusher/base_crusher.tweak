@@ -25,7 +25,7 @@ Base_Crusher : Base_Power_Shotgun
 	CName audioName = "wea_set_crusher";
 	CName[] tags += 
 	[
-		"Preload", "Weapon"
+		"Preload", "Weapon", "T3_Inject_Weapon"
 	];
 	shootingPatternPackages = 
 	[
@@ -42,7 +42,7 @@ Base_Crusher : Base_Power_Shotgun
 	fk< ItemType > itemType = "ItemType.Wea_Shotgun";
 	fk< Item > ammo = "Ammo.ShotgunAmmo";
 	stateMachineName = "Weapon";
-	fk< Crosshair > crosshair = "Crosshairs.Power_Overture";
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
 		{
@@ -88,20 +88,23 @@ Base_Crusher : Base_Power_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Crusher_NPC_Technical_Stats"
 		];
-	} : Base_Power_Shotgun_NPC_Data;
+	} : Base_Crusher_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Crusher_Technical_Stats", "Items.Base_Crusher_Handling_Stats", "Items.Base_Crusher_Recoil_Stats", "Items.Base_Crusher_Spread_Stats", "Items.Base_Crusher_Aim_Stats"
+		"Items.Base_Crusher_Technical_Stats", "Items.Base_Crusher_Handling_Stats", "Items.Base_Crusher_Recoil_Stats", "Items.Base_Crusher_Spread_Stats", "Items.Base_Crusher_Aim_Stats", "Items.Base_Crusher_Damage_Stats", "Items.Base_Crusher_Constant_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	CName audioSwitchName = "audio_data";
 	CName audioSwitchValue = "w_power_corp_handgun_11101_a";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerShotgun";
-	baseReloadTime = 2.f;
-	baseEmptyReloadTime = 3.f;
-	uninterruptibleReloadStart = 1.6f;
-	uninterruptibleEmptyReloadStart = 1.6f;
+	baseReloadTime = 1.7f;
+	baseEmptyReloadTime = 1.7f;
+	uninterruptibleReloadStart = 0.625f;
+	uninterruptibleEmptyReloadStart = 0.625f;
 	float weaponNearPlane = 12.5f;
 	float weaponFarPlane = 30.0f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -118,6 +121,14 @@ Base_Crusher : Base_Power_Shotgun
 	float weaponBlurIntensity_aim = 1.f;
 }
 
+Base_Crusher_NPC_Data : Base_Power_Shotgun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Crusher_NPC_Technical_Stats", "Items.Base_Crusher_NPC_Damage_Stats"
+	];
+}
+
 Base_Crusher_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -126,7 +137,7 @@ Base_Crusher_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.5f;
+			value = 0.4f;
 		} : CycleTimeModifier, 
 		{
 			value = 12.f;
@@ -138,6 +149,30 @@ Base_Crusher_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Crusher_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 94f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Crusher_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 65f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Crusher_NPC_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -146,10 +181,10 @@ Base_Crusher_NPC_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.4f;
+			value = 0.35f;
 		} : CycleTimeModifier, 
 		{
-			value = 8.f;
+			value = 12.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 3.f;
@@ -163,11 +198,17 @@ Base_Crusher_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 2.0f;
+			value = 1.7f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.f;
+			value = 1.7f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.3f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.3f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -182,16 +223,16 @@ Base_Crusher_Recoil_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 350.f;
+			value = 10.f;
 		} : RecoilDirModifier, 
 		{
-			value = 75.f;
+			value = 50.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 5.f;
+			value = 4.f;
 		} : RecoilKickMinModifier, 
 		{
-			value = 7.f;
+			value = 5.6f;
 		} : RecoilKickMaxModifier, 
 		{
 			value = 0.0f;
@@ -242,10 +283,10 @@ Base_Crusher_Spread_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 3.0f;
+			value = 2.0f;
 		} : SpreadDefaultXModifier, 
 		{
-			value = 0.75f;
+			value = 0.525f;
 		} : SpreadDefaultYModifier, 
 		{
 			value = 0.f;
@@ -254,19 +295,19 @@ Base_Crusher_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadMinYModifier, 
 		{
-			value = 3.00f;
+			value = 2.0f;
 		} : SpreadMaxXModifier, 
 		{
-			value = 3.75f;
+			value = 0.525f;
 		} : SpreadMaxYModifier, 
 		{
-			value = 0.3f;
+			value = 0.0f;
 		} : SpreadChangePerShotModifier, 
 		{
 			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 3.0f;
+			value = 1.32f;
 		} : SpreadAdsDefaultXModifier, 
 		{
 			value = 0.125f;
@@ -278,19 +319,19 @@ Base_Crusher_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 2.0f;
+			value = 1.32f;
 		} : SpreadAdsMaxXModifier, 
 		{
-			value = 2.5f;
+			value = 0.125f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			value = 0.4f;
+			value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			value = 2.5f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -298,6 +339,38 @@ Base_Crusher_Spread_Stats : StatModifierGroup
 		{
 			value = 1.f;
 		} : SpreadUseCircularSpreadModifier
+	];
+}
+
+Base_Crusher_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.565f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = 0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveDPS";
+			modifierType = "Multiplier";
+			value = 0.833f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = -1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Multiplier";
+			value = 0.25f;
+		} : ConstantStatModifier
 	];
 }
 

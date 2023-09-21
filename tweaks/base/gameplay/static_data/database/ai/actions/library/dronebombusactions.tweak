@@ -41,11 +41,11 @@ CombatWhistle : AIAction
 	{
 		condition = 
 		{
-			OR = 
+			AND = 
 			[
-				"Condition.StatusEffectWhistleLvl3"
+				"Condition.StatusEffectCombatWhistle", "Condition.InStatesCombat"
 			];
-		} : AIActionOR;
+		} : AIActionAND;
 	};
 	loop = 
 	{
@@ -70,7 +70,7 @@ CombatWhistle : AIAction
 				{
 					OR = 
 					[
-						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.CustomWorldPositionBelow4m", {
+						"Condition.PathFindingFailed", "Condition.DestinationReached", "Condition.CustomWorldPositionBelow4m", "Condition.NotStatusEffectCombatWhistle", {
 							AND = 
 							[
 								"Condition.TargetIsVisible", "Condition.TargetBelow4m"
@@ -87,15 +87,7 @@ CombatWhistle : AIAction
 			lightPreset = "MechanicalLightPreset.Combat";
 			delay = -1.f;
 		} : AISubActionActivateLightPreset, 
-		{
-			statusEffects = 
-			[
-				"BaseStatusEffect.WhistleLvl3"
-			];
-			apply = false;
-			remove = true;
-			delay = 0.f;
-		} : AISubActionStatusEffect
+		"ReactionsActions.RemoveCombatWhistleHackSubaction"
 	];
 	subActions = 
 	[
@@ -362,6 +354,7 @@ ShootBeam : AIAction
 			attack = "Attacks.BombusFlame";
 			attackRange = 10.f;
 			attackName = "BombusFlame";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 	lookats = 
@@ -430,6 +423,7 @@ ShootBeamShort : ShootBeam
 			attack = "Attacks.BombusFlameShort";
 			attackRange = 10.f;
 			attackName = "BombusFlame";
+			stopContinuousAttackOnDurationEnd = false;
 		} : AISubActionAttackWithWeapon
 	];
 }

@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Effectors, Perks
+using RTDB, Effectors, Perks, Prereqs
 
 QuickHackTutorialReset : StatusEffect
 {
@@ -20,7 +20,6 @@ QuickHackTutorialReset : StatusEffect
 			effectors = 
 			[
 				{
-					effectorClassName = "ModifyStatPoolValueEffector";
 					statPoolUpdates = 
 					[
 						{
@@ -29,7 +28,7 @@ QuickHackTutorialReset : StatusEffect
 						} : StatPoolUpdate
 					];
 					bool usePercent = true;
-				} : Effector, 
+				} : ModifyStatPoolValueEffector, 
 				"BaseStatusEffect.RemoveAllQuickHackCooldownsEffector"
 			];
 		} : GameplayLogicPackage
@@ -56,7 +55,6 @@ StaminaResetTutorial : StatusEffect
 			[
 				{
 					prereqRecord = "Prereqs.AlwaysTruePrereq";
-					effectorClassName = "ModifyStatPoolValueEffector";
 					statPoolUpdates = 
 					[
 						{
@@ -65,7 +63,7 @@ StaminaResetTutorial : StatusEffect
 						} : StatPoolUpdate
 					];
 					bool usePercent = true;
-				} : Effector
+				} : ModifyStatPoolValueEffector
 			];
 		} : GameplayLogicPackage
 	];
@@ -134,6 +132,21 @@ TargetOfICEBreakerTutorial : StatusEffect
 }
 
 SuccessfullICEBreakerTutorial : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+TargetOfGrenadeDetonationTutorial : StatusEffect
 {
 	fk< StatModifierGroup > duration = 
 	{
@@ -286,5 +299,228 @@ PhoneInterrupted : StatusEffect
 	[
 		"NoPhone"
 	];
+}
+
+CyberwareInstallationAnimation : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				value = 4.5f;
+			} : BaseDurationMod
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						fact = "ripperdoc_cw_equip_animation_start";
+						value = 1;
+						comparisonType = "Equal";
+					} : FactValuePrereq;
+					statusEffect = "BaseStatusEffect.CyberwareInstallationAnimationFastForwardPossible";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 0.25f;
+					} : Prereqs.DurationPrereq;
+					statusEffect = "BaseStatusEffect.CyberwareInstallationAnimationSFX";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 3.5f;
+					} : Prereqs.DurationPrereq;
+					statusEffect = "BaseStatusEffect.CyberwareInstallationAnimationEnd";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 4.0f;
+					} : Prereqs.DurationPrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.CyberwareInstallationAnimationBlackout"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CyberwareInstallationAnimationFastForwardPossible : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				value = 20.0f;
+			} : BaseDurationMod
+		];
+	};
+	gameplayTags += 
+	[
+		"CustomFastForward"
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						fact = "ripperdoc_cw_equip_animation_start";
+						value = 0;
+						comparisonType = "Equal";
+					} : FactValuePrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.CyberwareInstallationAnimationFastForwardPossible"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CyberwareInstallationAnimationBlackout : StatusEffect
+{
+	savable = false;
+	duration = "BaseStats.InfiniteDuration";
+	VFX = 
+	[
+		{
+			name = "eyes_closing_instant";
+		}
+	];
+}
+
+CyberwareInstallationAnimationSFX : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				value = 5f;
+			} : BaseDurationMod
+		];
+	};
+	SFX = 
+	[
+		{
+			name = "q_ow_generic_ripperdoc_install_part";
+		}
+	];
+}
+
+CyberwareInstallationAnimationEnd : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				value = 5f;
+			} : BaseDurationMod
+		];
+	};
+	VFX = 
+	[
+		{
+			name = "eyes_opening";
+		}
+	];
+}
+
+CyberwareInstallationAnimationEndFast : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				value = 2f;
+			} : BaseDurationMod
+		];
+	};
+	VFX = 
+	[
+		{
+			name = "eyes_opening_05s";
+		}
+	];
+}
+
+MyersNoCarCombat : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+MyersNoTeleport : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+mws_se5_03_damage_vfx : StatusEffect
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "mws_se5_03_blood_2";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 0.5f;
+			} : BaseDurationMod
+		];
+	};
+}
+
+mws_se5_03_katana_vfx : StatusEffect
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "mws_se5_03_katana_attack";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 2.0f;
+			} : BaseDurationMod
+		];
+	};
 }
 

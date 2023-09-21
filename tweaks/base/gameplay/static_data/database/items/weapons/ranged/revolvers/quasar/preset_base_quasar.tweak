@@ -1,9 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
-
-Preset_Quasar_Default_Left_Hand : Preset_Quasar_Default
-{
-}
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Quasar_Default : Base_Quasar
 {
@@ -31,49 +27,21 @@ Preset_Quasar_Default : Base_Quasar
 			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__mag_stdr";
 		}, 
 		"Items.HandgunAndRevolverScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericTechModList, 
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod1";
+		} : Tech_Handgun_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModRare";
-		} : RareDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModEpic";
-		} : EpicDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModLegendary";
-		} : LegendaryDedicatedTechModList
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod2";
+		} : Tech_Handgun_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 5;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 15;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 10;
-			}
-		];
-	};
 }
 
-Preset_Quasar_Pimp_Left_Hand : Preset_Quasar_Pimp
+[ notQueryable ]
+Preset_Quasar_Default_Unbreakable : Preset_Quasar_Default
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Quasar_Pimp : Preset_Quasar_Default
@@ -82,10 +50,19 @@ Preset_Quasar_Pimp : Preset_Quasar_Default
 	[
 		"Pimp"
 	];
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
-Preset_Quasar_Neon_Left_Hand : Preset_Quasar_Neon
+[ notQueryable ]
+Preset_Quasar_Pimp_Unbreakable : Preset_Quasar_Pimp
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Quasar_Neon : Preset_Quasar_Default
@@ -94,15 +71,246 @@ Preset_Quasar_Neon : Preset_Quasar_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
-Preset_Quasar_Military_Left_Hand : Preset_Quasar_Military
+[ notQueryable ]
+Preset_Quasar_Neon_Unbreakable : Preset_Quasar_Neon
 {
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Quasar_Military : Preset_Quasar_Default
 {
 	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Military_Unbreakable : Preset_Quasar_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Default_Left_Hand : Preset_Quasar_Default
+{
+	quality = "Quality.Common";
+	tags += 
+	[
+		"Left_Hand", "HideInUI", "HideAtVendor", "DiscardOnEmpty", "IgnoreInventory"
+	];
+	statModifiers += 
+	[
+		"Quality.BrokenItem", {
+			statType = "BaseStats.Weight";
+			modifierType = "Multiplier";
+			value = 0;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NumShotsToFire";
+			modifierType = "Additive";
+			refStat = "BaseStats.MagazineCapacity";
+			opSymbol = "*";
+			value = 1.0f;
+		} : CombinedStatModifier
+	];
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Base_Quasar_NPC_Technical_Stats"
+		];
+	} : Broken_Tech_Revolver_NPC_Data;
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Quasar_Default_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Pimp_Left_Hand : Preset_Quasar_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Quasar_Pimp_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Neon_Left_Hand : Preset_Quasar_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Quasar_Neon_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Military_Left_Hand : Preset_Quasar_Default_Left_Hand
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+	OnLooted = 
+	[
+		{
+			effectors = 
+			[
+				{
+					itemsToAdd = 
+					[
+						{
+							item = "Items.Preset_Quasar_Military_Retrofix";
+						}
+					];
+				} : AddItemsEffector
+			];
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Default_Retrofix : Preset_Quasar_Default
+{
+	fk< ItemBlueprint > blueprint = "Items.Retrofix_Firearm_NoMuzzle_Blueprint";
+	tags += 
+	[
+		"SkipActivityLog", "Left_Hand_Retrofix"
+	];
+	bool scaleToPlayer = true;
+	bool scaleToPlayerInStash = true;
+	statModifiers += 
+	[
+		"Character.ScaleToPlayerLevel"
+	];
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__mag_stdr";
+		}
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Pimp_Retrofix : Preset_Quasar_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Neon_Retrofix : Preset_Quasar_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Neon"
+	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Quasar_Military_Retrofix : Preset_Quasar_Default_Retrofix
+{
+	CName[] visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -138,53 +346,45 @@ Craftable_Common_Quasar : Preset_Quasar_Default
 Craftable_Uncommon_Quasar : Craftable_Common_Quasar
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Small_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Craftable_Rare_Quasar : Craftable_Common_Quasar
+Craftable_Rare_Quasar : Craftable_Uncommon_Quasar
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Small_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Quasar : Craftable_Common_Quasar
+Craftable_Epic_Quasar : Craftable_Uncommon_Quasar
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Small_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Proficiency_Craftable_Legendary_Quasar : Craftable_Common_Quasar
+Proficiency_Craftable_Legendary_Quasar : Craftable_Uncommon_Quasar
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Small_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Quasar_Patricia : Preset_Quasar_Default
 {
-	quality = "Quality.Legendary";
 	visualTags = 
+	[
+		"Pimp"
+	];
+	tags += 
 	[
 		"Pimp"
 	];
@@ -207,33 +407,210 @@ Preset_Quasar_Patricia : Preset_Quasar_Default
 			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__mag_stdr";
 		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericTechModList, 
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod1";
+			itemPartPreset = "Items.TechMod1_Common";
+		}, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModRare";
-		} : RareDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModEpic";
-		} : EpicDedicatedTechModList, 
-		{
-			slot = "AttachmentSlots.TechWeaponModLegendary";
-			itemPartPreset = "Items.Patricia_Weapon_Mod";
-		}
+			slot = "AttachmentSlots.Tech_Handgun_WeaponMod2";
+		} : Tech_Handgun_ModList_Slot2
 	];
 }
 
 [ notQueryable ]
-Patricia_Weapon_Mod : TechWeaponMod01
+Patricia_Weapon_Mod : TechMod1_Common
 {
-	quality = "Quality.Legendary";
+	tags += 
+	[
+		"HideInUI", "HideAtVendor"
+	];
+}
+
+[ notQueryable ]
+[ DisabledContent ]
+Preset_Quasar_Baron : Preset_Quasar_Default
+{
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "quasar_baron_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_NoMuzzle_Blueprint";
+	displayName = "LocKey#88461";
+	CName[] visualTags = 
+	[
+		"Baron_Quasar"
+	];
+	localizedDescription = "LocKey#88462";
+	tags += 
+	[
+		"IconicWeapon"
+	];
+	statModifiers += 
+	[
+		"Quality.IconicItem"
+	];
+	quality = "Quality.Random";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Items.Base_Quasar_NPC_Data;
+	slotPartListPreset = 
+	[
+		{
+			slot = "AttachmentSlots.Receiver";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__rcv1";
+		}, 
+		{
+			slot = "AttachmentSlots.Barrel";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__base1";
+		}, 
+		{
+			slot = "AttachmentSlots.Magazine";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__mag_std";
+		}, 
+		{
+			slot = "AttachmentSlots.MagazineEmpty";
+			fk< Item > itemPartPreset = "Items.w_revolver__darra_quasar__mag_stdr";
+		}, 
+		{
+			slot = "AttachmentSlots.IconicWeaponModLegendary";
+			itemPartPreset = "Items.QuasarBaronWeaponMod";
+		}
+	];
+	statModifierGroups = 
+	[
+		"Items.IconicQualityRandomization", "Items.Base_Quasar_Baron_Technical_Stats", "Items.Base_Quasar_Handling_Stats", "Items.Base_Quasar_Recoil_Stats", "Items.Base_Quasar_Spread_Stats", "Items.Base_Quasar_Aim_Stats", "Items.Base_Quasar_Baron_Constant_Stats", "Items.Base_Quasar_Damage_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats", "Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+	];
+}
+
+Base_Quasar_Baron_Technical_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.2f;
+		} : CycleTimeModifier, 
+		{
+			value = 16.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.01f;
+		} : CycleTime_BurstMaxChargeModifier, 
+		{
+			value = 1.f;
+		} : NumShotsInBurstMaxChargeModifier, 
+		{
+			value = 1.5f;
+		} : ChargeDischargeTimeModifier, 
+		{
+			value = 0.0f;
+		} : ChargeMaxTimeInChargedStateModifier, 
+		{
+			value = 0.5f;
+		} : ChargeReadyPercentageModifier, 
+		{
+			value = 1.5f;
+		} : ChargeTimeModifier, 
+		{
+			value = 100.f;
+		} : ChargeModifier, 
+		{
+			statType = "BaseStats.TechPierceEnabled";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			value = 0.2f;
+		} : TechPierceChargeLevelModifier
+	];
+}
+
+Base_Quasar_Baron_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.SpreadDefaultX";
+			modifierType = "Additive";
+			value = 1.4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxX";
+			modifierType = "Additive";
+			value = 5.6f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMin";
+			modifierType = "Additive";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilKickMax";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FullAutoOnFullCharge";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TechPierceDamageFactor";
+			modifierType = "Additive";
+			value = -0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.364f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
+	];
 }
 

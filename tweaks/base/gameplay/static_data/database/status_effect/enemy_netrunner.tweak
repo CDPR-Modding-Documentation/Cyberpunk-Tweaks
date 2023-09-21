@@ -88,6 +88,21 @@ HackingInterrupted : StatusEffect
 	};
 }
 
+HackRevealInterrupted : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
 RevealPosition : StatusEffect
 {
 	duration = 
@@ -112,12 +127,210 @@ RevealPosition : StatusEffect
 			];
 		} : GameplayLogicPackage
 	];
+	gameplayTags += 
+	[
+		"Ping"
+	];
 	uiData = 
 	{
 		displayName = "LocKey#53938";
 		iconPath = "stun_icon";
 		priority = -5.0f;
 	};
+}
+
+HackReveal : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "PingSquadEffector";
+					float level = 1.f;
+				} : Effector
+			];
+		} : GameplayLogicPackage, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					"Prereqs.PostProcessHitTriggered", {
+						statType = "HasBurningBuffs";
+						valueToCheck = 1;
+						comparisonType = "GreaterOrEqual";
+					} : StatPrereq
+				];
+			} : MultiPrereq;
+			CName effectorClassName = "AddStatusEffectToAttackEffector";
+			statusEffect = "BaseStatusEffect.Burning";
+			bool isRandom = false;
+		} : ApplyStatusEffectEffector
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack", "Ping"
+	];
+	uiData = 
+	{
+		displayName = "LocKey#53938";
+		iconPath = "stun_icon";
+		priority = -5.0f;
+	};
+}
+
+HackBlind : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.Blind";
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 8;
+			} : ConstantStatModifier
+		];
+	};
+	immunityStats = 
+	[
+		"BaseStats.BlindImmunity"
+	];
+	packages += 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.HasCybereye";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Accuracy";
+					modifierType = "Multiplier";
+					value = 0.01f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Evasion";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage, 
+		"AIQuickHackStatusEffect.QuickHack_GLP", {
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SwayTraversalTime";
+								modifierType = "Multiplier";
+								value = 0.9f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Multiplier";
+								value = 4.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Multiplier";
+								value = 2.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								modifierType = "Additive";
+								value = 4.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								modifierType = "Additive";
+								value = 2.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SwayStartDelay";
+								modifierType = "Multiplier";
+								value = 0f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAllowSway";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "Multiplier";
+								value = 2.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Multiplier";
+								value = 2.f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector, 
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "WeaponMalfunctionHudEffector";
+				} : Effector
+			];
+		}
+	];
+	AIData = 
+	{
+		float priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				allowedTypes = 
+				[
+					"NPCType.Human", "NPCType.Drone", "NPCType.Mech"
+				];
+			} : NPCTypePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	VFX = 
+	[
+		{
+			name = "status_blinded";
+		}
+	];
+	SFX = 
+	[
+		{
+			name = "status_blinded";
+		}
+	];
+	gameplayTags += 
+	[
+		"NPCQuickhack", "Blind", "ResetSquadSync"
+	];
+	uiData = "BaseStatusEffect.BaseBlindUI";
 }
 
 HackJamWeapon : DebuffStatusEffect
@@ -160,7 +373,7 @@ HackWeaponMalfunctionBase : DebuffStatusEffect
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 8;
+				value = 15;
 			} : ConstantStatModifier
 		];
 	};
@@ -197,89 +410,27 @@ HackWeaponMalfunction : HackWeaponMalfunctionBase
 							{
 								statType = "BaseStats.SwayTraversalTime";
 								modifierType = "Multiplier";
-								value = 0.225f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwaySideMaximumAngleDistance";
-								modifierType = "Multiplier";
-								value = 1.3f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwaySideMinimumAngleDistance";
-								modifierType = "Multiplier";
-								value = 1.3f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwaySideMaximumAngleDistance";
-								modifierType = "Additive";
-								value = 1.3f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwaySideMinimumAngleDistance";
-								modifierType = "Additive";
-								value = 1.3f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwayStartDelay";
-								modifierType = "Multiplier";
-								value = 0f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.RecoilAllowSway";
-								modifierType = "Additive";
-								value = 1f;
-							} : ConstantStatModifier
-						];
-					} : StatModifierGroup;
-					applicationTarget = "Weapon";
-				} : ApplyStatGroupEffector, 
-				{
-					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
-					CName effectorClassName = "WeaponMalfunctionHudEffector";
-				} : Effector
-			];
-		}
-	];
-}
-
-HackWeaponMalfunctionTier2 : HackWeaponMalfunctionBase
-{
-	packages += 
-	[
-		{
-			effectors = 
-			[
-				{
-					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
-					CName effectorClassName = "ApplyStatGroupEffector";
-					fk< StatModifierGroup > statGroup = 
-					{
-						statModifiers = 
-						[
-							{
-								statType = "BaseStats.SwayTraversalTime";
-								modifierType = "Multiplier";
 								value = 0.9f;
 							} : ConstantStatModifier, 
 							{
 								statType = "BaseStats.SwaySideMaximumAngleDistance";
 								modifierType = "Multiplier";
-								value = 1.2f;
+								value = 1.5f;
 							} : ConstantStatModifier, 
 							{
 								statType = "BaseStats.SwaySideMinimumAngleDistance";
 								modifierType = "Multiplier";
-								value = 1.2f;
+								value = 1.5f;
 							} : ConstantStatModifier, 
 							{
 								statType = "BaseStats.SwaySideMaximumAngleDistance";
 								modifierType = "Additive";
-								value = 1.2f;
+								value = 1.5f;
 							} : ConstantStatModifier, 
 							{
 								statType = "BaseStats.SwaySideMinimumAngleDistance";
 								modifierType = "Additive";
-								value = 1.2f;
+								value = 1.5f;
 							} : ConstantStatModifier, 
 							{
 								statType = "BaseStats.SwayStartDelay";
@@ -287,71 +438,144 @@ HackWeaponMalfunctionTier2 : HackWeaponMalfunctionBase
 								value = 0f;
 							} : ConstantStatModifier, 
 							{
+								statType = "BaseStats.SpreadDefaultX";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadDefaultY";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxX";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxY";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultY";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxX";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxY";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
 								statType = "BaseStats.RecoilAllowSway";
 								modifierType = "Additive";
 								value = 1f;
-							} : ConstantStatModifier
-						];
-					} : StatModifierGroup;
-					applicationTarget = "Weapon";
-				} : ApplyStatGroupEffector, 
-				{
-					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
-					CName effectorClassName = "WeaponMalfunctionHudEffector";
-				} : Effector
-			];
-		}
-	];
-}
-
-HackWeaponMalfunctionTier3 : HackWeaponMalfunctionBase
-{
-	packages += 
-	[
-		{
-			effectors = 
-			[
-				{
-					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
-					CName effectorClassName = "ApplyStatGroupEffector";
-					fk< StatModifierGroup > statGroup = 
-					{
-						statModifiers = 
-						[
-							{
-								statType = "BaseStats.SwayTraversalTime";
-								modifierType = "Multiplier";
-								value = 0.85f;
 							} : ConstantStatModifier, 
 							{
-								statType = "BaseStats.SwaySideMaximumAngleDistance";
-								modifierType = "Multiplier";
-								value = 1.2f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwaySideMinimumAngleDistance";
-								modifierType = "Multiplier";
-								value = 1.2f;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.SwaySideMaximumAngleDistance";
+								statType = "BaseStats.RecoilEnableScaleX";
 								modifierType = "Additive";
-								value = 1.2f;
+								value = 1.0f;
 							} : ConstantStatModifier, 
 							{
-								statType = "BaseStats.SwaySideMinimumAngleDistance";
+								statType = "BaseStats.RecoilEnableScaleY";
 								modifierType = "Additive";
-								value = 1.2f;
+								value = 1.0f;
 							} : ConstantStatModifier, 
 							{
-								statType = "BaseStats.SwayStartDelay";
+								statType = "BaseStats.RecoilScaleTime";
+								modifierType = "Additive";
+								value = 2.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilScaleMax";
+								modifierType = "Additive";
+								value = 2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Additive";
+								value = 0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMaxADS";
+								modifierType = "Additive";
+								value = 2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilDir";
+								modifierType = "Multiplier";
+								value = 1.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAngle";
+								modifierType = "Additive";
+								value = 20f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilAlternateDir";
+								modifierType = "Additive";
+								value = 50f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilDirPlanCycleRandRangeDir";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilDirPlanCycleRandDir";
+								modifierType = "Additive";
+								value = -1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilCycleTime";
+								modifierType = "Additive";
+								value = 1f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilCycleSize";
+								modifierType = "Additive";
+								value = 1.33f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SmartGunHitProbabilityMultiplier";
+								modifierType = "Additive";
+								value = -0.9f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.TechPierceEnabled";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.ChargeTime";
+								modifierType = "Multiplier";
+								value = 5.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HasSmartLink";
 								modifierType = "Multiplier";
 								value = 0f;
 							} : ConstantStatModifier, 
 							{
-								statType = "BaseStats.RecoilAllowSway";
+								statType = "BaseStats.CycleTimeBonus";
 								modifierType = "Additive";
-								value = 1f;
+								value = 2.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.DamagePerHit";
+								modifierType = "Multiplier";
+								value = 0.5f;
 							} : ConstantStatModifier
 						];
 					} : StatModifierGroup;
@@ -588,8 +812,8 @@ HackOverload : BaseOverload
 				{
 					prereqRecord = "Prereqs.AlwaysTruePrereq";
 					attackRecord = "Attacks.NPCElectricDamageOverTime";
-					bool playerAsInstigator = true;
-					CName attackPositionSlotName = "Chest";
+					playerAsInstigator = true;
+					attackPositionSlotName = "Chest";
 				} : Effectors.TriggerAttackOnOwnerEffect
 			];
 		} : GameplayLogicPackage
@@ -606,7 +830,7 @@ HackCyberware : DebuffStatusEffect
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 8;
+				value = 12;
 			} : ConstantStatModifier
 		];
 	};
@@ -621,7 +845,7 @@ HackCyberware : DebuffStatusEffect
 	uiData = 
 	{
 		displayName = "LocKey#40956";
-		iconPath = "stun_icon";
+		iconPath = "cyberware_disabled_icon";
 		priority = -3.0f;
 	};
 }
@@ -636,7 +860,7 @@ HackLocomotionBase : DebuffStatusEffect
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 8;
+				value = 12;
 			} : ConstantStatModifier
 		];
 	};
@@ -651,7 +875,7 @@ HackLocomotionBase : DebuffStatusEffect
 	uiData = 
 	{
 		displayName = "LocKey#40957";
-		iconPath = "stun_icon";
+		iconPath = "crippled_icon";
 		priority = -10.0f;
 	};
 }
@@ -839,22 +1063,37 @@ BuffCamo : BaseBuffQuickhack
 	packages += 
 	[
 		{
-			fk< StatModifier >[] stats = 
-			[
-				{
-					statType = "BaseStats.MaxSpeed";
-					modifierType = "Multiplier";
-					value = 2f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.JumpHeight";
-					modifierType = "Multiplier";
-					value = 1.2f;
-				} : ConstantStatModifier
-			];
 			effectors = 
 			[
 				"BaseStatusEffect.CamoEffector"
+			];
+		} : GameplayLogicPackage
+	];
+	uiData = 
+	{
+		displayName = "LocKey#40959";
+		iconPath = "stun_icon";
+		priority = -5.0f;
+	};
+}
+
+BuffICE : BaseBuffQuickhack
+{
+	packages += 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasQuickhackResistance";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasMajorQuickhackResistance";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
 	];
@@ -1032,5 +1271,36 @@ TrackedVirus : DebuffStatusEffect
 		iconPath = "stun_icon";
 		priority = -5.0f;
 	};
+}
+
+HackDeathStaticNoise : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					activationSFXName = "ui_death_hacked";
+					bool fireAndForget = true;
+				} : PlaySFXEffector
+			];
+		} : GameplayLogicPackage
+	];
 }
 

@@ -1,5 +1,5 @@
 package MovementActions
-using RTDB, AIActionTarget
+using RTDB, AIActionTarget, ItemHandling
 
 ChargeJumpTag : MovementPolicyTagList
 {
@@ -34,6 +34,15 @@ MovementPolicyCompositeDefault : AIActionSmartComposite
 	nodes = 
 	[
 		"MovementActions.SuccessWhileHacking", "MovementActions.SuccessWhileCharging", "MovementActions.LocomotionMalfunction", "MovementActions.SuccessOnInterruptionSignals", "MovementActions.CatchUpSelector", "MovementActions.SandevistanHarassMovementSelector", "MovementActions.CloseRingSelector", "MovementActions.FarRingSelector", "GenericArchetype.RingSelector", "MovementActions.HoldPosition", "GenericArchetype.Success"
+	];
+}
+
+MovementPolicyComposite_Retreat : AIActionSmartComposite
+{
+	repeat = 0;
+	nodes = 
+	[
+		"MovementActions.SuccessWhileHacking", "MovementActions.SuccessWhileCharging", "MovementActions.LocomotionMalfunction", "MovementActions.SuccessOnInterruptionSignals", "MovementActions.CatchUpSelector", "MovementActions.SandevistanHarassMovementSelector", "MovementActions.FarRingRetreatSelector", "MovementActions.HoldPosition", "GenericArchetype.Success"
 	];
 }
 
@@ -1483,6 +1492,86 @@ FarRing : SquadRingDefault
 	];
 }
 
+FarRing_Retreat : SquadRingDefault
+{
+	tickets = 
+	[
+		"AITicketType.FarRing"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.FarRingPathMovePolicyCooldown"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			keepLineOfSight = "Keep";
+			ring = "AIRingType.Far";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 15.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"MovementActions.RingDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove20m", {
+							AND = 
+							[
+								"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+									OR = 
+									[
+										"Condition.CanGoToMediumRingCovers", "Condition.CanGoToExtremeRingCovers"
+									];
+								} : AIActionOR
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			multiplier = 5.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+			remove = false;
+			apply = true;
+		} : AISubActionStatusEffect, 
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "FarRingPathMovePolicy";
+				} : MovementActions.PathMovePolicyCooldown, 
+				"MovementActions.RMAMovePolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
 FarRing1stFilter : FarRing
 {
 	tickets = 
@@ -1641,6 +1730,14 @@ FarRing2ndFilterNoLimit : FarRing1stFilterNoLimit
 	];
 }
 
+FarRing2ndFilterNoLimit_Retreat : FarRing_Retreat
+{
+	tickets = 
+	[
+		"AITicketType.FarRing2ndFilter"
+	];
+}
+
 ExtremeRingCooldown : RingCooldown
 {
 	name = "ExtremeRing";
@@ -1738,6 +1835,94 @@ ExtremeRing : SquadRingDefault
 				"MovementActions.RMAMovePolicyCooldown"
 			];
 		} : AISubActionStartCooldown
+	];
+}
+
+ExtremeRing_Retreat : SquadRingDefault
+{
+	tickets = 
+	[
+		"AITicketType.ExtremeRing"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ExtremeRingPathMovePolicyCooldown"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			ring = "AIRingType.Extreme";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"MovementActions.RingDeactivationCondition", {
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetAbove20m", {
+							AND = 
+							[
+								"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+									OR = 
+									[
+										"Condition.CanGoToMediumRingCovers", "Condition.CanGoToFarRingCovers"
+									];
+								} : AIActionOR
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "ExtremeRingPathMovePolicy";
+				} : MovementActions.PathMovePolicyCooldown, 
+				"MovementActions.RMAMovePolicyCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			multiplier = 5.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+			remove = true;
+			apply = true;
+		} : AISubActionStatusEffect, 
+		{
+			name = "fx_sandevistan_right";
+		} : AISubActionSpawnFX, 
+		{
+		} : AISubActionDisableAimAssist
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
 	];
 }
 
@@ -1899,6 +2084,14 @@ ExtremeRing2ndFilterNoLimit : ExtremeRing1stFilterNoLimit
 	];
 }
 
+ExtremeRing2ndFilterNoLimit_Retreat : ExtremeRing_Retreat
+{
+	tickets = 
+	[
+		"AITicketType.ExtremeRing2ndFilter"
+	];
+}
+
 SuccessOnInterruptionSignals : AIAction
 {
 	activationCondition = 
@@ -2006,7 +2199,7 @@ NotLocomotionMalfunctionCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2"
+				"Condition.NotStatusEffectLocomotionMalfunction", "Condition.NotStatusEffectLocomotionMalfunctionLevel2", "Condition.NotStatusEffectLocomotionMalfunctionLevel3", "Condition.NotStatusEffectLocomotionMalfunctionLevel4"
 			];
 		} : AIActionAND;
 	};
@@ -2895,6 +3088,43 @@ CommandHoldPosition : AIAction
 	};
 }
 
+HoldPositionUntilHit : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatTarget", "Condition.NotHitTimeout5", "Condition.TargetAbove30m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 10.f;
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+			keepLineOfSight = "Keep";
+			lineOfSightPointPreference = "ClosestToTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.3f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow30m", "Condition.HitTimeout5"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
 CatchUpWalk : AIAction
 {
 	tickets = 
@@ -2907,7 +3137,12 @@ CatchUpWalk : AIAction
 		{
 			AND = 
 			[
-				"Condition.AbilityCanCatchUp", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.CatchUpAccuracyCondition", "Condition.NotTargetIsVisible", "Condition.TargetAbove5m"
+				"Condition.AbilityCanCatchUp", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.CatchUpAccuracyCondition", "Condition.NotTargetIsVisible", "Condition.TargetAbove5m", {
+					OR = 
+					[
+						"Condition.IsNotFromPreventionSystem", "Condition.MinAccuracyValue0dot66"
+					];
+				} : AIActionOR
 			];
 		} : AIActionAND;
 	};
@@ -2943,6 +3178,12 @@ CatchUpWalk : AIAction
 							[
 								"Condition.MinAccuracyValue0dot95", "Condition.TargetIsVisible"
 							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.IsFromPreventionSystem", "Condition.NotMinAccuracyValue0dot66"
+							];
 						} : AIActionAND
 					];
 				} : AIActionOR;
@@ -2960,7 +3201,10 @@ CatchUpWalk : AIAction
 				} : MovementActions.SetDesiredCoverCooldown, 
 				"MovementActions.PathMovePolicyLongCooldown", "MovementActions.PauseByDynamicCollisionCooldown"
 			];
-		} : AISubActionStartCooldown, 
+		} : AISubActionStartCooldown
+	];
+	loopSubActions = 
+	[
 		{
 			source = "AIThreatPersistenceSource.CatchUp";
 		} : AISubActionSetTopThreatPersistance
@@ -2979,7 +3223,12 @@ CatchUpSprint : AIAction
 		{
 			AND = 
 			[
-				"Condition.AbilityCanCatchUp", "Condition.AbilityCanSprint", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.TargetAbove12m", "Condition.CatchUpAccuracyCondition", "Condition.NotTargetIsVisible", "Condition.NotWounded"
+				"Condition.AbilityCanCatchUp", "Condition.AbilityCanSprint", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.TargetAbove12m", "Condition.CatchUpAccuracyCondition", "Condition.NotTargetIsVisible", "Condition.NotWounded", {
+					OR = 
+					[
+						"Condition.IsNotFromPreventionSystem", "Condition.MinAccuracyValue0dot66"
+					];
+				} : AIActionOR
 			];
 		} : AIActionAND;
 	};
@@ -3015,6 +3264,12 @@ CatchUpSprint : AIAction
 							[
 								"Condition.TargetBelow9m", "Condition.AbilityIsDefensive"
 							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.IsFromPreventionSystem", "Condition.NotMinAccuracyValue0dot66"
+							];
 						} : AIActionAND
 					];
 				} : AIActionOR;
@@ -3032,7 +3287,10 @@ CatchUpSprint : AIAction
 				} : MovementActions.SetDesiredCoverCooldown, 
 				"MovementActions.PathMovePolicyLongCooldown", "MovementActions.PauseByDynamicCollisionCooldown", "MovementActions.CoverBehaviorAfterCatchupCooldown"
 			];
-		} : AISubActionStartCooldown, 
+		} : AISubActionStartCooldown
+	];
+	loopSubActions = 
+	[
 		{
 			source = "AIThreatPersistenceSource.CatchUp";
 		} : AISubActionSetTopThreatPersistance
@@ -3075,7 +3333,10 @@ SandevistanCatchUpSprint : CatchUpSprint
 			name = "fx_sandevistan_right";
 		} : AISubActionSpawnFX, 
 		{
-		} : AISubActionDisableAimAssist, 
+		} : AISubActionDisableAimAssist
+	];
+	loopSubActions = 
+	[
 		{
 			source = "AIThreatPersistenceSource.CatchUp";
 		} : AISubActionSetTopThreatPersistance
@@ -3104,7 +3365,12 @@ CatchUpDistance : AIAction
 						"Condition.NotOptimalDistance6mToleranceFailWhenCloser", "Condition.NotInRestrictedMovementArea"
 					];
 				} : AIActionOR, 
-				"Condition.NotValidCoversWithLOSCurrentRing", "Condition.TargetAbove7m", "Condition.HitMovePolicyCooldown", "Condition.PathMovePolicyLongCooldown", "Condition.CatchupDistanceDestinationReachedCooldown"
+				"Condition.NotValidCoversWithLOSCurrentRing", "Condition.TargetAbove7m", "Condition.HitMovePolicyCooldown", "Condition.PathMovePolicyLongCooldown", "Condition.CatchupDistanceDestinationReachedCooldown", {
+					OR = 
+					[
+						"Condition.IsNotFromPreventionSystem", "Condition.MinAccuracyValue0dot66"
+					];
+				} : AIActionOR
 			];
 		} : AIActionAND;
 	};
@@ -3134,7 +3400,12 @@ CatchUpDistance : AIAction
 								"Condition.OptimalDistance", "Condition.InRestrictedMovementArea"
 							];
 						} : AIActionAND, 
-						"Condition.InStatesStatic", "Condition.TicketTakeCover", "Condition.TicketQuickhack", "Condition.TicketEquip", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.ValidCoversWithLOSCurrentRing", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached"
+						"Condition.InStatesStatic", "Condition.TicketTakeCover", "Condition.TicketQuickhack", "Condition.TicketEquip", "Condition.InterruptRingAction", "Condition.CombatTargetChanged", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.ValidCoversWithLOSCurrentRing", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached", {
+							AND = 
+							[
+								"Condition.IsFromPreventionSystem", "Condition.NotMinAccuracyValue0dot66"
+							];
+						} : AIActionAND
 					];
 				} : AIActionOR;
 			}
@@ -3257,7 +3528,15 @@ SprintHarassCompositeSequence : AIActionSmartComposite
 					"Condition.NotIsUsingOffMeshLink", {
 						OR = 
 						[
-							"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InSafeZone", "Condition.CombatTargetChanged", "Condition.TargetBelow7m", "Condition.PathFindingFailed", "Condition.NotInRestrictedMovementArea", "Condition.GracefulCombatInterruptionCompound"
+							"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.InSafeZone", "Condition.CombatTargetChanged", "Condition.TargetBelow7m", "Condition.PathFindingFailed", "Condition.NotInRestrictedMovementArea", "Condition.GracefulCombatInterruptionCompound", {
+								AND = 
+								[
+									{
+										invert = true;
+									} : SprintHarassDashCommonCondition, 
+									"MovementActions.SprintHarassNextPhaseCondition"
+								];
+							} : AIActionAND
 						];
 					} : AIActionOR
 				];
@@ -3284,6 +3563,14 @@ SprintHarassDashRightSelector : AIActionSelector
 	];
 }
 
+SprintHarassDashCommonCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.TargetUpTo1dot4mZDiff", "Condition.NotCombatTargetChanged", "Condition.TargetAbove7m", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTicketEquip"
+	];
+}
+
 SprintHarassDashLeft : AIAction
 {
 	activationCondition = 
@@ -3292,7 +3579,7 @@ SprintHarassDashLeft : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotCombatTargetChanged", "Condition.TargetAbove7m", "Condition.TargetUpTo1dot4mZDiff", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTicketEquip", "Condition.CalculatePathStraightFullCheckFrontLeftClose", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotOptimalDistance4mToleranceCloseRing"
+				"MovementActions.SprintHarassDashCommonCondition", "Condition.CalculatePathStraightFullCheckFrontLeftClose", "Condition.CalculatePathStraightFullCheckLeftClose", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotOptimalDistance4mToleranceCloseRing"
 			];
 		} : AIActionAND;
 	};
@@ -3356,7 +3643,7 @@ SprintHarassDashRight : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotCombatTargetChanged", "Condition.TargetAbove7m", "Condition.TargetUpTo1dot4mZDiff", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTicketEquip", "Condition.CalculatePathStraightFullCheckFrontRightClose", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotOptimalDistance4mToleranceCloseRing"
+				"MovementActions.SprintHarassDashCommonCondition", "Condition.CalculatePathStraightFullCheckFrontRightClose", "Condition.CalculatePathStraightFullCheckRightClose", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.NotOptimalDistance4mToleranceCloseRing"
 			];
 		} : AIActionAND;
 	};
@@ -3420,7 +3707,7 @@ SprintHarassDashFrontL : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotCombatTargetChanged", "Condition.TargetAbove7m", "Condition.TargetUpTo1dot4mZDiff", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTicketEquip", "Condition.CalculatePathStraightFullCheckToTarget"
+				"MovementActions.SprintHarassDashCommonCondition", "Condition.CalculatePathStraightFullCheckToTarget"
 			];
 		} : AIActionAND;
 	};
@@ -3484,7 +3771,7 @@ SprintHarassDashFrontR : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotCombatTargetChanged", "Condition.TargetAbove7m", "Condition.TargetUpTo1dot4mZDiff", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotTicketEquip", "Condition.CalculatePathStraightFullCheckToTarget"
+				"MovementActions.SprintHarassDashCommonCondition", "Condition.CalculatePathStraightFullCheckToTarget"
 			];
 		} : AIActionAND;
 	};
@@ -3540,6 +3827,20 @@ SprintHarassDashFrontR : AIAction
 	];
 }
 
+SprintHarassNextPhaseCondition : AIActionOR
+{
+	OR = 
+	[
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo1dot4mZDiff", "Condition.CalculatePathStraightFullCheckToTarget"
+			];
+		} : AIActionAND, 
+		"Condition.TargetBelow7m", "Condition.TicketEquip", "Condition.CombatTargetChanged", "Condition.TargetInSafeZone", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached", "Condition.NotInRestrictedMovementArea", "Condition.GracefulCombatInterruptionCompound"
+	];
+}
+
 SprintHarass : AIAction
 {
 	activationCondition = 
@@ -3558,6 +3859,7 @@ SprintHarass : AIAction
 		{
 			target = "AIActionTarget.CombatTarget";
 			distance = 1.5f;
+			tolerance = 3.5f;
 			movementType = "Sprint";
 			keepLineOfSight = "Keep";
 			dontUseStart = true;
@@ -3569,19 +3871,7 @@ SprintHarass : AIAction
 		toNextPhaseCondition = 
 		[
 			{
-				condition = 
-				{
-					OR = 
-					[
-						{
-							AND = 
-							[
-								"Condition.TargetUpTo1dot4mZDiff", "Condition.CalculatePathStraightFullCheckToTarget"
-							];
-						} : AIActionAND, 
-						"Condition.TargetBelow7m", "Condition.TicketEquip", "Condition.CombatTargetChanged", "Condition.TargetInSafeZone", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached", "Condition.NotInRestrictedMovementArea", "Condition.GracefulCombatInterruptionCompound"
-					];
-				} : AIActionOR;
+				condition = "MovementActions.SprintHarassNextPhaseCondition";
 			}
 		];
 	};
@@ -4013,6 +4303,146 @@ SandevistanHarassBackAway : MovementActions.SquadRingDefault
 				"MovementActions.RMAMovePolicyCooldown"
 			];
 		} : AISubActionStartCooldown
+	];
+}
+
+CatchUpToMeleeTargetOnHardWalk : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CatchUpToMeleePlayerOnHard"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityIsNetrunnerArchetype", "Condition.NotAbilityIsSniperArchetype"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Keep";
+			ring = "AIRingType.Close";
+			avoidThreatRange = 5.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsPauseByDynamicCollision", "Condition.DestinationReached", "Condition.TargetBelow3m", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					duration = 0.f;
+				} : MovementActions.SetDesiredCoverCooldown, 
+				"MovementActions.PathMovePolicyLongCooldown", "MovementActions.PauseByDynamicCollisionCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.NoCover"
+			];
+		} : AISubActionStatusEffect
+	];
+	loopSubActions = 
+	[
+		{
+			source = "AIThreatPersistenceSource.CatchUp";
+		} : AISubActionSetTopThreatPersistance
+	];
+}
+
+CatchUpToMeleeTargetOnVeryHardWalk : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.CatchUpToMeleePlayerOnVeryHard"
+	];
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAbilityIsNetrunnerArchetype", "Condition.NotAbilityIsSniperArchetype"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Keep";
+			ring = "AIRingType.Close";
+			avoidThreatRange = 5.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.IsPauseByDynamicCollision", "Condition.DestinationReached", "Condition.TargetBelow3m", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					duration = 0.f;
+				} : MovementActions.SetDesiredCoverCooldown, 
+				"MovementActions.PathMovePolicyLongCooldown", "MovementActions.PauseByDynamicCollisionCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.NoCover"
+			];
+		} : AISubActionStatusEffect
+	];
+	loopSubActions = 
+	[
+		{
+			source = "AIThreatPersistenceSource.CatchUp";
+		} : AISubActionSetTopThreatPersistance
 	];
 }
 
@@ -6010,7 +6440,7 @@ RangedAvoidLOSSequence : AIActionSequence
 {
 	actions = 
 	[
-		"MovementActions.RangedAvoidLOSWalk", "MovementActions.RangedAvoidLOSHoldPosition"
+		"MovementActions.SuccessWhileHacking", "MovementActions.RangedAvoidLOSWalk", "MovementActions.RangedAvoidLOSHoldPosition"
 	];
 }
 
@@ -6085,7 +6515,7 @@ RangedAvoidLOSWalk : AIAction
 				{
 					OR = 
 					[
-						"Condition.TicketTakeCover", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed", "Condition.NotMinAccuracyValue0dot95", "Condition.CloseToAvoidPos", {
+						"Condition.TicketTakeCover", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.PathFindingFailed", "Condition.NotMinAccuracyValue0dot95", "Condition.CloseToAvoidPos", "Condition.TicketQuickhack", {
 							AND = 
 							[
 								"Condition.HasAssaultWeapon", {
@@ -6121,7 +6551,7 @@ RangedAvoidLOSHoldPosition : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotMinAccuracyValue0dot95", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsInWorkspot", "Condition.NotTicketTakeCover"
+				"Condition.NotTargetIsVisible", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.NotIsInWorkspot", "Condition.NotTicketTakeCover"
 			];
 		} : AIActionAND;
 	};
@@ -6139,7 +6569,7 @@ RangedAvoidLOSHoldPosition : AIAction
 				{
 					OR = 
 					[
-						"Condition.MinAccuracyValue0dot95", "Condition.TicketTakeCover", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", {
+						"Condition.TargetIsVisible", "Condition.TicketTakeCover", "Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", {
 							AND = 
 							[
 								"Condition.HasAssaultWeapon", {
@@ -6407,6 +6837,250 @@ MeleeAvoidLOSIdle : AIAction
 	};
 }
 
+WalkAwayFromCyberpsychoCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.CombatTarget", "Condition.NotHitTimeout5", "Condition.TargetAbove15m"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+}
+
+RunAwayFromCyberpsychoCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.CombatTarget", "Condition.NotHitTimeout5"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+}
+
+RunAwayFromCyberpsycho : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.CombatTarget", "Condition.NotHitTimeout5"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			avoidThreatRange = 20.f;
+			avoidThreatCost = 10.f;
+			target = "AIActionTarget.CombatTarget";
+			distance = 70.f;
+			tolerance = 5.f;
+			movementType = "Sprint";
+			avoidSafeArea = true;
+			ignoreCollisionAvoidance = false;
+			ignoreSpotReservation = false;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						{
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.TargetAbove60m", "Condition.HitTimeout5"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+RetreatFromCyberpsycho : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CombatTarget"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			avoidThreatRange = 20.f;
+			avoidThreatCost = 10.f;
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			distance = 60.f;
+			tolerance = 0.f;
+			movementType = "Walk";
+			avoidSafeArea = true;
+			ignoreCollisionAvoidance = false;
+			ignoreSpotReservation = false;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.PathFindingFailed", "Condition.TargetAbove50m", "Condition.DestinationReached"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loopEndCondition = 
+	{
+		OR = 
+		[
+			"Condition.TargetAbove50m"
+		];
+	} : AIActionOR;
+}
+
+ShouldNPCStartCatchingUpCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetRealPositionAbove30m"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintCatchUpWithTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AbilityCanSprint", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.TargetAbove10m", "Condition.NotHitTimeout5"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			tolerance = 2.f;
+			distance = 5.f;
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.HitTimeout5", "Condition.CombatTargetChanged", "Condition.AIMoveCommand", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+WalkCatchUpWithTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone", "Condition.TargetAbove10m", "Condition.CombatTarget"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			distance = 5.f;
+			tolerance = 2.f;
+			movementType = "Walk";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged", "Condition.AIMoveCommand", "Condition.PathFindingFailed", "Condition.IsPauseByDynamicCollision", "Condition.DestinationReached"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
 OpticalCamoActivationSelector : AIActionSelector
 {
 	activationCondition = 
@@ -6458,6 +7132,60 @@ OpticalCamoActivation : AIAction
 	];
 }
 
+OpticalCamoActivationForceNoConditions : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+OpticalCamoDeactivation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectOpticalCamo"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
 StopMoving : MovementPolicy
 {
 }
@@ -6490,5 +7218,99 @@ TestOffMeshTags : AIAction
 			}
 		];
 	};
+}
+
+MediumRing1stFilterLOS_MaxTacSniper : MediumRing1stFilter
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MediumRingPathMovePolicyCooldown", "Condition.MediumRingLOSMovePolicyCooldown"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Sprint";
+			keepLineOfSight = "Keep";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.4f;
+		toNextPhaseCondition = 
+		[
+			"MovementActions.RingDeactivationCondition", {
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.AbilityCanUseCovers", "Condition.NotValidCoversCurrentRing", {
+							OR = 
+							[
+								"Condition.CanGoToFarRingCovers", "Condition.CanGoToExtremeRingCovers"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "MediumRingLOSMovePolicy";
+				} : MovementActions.LOSMovePolicyCooldown, 
+				{
+					name = "MediumRingPathMovePolicy";
+				} : MovementActions.PathMovePolicyCooldown, 
+				"MovementActions.RMAMovePolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MaxTacMovement_ThrowGrenadeSmoke : ItemHandling.ThrowGrenade
+{
+	tickets = 
+	[
+		"AITicketType.SmokeGrenadeThrow"
+	];
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.29f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+		} : AISubActionThrowItem
+	];
+}
+
+FarRingRetreatSelector : AIActionSelector
+{
+	actions = 
+	[
+		"MovementActions.ExtremeRing2ndFilterNoLimit_Retreat", "MovementActions.FarRing2ndFilterNoLimit_Retreat", "MovementActions.SquadRingDefault"
+	];
 }
 

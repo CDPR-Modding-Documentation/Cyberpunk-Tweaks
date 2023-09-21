@@ -4,14 +4,14 @@ using RTDB, BaseStats, WeaponFxPackage, EquipmentGLP
 [ notQueryable ]
 Base_Carnage : Base_Power_Shotgun
 {
-	fk< ItemBlueprint > blueprint = "Items.Base_Shotgun_NoScope_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Shotgun_NoAttachments_Blueprint";
 	buyPrice += 
 	[
-		"Price.BudgetArms", "Price.LowManufactureQuality"
+		"Price.BudgetArms", "Price.LowManufactureQuality", "Price.CarnageMultiplier"
 	];
 	sellPrice += 
 	[
-		"Price.BudgetArms", "Price.LowManufactureQuality"
+		"Price.BudgetArms", "Price.LowManufactureQuality", "Price.CarnageMultiplier"
 	];
 	displayName = "LocKey#3617";
 	string friendlyName = "w_shotgun_budget_carnage";
@@ -23,6 +23,7 @@ Base_Carnage : Base_Power_Shotgun
 	} : ConstantStatModifier;
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Carnage";
 	localizedDescription = "LocKey#3618";
+	gameplayDescription = "LocKey#92668";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
 		{
@@ -80,25 +81,24 @@ Base_Carnage : Base_Power_Shotgun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Carnage_NPC_Technical_Stats"
 		];
-	} : Base_Power_Shotgun_NPC_Data;
+	} : Base_Carnage_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Carnage_Technical_Stats", "Items.Base_Carnage_Handling_Stats", "Items.Base_Carnage_Recoil_Stats", "Items.Base_Carnage_Spread_Stats", "Items.Base_Carnage_Aim_Stats", "Items.Base_Carnage_Constant_Stats"
+		"Items.Base_Carnage_Technical_Stats", "Items.Base_Carnage_Handling_Stats", "Items.Base_Carnage_Recoil_Stats", "Items.Base_Carnage_Spread_Stats", "Items.Base_Carnage_Aim_Stats", "Items.Base_Carnage_Constant_Stats", "Items.Base_Carnage_Damage_Stats"
 	];
 	fk< GameplayLogicPackage >[] OnAttach += 
 	[
-		"EquipmentGLP.BorgWeaponStagger"
+		"EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.VeryHeavyStaminaDelay", "EquipmentGLP.VeryHeavyWeapon"
 	];
 	bool saveStatPools = true;
-	fk< Crosshair > crosshair = "Crosshairs.Power_Tactician";
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerShotgun";
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 1.5f;
-	baseEmptyReloadTime = 3.f;
-	uninterruptibleReloadStart = 1.f;
-	uninterruptibleEmptyReloadStart = 1.2f;
+	baseReloadTime = 0.75f;
+	baseEmptyReloadTime = 1.5f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -119,7 +119,7 @@ Base_Carnage_NPC_Data : Base_Power_Shotgun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Carnage_Technical_Stats"
+		"Items.Base_Carnage_NPC_Technical_Stats", "Items.Base_Carnage_NPC_Damage_Stats"
 	];
 }
 
@@ -134,7 +134,7 @@ Base_Carnage_Technical_Stats : StatModifierGroup
 			value = 1.25f;
 		} : CycleTimeModifier, 
 		{
-			value = 5.f;
+			value = 4.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 1.0f;
@@ -142,19 +142,34 @@ Base_Carnage_Technical_Stats : StatModifierGroup
 		{
 			value = 10.f;
 		} : ProjectilesPerShotModifier, 
-		"BaseStats.ProjectilesPerShotCombinedModifier", {
-			statType = "BaseStats.Strength";
-			modifierType = "Additive";
-			value = 10.f;
-		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.Strength";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanUseStrongArms";
-			refObject = "Player";
-			opSymbol = "*";
-			value = -1f;
-		} : CombinedStatModifier
+			value = 10.f;
+		} : KnockdownImpulseModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier"
+	];
+}
+
+Base_Carnage_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 73f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Carnage_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 85f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -169,14 +184,17 @@ Base_Carnage_NPC_Technical_Stats : StatModifierGroup
 			value = 1.25f;
 		} : CycleTimeModifier, 
 		{
-			value = 5.f;
+			value = 4.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 1.0f;
 		} : ReloadAmountModifier, 
 		{
-			value = 6.f;
+			value = 7.f;
 		} : ProjectilesPerShotModifier, 
+		{
+			value = 20.f;
+		} : KnockdownImpulseModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier"
 	];
 }
@@ -186,13 +204,19 @@ Base_Carnage_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 1.5f;
+			value = 0.75f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.f;
+			value = 1.5f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.2f;
+			value = 0.75f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.5f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.1f;
 		} : ZoomLevelModifier, 
 		{
 			value = 3.5f;
@@ -254,10 +278,10 @@ Base_Carnage_Spread_Stats : StatModifierGroup
 			value = 0.75f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.5f;
+			value = 1.25f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.5f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -292,42 +316,42 @@ Base_Carnage_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 5.f;
+			value = 3.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 5.f;
+			value = 2.3f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 7.0f;
+			value = 3.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 7.0f;
+			value = 2.3f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 10.f;
+			value = 6.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 11.f;
+			value = 7.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilDriftRandomRangeMin";
@@ -340,9 +364,19 @@ Base_Carnage_Constant_Stats : StatModifierGroup
 			value = 1.f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DamagePerHit";
+			statType = "BaseStats.EffectiveRange";
 			modifierType = "Multiplier";
-			value = 1.1f;
+			value = 0.6667;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.165f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
+			modifierType = "Additive";
+			value = 0.30f;
 		} : ConstantStatModifier
 	];
 }

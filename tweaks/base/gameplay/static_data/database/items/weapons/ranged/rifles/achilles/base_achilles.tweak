@@ -19,7 +19,7 @@ Base_Achilles : Base_Tech_Precision_Rifle
 	CName audioName = "wea_set_achilles";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Precision"
+		"Preload", "Weapon", "Rifle Precision", "T2_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -80,7 +80,7 @@ Base_Achilles : Base_Tech_Precision_Rifle
 	];
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "pierce";
-	fk< Crosshair > crosshair = "Crosshairs.Tech_Round";
+	fk< Crosshair > crosshair = "Crosshairs.Hex";
 	fk< WeaponFxPackage > fxPackage = 
 	{
 	} : WeaponFxPackage.TechRifle;
@@ -89,24 +89,27 @@ Base_Achilles : Base_Tech_Precision_Rifle
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Achilles_NPC_Technical_Stats"
 		];
-	} : Base_Tech_Precision_Rifle_NPC_Data;
+	} : Base_Achilles_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Achilles_Technical_Stats", "Items.Base_Achilles_Handling_Stats", "Items.Base_Achilles_Recoil_Stats", "Items.Base_Achilles_Spread_Stats", "Items.Base_Achilles_Aim_Stats", "Items.Base_Achilles_Constant_Stats"
+		"Items.Base_Achilles_Technical_Stats", "Items.Base_Achilles_Handling_Stats", "Items.Base_Achilles_Recoil_Stats", "Items.Base_Achilles_Spread_Stats", "Items.Base_Achilles_Aim_Stats", "Items.Base_Achilles_Constant_Stats", "Items.Base_Achilles_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.MediumStaminaDelay"
 	];
 	fk< ConstantStatModifier > price = 
 	{
 		statType = "BaseStats.Price";
 		modifierType = "Additive";
-		value = 120;
+		value = 80f;
 	} : ConstantStatModifier;
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 3.4f;
-	baseEmptyReloadTime = 3.4f;
-	uninterruptibleReloadStart = 1.7f;
-	uninterruptibleEmptyReloadStart = 1.9f;
+	baseReloadTime = 2.25f;
+	baseEmptyReloadTime = 2.25f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 12.31f;
 	float weaponFarPlane = 22.5f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -127,7 +130,7 @@ Base_Achilles_NPC_Data : Base_Tech_Precision_Rifle_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Achilles_Technical_Stats"
+		"Items.Base_Achilles_NPC_Technical_Stats", "Items.Base_Achilles_NPC_Damage_Stats"
 	];
 }
 
@@ -157,13 +160,38 @@ Base_Achilles_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : ChargeDischargeTimeModifier, 
 		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
 			value = 1.f;
-		} : ConstantStatModifier, 
+		} : TechPierceEnabledModifier, 
 		{
 			value = 0.9f;
-		} : TechPierceChargeLevelModifier
+		} : TechPierceChargeLevelModifier, 
+		{
+			value = -0.25f;
+		} : TechPierceDamageFactorModifier
+	];
+}
+
+Base_Achilles_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 44f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Achilles_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 60f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -178,32 +206,30 @@ Base_Achilles_NPC_Technical_Stats : StatModifierGroup
 			value = 0.2f;
 		} : CycleTimeModifier, 
 		{
-			value = 12.f;
+			value = 9.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 3.f;
+			value = 1.f;
 		} : ProjectilesPerShotModifier, 
-		"BaseStats.ProjectilesPerShotCombinedModifier", {
+		{
 			value = 100.f;
 		} : ChargeModifier, 
 		{
-			value = 2.0f;
+			value = 0.25f;
 		} : ChargeTimeModifier, 
 		{
 			value = 1.f;
 		} : ChargeDischargeTimeModifier, 
-		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Additive";
-			value = 1.f;
-		} : ConstantStatModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.f;
+		} : TechPierceEnabledModifier, 
 		{
 			value = 0.9f;
 		} : TechPierceChargeLevelModifier, 
 		{
 			statType = "BaseStats.SpreadMaxAI";
 			modifierType = "Additive";
-			value = 3.0f;
+			value = 2.0f;
 		} : ConstantStatModifier
 	];
 }
@@ -213,20 +239,23 @@ Base_Achilles_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 3.4f;
+			value = 2.25f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.4f;
+			value = 2.25f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 2.f;
+			value = 1.5f;
 		} : ZoomLevelModifier, 
 		{
 			value = 6.f;
 		} : EquipDuration_FirstModifier, 
 		{
-			value = 0.3f;
-		} : ReloadEndTimeModifier
+			value = 1.45f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.45f;
+		} : EmptyReloadEndTimeModifier
 	];
 }
 
@@ -272,25 +301,25 @@ Base_Achilles_Spread_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 0.2f;
+			value = 0.20f;
 		} : SpreadMinXModifier, 
 		{
-			value = 0.125f;
+			value = 0.20f;
 		} : SpreadMinYModifier, 
 		{
 			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.f;
+			value = 0.20f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 0.125f;
+			value = 0.20f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 6.f;
+			value = 1.75f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.25f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -305,17 +334,11 @@ Base_Achilles_Spread_Stats : StatModifierGroup
 			value = 1.f;
 		} : SpreadEvenDistributionRowCountModifier, 
 		{
-			value = -0.8f;
+			value = -0.25f;
 		} : SpreadChargeMultModifier, 
 		{
-			value = -0.0f;
-		} : SpreadFullChargeMultModifier, 
-		{
-			value = -0.8f;
-		} : SpreadAdsChargeMultModifier, 
-		{
-			value = -0.0f;
-		} : SpreadAdsFullChargeMultModifier
+			value = -0.25f;
+		} : SpreadAdsChargeMultModifier
 	];
 }
 
@@ -343,43 +366,67 @@ Base_Achilles_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.33f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 8.0f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 0.33f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.SpreadChangePerShot";
-			modifierType = "Additive";
-			value = 1.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsChangePerShot";
-			modifierType = "Additive";
-			value = 1.f;
+			statType = "BaseStats.SpreadZeroOnFirstShot";
+			modifierType = "Multiplier";
+			value = 0.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 2.f;
+			value = 1.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 2.5f;
-		} : ConstantStatModifier
+			value = 2.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.727f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium", {
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.05f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
 	];
 }
 

@@ -19,7 +19,7 @@ Base_RocketLauncher : Base_Power_Sniper_Rifle
 	CName audioName = "wea_set_grad";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Sniper", "AnimCycleRound"
+		"Preload", "Weapon", "AnimCycleRound"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -68,7 +68,7 @@ Base_RocketLauncher : Base_Power_Sniper_Rifle
 				}
 			];
 		}, 
-		"Items.SniperPossibleScopesList"
+		"Items.GradPossibleScopesList"
 	];
 	fk< WeaponFxPackage > fxPackage = 
 	{
@@ -77,14 +77,20 @@ Base_RocketLauncher : Base_Power_Sniper_Rifle
 	[
 		"ShootingPatterns.SemiAutoSniperShootingPackage"
 	];
-	enableNpcRPGData = true;
 	fk< StatPool >[] statPools = 
 	[
 		"BaseStatPools.WeaponCharge"
 	];
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+		];
+	} : Base_RocketLauncher_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_RocketLauncher_Technical_Stats", "Items.Base_RocketLauncher_Handling_Stats", "Items.Base_RocketLauncher_Recoil_Stats", "Items.Base_RocketLauncher_Spread_Stats", "Items.Base_RocketLauncher_Aim_Stats", "Items.Base_RocketLauncher_Constant_Stats"
+		"Items.Base_RocketLauncher_Technical_Stats", "Items.Base_RocketLauncher_Handling_Stats", "Items.Base_RocketLauncher_Recoil_Stats", "Items.Base_RocketLauncher_Spread_Stats", "Items.Base_RocketLauncher_Aim_Stats", "Items.Base_RocketLauncher_Constant_Stats", "Items.Base_RocketLauncher_Damage_Stats"
 	];
 	bool IsIKEnabled = false;
 	fk< ConstantStatModifier > price = 
@@ -93,15 +99,11 @@ Base_RocketLauncher : Base_Power_Sniper_Rifle
 		modifierType = "Additive";
 		value = 120;
 	} : ConstantStatModifier;
-	OnAttach += 
-	[
-		"EquipmentGLP.BorgWeaponHeavy"
-	];
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 3.5f;
-	baseEmptyReloadTime = 6.2f;
-	uninterruptibleReloadStart = 3.f;
-	uninterruptibleEmptyReloadStart = 4.5f;
+	baseReloadTime = 3.1f;
+	baseEmptyReloadTime = 4.8f;
+	uninterruptibleReloadStart = 1.0f;
+	uninterruptibleEmptyReloadStart = 1.0f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -116,6 +118,14 @@ Base_RocketLauncher : Base_Power_Sniper_Rifle
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_RocketLauncher_NPC_Data : Base_Power_Sniper_Rifle_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_RocketLauncher_NPC_Damage_Stats"
+	];
 }
 
 Base_RocketLauncher_Technical_Stats : StatModifierGroup
@@ -149,15 +159,34 @@ Base_RocketLauncher_Technical_Stats : StatModifierGroup
 		{
 			value = 100.f;
 		} : ChargeModifier, 
-		{
-			statType = "BaseStats.TechPierceEnabled";
-			modifierType = "Multiply";
-			value = 0.f;
-		} : ConstantStatModifier, 
 		"BaseStats.ProjectilesPerShotCombinedModifier", {
 			statType = "BaseStats.Strength";
 			modifierType = "Additive";
 			value = 0.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_RocketLauncher_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 27f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_RocketLauncher_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 20f;
 		} : ConstantStatModifier
 	];
 }
@@ -167,11 +196,17 @@ Base_RocketLauncher_Handling_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 3.5f;
+			value = 3.1f;
 		} : ReloadTimeModifier, 
 		{
-			value = 6.2f;
+			value = 4.8f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.4f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.4f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.1f;
 		} : ZoomLevelModifier, 
@@ -330,7 +365,8 @@ Base_RocketLauncher_Constant_Stats : StatModifierGroup
 			statType = "BaseStats.RecoilKickMaxADS";
 			modifierType = "Additive";
 			value = 4.5f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationMedium"
 	];
 }
 

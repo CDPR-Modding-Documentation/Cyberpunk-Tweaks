@@ -1,5 +1,5 @@
 package Character
-using RTDB, BaseStats
+using RTDB, BaseStats, Prereqs
 
 main_boss_adam_smasher : Gameplay_NPC_Base
 {
@@ -8,6 +8,14 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	uiNameplate = "UINameplate.QuestSettings";
 	reactionPreset = "ReactionPresets.Ganger_Aggressive";
 	bool enableSensesOnStart = true;
+	tags += 
+	[
+		"Cyberpsycho"
+	];
+	bossHealthBarThresholds = 
+	[
+		15.0f, 25.0f, 60.0f
+	];
 	baseAttitudeGroup = "hostile";
 	CName voiceTag = "smasher";
 	string relaxedSensesPreset = "Relaxed";
@@ -21,7 +29,7 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	entityTemplatePath = "base\characters\entities\boss\adam_smasher.ent";
 	fk< GameplayAbility >[] abilities = 
 	[
-		"Ability.HasWeakspot", "Ability.HasChargeJump", "Ability.HasMeleeImmunity", "Ability.HasExtendedHitReactionImmunity", "Ability.HasQuickhackResistance", "Ability.IsMechanical"
+		"Ability.HasWeakspot", "Ability.HasChargeJump", "Ability.HasMeleeHitReactionAndTakedownResistance", "Ability.HasExtendedHitReactionImmunity", "Ability.HasQuickhackResistance", "Ability.IsMechanical", "Ability.CanUseFragGrenades"
 	];
 	fk< InventoryItem >[] items = 
 	[
@@ -42,16 +50,12 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 			quantity = 99999;
 		}, 
 		{
-			item = "Items.Smasher_Launcher_Rain_Left";
-			quantity = 9999;
-		}, 
-		{
 			item = "Items.Smasher_Launcher_Rocket_Left";
 			quantity = 9999;
 		}, 
 		{
-			item = "Items.Smasher_Launcher_Rocket_Right";
-			quantity = 9999;
+			item = "Items.GrenadeFragRegular";
+			quantity = 1;
 		}
 	];
 	fk< Weakspot >[] weakspots = 
@@ -64,19 +68,19 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	];
 	fk< StatPool >[] statPools = 
 	[
-		"BaseStatPools.Puppet_Health_Base"
+		"BaseStatPools.Puppet_Health_Base", "BaseStatPools.Poise"
 	];
 	fk< StatModifierGroup >[] statModifierGroups = 
 	[
-		"Character.NPC_Smasher_Primary_Stat_ModGroup", "Character.Main_boss_adam_smasher_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+		"Character.NPC_Smasher_Primary_Stat_ModGroup", "Character.Main_boss_adam_smasher_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup", "HitReactionThresholdModifiers.Unstoppable", "Character.Boss_Poise_Primary_Stat_ModGroup"
 	];
 	fk< ObjectAction >[] objectActions = 
 	[
-		"QuickHack.BaseBlindHack", "QuickHack.BaseWeaponMalfunctionHack", "QuickHack.BaseLocomotionMalfunctionHack", "QuickHack.BaseOverheatHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsCallOutHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BaseCyberwareMalfunctionHack", "QuickHack.OverloadBaseHack", "QuickHack.BrainMeltBaseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseMemoryWipeHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown"
+		"QuickHack.BossBaseBlindHack", "QuickHack.BossBaseWeaponMalfunctionHack", "QuickHack.BossBaseLocomotionMalfunctionHack", "QuickHack.BossBaseOverheatHack", "QuickHack.BossOverloadBaseHack", "QuickHack.BossBrainMeltBaseHack", "QuickHack.BossBaseCyberwareMalfunctionHack", "QuickHack.BossSystemCollapseHackBase", "QuickHack.BossGrenadeHackBase", "QuickHack.BossMadnessHackBase", "QuickHack.BossMemoryWipeHackBase", "QuickHack.ChimeraBaseBlackWallHack", "QuickHack.ChimeraSuicideHackBase", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown", "Takedown.NewPerkFinisher", "Takedown.NewPerkFinisherBlunt"
 	];
 	effectors += 
 	[
-		"AdamSmasher.OverloadWeakspotEffector"
+		"AdamSmasher.OverloadWeakspotEffector", "Effectors.MainBossEffector"
 	];
 }
 
@@ -87,22 +91,12 @@ Main_boss_adam_smasher_stats : NPC_Base_Curves
 		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
-			value = 1.35f;
+			value = 1.857f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DPS";
+			statType = "BaseStats.NPCDamage";
 			modifierType = "Multiplier";
-			value = 0.7f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.MaxPercentDamageTakenPerHit";
-			modifierType = "Additive";
-			value = 5.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.HackingResistance";
-			modifierType = "Additive";
-			value = 5.f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.BlindResistance";
@@ -145,10 +139,58 @@ Main_boss_adam_smasher_stats : NPC_Base_Curves
 			value = 1.f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.WoundedImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.BonusDamageAgainstMechanicals";
 			modifierType = "Additive";
 			value = 7.f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RandomCurveInput";
+			modifierType = "Multiplier";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			value = 100f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "iconic_level_to_random_range_mult_new";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_weaponQualityToDPS";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_intrinsic_levelToDPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "boss_power_level_to_dps_mult";
+			column = "smasher_level_to_dps_mult";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier
 	];
 }
 
@@ -184,14 +226,14 @@ main_boss_oda : Gameplay_NPC_Base
 	};
 	abilities = 
 	[
-		"Ability.HasSandevistanTier1", "Ability.HasKerenzikov", "Ability.HasDodge", "Ability.CanUseCovers", "Ability.CanCrouch", "Ability.CanSprint", "Ability.CanShootWhileMoving", "Ability.CanPreciseShoot", "Ability.CanChargedShoot", "Ability.CanSmartShoot", "Ability.CanUseLeftHand", "Ability.CanUseRightHand", "Ability.CanUseLegs", "Ability.CanTaunt", "Ability.CanCloseCombat", "Ability.HasChargeJump", "Ability.CanUseOpticalCamoOda", "Ability.HasMeleeImmunity", "Ability.HasExtendedHitReactionImmunity", "Ability.HasWeakspot", "Ability.HasQuickhackResistance"
+		"Ability.HasSandevistanTier1", "Ability.HasKerenzikov", "Ability.HasDodge", "Ability.CanUseCovers", "Ability.CanCrouch", "Ability.CanSprint", "Ability.CanShootWhileMoving", "Ability.CanPreciseShoot", "Ability.CanChargedShoot", "Ability.CanSmartShoot", "Ability.CanUseLeftHand", "Ability.CanUseRightHand", "Ability.CanUseLegs", "Ability.CanTaunt", "Ability.CanCloseCombat", "Ability.HasChargeJump", "Ability.CanUseOpticalCamoOda", "Ability.HasMeleeHitReactionAndTakedownResistance", "Ability.HasExtendedHitReactionImmunity", "Ability.HasWeakspot", "Ability.HasQuickhackResistance"
 	];
 	rarity = "NPCRarity.Boss";
 	lootDrop = "Loot.OdaLoot";
 	items = 
 	[
 		{
-			item = "Items.w_melee_004__fists_a";
+			item = "Items.w_melee_004__fists_a_oda";
 			quantity = 1;
 		}, 
 		{
@@ -208,7 +250,7 @@ main_boss_oda : Gameplay_NPC_Base
 		}, 
 		{
 			item = "Items.Preset_Nue_Arasaka_2020";
-			quantity = 1;
+			quantity = 99;
 		}
 	];
 	attachmentSlots += 
@@ -218,19 +260,19 @@ main_boss_oda : Gameplay_NPC_Base
 	contentAssignment = "DeviceContentAssignment.q112";
 	statPools = 
 	[
-		"BaseStatPools.Puppet_Health_Base", "BaseStatPools.E3_BossWeakSpotHealth"
+		"BaseStatPools.Puppet_Health_Base", "BaseStatPools.E3_BossWeakSpotHealth", "BaseStatPools.Poise"
 	];
 	statModifierGroups = 
 	[
-		"Character.NPC_Oda_Primary_Stat_ModGroup", "Character.Main_boss_oda_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+		"Character.NPC_Oda_Primary_Stat_ModGroup", "Character.Main_boss_oda_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup", "Character.Boss_Poise_Primary_Stat_ModGroup"
 	];
 	objectActions = 
 	[
-		"QuickHack.BaseBlindHack", "QuickHack.BaseWeaponMalfunctionHack", "QuickHack.BaseLocomotionMalfunctionHack", "QuickHack.BaseOverheatHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsCallOutHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BaseCyberwareMalfunctionHack", "QuickHack.OverloadBaseHack", "QuickHack.BrainMeltBaseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseMemoryWipeHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown"
+		"QuickHack.BossBaseBlindHack", "QuickHack.BossSuicideHackBase", "QuickHack.BossBaseWeaponMalfunctionHack", "QuickHack.BossBaseLocomotionMalfunctionHack", "QuickHack.BossBaseOverheatHack", "QuickHack.BossOverloadBaseHack", "QuickHack.BossBrainMeltBaseHack", "QuickHack.BossBaseCyberwareMalfunctionHack", "QuickHack.BossSystemCollapseHackBase", "QuickHack.BossGrenadeHackBase", "QuickHack.BossMadnessHackBase", "QuickHack.BossMemoryWipeHackBase", "QuickHack.BossBaseBlackWallHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown", "Takedown.NewPerkFinisher", "Takedown.NewPerkFinisherBlunt"
 	];
 	effectors += 
 	[
-		"Oda.OverloadWeakspotEffector", "Oda.OverheatWeakspotEffector"
+		"Oda.OverloadWeakspotEffector", "Oda.OverheatWeakspotEffector", "Effectors.MainBossEffector"
 	];
 }
 
@@ -247,27 +289,12 @@ Main_boss_oda_stats : NPC_Base_Curves
 		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
-			value = 2.f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Multiplier";
-			value = 0.75f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.HackingResistance";
-			modifierType = "Additive";
 			value = 3.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.BlindResistance";
 			modifierType = "Additive";
 			value = 0.9;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.MaxPercentDamageTakenPerHit";
-			modifierType = "Additive";
-			value = 5.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitReactionFactor";
@@ -293,7 +320,24 @@ Main_boss_oda_stats : NPC_Base_Curves
 			statType = "BaseStats.KnockdownImmunity";
 			modifierType = "Additive";
 			value = 1.f;
-		} : ConstantStatModifier
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WoundedImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "boss_power_level_to_dps_mult";
+			column = "oda_level_to_dps_mult";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier
 	];
 }
 
@@ -312,9 +356,26 @@ main_boss_royce : Exo_NPC_Base
 	fk< NPCRarity > rarity = "NPCRarity.Boss";
 	displayName = "Royce";
 	entityTemplatePath = "base\mechanical\mech\mch_002__centaur.ent";
+	CName preferedWeapon = "Items.royce_plasma_cutter";
+	CName weaponSlot = "AttachmentSlots.WeaponRight";
+	items = 
+	[
+		{
+			item = "Items.royce_plasma_cutter";
+			quantity = 1;
+		}, 
+		{
+			item = "Items.GrenadeFragRegular";
+			quantity = 99;
+		}
+	];
 	fk< StatModifierGroup >[] statModifierGroups = 
 	[
-		"Character.NPC_Royce_Primary_Stat_ModGroup", "Character.Main_boss_royce_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+		"Character.NPC_Royce_Primary_Stat_ModGroup", "Character.Main_boss_royce_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup", "HitReactionThresholdModifiers.Unstoppable", "Character.Boss_Poise_Primary_Stat_ModGroup"
+	];
+	effectors += 
+	[
+		"Effectors.MainBossEffector"
 	];
 	lootDrop = "Loot.RoyceLoot";
 }
@@ -326,22 +387,12 @@ Main_boss_royce_stats : NPC_Base_Curves
 		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
-			value = 1.f;
+			value = 3.f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.DPS";
+			statType = "BaseStats.NPCDamage";
 			modifierType = "Multiplier";
-			value = 0.5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.MaxPercentDamageTakenPerHit";
-			modifierType = "Additive";
-			value = 2.5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.HackingResistance";
-			modifierType = "Additive";
-			value = 0.f;
+			value = 1.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.BlindResistance";
@@ -394,9 +445,26 @@ Main_boss_royce_stats : NPC_Base_Curves
 			value = 1.f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.WoundedImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.BleedingImmunity";
 			modifierType = "Additive";
 			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "boss_power_level_to_dps_mult";
+			column = "royce_level_to_dps_mult";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.HasSubdermalArmor";
+			modifierType = "Multiplier";
+			value = 0.f;
 		} : ConstantStatModifier
 	];
 }
@@ -424,17 +492,17 @@ main_boss_sasquatch : animals_base
 	baseAttitudeGroup = "enemyHostile";
 	abilities = 
 	[
-		"Ability.IsReckless", "Ability.HasWeakspot", "Ability.HasMeleeImmunity", "Ability.HasExtendedHitReactionImmunity", "Ability.HasJuiceInjector", "Ability.CanThrowWeapon", "Ability.HasBerserk", "Ability.CanPickUpWeapon", "Ability.HasSandevistan", "Ability.HasKerenzikov", "Ability.HasDodge", "Ability.HasSandevistanTier1", "Ability.HasQuickhackResistance"
+		"Ability.IsReckless", "Ability.HasWeakspot", "Ability.HasMeleeHitReactionAndTakedownResistance", "Ability.HasExtendedHitReactionImmunity", "Ability.HasJuiceInjector", "Ability.CanThrowWeapon", "Ability.HasBerserk", "Ability.CanPickUpWeapon", "Ability.HasSandevistan", "Ability.HasKerenzikov", "Ability.HasDodge", "Ability.HasSandevistanTier1", "Ability.HasQuickhackResistance", "Ability.CanUseFragGrenades"
 	];
 	statModifierGroups = 
 	[
-		"Character.NPC_Sasquatch_Primary_Stat_ModGroup", "Character.Main_boss_sasquatch_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup"
+		"Character.NPC_Sasquatch_Primary_Stat_ModGroup", "Character.Main_boss_sasquatch_stats", "Character.ForceDefeatedModifierGroup", "Character.StunImunityModifierGroup", "HitReactionThresholdModifiers.Unstoppable", "Character.Boss_Poise_Primary_Stat_ModGroup"
 	];
 	lootDrop = "Loot.SasquatchLoot";
 	items = 
 	[
 		{
-			item = "Items.w_melee_004__fists_a";
+			item = "Items.w_melee_004__fists_a_sasquatch";
 			quantity = 1;
 		}, 
 		{
@@ -448,6 +516,10 @@ main_boss_sasquatch : animals_base
 		{
 			item = "Items.GrenadeFragRegular";
 			quantity = 99;
+		}, 
+		{
+			item = "Items.Preset_Nue_Arasaka_2020";
+			quantity = 99;
 		}
 	];
 	attachmentSlots = 
@@ -456,11 +528,57 @@ main_boss_sasquatch : animals_base
 	];
 	objectActions = 
 	[
-		"QuickHack.BaseBlindHack", "QuickHack.BaseWeaponMalfunctionHack", "QuickHack.BaseLocomotionMalfunctionHack", "QuickHack.BaseOverheatHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsCallOutHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BaseCyberwareMalfunctionHack", "QuickHack.OverloadBaseHack", "QuickHack.BrainMeltBaseHack", "QuickHack.BasePingHack", "QuickHack.BaseContagionHack", "QuickHack.BaseMemoryWipeHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown"
+		"QuickHack.BossBaseBlindHack", "QuickHack.BossSuicideHackBase", "QuickHack.BossBaseWeaponMalfunctionHack", "QuickHack.BossBaseLocomotionMalfunctionHack", "QuickHack.BossBaseOverheatHack", "QuickHack.BossOverloadBaseHack", "QuickHack.BossBrainMeltBaseHack", "QuickHack.BossBaseCyberwareMalfunctionHack", "QuickHack.BossSystemCollapseHackBase", "QuickHack.BossGrenadeHackBase", "QuickHack.BossMadnessHackBase", "QuickHack.BossMemoryWipeHackBase", "QuickHack.BaseContagionHack", "QuickHack.BaseCommsCallInHack", "QuickHack.BaseCommsNoiseHack", "QuickHack.BasePingHack", "QuickHack.BaseWhistleHack", "QuickHack.RemoteBreach", "Takedown.BossTakedown", "Takedown.NewPerkFinisher", "Takedown.NewPerkFinisherBlunt"
 	];
 	effectors += 
 	[
-		"Sasquatch.OverloadWeakspotEffector"
+		"Sasquatch.OverloadWeakspotEffector", {
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						inverted = true;
+					} : TwoHandedHammerHeldPrereq, 
+					"Prereqs.NotHMGHeldPrereq"
+				];
+			} : ANDPrereq;
+			statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.NPCDamage";
+						modifierType = "Multiplier";
+						value = 0.597f;
+					} : ConstantStatModifier
+				];
+			};
+		} : ApplyStatGroupEffector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						inverted = true;
+					} : TwoHandedHammerHeldPrereq, 
+					"Prereqs.HMGHeldPrereq"
+				];
+			} : ANDPrereq;
+			statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.NPCDamage";
+						modifierType = "Multiplier";
+						value = 1.119f;
+					} : ConstantStatModifier
+				];
+			};
+		} : ApplyStatGroupEffector, 
+		"Effectors.MainBossEffector"
 	];
 	bountyDrawTable = "BountyDrawTable.Sasquatch";
 }
@@ -472,27 +590,12 @@ Main_boss_sasquatch_stats : NPC_Base_Curves
 		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
-			value = 2.25f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Multiplier";
-			value = 0.65f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.HackingResistance";
-			modifierType = "Additive";
-			value = 3.f;
+			value = 3.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.BlindResistance";
 			modifierType = "Additive";
 			value = 0.8;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.MaxPercentDamageTakenPerHit";
-			modifierType = "Additive";
-			value = 5.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitReactionFactor";
@@ -523,6 +626,54 @@ Main_boss_sasquatch_stats : NPC_Base_Curves
 			statType = "BaseStats.KnockdownImmunity";
 			modifierType = "Additive";
 			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Multiplier";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RandomCurveInput";
+			modifierType = "Multiplier";
+			value = 0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Additive";
+			value = 40f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.Quality";
+			modifierType = "Additive";
+			id = "quality_curves";
+			column = "iconic_level_to_random_range_mult_new";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_weaponQualityToDPS";
+			refStat = "BaseStats.Quality";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "puppet_powerLevelToDPS";
+			column = "puppet_intrinsic_levelToDPS";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.NPCDamage";
+			modifierType = "Multiplier";
+			id = "boss_power_level_to_dps_mult";
+			column = "sasquatch_level_to_dps_mult";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.WoundedImmunity";
+			modifierType = "Additive";
+			value = 1;
 		} : ConstantStatModifier
 	];
 }
@@ -535,7 +686,7 @@ animals_strong_melee_boss_hammer_only : main_boss_sasquatch
 	];
 	fk< StatModifierGroup >[] statModifierGroups = 
 	[
-		"Character.animals_strong_melee_boss_stats"
+		"Character.animals_strong_melee_boss_stats", "Character.Boss_Poise_Primary_Stat_ModGroup"
 	];
 	items += 
 	[
@@ -1099,18 +1250,18 @@ NPC_Smasher_Primary_Stat_ModGroup : NPC_Base_Curves
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThreshold";
-			modifierType = "Additive";
-			value = 100;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThreshold";
-			modifierType = "Additive";
-			value = 100;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.KnockdownDamageThreshold";
-			modifierType = "Additive";
-			value = 100;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdInCover";
@@ -1317,13 +1468,6 @@ NPC_Smasher_Primary_Stat_ModGroup : NPC_Base_Curves
 			modifierType = "Additive";
 			value = 1.9f;
 		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.NPCDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.DPS";
-			opSymbol = "*";
-			value = 1.0f;
-		} : CombinedStatModifier, 
 		"Character.BaseAccuracy"
 	];
 }
@@ -1336,11 +1480,6 @@ NPC_Royce_Primary_Stat_ModGroup : NPC_Base_Curves
 			statType = "BaseStats.UnconsciousImmunity";
 			modifierType = "Additive";
 			value = 1;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.PowerLevel";
-			modifierType = "Additive";
-			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.Weight";
@@ -1359,28 +1498,28 @@ NPC_Royce_Primary_Stat_ModGroup : NPC_Base_Curves
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThreshold";
-			modifierType = "Additive";
+			modifierType = "Multiplier";
 			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThreshold";
-			modifierType = "Additive";
-			value = 25;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.KnockdownDamageThreshold";
-			modifierType = "Additive";
-			value = 100;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdInCover";
 			modifierType = "Additive";
-			value = 100;
+			value = 500;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThresholdInCover";
 			modifierType = "Additive";
-			value = 100;
+			value = 500;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdImpulse";
@@ -1573,6 +1712,36 @@ NPC_Royce_Primary_Stat_ModGroup : NPC_Base_Curves
 			value = 1.9f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.SmartGunTimeToLockWeakSpotComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockHeadComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockChestComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockLegComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockBreachComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTimeToLockVehicleComponentMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.NPCDamage";
 			modifierType = "Additive";
 			refStat = "BaseStats.DPS";
@@ -1605,32 +1774,32 @@ NPC_Sasquatch_Primary_Stat_ModGroup : NPC_Base_Curves
 		{
 			statType = "BaseStats.ElectricResistance";
 			modifierType = "Additive";
-			value = 50;
+			value = 10;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ThermalResistance";
 			modifierType = "Additive";
-			value = -20;
+			value = -10;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThreshold";
 			modifierType = "Additive";
-			value = 100;
+			value = 25;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThreshold";
-			modifierType = "Additive";
-			value = 20;
+			modifierType = "Multiplier";
+			value = 50;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdInCover";
-			modifierType = "Additive";
-			value = -1;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThresholdInCover";
-			modifierType = "Additive";
-			value = -1;
+			modifierType = "Multiplier";
+			value = 0;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdImpulse";
@@ -1855,27 +2024,27 @@ NPC_Oda_Primary_Stat_ModGroup : NPC_Base_Curves
 		{
 			statType = "BaseStats.ThermalResistance";
 			modifierType = "Additive";
-			value = 50;
+			value = -10;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ChemicalResistance";
 			modifierType = "Additive";
-			value = -20;
+			value = 10;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThreshold";
 			modifierType = "Additive";
-			value = 100;
+			value = 35;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.StaggerDamageThreshold";
 			modifierType = "Additive";
-			value = 20;
+			value = 55;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.KnockdownDamageThreshold";
 			modifierType = "Additive";
-			value = 100;
+			value = 90;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ImpactDamageThresholdInCover";
@@ -2020,7 +2189,7 @@ NPC_Oda_Primary_Stat_ModGroup : NPC_Base_Curves
 		{
 			statType = "BaseStats.HitTimerAfterStaggerMelee";
 			modifierType = "Additive";
-			value = 5.f;
+			value = 10.f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitTimerAfterDefeated";
@@ -2085,6 +2254,27 @@ NPC_Oda_Primary_Stat_ModGroup : NPC_Base_Curves
 			value = 1.0f;
 		} : CombinedStatModifier, 
 		"Character.BaseAccuracy"
+	];
+}
+
+Boss_Poise_Primary_Stat_ModGroup : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers += 
+	[
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = 0.2f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.Poise";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			opSymbol = "*";
+			value = -0.66f;
+		} : CombinedStatModifier
 	];
 }
 

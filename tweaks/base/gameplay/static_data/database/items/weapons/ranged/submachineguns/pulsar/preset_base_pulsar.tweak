@@ -1,5 +1,5 @@
 package Items
-using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks
+using RTDB, BaseStats, WeaponFxPackage, Prereqs, Perks, Effectors
 
 Preset_Pulsar_Default : Base_Pulsar
 {
@@ -26,42 +26,22 @@ Preset_Pulsar_Default : Base_Pulsar
 			slot = "AttachmentSlots.MagazineEmpty";
 			fk< Item > itemPartPreset = "Items.w_submachinegun__darra_pulsar__mag_stdr";
 		}, 
-		"Items.RifleScopesPartList", {
-			slot = "AttachmentSlots.GenericWeaponMod1";
-		} : GenericPowerModList, 
+		"Items.HandgunAndRevolverScopesPartList", {
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+		} : Power_AR_SMG_LMG_ModList_Slot1, 
 		{
-			slot = "AttachmentSlots.GenericWeaponMod2";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod3";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.GenericWeaponMod4";
-		} : GenericPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModRare";
-		} : RareDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModEpic";
-		} : EpicDedicatedPowerModList, 
-		{
-			slot = "AttachmentSlots.PowerWeaponModLegendary";
-		} : LegendaryDedicatedPowerModList
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod2";
+		} : Power_AR_SMG_LMG_ModList_Slot2
 	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe += 
-		[
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 5;
-			}
-		];
-	};
+}
+
+[ notQueryable ]
+Preset_Pulsar_Default_Unbreakable : Preset_Pulsar_Default
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Pulsar_Pimp : Preset_Pulsar_Default
@@ -69,6 +49,19 @@ Preset_Pulsar_Pimp : Preset_Pulsar_Default
 	CName[] visualTags = 
 	[
 		"Pimp"
+	];
+	tags += 
+	[
+		"Pimp"
+	];
+}
+
+[ notQueryable ]
+Preset_Pulsar_Pimp_Unbreakable : Preset_Pulsar_Pimp
+{
+	tags += 
+	[
+		"Unbreakable"
 	];
 }
 
@@ -78,6 +71,19 @@ Preset_Pulsar_Neon : Preset_Pulsar_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
+}
+
+[ notQueryable ]
+Preset_Pulsar_Neon_Unbreakable : Preset_Pulsar_Neon
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
 }
 
 Preset_Pulsar_Military : Preset_Pulsar_Default
@@ -85,6 +91,28 @@ Preset_Pulsar_Military : Preset_Pulsar_Default
 	CName[] visualTags = 
 	[
 		"Military"
+	];
+	tags += 
+	[
+		"Military"
+	];
+}
+
+[ notQueryable ]
+Preset_Pulsar_Military_Unbreakable : Preset_Pulsar_Military
+{
+	tags += 
+	[
+		"Unbreakable"
+	];
+}
+
+[ notQueryable ]
+Preset_Pulsar_Military_Crowd : Preset_Pulsar_Military
+{
+	placementSlots = 
+	[
+		"AttachmentSlots.WeaponRight"
 	];
 }
 
@@ -118,80 +146,76 @@ Craftable_Common_Pulsar : Preset_Pulsar_Default
 Craftable_Uncommon_Pulsar : Craftable_Common_Pulsar
 {
 	quality = "Quality.Uncommon";
+	fk< SlotItemPartPreset >[] slotPartListPreset += 
+	[
+		{
+			slot = "AttachmentSlots.Power_AR_SMG_LMG_WeaponMod1";
+			fk< Item > itemPartPreset = "Items.DummyBlankMod";
+		}
+	];
 	CraftingData = "Items.Big_Uncommon_Crafting_Materials_Weapon";
 }
 
 [ notQueryable ]
-Proficiency_Craftable_Rare_Pulsar : Craftable_Common_Pulsar
+Proficiency_Craftable_Rare_Pulsar : Craftable_Uncommon_Pulsar
 {
 	quality = "Quality.Rare";
 	CraftingData = "Items.Big_Rare_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Epic_Pulsar : Craftable_Common_Pulsar
+Craftable_Epic_Pulsar : Craftable_Uncommon_Pulsar
 {
 	quality = "Quality.Epic";
 	CraftingData = "Items.Big_Epic_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
-Craftable_Legendary_Pulsar : Craftable_Common_Pulsar
+Craftable_Legendary_Pulsar : Craftable_Uncommon_Pulsar
 {
 	quality = "Quality.Legendary";
 	CraftingData = "Items.Big_Legendary_Crafting_Materials_Weapon";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
 }
 
 [ notQueryable ]
 Preset_Pulsar_Buzzsaw : Preset_Pulsar_Default
 {
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "pulsar_buzzsaw_owned";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
+	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#40611";
 	visualTags = 
 	[
 		"Buzzsaw_Pulsar"
 	];
-	quality = "Quality.Rare";
-	localizedDescription = "LocKey#40612";
-	equipPrereqs = 
+	quality = "Quality.Random";
+	tags += 
 	[
-		{
-			perk = "Crafting_Area_02_Perk_1";
-		} : PerkPrereq
+		"IconicWeapon", "CraftableIconic"
 	];
+	localizedDescription = "LocKey#40612";
 	statModifiers += 
 	[
 		"Quality.IconicItem"
 	];
-	CraftingData = "Items.Iconic_Big_Rare_Crafting_Materials_Weapon";
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Pulsar_Buzzsaw_Epic";
-				}
-			];
-		}
-	];
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			"Quality.IconicItem"
+		];
+	} : Base_Pulsar_NPC_Data;
+	CraftingData = "Items.Craftable_Iconic_Weapon";
 	fk< WeaponFxPackage > fxPackage = 
 	{
 	} : WeaponFxPackage.TechRifle;
@@ -220,110 +244,42 @@ Preset_Pulsar_Buzzsaw : Preset_Pulsar_Default
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_Pulsar_Technical_Stats", "Items.Base_Pulsar_Handling_Stats", "Items.Base_Pulsar_Recoil_Stats", "Items.Base_Pulsar_Spread_Stats", "Items.Base_Pulsar_Aim_Stats", "Items.Base_Pulsar_Constant_Stats", "Items.Base_Power_Submachinegun_Mult_Stats", "Items.Base_Power_Submachinegun_Stats", "Items.Base_Power_Submachinegun_RPG_Randomized_Stats", "Proficiencies.AssaultSMGStats", "Items.Base_Submachinegun_RPG_Stats", "Items.Base_Submachinegun_Misc_Stats", "Items.Base_Submachinegun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Status_Effect_Application_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
+		"Items.CraftableIconicQualityRandomisation", "Items.Base_Pulsar_Technical_Stats", "Items.Base_Pulsar_Handling_Stats", "Items.Base_Pulsar_Recoil_Stats", "Items.Base_Pulsar_Spread_Stats_1", "Items.Base_Pulsar_Aim_Stats", "Items.Base_Pulsar_Constant_Stats", "Items.Base_Pulsar_Damage_Stats", "Items.Base_Power_Stats", "Items.Base_Power_Submachinegun_Mult_Stats", "Items.Base_Power_Submachinegun_Stats", "Items.Base_Submachinegun_DeadReckoning_Stats", "Items.Base_Submachinegun_RPG_Stats", "Items.Base_Submachinegun_Misc_Stats", "Items.Base_Submachinegun_Sway_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"
 	];
 }
 
 [ notQueryable ]
-Preset_Pulsar_Buzzsaw_Epic : Preset_Pulsar_Buzzsaw
+Common_Pulsar_Buzzsaw : Preset_Pulsar_Buzzsaw
+{
+	quality = "Quality.Common";
+	CraftingData = "Items.Craftable_Common_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Uncommon_Pulsar_Buzzsaw : Preset_Pulsar_Buzzsaw
+{
+	quality = "Quality.Uncommon";
+	CraftingData = "Items.Craftable_Uncommon_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Rare_Pulsar_Buzzsaw : Preset_Pulsar_Buzzsaw
+{
+	quality = "Quality.Rare";
+	CraftingData = "Items.Craftable_Rare_Iconic_Weapon";
+}
+
+[ notQueryable ]
+Epic_Pulsar_Buzzsaw : Preset_Pulsar_Buzzsaw
 {
 	quality = "Quality.Epic";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_06_Perk_3";
-		} : PerkPrereq
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Pulsar_Buzzsaw";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.UncommonMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 30;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 35;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 2;
-			}
-		];
-	};
-	OnLooted = 
-	[
-		{
-			items = 
-			[
-				{
-					item = "Items.Recipe_Preset_Pulsar_Buzzsaw_Legendary";
-				}
-			];
-		}
-	];
+	CraftingData = "Items.Craftable_Epic_Iconic_Weapon";
 }
 
 [ notQueryable ]
-Preset_Pulsar_Buzzsaw_Legendary : Preset_Pulsar_Buzzsaw
+Legendary_Pulsar_Buzzsaw : Preset_Pulsar_Buzzsaw
 {
 	quality = "Quality.Legendary";
-	equipPrereqs = 
-	[
-		{
-			perk = "Crafting_Area_09_Perk_1";
-		} : PerkPrereq
-	];
-	fk< CraftingPackage > CraftingData = 
-	{
-		fk< RecipeElement >[] craftingRecipe = 
-		[
-			{
-				ingredient = "Items.Preset_Pulsar_Buzzsaw_Epic";
-				amount = 1;
-			}, 
-			{
-				ingredient = "Items.RareMaterial1";
-				amount = 45;
-			}, 
-			{
-				ingredient = "Items.EpicMaterial1";
-				amount = 40;
-			}, 
-			{
-				ingredient = "Items.LegendaryMaterial1";
-				amount = 10;
-			}
-		];
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Pulsar_Buzzsaw_Epic : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Pulsar_Buzzsaw_Epic";
-	};
-}
-
-[ notQueryable ]
-Recipe_Preset_Pulsar_Buzzsaw_Legendary : ItemRecipe
-{
-	displayName = "";
-	craftingResult = 
-	{
-		item = "Items.Preset_Pulsar_Buzzsaw_Legendary";
-	};
+	CraftingData = "Items.Craftable_Legendary_Iconic_Weapon";
 }
 

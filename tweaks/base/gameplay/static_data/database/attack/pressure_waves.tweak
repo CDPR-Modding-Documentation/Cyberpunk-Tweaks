@@ -1,32 +1,62 @@
 package Attacks
 using RTDB, Materials
 
-SuperheroLanding : Attack_Landing
+GroundSlamFar : Attack_Landing
 {
-	attackType = "AttackType.Explosion";
+	attackType = "AttackType.PressureWave";
 	effectName = "superheroLanding";
-	effectTag = "default";
-	range = 4.0f;
+	effectTag = "weak";
+	range = 10.0f;
+	float maxRange = 12.0f;
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
 			statType = "BaseStats.PhysicalDamage";
 			modifierType = "Additive";
-			value = 500;
+			value = 15;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.PhysicalDamage";
-			modifierType = "AdditiveMultiplier";
+			modifierType = "Multiplier";
 			refObject = "Root";
-			refStat = "BaseStats.BerserkShockwaveDamage";
-			opSymbol = "*";
-			value = 1;
-		} : CombinedStatModifier, 
+			id = "quality_curves";
+			column = "effective_tier_to_dps_multiplier_new";
+			refStat = "BaseStats.EffectiveTier";
+		} : CurveStatModifier
+	];
+	hitFlags += 
+	[
+		"Nonlethal", "GroundSlam", "BodyPerksMeleeAttack"
+	];
+	hitReactionSeverityMin = 2;
+}
+
+GroundSlamNear : Attack_Landing
+{
+	attackType = "AttackType.Explosion";
+	effectName = "superheroLanding";
+	effectTag = "strong";
+	range = 4.0f;
+	float maxRange = 10.0f;
+	fk< StatModifier >[] statModifiers = 
+	[
 		{
-			statType = "BaseStats.HitDismembermentFactor";
+			statType = "BaseStats.PhysicalDamage";
 			modifierType = "Additive";
-			value = 0.4f;
-		} : ConstantStatModifier
+			value = 90;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			refObject = "Root";
+			id = "quality_curves";
+			column = "effective_tier_to_dps_multiplier_new";
+			refStat = "BaseStats.EffectiveTier";
+		} : CurveStatModifier
+	];
+	hitFlags += 
+	[
+		"BodyPerksMeleeAttack"
 	];
 	fxPackage = 
 	{
@@ -38,6 +68,33 @@ SuperheroLanding : Attack_Landing
 			}
 		];
 	};
+	hitReactionSeverityMin = 3;
+}
+
+GroundSlamFarImpulse : Attack_Landing
+{
+	attackType = "AttackType.PressureWave";
+	effectName = "superheroLanding";
+	effectTag = "weakImpulse";
+	range = 6.0f;
+	float maxRange = 12.0f;
+	hitFlags += 
+	[
+		"DealNoDamage"
+	];
+}
+
+GroundSlamNearImpulse : Attack_Landing
+{
+	attackType = "AttackType.PressureWave";
+	effectName = "superheroLanding";
+	effectTag = "strongImpulse";
+	range = 1.5f;
+	float maxRange = 10.0f;
+	hitFlags += 
+	[
+		"DealNoDamage"
+	];
 }
 
 PressureWave : Attack_Landing
@@ -46,16 +103,6 @@ PressureWave : Attack_Landing
 	effectName = "landing";
 	effectTag = "defaultLand";
 	range = 1.0f;
-}
-
-Dodge : PressureWave
-{
-	effectTag = "dodge";
-	range = 1.5f;
-	hitFlags += 
-	[
-		"DealNoDamage"
-	];
 }
 
 HardLanding : PressureWave
@@ -127,7 +174,7 @@ LightWallImpact : PressureWave
 	];
 	hitFlags += 
 	[
-		"IgnoreDifficulty"
+		"IgnoreDifficulty", "PlayerWallImpact"
 	];
 }
 
@@ -146,7 +193,7 @@ MediumWallImpact : PressureWave
 	];
 	hitFlags += 
 	[
-		"IgnoreDifficulty"
+		"IgnoreDifficulty", "PlayerWallImpact"
 	];
 }
 
@@ -165,7 +212,7 @@ HardWallImpact : PressureWave
 	];
 	hitFlags += 
 	[
-		"IgnoreDifficulty"
+		"IgnoreDifficulty", "PlayerWallImpact"
 	];
 }
 

@@ -64,7 +64,7 @@ Base_Shingen : Base_Smart_Submachinegun
 	CName audioName = "wea_set_shingen";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "SMG"
+		"Preload", "Weapon", "SMG", "T3_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -74,19 +74,22 @@ Base_Shingen : Base_Smart_Submachinegun
 	fk< RangedAttackPackage > rangedAttacks = "Attacks.SmartBulletHighPackage";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Street";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Smart";
-	fk< Item > ammo = "Ammo.RifleAmmo";
+	fk< Item > ammo = "Ammo.HandgunAmmo";
 	fk< Crosshair > crosshair = "Crosshairs.SmartGun";
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Shingen_Technical_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats"
 		];
-	} : Base_Smart_Submachinegun_NPC_Data;
+	} : Base_Shingen_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Shingen_Technical_Stats", "Items.Base_Shingen_Handling_Stats", "Items.Base_Shingen_Recoil_Stats", "Items.Base_Shingen_Spread_Stats", "Items.Base_Shingen_SmartGun_Stats", "Items.Base_Shingen_SmartGun_SmartLink_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats", "Items.Base_Shingen_Flags", "Items.Base_Shingen_Aim_Stats", "Items.Base_Shingen_Constant_Stats"
+		"Items.Base_Shingen_Technical_Stats", "Items.Base_Shingen_Handling_Stats", "Items.Base_Shingen_Recoil_Stats", "Items.Base_Shingen_Spread_Stats", "Items.Base_Shingen_SmartGun_Stats", "Items.Base_Shingen_SmartGun_SmartLink_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats", "Items.Base_Shingen_Flags", "Items.Base_Shingen_Aim_Stats", "Items.Base_Shingen_Constant_Stats", "Items.Base_Shingen_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.MediumStaminaDelay", "Items.SmartWeaponTargetsPriorityQueues"
 	];
 	CName audioSwitchName = "";
 	CName audioSwitchValue = "";
@@ -94,10 +97,10 @@ Base_Shingen : Base_Smart_Submachinegun
 	bool useNewSpawnMethod = true;
 	Vector3 position = ( 0.0005f, 0.0f, 0.09f );
 	bool IsIKEnabled = false;
-	baseReloadTime = 2.1f;
-	baseEmptyReloadTime = 2.8f;
-	uninterruptibleReloadStart = 1.8f;
-	uninterruptibleEmptyReloadStart = 1.9f;
+	baseReloadTime = 1.9f;
+	baseEmptyReloadTime = 1.9f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -118,7 +121,7 @@ Base_Shingen_NPC_Data : Base_Smart_Submachinegun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Shingen_Technical_Stats"
+		"Items.Base_Shingen_Technical_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats", "Items.Base_Shingen_Damage_Stats"
 	];
 }
 
@@ -155,7 +158,11 @@ Oda_Shingen : Base_Shingen
 	{
 		statModifierGroups = 
 		[
-			"Items.Oda_Shingen_Technical_Stats", "Items.Oda_Shingen_NPC_SmartGun_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats"
+			"Items.Oda_Shingen_Technical_Stats", "Items.Oda_Shingen_NPC_SmartGun_Stats", "Items.Base_Shingen_SmartGun_Projectile_Stats", "Items.Base_Shingen_NPC_Damage_Stats"
+		];
+		statModifiers += 
+		[
+			"AttackModifier.WeaponArmorPenetrationMedium"
 		];
 	};
 }
@@ -167,6 +174,9 @@ Oda_Shingen_Technical_Stats : StatModifierGroup
 		{
 			value = 1.f;
 		} : NumShotsToFireModifier, 
+		{
+			value = 2.f;
+		} : AccuracyModifier, 
 		{
 			value = 0.05f;
 		} : CycleTimeModifier, 
@@ -200,10 +210,10 @@ Oda_Shingen_NPC_SmartGun_Stats : StatModifierGroup
 			value = 1.f;
 		} : SmartGunHitProbabilityModifier, 
 		{
-			value = 12.5f;
+			value = 45f;
 		} : SmartGunNPCLockingAnglePitchModifier, 
 		{
-			value = 12.5f;
+			value = 45f;
 		} : SmartGunNPCLockingAngleYawModifier, 
 		{
 			value = 0.0f;
@@ -252,16 +262,46 @@ Base_Shingen_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Shingen_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 45f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Shingen_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 37f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Shingen_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.1f;
+			value = 1.9f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.8f;
+			value = 1.9f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.2f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 0.9f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -310,28 +350,28 @@ Base_Shingen_Spread_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadMinXModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadMinYModifier, 
 		{
 			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.0f;
+			value = 0.f;
 		} : SpreadAdsDefaultXModifier, 
 		{
 			value = 0.f;
 		} : SpreadAdsDefaultYModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 2.5f;
+			value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
 			value = 0.2f;
@@ -350,46 +390,49 @@ Base_Shingen_SmartGun_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 10.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
 		{
 			value = 0.f;
-		} : SmartGunTrackAllBodypartsModifier, 
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
 		{
-			value = 4.f;
+			value = 0.15f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.0f;
 		} : SmartGunHipLockingAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunHipLockingAngleYawModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAngleYawModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAngleYawModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAngleYawModifier, 
 		{
-			value = 1.f;
+			value = 3.f;
 		} : SmartGunHipMaxLockedTargetsModifier, 
 		{
 			value = 1.f;
 		} : SmartGunAdsMaxLockedTargetsModifier, 
 		{
-			value = 0.6f;
+			value = 1.1f;
 		} : SmartGunHipTimeToLockModifier, 
 		{
-			value = 0.6f;
+			value = 1.1f;
 		} : SmartGunAdsTimeToLockModifier, 
 		{
 			value = 0.f;
@@ -407,7 +450,7 @@ Base_Shingen_SmartGun_Stats : StatModifierGroup
 			value = 0.5f;
 		} : SmartGunTimeToMaxAccuracyModifier, 
 		{
-			value = 0.1f;
+			value = 5.0f;
 		} : SmartGunSpreadMultiplierModifier, 
 		{
 			value = 40.f;
@@ -423,47 +466,47 @@ Base_Shingen_SmartGun_SmartLink_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 4.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunHipLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunHipLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 6.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 6.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 6.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 6.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 1.4f;
 			statType = "BaseStats.SmartGunHipTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 1.4f;
 			statType = "BaseStats.SmartGunAdsTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 1.4f;
 			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
 		} : SmartLinkDependentStatModifier, 
 		{
@@ -471,12 +514,8 @@ Base_Shingen_SmartGun_SmartLink_Stats : StatModifierGroup
 			statType = "BaseStats.SmartGunHitProbability";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 40.f;
+			value = 20.f;
 			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 10.f;
-			statType = "BaseStats.SmartGunTargetAcquisitionRange";
 		} : SmartLinkDependentStatModifier
 	];
 }
@@ -544,7 +583,7 @@ Base_Shingen_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 2.0f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
@@ -552,24 +591,59 @@ Base_Shingen_Constant_Stats : StatModifierGroup
 			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.SpreadDefaultY";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadMaxY";
+			modifierType = "Additive";
+			value = 5.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultY";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxY";
+			modifierType = "Additive";
+			value = 3.0f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.25f;
+			value = 0.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 0.35f;
+			value = 0.28f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 2.0f;
 		} : ConstantStatModifier
 	];
 }

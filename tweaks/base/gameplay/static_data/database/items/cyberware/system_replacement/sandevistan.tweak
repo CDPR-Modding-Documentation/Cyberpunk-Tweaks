@@ -1,6 +1,7 @@
 package Items
 using RTDB, BaseStats, Prereqs, Perks
 
+[ notQueryable ]
 SandevistanBase : SystemReplacementModule
 {
 	displayName = "LocKey#3639";
@@ -10,6 +11,7 @@ SandevistanBase : SystemReplacementModule
 		"AttachmentSlots.SystemReplacementCW"
 	];
 	entityName = "cyberware_dummy";
+	isCoreCW = true;
 	fk< ItemBlueprint > blueprint = "Items.SandevistanBlueprint";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
@@ -17,7 +19,7 @@ SandevistanBase : SystemReplacementModule
 	];
 	objectActions += 
 	[
-		"CyberwareAction.UseSandevistan"
+		"CyberwareAction.DisableSandevistan", "CyberwareAction.DisableCorruptedSandevistan"
 	];
 	tags += 
 	[
@@ -36,54 +38,66 @@ SandevistanBase : SystemReplacementModule
 			refStat = "BaseStats.TimeDilationSandevistanCooldownReduction";
 			opSymbol = "*";
 			value = -1;
-		} : CombinedStatModifier
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.AttunementHelper";
+			modifierType = "Additive";
+			refStat = "BaseStats.Reflexes";
+			refObject = "Player";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.SandevistanKillRechargeValue";
+			modifierType = "Additive";
+			value = 10.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanEnterCost";
+			modifierType = "Additive";
+			value = -10.f;
+		} : ConstantStatModifier
 	];
 	OnEquip = 
 	[
 		{
 			UIData = "Items.SandevistanAbilityUIData";
-		} : GameplayLogicPackage
+		} : GameplayLogicPackage, 
+		"Attunements.ReflexesSandyProlong"
 	];
 	CName cyberwareType = "Sandevistan";
-	buyPrice += 
-	[
-		"Price.Sandevistan"
-	];
-	sellPrice += 
-	[
-		"Price.Sandevistan"
-	];
 }
 
+[ notQueryable ]
 SandevistanBlueprint : ItemBlueprint
 {
 	fk< ItemBlueprintElement > rootElement = 
 	{
 		fk< AttachmentSlot > slot = "AttachmentSlots.GenericItemRoot";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.SandevistanSlot1";
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.SandevistanSlot2";
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.SandevistanSlot3";
-			}
-		];
 	};
 }
 
+[ notQueryable ]
 SandevistanAbilityUIData : GameplayLogicPackageUIData
 {
-	localizedDescription = "LocKey#42508";
+	localizedDescription = "LocKey#92413";
 	stats = 
 	[
-		"BaseStats.TimeDilationSandevistanTimeScale", "BaseStats.TimeDilationSandevistanDuration", "BaseStats.TimeDilationSandevistanCooldownBase"
+		"BaseStats.TimeDilationSandevistanTimeScale", "BaseStats.TimeDilationSandevistanDuration", "BaseStats.TimeDilationSandevistanRechargeDuration"
 	];
 }
 
+[ notQueryable ]
+AdvancedSandevistanAbilityUIData : GameplayLogicPackageUIData
+{
+	localizedDescription = "LocKey#91745";
+	stats = 
+	[
+		"BaseStats.TimeDilationSandevistanTimeScale", "BaseStats.TimeDilationSandevistanDuration", "BaseStats.TimeDilationSandevistanRechargeDuration"
+	];
+}
+
+[ notQueryable ]
 SandevistanC1MK1 : SandevistanBase
 {
 	displayName = "LocKey#53617";
@@ -100,12 +114,22 @@ SandevistanC1MK1 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.62f;
+			value = 0.75f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SandevistanKillRechargeValue";
+			modifierType = "Additive";
+			value = 10.f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -148,8 +172,10 @@ SandevistanC1MK1 : SandevistanBase
 			};
 		} : GameplayLogicPackage
 	];
+	counterpart = "Items.AdvancedSandevistanC1MK1";
 }
 
+[ notQueryable ]
 SandevistanC1MK2 : SandevistanBase
 {
 	displayName = "LocKey#53618";
@@ -166,12 +192,22 @@ SandevistanC1MK2 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.66f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SandevistanKillRechargeValue";
+			modifierType = "Additive";
+			value = 10.f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -214,8 +250,10 @@ SandevistanC1MK2 : SandevistanBase
 			};
 		} : GameplayLogicPackage
 	];
+	counterpart = "Items.AdvancedSandevistanC1MK1";
 }
 
+[ notQueryable ]
 SandevistanC1MK3 : SandevistanBase
 {
 	displayName = "LocKey#53619";
@@ -232,12 +270,22 @@ SandevistanC1MK3 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.66f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SandevistanKillRechargeValue";
+			modifierType = "Additive";
+			value = 100.f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -280,8 +328,10 @@ SandevistanC1MK3 : SandevistanBase
 			};
 		} : GameplayLogicPackage
 	];
+	counterpart = "Items.AdvancedSandevistanC1MK1";
 }
 
+[ notQueryable ]
 SandevistanC2MK1 : SandevistanBase
 {
 	displayName = "LocKey#53620";
@@ -298,12 +348,17 @@ SandevistanC2MK1 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.66f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -325,7 +380,7 @@ SandevistanC2MK1 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Perks.IsTargetNotPlayer";
+						prereqRecord = "Perks.IsTargetNotPlayerAllowProjection";
 						float value = 1.05f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -340,8 +395,10 @@ SandevistanC2MK1 : SandevistanBase
 			};
 		} : GameplayLogicPackage
 	];
+	counterpart = "Items.AdvancedSandevistanC1MK1";
 }
 
+[ notQueryable ]
 SandevistanC2MK2 : SandevistanBase
 {
 	displayName = "LocKey#53621";
@@ -358,12 +415,17 @@ SandevistanC2MK2 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.25f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -385,7 +447,7 @@ SandevistanC2MK2 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Perks.IsTargetNotPlayer";
+						prereqRecord = "Perks.IsTargetNotPlayerAllowProjection";
 						float value = 1.1f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -400,8 +462,10 @@ SandevistanC2MK2 : SandevistanBase
 			};
 		} : GameplayLogicPackage
 	];
+	counterpart = "Items.AdvancedSandevistanC2MK1";
 }
 
+[ notQueryable ]
 SandevistanC2MK3 : SandevistanBase
 {
 	displayName = "LocKey#53623";
@@ -418,12 +482,17 @@ SandevistanC2MK3 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.5f;
+			value = 0.66f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 15f;
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -445,7 +514,7 @@ SandevistanC2MK3 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Perks.IsTargetNotPlayer";
+						prereqRecord = "Perks.IsTargetNotPlayerAllowProjection";
 						float value = 1.15f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -460,8 +529,10 @@ SandevistanC2MK3 : SandevistanBase
 			};
 		} : GameplayLogicPackage
 	];
+	counterpart = "Items.AdvancedSandevistanC2MK1";
 }
 
+[ notQueryable ]
 SandevistanC2MK4 : SandevistanBase
 {
 	displayName = "LocKey#53624";
@@ -478,12 +549,17 @@ SandevistanC2MK4 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.25f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -505,7 +581,7 @@ SandevistanC2MK4 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Perks.IsTargetNotPlayer";
+						prereqRecord = "Perks.IsTargetNotPlayerAllowProjection";
 						float value = 1.15f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -551,8 +627,10 @@ SandevistanC2MK4 : SandevistanBase
 			};
 		}
 	];
+	counterpart = "Items.AdvancedSandevistanC2MK1";
 }
 
+[ notQueryable ]
 SandevistanC3MK4 : SandevistanBase
 {
 	displayName = "LocKey#53625";
@@ -569,12 +647,17 @@ SandevistanC3MK4 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.25f;
+			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 15f;
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 3f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -596,7 +679,7 @@ SandevistanC3MK4 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Perks.IsTargetNotPlayer";
+						prereqRecord = "Perks.IsTargetNotPlayerAllowProjection";
 						float value = 1.15f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -642,8 +725,10 @@ SandevistanC3MK4 : SandevistanBase
 			};
 		}
 	];
+	counterpart = "Items.AdvancedSandevistanC3MK3";
 }
 
+[ notQueryable ]
 SandevistanC3MK5 : SandevistanBase
 {
 	displayName = "LocKey#53626";
@@ -660,17 +745,22 @@ SandevistanC3MK5 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanTimeScale";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.4f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 30f;
+			value = 3f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.IsItemIconic";
 			modifierType = "Additive";
 			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -692,7 +782,7 @@ SandevistanC3MK5 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Perks.IsTargetNotPlayer";
+						prereqRecord = "Perks.IsTargetNotPlayerAllowProjection";
 						float value = 1.15f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -743,8 +833,10 @@ SandevistanC3MK5 : SandevistanBase
 			};
 		}
 	];
+	counterpart = "Items.AdvancedSandevistanC3MK3";
 }
 
+[ notQueryable ]
 SandevistanC4MK5 : SandevistanBase
 {
 	displayName = "LocKey#53627";
@@ -766,12 +858,17 @@ SandevistanC4MK5 : SandevistanBase
 		{
 			statType = "BaseStats.TimeDilationSandevistanCooldownBase";
 			modifierType = "Additive";
-			value = 60f;
+			value = 6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.IsItemIconic";
 			modifierType = "Additive";
 			value = 1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.TimeDilationSandevistanRechargeDuration";
+			modifierType = "Additive";
+			value = 4f;
 		} : ConstantStatModifier
 	];
 	equipPrereqs = 
@@ -793,7 +890,7 @@ SandevistanC4MK5 : SandevistanBase
 					} : Prereqs.TimeDilationPSMPrereq;
 					fk< Effector > effectorToApply = 
 					{
-						prereqRecord = "Prereqs.ProcessHitTriggered";
+						prereqRecord = "Prereqs.ProcessHitTriggeredAllowProjection";
 						float value = 1.15f;
 					} : MultiplyDamage;
 				} : ApplyEffectorOnPlayer
@@ -844,5 +941,6 @@ SandevistanC4MK5 : SandevistanBase
 			};
 		}
 	];
+	counterpart = "Items.AdvancedSandevistanC4MK4";
 }
 

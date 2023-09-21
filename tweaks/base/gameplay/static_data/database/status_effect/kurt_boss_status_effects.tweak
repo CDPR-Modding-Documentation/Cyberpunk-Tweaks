@@ -1,0 +1,228 @@
+package BaseStatusEffect
+using RTDB, Prereqs, AIActionTarget, Attacks, Effectors
+
+KurtTakedown01AttackDamage : BasePhysicalDamageOverTime
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Multiplier";
+			value = 0.01f;
+		} : MediumTargetPercentage
+	];
+}
+
+KurtTakedown_02_Effect : DebuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10.f;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Wounded";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 0.2f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.KurtTakedown_02AttackDamage_1";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 0.9f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.KurtTakedown_02AttackDamage_2";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 1.65f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.KurtTakedown_02AttackDamage_3";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 4.5f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.KurtTakedown_01AttackDamage_Stab";
+				} : ContinuousAttackEffector
+			];
+			stackable = true;
+		} : GameplayLogicPackage
+	];
+}
+
+TakedownsUnequipWeapons : DebuffStatusEffect
+{
+	statusEffectType = "BaseStatusEffectTypes.PassiveDebuff";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 9999.f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+KurtTakedown_BaseAttack : BasePhysicalDamageOverTime
+{
+	hitFlags += 
+	[
+		"CannotKillPlayer"
+	];
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.PowerLevel";
+			refObject = "Target";
+			id = "boss_power_level_to_dps_mult";
+			column = "kurt_finisher_dps_mult";
+		} : CurveStatModifier
+	];
+}
+
+KurtTakedown_01AttackDamage : KurtTakedown_BaseAttack
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.1f;
+		} : CombinedStatModifier
+	];
+}
+
+KurtTakedown_01AttackDamage_Stab : KurtTakedown_BaseAttack
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.3f;
+		} : CombinedStatModifier
+	];
+}
+
+KurtTakedown_02AttackDamage_1 : KurtTakedown_BaseAttack
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.08f;
+		} : CombinedStatModifier
+	];
+}
+
+KurtTakedown_02AttackDamage_2 : KurtTakedown_BaseAttack
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.06f;
+		} : CombinedStatModifier
+	];
+}
+
+KurtTakedown_02AttackDamage_3 : KurtTakedown_BaseAttack
+{
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.PhysicalDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.06f;
+		} : CombinedStatModifier
+	];
+}
+
+KurtTakedown_01_Effect : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10.f;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Wounded";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 6.6f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.KurtTakedown_01AttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 7.2f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "BaseStatusEffect.KurtTakedown_01AttackDamage_Stab";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+

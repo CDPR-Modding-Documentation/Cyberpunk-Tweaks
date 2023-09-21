@@ -6,7 +6,7 @@ Base_HMG : Base_Weapon
 {
 	string friendlyName = "w_militech_hmg";
 	displayName = "LocKey#3631";
-	quality = "Quality.Rare";
+	quality = "Quality.Random";
 	shootingPatternPackages = 
 	[
 		"ShootingPatterns.MachineGunShootingPackage"
@@ -23,7 +23,7 @@ Base_HMG : Base_Weapon
 	CName entityName = "weapon_root";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Unique", "HeavyWeapon", "ForceDismember", "DiscardOnEmpty", "TakeAndEquip", "HideInBackpackUI", "HideAtVendor"
+		"Preload", "Weapon", "Unique", "HeavyWeapon", "ForceDismember", "DiscardOnEmpty", "TakeAndEquip", "HideInBackpackUI", "HideAtVendor", "HMG"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -86,7 +86,7 @@ Base_HMG : Base_Weapon
 	];
 	statModifierGroups = 
 	[
-		"Items.Base_HMG_Technical_Stats", "Items.Base_HMG_Handling_Stats", "Items.Base_HMG_Recoil_Stats", "Items.Base_HMG_Spread_Stats", "Items.Base_PlayerState_Spread_Stats", "Proficiencies.DemolitionHMGStats", "Items.Base_HMG_RPG_Stats"
+		"Items.Base_HMG_Technical_Stats", "Items.Base_HMG_Handling_Stats", "Items.Base_HMG_Recoil_Stats", "Items.Base_HMG_Spread_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_HMG_RPG_Stats", "Items.Base_HMG_Damage_Stats", "Items.QualityRandomization", "Items.ItemPlusRandomizer_MaxQuality", "Items.ItemPlusRandomizer_Below_MaxQuality", "Items.Base_Weapon_Damage_Type_Physical", "Items.Base_Weapon_Damage_Type_Min_Max"
 	];
 	fk< StatPool >[] statPools = 
 	[
@@ -94,7 +94,7 @@ Base_HMG : Base_Weapon
 	];
 	fk< GameplayLogicPackage >[] OnAttach += 
 	[
-		"GLP.HoldingHeavyWeapon"
+		"GLP.HoldingHMG", "EquipmentGLP.SlowStaminaRegen", "EquipmentGLP.HeavyStaminaDelay", "EquipmentGLP.HeavyFastFiringWeaponCloseRangeDamageMult"
 	];
 	fk< ItemDropSettings > dropSettings = "";
 	bool IsIKEnabled = false;
@@ -164,7 +164,7 @@ Base_HMG_NPC_Data : Base_NPC_RPG_Data
 	];
 	statModifierGroups += 
 	[
-		"Items.Base_HMG_NPC_Technical_Stats", "Items.Base_HMG_NPC_RPG_Stats", "Items.Base_HMG_Misc_Stats"
+		"Items.Base_HMG_NPC_Technical_Stats", "Items.Base_HMG_NPC_RPG_Stats", "Items.Base_HMG_Misc_Stats", "Items.Base_HMG_NPC_Damage_Stats"
 	];
 }
 
@@ -173,29 +173,53 @@ Base_HMG_RPG_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			statType = "BaseStats.DPS";
+			statType = "BaseStats.Weight";
 			modifierType = "Additive";
-			id = "item_rifles_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.DPS";
+			value = 10.0f;
+		} : ConstantStatModifier, 
+		"Character.ScaleToPlayerLevel", {
+			statType = "BaseStats.WeaponTypeToStaminaCost";
 			modifierType = "Multiplier";
-			value = 14.f;
+			value = 1000f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.PowerLevel";
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 2.1f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow", {
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
 			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			refObject = "Player";
-			opSymbol = "*";
-			value = 1.f;
-		} : CombinedStatModifier, 
+			value = 0.9f;
+		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.Level";
 			modifierType = "Multiplier";
 			value = 0.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_HMG_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 133f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_HMG_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 75f;
 		} : ConstantStatModifier
 	];
 }
@@ -211,10 +235,10 @@ Base_HMG_Technical_Stats : StatModifierGroup
 			value = 0.15f;
 		} : CycleTimeModifier, 
 		{
-			value = 300.f;
+			value = 200.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 300.0f;
+			value = 200.0f;
 		} : ReloadAmountModifier, 
 		{
 			value = 1.f;
@@ -244,13 +268,13 @@ Base_HMG_NPC_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.15f;
+			value = 0.0909f;
 		} : CycleTimeModifier, 
 		{
-			value = 40.f;
+			value = 100.f;
 		} : MagazineCapacityModifier, 
 		{
-			value = 40.f;
+			value = 100.f;
 		} : ReloadAmountModifier, 
 		{
 			value = 1.f;
@@ -267,7 +291,7 @@ Base_HMG_NPC_Technical_Stats : StatModifierGroup
 		{
 			value = 3.3f;
 		} : ReloadTimeModifier, 
-		"AttackModifier.HMGMinTBH", "AttackModifier.HMGMinLineOfSight", "AttackModifier.HMGDamageMultiplier"
+		"AttackModifier.HMGMinTBH", "AttackModifier.HMGMinLineOfSight"
 	];
 }
 
@@ -275,43 +299,6 @@ Base_HMG_NPC_RPG_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
-		{
-			statType = "BaseStats.PowerLevel";
-			modifierType = "Additive";
-			value = 0;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.PowerLevel";
-			modifierType = "Additive";
-			min = 0f;
-			max = 0.6f;
-		} : RandomStatModifier, 
-		{
-			statType = "BaseStats.ItemLevel";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			opSymbol = "*";
-			value = 10.0f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.Level";
-			modifierType = "Additive";
-			refStat = "BaseStats.PowerLevel";
-			opSymbol = "*";
-			value = 1.0f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_rifles_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Multiplier";
-			value = 3.2f;
-		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.ClipTimesCycleBase";
 			modifierType = "Additive";
@@ -360,27 +347,6 @@ Base_HMG_NPC_RPG_Stats : StatModifierGroup
 			refStat = "BaseStats.ProjectilesPerShot";
 			opSymbol = "*";
 			value = 1f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Additive";
-			refStat = "BaseStats.DPS";
-			opSymbol = "*";
-			value = 1f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			refStat = "BaseStats.AttacksPerSecondBase";
-			opSymbol = "inv";
-			value = 1f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.BaseDamage";
-			modifierType = "Additive";
-			refStat = "BaseStats.DamagePerHit";
-			opSymbol = "*";
-			value = 1f;
 		} : CombinedStatModifier
 	];
 }
@@ -389,9 +355,6 @@ Base_HMG_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
-		{
-			value = 200.f;
-		} : DPSModifier, 
 		{
 			value = 3.3f;
 		} : ReloadTimeModifier, 
@@ -421,10 +384,10 @@ Base_HMG_Recoil_Stats : StatModifierGroup
 			value = 160.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.3f;
+			value = 0.5f;
 		} : RecoilKickMinModifier, 
 		{
-			value = 0.6f;
+			value = 0.8f;
 		} : RecoilKickMaxModifier, 
 		{
 			value = 0.06f;
@@ -455,55 +418,55 @@ Base_HMG_Spread_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 1.f;
+			value = 2.0f;
 		} : SpreadDefaultXModifier, 
 		{
-			value = 0.25f;
+			value = 1.0f;
 		} : SpreadDefaultYModifier, 
 		{
-			value = 0.2f;
+			value = 0.5f;
 		} : SpreadMinXModifier, 
 		{
-			value = 0.12f;
+			value = 0.25f;
 		} : SpreadMinYModifier, 
 		{
-			value = 2.f;
+			value = 2.0f;
 		} : SpreadMaxXModifier, 
 		{
-			value = 5.f;
+			value = 0.5f;
 		} : SpreadMaxYModifier, 
 		{
-			value = 0.1f;
+			value = 0.0f;
 		} : SpreadChangePerShotModifier, 
 		{
 			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.5f;
+			value = 1.5f;
 		} : SpreadAdsDefaultXModifier, 
 		{
 			value = 0.25f;
 		} : SpreadAdsDefaultYModifier, 
 		{
-			value = 0.f;
+			value = 0.25f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 0.f;
+			value = 0.125f;
 		} : SpreadAdsMinYModifier, 
 		{
 			value = 1.0f;
 		} : SpreadAdsMaxXModifier, 
 		{
-			value = 0.4f;
+			value = 0.5f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			value = 0.1f;
+			value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			value = 5.f;
+			value = 1.25f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.3f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -532,7 +495,7 @@ w_special__militech_HMG__rcv1 : WeaponRifleReceiverBase
 Preset_HMG_Default : Base_HMG
 {
 	CName appearanceResourceName = "Preset_HMG_Default";
-	fk< RangedAttackPackage > rangedAttacks = "Attacks.ExplodingBulletSmallPackage";
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.ExplodingBulletHMGPackage";
 	fk< SlotItemPartPreset >[] slotPartListPreset = 
 	[
 		{
@@ -547,23 +510,55 @@ Preset_HMG_Default : Base_HMG
 	];
 	npcRPGData = 
 	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.Accuracy";
+				modifierType = "Multiplier";
+				value = 0.66;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.NPCWeaponDropRandomizer";
+				modifierType = "Multiplier";
+				value = 1.3;
+			} : ConstantStatModifier
+		];
 	} : Base_HMG_NPC_Data;
+	statModifiers += 
+	[
+		{
+			statType = "BaseStats.NPCWeaponDropRandomizer";
+			modifierType = "Multiplier";
+			value = 1.3;
+		} : ConstantStatModifier
+	];
 }
 
 [ notQueryable ]
 Preset_HMG_Sasquatch : Preset_HMG_Default
 {
-	fk< Attack >[] attacks += 
-	[
-		"Attacks.ExplodingBulletSasquatchProjectile"
-	];
-	fk< RangedAttackPackage > rangedAttacks = "Attacks.ExplodingBulletSasquatchPackage";
+	npcRPGData = 
+	{
+		statModifiers += 
+		[
+			{
+				statType = "BaseStats.Accuracy";
+				modifierType = "Multiplier";
+				value = 0.66;
+			} : ConstantStatModifier, 
+			"AttackModifier.WeaponArmorPenetrationMedium"
+		];
+	} : Base_HMG_NPC_Data;
 }
 
 [ notQueryable ]
 Preset_HMG_Military : Preset_HMG_Default
 {
 	visualTags = 
+	[
+		"Military"
+	];
+	tags += 
 	[
 		"Military"
 	];
@@ -576,6 +571,10 @@ Preset_HMG_Neon : Preset_HMG_Default
 	[
 		"Neon"
 	];
+	tags += 
+	[
+		"Neon"
+	];
 }
 
 [ notQueryable ]
@@ -585,12 +584,22 @@ Preset_HMG_Pimp : Preset_HMG_Default
 	[
 		"Pimp"
 	];
+	tags += 
+	[
+		"Pimp"
+	];
 }
 
 [ notQueryable ]
 w_special_flak : Preset_HMG_Default
 {
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.ExplodingBulletPackage";
+	enableNpcRPGData = false;
 	itemSecondaryAction = "";
+	attacks += 
+	[
+		"Attacks.ExplodingBulletTurretProjectile"
+	];
 }
 
 [ notQueryable ]
@@ -612,12 +621,7 @@ Preset_HMG_Chopper : Preset_HMG_Default
 			refObject = "Player";
 			opSymbol = "*";
 			value = -1.f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Multiplier";
-			value = 4f;
-		} : ConstantStatModifier
+		} : CombinedStatModifier
 	];
 }
 
@@ -652,10 +656,14 @@ Base_HMG_Misc_Stats : StatModifierGroup
 [ notQueryable ]
 Preset_HMG_Invisible : Base_HMG
 {
-	fk< RangedAttackPackage > rangedAttacks = "Attacks.ExplodingBulletSmallPackage";
+	fk< RangedAttackPackage > rangedAttacks = "Attacks.ExplodingBulletPackage";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerLC_HMG_Invisible";
+	attacks += 
+	[
+		"Attacks.ExplodingBulletTurretProjectile"
+	];
 	entityName = "blank_weapon";
-	enableNpcRPGData = true;
+	enableNpcRPGData = false;
 	visualTags = 
 	[
 		"none"

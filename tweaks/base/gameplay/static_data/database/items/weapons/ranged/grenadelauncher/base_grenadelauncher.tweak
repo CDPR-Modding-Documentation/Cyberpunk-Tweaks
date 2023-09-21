@@ -1,0 +1,367 @@
+package Items
+using RTDB, BaseStats, WeaponFxPackage, AttachmentSlots, Prereqs
+
+[ notQueryable ]
+Base_GrenadeLauncher : Base_Weapon
+{
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Precision_Sniper_Rifle_NoMuzzle_Blueprint";
+	fk< ItemType > itemType = "ItemType.Wea_GrenadeLauncher";
+	triggerEffectName = "te_wea_aim_slow";
+	fk< TriggerMode >[] triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	fk< Attack >[] attacks += 
+	[
+		"Attacks.RocketProjectile", "Attacks.RocketChargedProjectile"
+	];
+	fk< AttachmentSlot >[] placementSlots += 
+	[
+		"AttachmentSlots.ItemSlotTechRifle"
+	];
+	stateMachineName = "Weapon";
+	statModifierGroups += 
+	[
+		"Items.Base_GrenadeLauncher_RPG_Stats", "Items.Base_GrenadeLauncher_Misc_Stats", "Items.Base_GrenadeLauncher_DeadReckoning_Stats", "Items.Base_GrenadeLauncher_Sway_Stats", "Items.Base_PlayerState_Spread_Stats"
+	];
+	ammo = "Ammo.RifleAmmo";
+}
+
+Base_GrenadeLauncher_RPG_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.Weight";
+			modifierType = "Additive";
+			value = 11f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_GrenadeLauncher_Misc_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			float value = 0.5f;
+		} : UnequipDurationModifier, 
+		{
+			float value = 0.3f;
+		} : EquipDurationModifier, 
+		"BaseStats.SlideWhenLeaningOutOfCoverModifier", "BaseStats.BlockLocomotionWhenLeaningOutOfCoverModifier", {
+			statType = "BaseStats.BulletMagnetismDefaultAngle";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletMagnetismHighVelocityAngle";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			value = 25.f;
+		} : EffectiveRangeModifier, 
+		{
+			value = 0.5f;
+		} : ShootingOffsetAIModifier, 
+		{
+			value = 1.f;
+		} : RecoilRecoveryMinSpeedModifier, 
+		{
+			value = 30.f;
+		} : RecoilMaxLengthModifier, 
+		{
+			value = 30.f;
+		} : PhysicalImpulseModifier, 
+		{
+			value = 30.f;
+		} : KnockdownImpulseModifier, 
+		{
+			value = 30.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			value = 30.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			value = 0.3f;
+		} : AimInTimeModifier, 
+		{
+			value = 0.3f;
+		} : AimOutTimeModifier, 
+		{
+			value = 75.f;
+		} : MaximumRangeModifier
+	];
+}
+
+Base_GrenadeLauncher_DeadReckoning_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.BulletDeadReckoningEnabled";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMinimumSpeed";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMaxRange";
+			modifierType = "Additive";
+			value = 40.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMaxAngleCorrection";
+			modifierType = "Additive";
+			value = 25.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_GrenadeLauncher_Sway_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.f;
+		} : SwayResetOnAimStartModifier, 
+		{
+			value = 7.f;
+		} : SwayTraversalTimeModifier, 
+		{
+			value = 2.1f;
+		} : SwaySideMaximumAngleDistanceModifier, 
+		{
+			value = 1.7f;
+		} : SwaySideMinimumAngleDistanceModifier, 
+		{
+			value = 90.f;
+		} : SwaySideTopAngleLimitModifier, 
+		{
+			value = 90.f;
+		} : SwaySideBottomAngleLimitModifier, 
+		{
+			value = 0.1f;
+		} : SwaySideStepChangeMaximumFactorModifier, 
+		{
+			value = 0.05f;
+		} : SwaySideStepChangeMinimumFactorModifier, 
+		{
+			value = 0.55f;
+		} : SwayCurvatureMaximumFactorModifier, 
+		{
+			value = 0.55f;
+		} : SwayCurvatureMinimumFactorModifier, 
+		{
+			value = 0.165f;
+		} : SwayCenterMaximumAngleOffsetModifier, 
+		{
+			value = 0.0f;
+		} : SwayInitialOffsetRandomFactorModifier, 
+		{
+			value = 0.03f;
+		} : SwayStartDelayModifier, 
+		{
+			value = 2.0f;
+		} : SwayStartBlendTimeModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMin";
+			modifierType = "Additive";
+			value = 0.8f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilDriftRandomRangeMax";
+			modifierType = "Additive";
+			value = 1.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilMagForFullDrift";
+			modifierType = "Additive";
+			value = 3.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.RecoilAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAnimation";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_GrenadeLauncher_NPC_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.CanUseCloseRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseMediumRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseFarRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.CanUseExtremeRing";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitReactionFactor";
+			modifierType = "Additive";
+			value = 2.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitWoundsFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HitDismembermentFactor";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			value = 30.f;
+		} : PhysicalImpulseModifier, 
+		{
+			value = 30.f;
+		} : KnockdownImpulseModifier, 
+		{
+			value = 30.f;
+		} : BaseKnockdownImpulseModifier, 
+		{
+			value = 30.f;
+		} : BaseEvadeImpulseModifier, 
+		{
+			value = 0.22f;
+		} : EquipItemTime_GangModifier, 
+		{
+			value = 0.3f;
+		} : EquipAnimationDuration_GangModifier, 
+		{
+			value = 0.7f;
+		} : EquipActionDuration_GangModifier, 
+		{
+			value = 0.434f;
+		} : UnequipItemTime_GangModifier, 
+		{
+			value = 1.033f;
+		} : UnequipAnimationDuration_GangModifier, 
+		{
+			value = 1.1f;
+		} : UnequipDuration_GangModifier, 
+		{
+			value = 0.233f;
+		} : EquipItemTime_CorpoModifier, 
+		{
+			value = 0.5f;
+		} : EquipAnimationDuration_CorpoModifier, 
+		{
+			value = 0.733f;
+		} : EquipActionDuration_CorpoModifier, 
+		{
+			value = 0.5f;
+		} : UnequipItemTime_CorpoModifier, 
+		{
+			value = 1.033f;
+		} : UnequipAnimationDuration_CorpoModifier, 
+		{
+			value = 1.1f;
+		} : UnequipDuration_CorpoModifier
+	];
+}
+
+Base_GrenadeLauncher_Mult_Stats : StatModifierGroup
+{
+	statModifiers = [];
+}
+
+Base_GrenadeLauncher_NPC_Data : Base_NPC_RPG_Data
+{
+	statModifiers += 
+	[
+		"AttackModifier.RevolverMinTBH", "AttackModifier.RevolverMinLineOfSight"
+	];
+	statModifierGroups += 
+	[
+		"Items.Base_GrenadeLauncher_NPC_Stats"
+	];
+}
+
+[ notQueryable ]
+Base_Power_GrenadeLauncher : Base_GrenadeLauncher
+{
+	buyPrice += 
+	[
+		"Price.PowerWeapon"
+	];
+	sellPrice += 
+	[
+		"Price.PowerWeapon"
+	];
+	previewEffectName = "weaponPreview";
+	previewEffectTag = "ricochet";
+	rangedAttacks = "Attacks.PowerRoundsBulletPackage";
+	statModifierGroups += 
+	[
+		"Items.Base_Power_GrenadeLauncher_Mult_Stats", "Items.Base_Power_GrenadeLauncher_Stats"
+	];
+}
+
+Base_Power_GrenadeLauncher_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.05f;
+		} : RicochetChanceModifier, 
+		{
+			statType = "BaseStats.RicochetChance";
+			modifierType = "Additive";
+			refObject = "Player";
+			refStat = "BaseStats.HasPowerGrip";
+			opSymbol = "*";
+			value = 0.95f;
+		} : CombinedStatModifier, 
+		{
+			value = 1.f;
+		} : RicochetCountModifier, 
+		{
+			value = 15.f;
+		} : RicochetTargetSearchAngleModifier, 
+		{
+			value = 0.f;
+		} : RicochetMinAngleModifier, 
+		{
+			value = 45.f;
+		} : RicochetMaxAngleModifier
+	];
+}
+
+Base_Power_GrenadeLauncher_Mult_Stats : StatModifierGroup
+{
+	statModifiers = [];
+}
+
+Base_Power_GrenadeLauncher_NPC_Data : Base_GrenadeLauncher_NPC_Data
+{
+	statModifierGroups += 
+	[
+	];
+}
+

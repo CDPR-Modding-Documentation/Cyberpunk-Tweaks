@@ -19,7 +19,7 @@ Base_Dian : Base_Smart_Submachinegun
 	CName audioName = "wea_set_dian";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "WeaponAttachment", "HasFirstEquip", "SMG"
+		"Preload", "Weapon", "WeaponAttachment", "HasFirstEquip", "SMG", "T3_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -28,7 +28,7 @@ Base_Dian : Base_Smart_Submachinegun
 	fk< TriggerMode > primaryTriggerMode = "TriggerMode.FullAuto";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Corporation";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Smart";
-	fk< Item > ammo = "Ammo.RifleAmmo";
+	fk< Item > ammo = "Ammo.HandgunAmmo";
 	fk< RangedAttackPackage > rangedAttacks = "Attacks.SmartBulletHighPackage";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
@@ -76,12 +76,15 @@ Base_Dian : Base_Smart_Submachinegun
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Dian_Technical_Stats", "Items.Base_Dian_SmartGun_Projectile_Stats"
 		];
-	} : Base_Smart_Submachinegun_NPC_Data;
+	} : Base_Dian_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Dian_Technical_Stats", "Items.Base_Dian_Handling_Stats", "Items.Base_Dian_Recoil_Stats", "Items.Base_Dian_SmartGun_Stats", "Items.Base_Dian_SmartGun_SmartLink_Stats", "Items.Base_Dian_SmartGun_Projectile_Stats", "Items.Base_Dian_Flags", "Items.Base_Dian_SpreadStats", "Items.Base_Dian_Aim_Stats", "Items.Base_Dian_Constant_Stats"
+		"Items.Base_Dian_Technical_Stats", "Items.Base_Dian_Handling_Stats", "Items.Base_Dian_Recoil_Stats", "Items.Base_Dian_SmartGun_Stats", "Items.Base_Dian_SmartGun_SmartLink_Stats", "Items.Base_Dian_SmartGun_Projectile_Stats", "Items.Base_Dian_Flags", "Items.Base_Dian_SpreadStats", "Items.Base_Dian_Aim_Stats", "Items.Base_Dian_Constant_Stats", "Items.Base_Dian_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.LightStaminaDelay", "Items.SmartWeaponTargetsPriorityQueues"
 	];
 	fk< ConstantStatModifier > price = 
 	{
@@ -92,10 +95,10 @@ Base_Dian : Base_Smart_Submachinegun
 	bool useNewSpawnMethod = true;
 	bool isSingleInstance = false;
 	bool IsIKEnabled = false;
-	baseReloadTime = 2.f;
-	baseEmptyReloadTime = 2.5f;
-	uninterruptibleReloadStart = 1.3f;
-	uninterruptibleEmptyReloadStart = 1.3f;
+	baseReloadTime = 1.4f;
+	baseEmptyReloadTime = 1.4f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -112,6 +115,14 @@ Base_Dian : Base_Smart_Submachinegun
 	float weaponBlurIntensity_aim = 1.f;
 }
 
+Base_Dian_NPC_Data : Base_Smart_Submachinegun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Dian_Technical_Stats", "Items.Base_Dian_SmartGun_Projectile_Stats", "Items.Base_Dian_NPC_Damage_Stats"
+	];
+}
+
 Base_Dian_Technical_Stats : StatModifierGroup
 {
 	statModifiers = 
@@ -120,7 +131,7 @@ Base_Dian_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 5.f;
+			value = 2.f;
 		} : AccuracyModifier, 
 		{
 			value = 0.08f;
@@ -144,18 +155,48 @@ Base_Dian_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Dian_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 64f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Dian_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 37f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Dian_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.f;
+			value = 1.4f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.5f;
+			value = 1.4f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.5f;
+			value = 0.6f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.1f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.3f;
 		} : ZoomLevelModifier, 
 		{
 			value = 3.5f;
@@ -202,46 +243,49 @@ Base_Dian_SmartGun_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 15.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
 		{
 			value = 0.f;
-		} : SmartGunTrackAllBodypartsModifier, 
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
 		{
-			value = 4.f;
+			value = 0.1f;
+		} : SmartGunEvenDistributionPeriodModifier, 
+		{
+			value = 0.f;
 		} : SmartGunHipLockingAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.f;
 		} : SmartGunHipLockingAngleYawModifier, 
 		{
-			value = 4.f;
+			value = 0.f;
 		} : SmartGunAdsLockingAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.f;
 		} : SmartGunAdsLockingAngleYawModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAngleYawModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAnglePitchModifier, 
 		{
-			value = 4.f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAngleYawModifier, 
 		{
-			value = 1.f;
+			value = 3.f;
 		} : SmartGunHipMaxLockedTargetsModifier, 
 		{
 			value = 1.f;
 		} : SmartGunAdsMaxLockedTargetsModifier, 
 		{
-			value = 0.4f;
+			value = 1.15f;
 		} : SmartGunHipTimeToLockModifier, 
 		{
-			value = 0.4f;
+			value = 1.15f;
 		} : SmartGunAdsTimeToLockModifier, 
 		{
 			value = 0.f;
@@ -262,7 +306,7 @@ Base_Dian_SmartGun_Stats : StatModifierGroup
 			value = 0.0f;
 		} : SmartGunStartingAccuracyModifier, 
 		{
-			value = 0.1f;
+			value = 5.0f;
 		} : SmartGunSpreadMultiplierModifier, 
 		{
 			value = 30.f;
@@ -278,60 +322,56 @@ Base_Dian_SmartGun_SmartLink_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 4.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunHipLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunHipLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 8.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 12.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.f;
+			value = 1.5f;
 			statType = "BaseStats.SmartGunHipTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.f;
+			value = 1.5f;
 			statType = "BaseStats.SmartGunAdsTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 3.f;
+			value = 1.5f;
 			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 0.20f;
+			value = 0.15f;
 			statType = "BaseStats.SmartGunHitProbability";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 30.f;
+			value = 10.f;
 			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 15.f;
-			statType = "BaseStats.SmartGunTargetAcquisitionRange";
 		} : SmartLinkDependentStatModifier
 	];
 }
@@ -375,25 +415,25 @@ Base_Dian_SpreadStats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadMinXModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadMinYModifier, 
 		{
 			value = 1.0f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.0f;
+			value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.15f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -433,7 +473,7 @@ Base_Dian_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 2.0f;
+			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
@@ -441,24 +481,44 @@ Base_Dian_Constant_Stats : StatModifierGroup
 			value = 3.0f;
 		} : ConstantStatModifier, 
 		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.5f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.1f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.2f;
+			value = 0.16f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.24f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 1.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.2f;
 		} : ConstantStatModifier
 	];
 }

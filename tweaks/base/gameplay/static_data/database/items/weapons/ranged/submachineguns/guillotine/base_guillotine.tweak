@@ -6,15 +6,15 @@ Base_Guillotine : Base_Power_Submachinegun
 {
 	buyPrice += 
 	[
-		"Price.BudgetArms", "Price.LowManufactureQuality"
+		"Price.BudgetArms", "Price.LowManufactureQuality", "Price.GuilottineMultiplier"
 	];
 	sellPrice += 
 	[
-		"Price.BudgetArms", "Price.LowManufactureQuality"
+		"Price.BudgetArms", "Price.LowManufactureQuality", "Price.GuilottineMultiplier"
 	];
 	displayName = "LocKey#79377";
 	localizedDescription = "LocKey#79378";
-	fk< ItemBlueprint > blueprint = "Items.Base_Submachinegun_NoScope_Blueprint";
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_AR_SMG_LMG_NoScope_Blueprint";
 	string friendlyName = "w_submachinegun_militech_saratoga";
 	CName audioName = "wea_set_guillotine";
 	fk< Crosshair > crosshair = "Crosshairs.Power_Saratoga";
@@ -76,27 +76,30 @@ Base_Guillotine : Base_Power_Submachinegun
 	fk< TriggerMode > primaryTriggerMode = "TriggerMode.FullAuto";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Street";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Power";
-	fk< Item > ammo = "Ammo.RifleAmmo";
+	fk< Item > ammo = "Ammo.HandgunAmmo";
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Guillotine_Technical_Stats"
 		];
-	} : Base_Power_Submachinegun_NPC_Data;
+	} : Base_Guillotine_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Guillotine_Technical_Stats", "Items.Base_Guillotine_Handling_Stats", "Items.Base_Guillotine_Constant_Stats", "Items.Base_Guillotine_Recoil_Stats", "Items.Base_Guillotine_Aim_Stats", "Items.Base_Guillotine_Spread_Stats"
+		"Items.Base_Guillotine_Technical_Stats", "Items.Base_Guillotine_Handling_Stats", "Items.Base_Guillotine_Constant_Stats", "Items.Base_Guillotine_Recoil_Stats", "Items.Base_Guillotine_Aim_Stats", "Items.Base_Guillotine_Spread_Stats", "Items.Base_Guillotine_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.LightStaminaDelay"
 	];
 	CName audioSwitchName = "";
 	CName audioSwitchValue = "";
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerSMG";
 	bool useNewSpawnMethod = true;
-	baseReloadTime = 2.37f;
-	baseEmptyReloadTime = 2.4f;
-	uninterruptibleReloadStart = 1.3f;
-	uninterruptibleEmptyReloadStart = 1.4f;
+	baseReloadTime = 1.4f;
+	baseEmptyReloadTime = 1.4f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -117,7 +120,7 @@ Base_Guillotine_NPC_Data : Base_Power_Submachinegun_NPC_Data
 {
 	statModifierGroups += 
 	[
-		"Items.Base_Guillotine_Technical_Stats"
+		"Items.Base_Guillotine_Technical_Stats", "Items.Base_Guillotine_NPC_Damage_Stats"
 	];
 }
 
@@ -132,7 +135,7 @@ Base_Guillotine_Technical_Stats : StatModifierGroup
 			value = 0.075f;
 		} : CycleTimeModifier, 
 		{
-			value = 30.f;
+			value = 45.f;
 		} : MagazineCapacityModifier, 
 		{
 			value = 1.f;
@@ -141,16 +144,46 @@ Base_Guillotine_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Guillotine_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 70f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Guillotine_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 37f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Guillotine_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.37f;
+			value = 1.4f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.4f;
+			value = 1.4f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.97f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.0f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.2f;
 		} : ZoomLevelModifier, 
@@ -168,16 +201,16 @@ Base_Guillotine_Recoil_Stats : StatModifierGroup
 			float value = 10.f;
 		} : RecoilDirModifier, 
 		{
-			float value = 90.f;
+			float value = 60.f;
 		} : RecoilAngleModifier, 
 		{
-			float value = 0.025f;
+			float value = 0.075f;
 		} : RecoilHoldDurationModifier, 
 		{
 			float value = 0.025f;
 		} : RecoilTimeModifier, 
 		{
-			float value = 0.3f;
+			float value = 0.25f;
 		} : RecoilRecoveryTimeModifier, 
 		{
 			float value = 1.f;
@@ -190,7 +223,25 @@ Base_Guillotine_Recoil_Stats : StatModifierGroup
 		} : RecoilEnableLinearXADSModifier, 
 		{
 			float value = 1.f;
-		} : RecoilEnableLinearYADSModifier
+		} : RecoilEnableLinearYADSModifier, 
+		{
+			value = 1.0f;
+		} : RecoilCycleTimeModifier, 
+		{
+			value = 0.2f;
+		} : RecoilCycleSizeModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableScaleYModifier, 
+		{
+			value = 1.f;
+		} : RecoilEnableScaleXModifier, 
+		{
+			value = 1.0f;
+		} : RecoilScaleTimeModifier, 
+		{
+			value = 0.2f;
+		} : RecoilScaleMaxModifier
 	];
 }
 
@@ -208,25 +259,25 @@ Base_Guillotine_Spread_Stats : StatModifierGroup
 			float value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			float value = 1.f;
+			float value = 0.0f;
 		} : SpreadAdsMinXModifier, 
 		{
 			float value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			float value = 1.1f;
+			float value = 0.0f;
 		} : SpreadAdsMaxXModifier, 
 		{
-			float value = 0.375f;
+			float value = 0.0f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			float value = 0.06f;
+			float value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			float value = 2.5f;
+			float value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
-			float value = 0.1f;
+			float value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			float value = 0.f;
@@ -244,12 +295,12 @@ Base_Guillotine_Aim_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.AimFOV";
 			modifierType = "Additive";
-			value = 28;
+			value = 12;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.AimOffset";
 			modifierType = "Additive";
-			value = -0.12f;
+			value = 0.16f;
 		} : ConstantStatModifier
 	];
 }
@@ -261,33 +312,72 @@ Base_Guillotine_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.33f;
+			value = 1.154f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsDefaultX";
+			modifierType = "Additive";
+			value = 0.438f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 2.75f;
+			value = 4.616f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsMaxX";
+			modifierType = "Additive";
+			value = 1.752f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.3f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.03f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 1.1f;
+			value = 0.45f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 1.3f;
-		} : ConstantStatModifier
+			value = 0.65f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.200f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			value = 0.3f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ZoomLevel";
+			modifierType = "Additive";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			value = 0.1f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "AdditiveMultiplier";
+			refStat = "BaseStats.Quality";
+			opSymbol = "*";
+			value = 0.025f;
+		} : CombinedStatModifier
 	];
 }
 

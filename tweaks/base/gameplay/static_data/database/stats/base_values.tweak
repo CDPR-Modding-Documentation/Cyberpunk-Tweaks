@@ -7,13 +7,17 @@ DPS : Stat
 	enumName = "DPS";
 	enumComment = "Overral DPS value";
 	localizedName = "LocKey#726";
+	flags = 
+	[
+		"EquipOnNPC"
+	];
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
 EffectiveDPS : Stat
 {
 	enumName = "EffectiveDPS";
-	localizedName = "LocKey#49464";
+	localizedName = "LocKey#726";
 	flags = 
 	[
 		"EquipOnPlayer"
@@ -26,6 +30,12 @@ BonusDPS : Stat
 	enumComment = "Bonus DPS value";
 	localizedName = "Gameplay-RPG-Stats-BonusDPS";
 	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ItemPlusDPS : Stat
+{
+	enumName = "ItemPlusDPS";
+	enumComment = "Bonus DPS value provided by Tier+";
 }
 
 DPSModifier : ConstantStatModifier
@@ -44,6 +54,16 @@ NPCDamage : Stat
 	];
 }
 
+NPCDoTDPS : Stat
+{
+	enumName = "NPCDoTDPS";
+	enumComment = "DPS value specifically for DOTs which are not reduced by armor, only by resistances.";
+	flags = 
+	[
+		"EquipOnNPC"
+	];
+}
+
 SpecialDamage : Stat
 {
 	enumName = "SpecialDamage";
@@ -56,6 +76,12 @@ NPCUploadTime : Stat
 {
 	enumName = "NPCUploadTime";
 	enumComment = "Escales the upload time of enemy netrunner upload";
+}
+
+HackRevealPositionModifier : Stat
+{
+	enumName = "HackRevealPositionModifier";
+	enumComment = "Scales the time needed to reveal the player's position due to hacking";
 }
 
 Durability : Stat
@@ -83,7 +109,9 @@ Health : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#1894";
+	decimalPlaces = 1;
 	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
 }
 
 BonusHealth : Stat
@@ -102,6 +130,7 @@ Oxygen : Stat
 	];
 	localizedName = "LocKey#49471";
 	improvementRelation = "ImprovementRelation.Direct";
+	canBeForcedByQuests = true;
 }
 
 Stamina : Stat
@@ -114,13 +143,27 @@ Stamina : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#729";
-	bool displayPlus = true;
+	displayPlus = true;
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
 BonusStamina : Stat
 {
 	enumName = "BonusStamina";
+}
+
+StaminaRatio : Stat
+{
+	enumName = "StaminaRatio";
+	enumComment = "Current stamina pool value / max stamina pool value";
+	min = 0;
+	max = 1;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	bool displayPlus = true;
+	improvementRelation = "ImprovementRelation.Direct";
 }
 
 Armor : Stat
@@ -131,7 +174,31 @@ Armor : Stat
 	[
 		"EquipOnPlayer"
 	];
-	bool displayPlus = true;
+	displayPlus = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ArmorMultBonus : Stat
+{
+	enumName = "ArmorMultBonus";
+	enumComment = "Use this instead of putting an AdditiveMultiplier (or Multiplier) bonus on Armor. Helps calculate the predicted armor value.";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	displayPlus = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+Overshield : Stat
+{
+	enumName = "Overshield";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	displayPlus = true;
+	min = 0.0f;
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
@@ -147,8 +214,9 @@ ItemArmor : Stat
 	enumName = "ItemArmor";
 	enumComment = "Used to create a single gamedataStatType.Armor additive mod on a whole item. CYB-550388";
 	localizedName = "LocKey#40290";
-	bool displayPlus = true;
+	displayPlus = true;
 	improvementRelation = "ImprovementRelation.Direct";
+	decimalPlaces = 1;
 }
 
 PartArmor : Stat
@@ -156,7 +224,7 @@ PartArmor : Stat
 	enumName = "PartArmor";
 	enumComment = "Used to create a single gamedataStatType.ItemArmor additive mod on a single item part. CYB-550388";
 	localizedName = "LocKey#40290";
-	bool displayPlus = true;
+	displayPlus = true;
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
@@ -214,16 +282,51 @@ DeviceMemoryCostReduction : Stat
 	improvementRelation = "ImprovementRelation.Inverse";
 }
 
+DeviceMemoryCostReductionMult : Stat
+{
+	enumName = "DeviceMemoryCostReductionMult";
+}
+
+DamageQuickHackMemoryCostReduction : Stat
+{
+	enumName = "DamageQuickHackMemoryCostReduction";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
 UltimateMemoryCostReduction : Stat
 {
 	enumName = "UltimateMemoryCostReduction";
 	improvementRelation = "ImprovementRelation.Inverse";
 }
 
+SuicideHackMemoryCostReduction : Stat
+{
+	enumName = "SuicideHackMemoryCostReduction";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+SystemCollapseMemoryCostReduction : Stat
+{
+	enumName = "SystemCollapseMemoryCostReduction";
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
 QuickHackUpload : Stat
 {
 	enumName = "QuickHackUpload";
-	enumComment = "Iniitializes quick hack upload stat pool when player applies quick hack to a target";
+	enumComment = "Initializes quick hack upload stat pool when player applies quick hack to a target";
+}
+
+EnemyQuickHackUploadDurationBonus : Stat
+{
+	enumName = "EnemyQuickHackUploadDurationBonus";
+	flags += 
+	[
+		"EquipOnPlayer"
+	];
+	displayPlus = true;
+	displayPercent = true;
+	localizedName = "LocKey#94397";
 }
 
 QuickHackDuration : Stat
@@ -232,11 +335,21 @@ QuickHackDuration : Stat
 	enumComment = "Iniitializes quick hack duration stat pool when player applies quick hack to a target";
 }
 
+OverheatDurationIncrease : Stat
+{
+	enumName = "OverheatDurationIncrease";
+	enumComment = "Increases the duration of the applied Overheat quickhack by this amount per OverheatDurationIncreaseSE stack";
+}
+
 BufferSize : Stat
 {
 	enumName = "BufferSize";
 	enumComment = "Minigame buffer size";
 	min = 0;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
 	localizedName = "";
 }
 
@@ -271,11 +384,31 @@ Visibility : Stat
 	min = 0;
 	improvementRelation = "ImprovementRelation.Inverse";
 	localizedName = "LocKey#52610";
-	bool isPercentage = true;
+	decimalPlaces = 1;
+	displayPlus = true;
+	displayPercent = true;
+	multiplyBy100InText = true;
 	flags = 
 	[
 		"EquipOnPlayer"
 	];
+}
+
+VisibilityReduction : Stat
+{
+	enumName = "VisibilityReduction";
+	enumComment = "Similar to visibility, but works in reverse";
+	min = 0;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	localizedName = "LocKey#92124";
+	decimalPlaces = 1;
+	displayPlus = true;
+	displayPercent = true;
+	multiplyBy100InText = true;
+	improvementRelation = "ImprovementRelation.Direct";
 }
 
 Detection : Stat
@@ -283,6 +416,26 @@ Detection : Stat
 	enumName = "Detection";
 	min = 0;
 	max = 100;
+}
+
+DetectionSpeedDecrease : Stat
+{
+	enumName = "DetectionSpeedDecrease";
+	enumComment = "Decrease in the speed of detection";
+	min = 0;
+}
+
+CameraDetectionSpeedReduction : Stat
+{
+	enumName = "CameraDetectionSpeedReduction";
+	enumComment = "Decrease in the speed of detection by enemy cameras. Currently only works for the player.";
+	min = 0;
+	max = 1;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
 }
 
 Price : Stat
@@ -297,7 +450,7 @@ PowerLevel : Stat
 {
 	enumName = "PowerLevel";
 	enumComment = "THE Stat, used for autobalancing the entire game";
-	min = 0;
+	min = 1;
 	max = 50;
 	flags = 
 	[
@@ -316,8 +469,19 @@ ItemLevel : Stat
 		"ExcludeRootCombination"
 	];
 	localizedName = "LocKey#732";
-	bool roundValue = true;
+	roundValue = true;
 	improvementRelation = "ImprovementRelation.Direct";
+}
+
+LootLevel : Stat
+{
+	enumName = "LootLevel";
+	min = 0;
+	max = 50;
+	flags = 
+	[
+		"ExcludeRootCombination"
+	];
 }
 
 Quantity : Stat
@@ -343,23 +507,43 @@ Weight : Stat
 CritChance : Stat
 {
 	enumName = "CritChance";
-	min = 0;
+	min = -5;
 	max = 100;
 	flags = [];
-	bool isPercentage = true;
-	bool displayPlus = true;
+	displayPercent = true;
+	displayPlus = true;
 	localizedName = "LocKey#36319";
 	improvementRelation = "ImprovementRelation.Direct";
+	decimalPlaces = 1;
+}
+
+CritChanceBonus : CritChance
+{
+	enumName = "CritChanceBonus";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
 }
 
 CritDamage : Stat
 {
 	enumName = "CritDamage";
 	flags = [];
-	bool isPercentage = true;
-	bool displayPlus = true;
+	displayPercent = true;
+	displayPlus = true;
 	localizedName = "LocKey#36320";
 	improvementRelation = "ImprovementRelation.Direct";
+	decimalPlaces = 1;
+}
+
+CritDamageBonus : CritDamage
+{
+	enumName = "CritDamageBonus";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
 }
 
 CritChanceTimeCritDamage : Stat
@@ -372,12 +556,53 @@ CritDPSBonus : Stat
 	enumName = "CritDPSBonus";
 }
 
+QuickHackCritChance : Stat
+{
+	enumName = "QuickHackCritChance";
+	enumComment = "Quickhacks use their own separate crit chance when CanQuickHackCriticallyHit is true";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+BaseRicochetDamageMultiplier : Stat
+{
+	enumName = "BaseRicochetDamageModifier";
+}
+
 BonusRicochetDamage : Stat
 {
 	enumName = "BonusRicochetDamage";
 	localizedName = "LocKey#36324";
-	bool isPercentage = true;
-	bool displayPlus = true;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+BonusRicochetAngle : Stat
+{
+	enumName = "BonusRicochetAngle";
+	enumComment = "Tooltip only stat to state Ricochet Angle increase";
+	localizedName = "LocKey#92439";
+	decimalPlaces = 1;
+	displayPlus = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+BonusRicochetCritChance : Stat
+{
+	enumName = "BonusRicochetCritChance";
+	localizedName = "LocKey#92440";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
@@ -385,8 +610,8 @@ BonusChargeDamage : Stat
 {
 	enumName = "BonusChargeDamage";
 	localizedName = "LocKey#36323";
-	bool isPercentage = true;
-	bool displayPlus = true;
+	displayPercent = true;
+	displayPlus = true;
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
@@ -405,11 +630,78 @@ SmartTargetingDisruptionProbability : Stat
 	max = 1;
 }
 
+SmartTargetingShouldNotDisableCollision : Stat
+{
+	enumName = "SmartTargetingShouldNotDisableCollision";
+	enumComment = "Generally when a target disrupts smart projectiles, it also disables their collision just in case; with this stat it won't";
+	flags = 
+	[
+		"Bool"
+	];
+}
+
 SmartGunHitProbabilityMultiplier : Stat
 {
 	enumName = "SmartGunHitProbabilityMultiplier";
 	enumComment = "Multiplier for the probability of the object's smart weapons to be able to track/hit their target. Each smart gun has a SmartGunHitProbability";
 	localizedName = "Gameplay-RPG-Stats-SmartGunHitProbabilityMultiplier";
+}
+
+GrenadesCharges : Stat
+{
+	enumName = "GrenadesCharges";
+	enumComment = "GrenadesCharges";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-GrenadesCharges";
+	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
+}
+
+HealingItemsCharges : Stat
+{
+	enumName = "HealingItemsCharges";
+	enumComment = "HealingItemsCharges";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-HealingItemsCharges";
+	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
+}
+
+OpticalCamoCharges : Stat
+{
+	enumName = "OpticalCamoCharges";
+	enumComment = "OpticalCamoCharges";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-OpticalCamoCharges";
+	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
+}
+
+CWMaskCharges : Stat
+{
+	enumName = "CWMaskCharges";
+	enumComment = "Amount of initial/max CW mask charges";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-CWMaskCharges";
+	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
+}
+
+ProjectileLauncherCharges : Stat
+{
+	enumName = "ProjectileLauncherCharges";
+	enumComment = "ProjectileLauncherCharges";
+	min = 0;
+	localizedName = "Gameplay-RPG-Stats-ProjectileLauncherCharges";
+	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
+}
+
+VehicleMissileLauncherCharges : Stat
+{
+	enumName = "VehicleMissileLauncherCharges";
+	enumComment = "VehicleMissileLauncherCharges";
+	improvementRelation = "ImprovementRelation.Direct";
 }
 
 MaxDuration : Stat
@@ -465,6 +757,13 @@ StatModifierGroupLimit : Stat
 	max = 9999999;
 }
 
+CyberwareDurationBuff : Stat
+{
+	min = 0;
+	max = 1;
+	enumName = "CyberwareDurationBuff";
+}
+
 CyberwareCooldownReduction : Stat
 {
 	min = 0;
@@ -477,13 +776,28 @@ BonusQuickHackDamage : Stat
 {
 	enumName = "BonusQuickHackDamage";
 	enumComment = "Used in perks for increasing damage dealt by quickhacks";
-	bool isPercentage = true;
-	bool displayPlus = true;
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
 	improvementRelation = "ImprovementRelation.Direct";
+	localizedName = "LocKey#91478";
 	flags = 
 	[
 		"EquipOnPlayer"
 	];
+}
+
+QuickhackDamageBonusMultiplier : Stat
+{
+	enumName = "QuickhackDamageBonusMultiplier";
+	enumComment = "Used in perks for increasing damage multiplier dealt by quickhacks";
+}
+
+QuickhackDamageOverTimeBonusMultiplier : Stat
+{
+	enumName = "QuickhackDamageOverTimeBonusMultiplier";
+	enumComment = "Used in perks for increasing damage over time multiplier dealt by quickhacks";
 }
 
 QuickhacksCooldownReduction : Stat
@@ -491,14 +805,16 @@ QuickhacksCooldownReduction : Stat
 	max = 0.99f;
 	min = -0.99f;
 	enumName = "QuickhacksCooldownReduction";
-	bool isPercentage = true;
-	bool displayPlus = true;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
 	flags += 
 	[
 		"EquipOnPlayer"
 	];
 	improvementRelation = "ImprovementRelation.Inverse";
 	localizedName = "LocKey#51252";
+	decimalPlaces = 1;
 }
 
 StealthHacksCostReduction : Stat
@@ -558,9 +874,9 @@ FallDamageReduction : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#40295";
-	bool multByHundred = true;
-	bool isPercentage = true;
-	bool displayPlus = true;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
 	improvementRelation = "ImprovementRelation.Inverse";
 }
 
@@ -574,7 +890,8 @@ CarryCapacity : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#40291";
-	bool displayPlus = true;
+	decimalPlaces = 1;
+	displayPlus = true;
 	improvementRelation = "ImprovementRelation.Direct";
 }
 
@@ -588,14 +905,17 @@ HeadshotDamageMultiplier : Stat
 	enumName = "HeadshotDamageMultiplier";
 	enumComment = "Damage multiplier on headshots";
 	min = 0;
-	bool displayPlus = true;
-	bool isPercentage = true;
+	max = 5;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
 	localizedName = "LocKey#77692";
 	flags = 
 	[
 		"EquipOnPlayer"
 	];
 	improvementRelation = "ImprovementRelation.Direct";
+	decimalPlaces = 1;
 }
 
 StealthHitDamageMultiplier : Stat
@@ -603,6 +923,45 @@ StealthHitDamageMultiplier : Stat
 	enumName = "StealthHitDamageMultiplier";
 	enumComment = "Additional damage multiplier on first stealth hit with supressor";
 	min = 0;
+	max = 4;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+AdditionalStealthDamage : Stat
+{
+	enumName = "AdditionalStealthDamage";
+	enumComment = "Tooltip only stat additional damage done in Stealth";
+	localizedName = "LocKey#92419";
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+StealthHitDamageBonus : Stat
+{
+	enumName = "StealthHitDamageBonus";
+	enumComment = "Additional damage on first stealth hit with supressor";
+	localizedName = "LocKey#81733";
+	min = 0;
+	decimalPlaces = 1;
+	displayPlus = true;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ExtendedStealthDuration : Stat
+{
+	enumName = "ExtendedStealthDuration";
+	min = 0;
+	max = 3;
 	flags = 
 	[
 		"EquipOnPlayer"
@@ -621,18 +980,247 @@ UploadQuickHackMod : Stat
 	min = 0;
 }
 
-StaminaCostReduction : Stat
+StaminaReductionStat : Stat
 {
-	enumName = "StaminaCostReduction";
-	enumComment = "Stamina cost reduction";
-	localizedName = "LocKey#36325";
 	flags = 
 	[
 		"EquipOnPlayer"
 	];
 	bool shouldFlipNegativeValue = true;
-	bool isPercentage = true;
+	min = -1;
+	max = 1;
+	displayPercent = true;
+	multiplyBy100InText = true;
 	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+StaminaCostReduction : StaminaReductionStat
+{
+	enumName = "StaminaCostReduction";
+	enumComment = "Stamina cost reduction";
+	localizedName = "LocKey#36325";
+}
+
+HandgunStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "HandgunStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for handguns";
+	max = 0.9;
+}
+
+LightMachinegunStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "LightMachinegunStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for light machineguns";
+	max = 0.9;
+}
+
+RevolverStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "RevolverStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for revolvers";
+	max = 0.9;
+}
+
+AssaultRifleStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "AssaultRifleStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for assault riffles";
+	max = 0.9;
+}
+
+PrecisionRifleStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "PrecisionRifleStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for precision rifles";
+	max = 0.9;
+}
+
+SniperStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "SniperStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for snipers";
+	max = 0.9;
+}
+
+DualShotgunStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "DualShotgunStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for dual shotguns";
+	max = 0.9;
+}
+
+ShotgunStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "ShotgunStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for shotguns";
+	max = 0.9;
+}
+
+SubMachinegunStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "SubMachinegunStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for sub machineguns";
+	max = 0.9;
+}
+
+AxeStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "AxeStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for axes";
+	max = 1;
+}
+
+BatonStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "BatonStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for batons";
+	max = 1;
+}
+
+ChainswordStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "ChainswordStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for chain swords";
+	max = 1;
+}
+
+FistsStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "FistsStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for fists";
+	max = 1;
+}
+
+KatanaStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "KatanaStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for katanas";
+	max = 1;
+}
+
+KnifeStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "KnifeStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for knifes";
+	max = 1;
+}
+
+MacheteStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "MacheteStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for machetes";
+	max = 1;
+}
+
+MantisBladesStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "MantisBladesStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for mantis blades";
+	max = 1;
+}
+
+MonoWiresStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "MonoWiresStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for mono wires";
+	max = 1;
+}
+
+StrongArmsStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "StrongArmsStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for strong arms";
+	max = 1;
+}
+
+TwoHandHammerStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "TwoHandHammerStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for two handed hammers";
+	max = 1;
+}
+
+OneHandBladeStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "OneHandBladeStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for one handed blades";
+	max = 1;
+}
+
+OneHandBluntStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "OneHandBluntStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for one handed blunts";
+	max = 1;
+}
+
+TwoHandBluntStaminaCostReduction : StaminaReductionStat
+{
+	enumName = "TwoHandBluntStaminaCostReduction";
+	enumComment = "Stamina cost reduction only for two handed blunts";
+	max = 1;
+}
+
+FullAutoStaminaCostPenalty : Stat
+{
+	enumName = "FullAutoStaminaCostPenalty";
+	enumComment = "Full auto stamina cost penalty";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+BaseMeleeAttackStaminaCost : Stat
+{
+	enumName = "BaseMeleeAttackStaminaCost";
+	enumComment = "Stamina Cost of Combo Attack";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Inverse";
+}
+
+GrenadeExplosionBonusRange : Stat
+{
+	enumName = "GrenadeExplosionBonusRange";
+	enumComment = "Grenade explosion radius increase";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	bool shouldFlipNegativeValue = true;
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+GrenadeExplosionBonusDamage : Stat
+{
+	enumName = "GrenadeExplosionBonusDamage";
+	enumComment = "Grenade explosion damage increase";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	bool shouldFlipNegativeValue = true;
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ManiacPerkBonusSpeed : Stat
+{
+	enumName = "ManiacPerkBonusSpeed";
+	enumComment = "Bonus speed from tech perk Maniac";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	bool shouldFlipNegativeValue = true;
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
 }
 
 MeleeBorgStaminaDrain : Stat
@@ -644,9 +1232,48 @@ MeleeBorgStaminaDrain : Stat
 	];
 }
 
+SasquatchStaminaDrain : Stat
+{
+	enumName = "SasquatchStaminaDrain";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+DodgeStaminaCostReduction : Stat
+{
+	enumName = "DodgeStaminaCostReduction";
+	enumComment = "Reduces dodge stamina cost";
+	min = 0;
+	max = 1;
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91481";
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+CrouchSprintStaminaCostReduction : Stat
+{
+	enumName = "CrouchSprintStaminaCostReduction";
+	enumComment = "Reduces crouch sprint stamina cost";
+	min = 0;
+	max = 1;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
 DashAttackStaminaCostReduction : Stat
 {
 	enumName = "DashAttackStaminaCostReduction";
+}
+
+ADSStaminaRegenMultiplier : Stat
+{
+	enumName = "ADSStaminaRegenMultiplier";
+	enumComment = "Allows to modify stamina regen when in ADS";
+	improvementRelation = "ImprovementRelation.Inverse";
 }
 
 MuzzleBreakRicochetBonus : Stat
@@ -679,10 +1306,139 @@ Quality : Stat
 	max = 4;
 	flags = 
 	[
-		"ExcludeRootCombination"
+		"ExcludeRootCombination", "EquipOnNPC"
 	];
 	localizedName = "LocKey#738";
 	improvementRelation = "ImprovementRelation.Direct";
+}
+
+MaxQuality : Stat
+{
+	enumName = "MaxQuality";
+	enumComment = "stat reflecting max Tier of the item in given moment of the game";
+}
+
+MaxQualityWhenLooted : Stat
+{
+	enumName = "MaxQualityWhenLooted";
+	enumComment = "stat reflecting max Tier in when item is picked up";
+}
+
+IsItemPlus : Stat
+{
+	enumName = "IsItemPlus";
+	flags = 
+	[
+		"ExcludeRootCombination", "EquipOnNPC"
+	];
+	min = 0;
+	max = 1;
+}
+
+RollForPlusBelowMaxQuality : Stat
+{
+	enumName = "RollForPlusBelowMaxQuality";
+	flags += 
+	[
+		"ExcludeRootCombination", "EquipOnNPC"
+	];
+}
+
+RollForPlusOnMaxQuality : Stat
+{
+	enumName = "RollForPlusOnMaxQuality";
+	flags += 
+	[
+		"ExcludeRootCombination", "EquipOnNPC"
+	];
+}
+
+QualityToMaxQualityRatio : Stat
+{
+	enumName = "QualityToMaxQualityRatio";
+	min = 0;
+	max = 1;
+	flags += 
+	[
+		"EquipOnNPC"
+	];
+}
+
+EffectiveQualityToMaxQualityRatio : Stat
+{
+	enumName = "EffectiveQualityToMaxQualityRatio";
+	min = 0;
+	max = 1;
+	flags += 
+	[
+		"EquipOnNPC"
+	];
+}
+
+CommonTierFailsafe : Stat
+{
+	enumName = "CommonTierFailsafe";
+	enumComment = "Failsafe stat to properly enable rolling for Tier1+";
+	min = 0;
+	max = 1;
+	flags += 
+	[
+		"EquipOnNPC"
+	];
+}
+
+EffectiveTier : Stat
+{
+	enumName = "EffectiveTier";
+	enumComment = "Combination of Quality and IsItemPlus stats; numerical Tier of an item";
+	flags += 
+	[
+		"ExcludeRootCombination", "EquipOnNPC", "EquipOnPlayer"
+	];
+	min = 0;
+	max = 10;
+}
+
+EmptySlot_GenerationWeight_On_TierPlus : Stat
+{
+	enumName = "EmptySlot_GenerationWeight_On_TierPlus";
+	flags += 
+	[
+		"EquipOnNPC"
+	];
+}
+
+HiddenSlot_GenerationWeight_On_TierPlus : Stat
+{
+	enumName = "HiddenSlot_GenerationWeight_On_TierPlus";
+	flags += 
+	[
+		"EquipOnNPC"
+	];
+}
+
+OccupiedSlot_GenerationWeight_On_TierPlus : Stat
+{
+	enumName = "OccupiedSlot_GenerationWeight_On_TierPlus";
+	flags += 
+	[
+		"EquipOnNPC"
+	];
+}
+
+ProjectileLauncherQualityMult : Stat
+{
+	enumName = "ProjectileLauncherQualityMult";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+ForceQualityHelper : Stat
+{
+	enumName = "ForceQualityHelper";
+	enumComment = "Stat used for forceQuality setups at vendor";
 }
 
 AutocraftDuration : Stat
@@ -768,7 +1524,7 @@ PenetrationHealth : Stat
 	enumName = "PenetrationHealth";
 	enumComment = "Stat used to check the health of a device that can only explode once fully penetrated";
 	min = 0;
-	max = 10;
+	max = 1000;
 }
 
 ReprimandEscalation : Stat
@@ -806,6 +1562,22 @@ RemoveColdBloodStacksOneByOne : Stat
 	enumName = "RemoveColdBloodStacksOneByOne";
 }
 
+ExecuteDismemberByHealthChance : Stat
+{
+	enumName = "ExecuteDismemberByHealthChance";
+	enumComment = "Chance to dismember enemy as their health lowers";
+	min = 0.00f;
+	max = 1.0f;
+}
+
+ExecuteDismemberProximityChance : Stat
+{
+	enumName = "ExecuteDismemberProximityChance";
+	enumComment = "Bonus chance to dismember (added to ExecuteDismemberByHealthChance) scaled by proximity to target";
+	min = 0.00f;
+	max = 1.0f;
+}
+
 XPbonusMultiplier : Stat
 {
 	enumName = "XPbonusMultiplier";
@@ -815,8 +1587,63 @@ XPbonusMultiplier : Stat
 	[
 		"EquipOnPlayer"
 	];
-	bool displayPlus = true;
-	bool isPercentage = true;
+	displayPercent = true;
+	displayPlus = true;
+}
+
+HealingItemMaxCharges : Stat
+{
+	enumName = "HealingItemMaxCharges";
+}
+
+GrenadesMaxCharges : Stat
+{
+	enumName = "GrenadesMaxCharges";
+}
+
+VehicleMissileLauncherMaxCharges : Stat
+{
+	enumName = "VehicleMissileLauncherMaxCharges";
+	enumComment = "Maximum number of charges to reload in the stat pool";
+}
+
+VehicleMissileLauncherSalvoCharges : Stat
+{
+	enumName = "VehicleMissileLauncherSalvoCharges";
+	enumComment = "Maximum number of charges to fire in a single salvo";
+}
+
+VehicleMissileLauncherBaseCharges : Stat
+{
+	enumName = "VehicleMissileLauncherBaseCharges";
+	enumComment = "Base number of charges that are always available to be fired";
+}
+
+VehicleMissileLauncherProjectilesPerCharge : Stat
+{
+	enumName = "VehicleMissileLauncherProjectilesPerCharge";
+	enumComment = "Number of missile projectiles to fire per charge";
+}
+
+VehicleMissileLauncherLockOnTime : Stat
+{
+	enumName = "VehicleMissileLauncherLockOnTime";
+	enumComment = "Time it takes for a target to be locked and the missiles to track the target";
+}
+
+BloodPumpMaxCharges : Stat
+{
+	enumName = "BloodPumpMaxCharges";
+}
+
+CWMaskMaxCharges : Stat
+{
+	enumName = "CWMaskMaxCharges";
+}
+
+ProjectileLauncherMaxCharges : Stat
+{
+	enumName = "ProjectileLauncherMaxCharges";
 }
 
 StreetCredXPBonusMultiplier : Stat
@@ -828,8 +1655,8 @@ StreetCredXPBonusMultiplier : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#79435";
-	bool displayPlus = true;
-	bool isPercentage = true;
+	displayPercent = true;
+	displayPlus = true;
 }
 
 HousingBuffsDurationBonus : Stat
@@ -851,8 +1678,8 @@ VendorBuyPriceDiscount : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#79436";
-	bool displayPlus = true;
-	bool isPercentage = true;
+	displayPercent = true;
+	displayPlus = true;
 }
 
 VendorSellPriceDiscount : Stat
@@ -864,8 +1691,20 @@ VendorSellPriceDiscount : Stat
 		"EquipOnPlayer"
 	];
 	localizedName = "LocKey#79437";
-	bool displayPlus = true;
-	bool isPercentage = true;
+	displayPercent = true;
+	displayPlus = true;
+}
+
+ItemPurchasedAtVendor : Stat
+{
+	enumName = "ItemPurchasedAtVendor";
+}
+
+ItemPurchasedAtVendorModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ItemPurchasedAtVendor";
+	modifierType = "Additive";
+	value = 1;
 }
 
 PostTutorialCyberwarePrice : Stat
@@ -884,11 +1723,804 @@ GenericStatPrereqValue : Stat
 	enumComment = "To be used as the main stat in the StatPrereq's statModifiers.";
 }
 
+EmptyStat : Stat
+{
+	enumName = "EmptyStat";
+	enumComment = "To be used as temporaryStat for calculating value of statModifiers's list.";
+}
+
+HealthRegainOnKill : Stat
+{
+	enumName = "HealthRegainOnKill";
+	enumComment = "To be used as stat the defines how much Health you can regain if a condition defined externally is met";
+	localizedName = "LocKey#82724";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	min = 0;
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+NPCRarity : Stat
+{
+	enumName = "NPCRarity";
+	enumComment = "Stat version of NPC rarity, controls the NPC's rarity in the new dynamic rarity system.";
+}
+
+Protection : Stat
+{
+	enumName = "Protection";
+	enumComment = "Theoretical measure of how much defense the player has. Used for displaying on UI.";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+Reflexes_Right_Milestone_2_StaminaReduction : Stat
+{
+	enumName = "Reflexes_Right_Milestone_2_StaminaReduction";
+}
+
+Reflexes_Right_Milestone_2_StaminaDeflectPerc : Stat
+{
+	enumName = "Reflexes_Right_Milestone_2_StaminaDeflectPerc";
+}
+
+NewPerkFinisherReflexes_TargetDistanceMax : Stat
+{
+	enumName = "NewPerkFinisherReflexes_TargetDistanceMax";
+}
+
+NewPerkFinisherReflexes_TargetHealthMax : Stat
+{
+	enumName = "NewPerkFinisherReflexes_TargetHealthMax";
+	enumComment = "The maximum percentage of health an NPC can have for the player to be allowed to execute the new perks blade finisher.";
+}
+
+NewPerkFinisherCool_TargetHealthMax : Stat
+{
+	enumName = "NewPerkFinisherCool_TargetHealthMax";
+	enumComment = "The maximum percentage of health an NPC can have for the player to be allowed to execute the new perks cool finisher.";
+}
+
+NewPerkFinisherCool_TargetDistanceMax : Stat
+{
+	enumName = "NewPerkFinisherCool_TargetDistanceMax";
+	enumComment = "The maximum distance (in 2D) an NPC can be from the player for the player to be allowed to execute the new perks cool finisher.";
+}
+
+NewPerkFinisherBlunt_TargetDistanceMax : Stat
+{
+	enumName = "NewPerkFinisherBlunt_TargetDistanceMax";
+	enumComment = "The maximum distance (in 2D) an NPC can be from the player for the player to be allowed to execute the new perks blunt finisher.";
+}
+
+NewPerkFinisherBlunt_TargetHealthMax : Stat
+{
+	enumName = "NewPerkFinisherBlunt_TargetHealthMax";
+	enumComment = "The maximum percentage of health an NPC can have for the player to be allowed to execute the new perks blunt finisher.";
+}
+
+NewPerkFinisherMonowire_TargetDistanceMax : Stat
+{
+	enumName = "NewPerkFinisherMonowire_TargetDistanceMax";
+	enumComment = "The maximum distance (in 2D) an NPC can be from the player for the player to be allowed to execute the new perks monowire finisher.";
+}
+
+NewPerkFinisherMonowire_TargetHealthMax : Stat
+{
+	enumName = "NewPerkFinisherMonowire_TargetHealthMax";
+	enumComment = "The maximum percentage of health an NPC can have for the player to be allowed to execute the new perks monowire finisher.";
+}
+
+Finisher_TargetHealthMax_Clamp : Stat
+{
+	enumName = "Finisher_TargetHealthMax_Clamp";
+	enumComment = "Clamps the maximum finisher threshold on the owner.";
+}
+
+FinisherIsAvailable : Stat
+{
+	enumName = "FinisherIsAvailable";
+}
+
+FinisherHealthThresholdIncrease : Stat
+{
+	enumName = "FinisherHealthThresholdIncrease";
+	enumComment = "Increase of the maximum percentage of health an NPC can have for the player to be allowed to execute the finisher.";
+}
+
+BluntFinisherHealthThresholdIncrease : Stat
+{
+	enumName = "BluntFinisherHealthThresholdIncrease";
+	enumComment = "Increase of the maximum percentage of health an NPC can have for the player to be allowed to execute a blunt finisher.";
+}
+
+FinisherHealthThresholdIncreaseForQueue : Stat
+{
+	enumName = "FinisherHealthThresholdIncreaseForQueue";
+	enumComment = "Increase of the maximum percentage of health an NPC can have for the player to be allowed to execute the finisher, it will be multiplied by the current Queue stack on the NPC.";
+}
+
+Cool_Inbetween_Right_3_Stacks : Stat
+{
+	enumName = "Cool_Inbetween_Right_3_Stacks";
+}
+
+CyberwareMalfunctionStacks : Stat
+{
+	enumName = "CyberwareMalfunctionStacks";
+}
+
+CyberwareMalfunctionDamageMultiplier : Stat
+{
+	enumName = "CyberwareMalfunctionDamageMultiplier";
+}
+
+PerfectChargeWindow : Stat
+{
+	enumName = "PerfectChargeWindow";
+	min = 0f;
+	max = 100f;
+}
+
+QuickHackQueueSize : Stat
+{
+	enumName = "QuickHackQueueSize";
+	enumComment = "In the new INT tree: Enables Queuing up to this many Hacks on a single target.";
+}
+
+QuickHackUploadTimeDecrease : Stat
+{
+	enumName = "QuickHackUploadTimeDecrease";
+	enumComment = "A generic upload time decreasing stat when uploading a new quickhack.";
+}
+
+QuickHackQueueUploadTimeDecrease : Stat
+{
+	enumName = "QuickHackQueueUploadTimeDecrease";
+	enumComment = "In the new INT tree: Queued hacks upload one after the other and have upload time decreased the further the are in the queue.";
+}
+
+OverclockedStateHealthCost : Stat
+{
+	enumName = "OverclockedStateHealthCost";
+	enumComment = "Int tree's Overclocked state. In overclock state, instead of using RAM to cast hacks, {float_0} x health is used but RAM regeneration is stopped.";
+}
+
+Poise : Stat
+{
+	enumName = "Poise";
+	enumComment = "Stat used on NPC for their poise";
+	min = 0;
+	localizedName = "LocKey#1894";
+	decimalPlaces = 1;
+	improvementRelation = "ImprovementRelation.Direct";
+	displayPlus = true;
+}
+
+MeleeDamagePercentBonus : Stat
+{
+	enumName = "MeleeDamagePercentBonus";
+	enumComment = "Damage multiplier on melee attacks";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91461";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+HealingItemsEffectPercentBonus : Stat
+{
+	enumName = "HealingItemsEffectPercentBonus";
+	enumComment = "Extra healing from consumables";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91462";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+GrenadeDamagePercentBonus : Stat
+{
+	enumName = "GrenadeDamagePercentBonus";
+	enumComment = "Extra damage on grenades";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91463";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+RecoilPercentBonus : Stat
+{
+	enumName = "RecoilPercentBonus";
+	enumComment = "Recoil kick improvement on weapons (better weapon handling)";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91464";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+RamOnKill : Stat
+{
+	enumName = "RamOnKill";
+	enumComment = "RAM gained when killing enemies";
+	decimalPlaces = 2;
+	displayPlus = true;
+	localizedName = "LocKey#91466";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ADSSpeedPercentBonus : Stat
+{
+	enumName = "ADSSpeedPercentBonus";
+	enumComment = "Increased speed for going into ADS on weapons";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91467";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+BonusPercentDamageToEnemiesBelowHalfHealth : Stat
+{
+	enumName = "BonusPercentDamageToEnemiesBelowHalfHealth";
+	enumComment = "Self-explanatory";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91468";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+BonusPercentDamageToEnemiesAtFullHealth : Stat
+{
+	enumName = "BonusPercentDamageToEnemiesAtFullHealth";
+	enumComment = "Self-explanatory";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91469";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ChemicalDamagePercentBonus : Stat
+{
+	enumName = "ChemicalDamagePercentBonus";
+	enumComment = "Bonus to all chemical damage dealt";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91471";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ThermalDamagePercentBonus : Stat
+{
+	enumName = "ThermalDamagePercentBonus";
+	enumComment = "Bonus to all thermal damage dealt";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91472";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ElectricDamagePercentBonus : Stat
+{
+	enumName = "ElectricDamagePercentBonus";
+	enumComment = "Bonus to all electric damage dealt";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91473";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+PercentDamageReductionFromPoisonedEnemies : Stat
+{
+	enumName = "PercentDamageReductionFromPoisonedEnemies";
+	enumComment = "Reduces damage taken from enemies that are poisoned";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91470";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+AllDamageDonePercentBonus : Stat
+{
+	enumName = "AllDamageDonePercentBonus";
+	enumComment = "Bonus to all damage done";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+HealOnKillingBleedingTarget : Stat
+{
+	enumName = "HealOnKillingBleedingTarget";
+	enumComment = "Restores health when killing a bleeding target";
+	decimalPlaces = 1;
+	displayPlus = true;
+	localizedName = "LocKey#91474";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+BonusCritChanceVsElectrocutedEnemies : Stat
+{
+	enumName = "BonusCritChanceVsElectrocutedEnemies";
+	enumComment = "Increases crit chance against enemies with the electrocuted status effect";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	localizedName = "LocKey#91475";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+BonusPercentDamageVsBurningEnemies : Stat
+{
+	enumName = "BonusPercentDamageVsBurningEnemies";
+	enumComment = "Increases all damage dealt to enemies that are burning";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91476";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ExplosionDamagePercentBonus : Stat
+{
+	enumName = "ExplosionDamagePercentBonus";
+	enumComment = "Bonus to all damage caused by explosives";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91583";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+DamageOverTimePercentBonus : Stat
+{
+	enumName = "DamageOverTimePercentBonus";
+	enumComment = "Bonus to all damage over time dealt";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91584";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+ReloadSpeedPercentBonus : Stat
+{
+	enumName = "ReloadSpeedPercentBonus";
+	enumComment = "Bonus to weapon reload speed";
+	decimalPlaces = 1;
+	displayPercent = true;
+	displayPlus = true;
+	multiplyBy100InText = true;
+	localizedName = "LocKey#91477";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+SmartWeaponDamagePercentBonus : Stat
+{
+	enumName = "SmartWeaponDamagePercentBonus";
+	enumComment = "Bonus to all damage done with smart weapons";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+TechWeaponDamagePercentBonus : Stat
+{
+	enumName = "TechWeaponDamagePercentBonus";
+	enumComment = "Bonus to all damage done with tech weapons";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+VehicleDamageQualityDivisor : Stat
+{
+	enumName = "VehicleDamageQualityDivisor";
+	enumComment = "Divides damage by this value when shooting vehicles. This stat should be on weapons only.";
+	flags = 
+	[
+		"EquipOnNPC"
+	];
+}
+
+VehicleDamagePercentBonus : Stat
+{
+	enumName = "VehicleDamagePercentBonus";
+	enumComment = "Extra damage against vehicles (additive multiplier)";
+	flags = 
+	[
+		"EquipOnPlayer", "EquipOnNPC"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+WeaponVehicleDamagePercentBonus : Stat
+{
+	enumName = "WeaponVehicleDamagePercentBonus";
+	enumComment = "Additive multiplier that increases (or decreases) weapon damage against vehicles. This stat should be on weapons only.";
+	flags = 
+	[
+		"EquipOnNPC"
+	];
+	improvementRelation = "ImprovementRelation.Direct";
+}
+
+VehicleMinHealthPercentWhenDamaged : Stat
+{
+	enumName = "VehicleMinHealthPercentWhenDamaged";
+	enumComment = "Ranges from 0 to 100. When put on a weapon, will prevent it from making the vehicle go below this percent of health from its attacks.";
+	flags = 
+	[
+		"EquipOnNPC"
+	];
+	min = 0f;
+	max = 100f;
+}
+
+CanGroundSlamOnGround : StatFlag
+{
+	enumName = "CanGroundSlamOnGround";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+CanGroundSlamInAir : StatFlag
+{
+	enumName = "CanGroundSlamInAir";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+GroundSlamCooldownModifier : Stat
+{
+	enumName = "GroundSlamCooldownModifier";
+	flags = 
+	[
+		"EquipOnPlayer"
+	];
+}
+
+GearheadDamageMultiplier : Stat
+{
+	enumName = "GearheadDamageMultiplier";
+	enumComment = "Multiplier applied to amount of damage done by mounted weapons during vehicle combat.";
+	min = 0f;
+	max = 10f;
+}
+
+RoadWarriorDamageMultiplier : Stat
+{
+	enumName = "RoadWarriorDamageMultiplier";
+	enumComment = "Multiplier applied to amount of damage done by guns during vehicle combat.";
+	min = 0f;
+	max = 10f;
+}
+
 ControlledRandomPower : Stat
 {
 	enumName = "ControlledRandomPower";
 	enumComment = "To be used with controlled random on items to determine rolls.";
 	min = 0;
 	max = 1000;
+}
+
+StaticModifierMultiplier : Stat
+{
+	enumName = "StaticModifierMultiplier";
+	enumComment = "A stat used to multiply the value of static secondary stat modifiers on items.";
+}
+
+ModifierPower : Stat
+{
+	enumName = "ModifierPower";
+	enumComment = "A value that's a multiple of ControlledRandomPower, used for better item description readability for players.";
+	min = 0;
+	max = 1000;
+}
+
+ModifierPowerBase : Stat
+{
+	enumName = "ModifierPowerBase";
+	enumComment = "Helps calculate ModifierPower.";
+}
+
+WeaponTypeToStaminaCost : Stat
+{
+	enumName = "WeaponTypeToStaminaCost";
+	enumComment = "Helps in stamina cost calculations";
+}
+
+WeaponEvolutionToStaminaCost : Stat
+{
+	enumName = "WeaponEvolutionToStaminaCost";
+	enumComment = "Helps in stamina cost calculations";
+}
+
+MeleeProjectileGravitySimulationMultiplier : Stat
+{
+	enumName = "MeleeProjectileGravitySimulationMultiplier";
+}
+
+EffectorChance : Stat
+{
+	enumName = "EffectorChance";
+	min = 0;
+	max = 1;
+}
+
+EffectorChanceModifier : ConstantStatModifier
+{
+	statType = "BaseStats.EffectorChance";
+	modifierType = "Additive";
+	value = 0;
+}
+
+ApplicationChance : Stat
+{
+	enumName = "ApplicationChance";
+	min = 0;
+	max = 1;
+}
+
+ApplicationChanceModifier : ConstantStatModifier
+{
+	statType = "BaseStats.ApplicationChance";
+	modifierType = "Additive";
+	value = 0;
+}
+
+BreachStreakBuffBonus : Stat
+{
+	enumName = "BreachStreakBuffBonus";
+}
+
+Reflexes_Left_Milestone_3_Stack : Stat
+{
+	enumName = "Reflexes_Left_Milestone_3_Stack";
+}
+
+FirstHackInQueueUploadTimeDecrease : Stat
+{
+	enumName = "FirstHackInQueueUploadTimeDecrease";
+	enumComment = "First hack in a hack queue now also uploads x% faster";
+	min = 0;
+	max = 1;
+}
+
+FirstHackOfTypeInQueueRAMDecrease : Stat
+{
+	enumName = "FirstHackOfTypeInQueueRAMDecrease";
+	enumComment = "First hack of every type you add to queue on given enemy costs 1 RAM less";
+	min = 0;
+	max = 1;
+}
+
+QuickHackQueueCount : Stat
+{
+	enumName = "QuickHackQueueCount";
+	enumComment = "Number of currently queued hacks on enemies";
+	min = 0;
+}
+
+QuickHackEffectsApplied : Stat
+{
+	enumName = "QuickHackEffectsApplied";
+	enumComment = "Number of QH effects being applied to entity, helper stat";
+}
+
+BloodQueueHealing : Stat
+{
+	enumName = "BloodQueueHealing";
+	enumComment = "Receive this amount of HP after every queued hack on a dying enemy if Overclock is active.";
+	min = 0;
+}
+
+OnRevealHackProgressIncrement : Stat
+{
+	enumName = "OnRevealHackProgressIncrement";
+	enumComment = "By how much % should quickhacks increase the progress bar when the player's position is being revealed";
+	min = 0;
+	max = 100;
+}
+
+PlayerOnRevealHackProgressMultiplier : Stat
+{
+	enumName = "PlayerOnRevealHackProgressMultiplier";
+	enumComment = "Reveal increment modifier";
+	min = 0;
+	localizedName = "LocKey#92691";
+	flags += 
+	[
+		"EquipOnPlayer"
+	];
+	bool shouldFlipNegativeValue = true;
+	bool multiplyBy100InText = true;
+}
+
+RevealPositionMaxDistance : Stat
+{
+	enumName = "RevealPositionMaxDistance";
+	min = 0;
+}
+
+PreventQuickhacking : Stat
+{
+	enumName = "PreventQuickhacking";
+	enumComment = "Prevent the player from quickhacking this target.";
+	min = 0;
+	max = 1;
+}
+
+PreventQuickhackStaggerDuration : Stat
+{
+	enumName = "PreventQuickhackStaggerDuration";
+	enumComment = "Prevent the target from staggering / stunlocking too much. Allow stagger animation between [staggerValue] seconds. Allow impact animation between [impactValue] seconds.";
+	float staggerValue = 10.0;
+	float impactValue = 5.0;
+}
+
+WeaponVFX_TracerFxScale : Stat
+{
+	enumName = "WeaponVFX_TracerFxScale";
+	enumComment = "Amount to scale player's weapon's bullet tracer vfx.";
+}
+
+WeaponVFX_ProjectileFxScale : Stat
+{
+	enumName = "WeaponVFX_ProjectileFxScale";
+	enumComment = "Amount to scale player's weapon's projectile vfx.";
+}
+
+WeaponVFX_BulletFxScaleFullAutoRandomization : StatFlag
+{
+	enumName = "WeaponVFX_BulletFxScaleFullAutoRandomization";
+	enumComment = "If TracerFxScale/ProjectileFxScale should be randomly applied to full auto weapons, helps provide variety to the vfx and make it look less like a laser.";
+}
+
+WeaponVFX_BulletFxScaleFullAutoRandStart : Stat
+{
+	enumName = "WeaponVFX_BulletFxScaleFullAutoRandStart";
+	enumComment = "Minimum number of shots between applying TracerFxScale/ProjectileFxScale.";
+}
+
+WeaponVFX_BulletFxScaleFullAutoRandRange : Stat
+{
+	enumName = "WeaponVFX_BulletFxScaleFullAutoRandRange";
+	enumComment = "Maximum number of shots between applying TracerFxScale/ProjectileFxScale.";
+}
+
+WeaponVFX_MuzzleFxScale : Stat
+{
+	enumName = "WeaponVFX_MuzzleFxScale";
+	enumComment = "Amount to scale player's weapon's muzzle vfx.";
+}
+
+WeaponVFX_DecalFxScale : Stat
+{
+	enumName = "WeaponVFX_DecalFxScale";
+	enumComment = "Amount to scale player's decals (only specific decals are setup to be scaled).";
+}
+
+WeaponVFX_ShellsFxScale : Stat
+{
+	enumName = "WeaponVFX_ShellsFxScale";
+	enumComment = "Amount to scale player's weapon's bullet shell ejection (set this to 0 to disable the shell casings).";
+}
+
+LocomotionExperienceReward : Stat
+{
+	enumName = "LocomotionExperienceReward";
+	enumComment = "Helps to avoid cluttering the screen with constant xp notifies by storing the rewards until a certain limit is reached.";
 }
 

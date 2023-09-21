@@ -74,19 +74,22 @@ Base_Pulsar : Base_Power_Submachinegun
 	fk< TriggerMode > primaryTriggerMode = "TriggerMode.FullAuto";
 	fk< WeaponManufacturer > manufacturer = "WeaponManufacturer.Street";
 	fk< WeaponEvolution > evolution = "WeaponEvolution.Power";
-	fk< Item > ammo = "Ammo.RifleAmmo";
+	fk< Item > ammo = "Ammo.HandgunAmmo";
 	fk< Crosshair > crosshair = "Crosshairs.Power_Saratoga";
 	enableNpcRPGData = true;
 	npcRPGData = 
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Pulsar_Technical_Stats"
 		];
-	} : Base_Power_Submachinegun_NPC_Data;
+	} : Base_Pulsar_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Pulsar_Technical_Stats", "Items.Base_Pulsar_Handling_Stats", "Items.Base_Pulsar_Recoil_Stats", "Items.Base_Pulsar_Spread_Stats", "Items.Base_Pulsar_Aim_Stats", "Items.Base_Pulsar_Constant_Stats"
+		"Items.Base_Pulsar_Technical_Stats", "Items.Base_Pulsar_Handling_Stats", "Items.Base_Pulsar_Recoil_Stats", "Items.Base_Pulsar_Spread_Stats_1", "Items.Base_Pulsar_Aim_Stats", "Items.Base_Pulsar_Constant_Stats", "Items.Base_Pulsar_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.FastStaminaRegen", "EquipmentGLP.LightStaminaDelay"
 	];
 	CName audioSwitchName = "";
 	CName audioSwitchValue = "";
@@ -107,10 +110,18 @@ Base_Pulsar : Base_Power_Submachinegun
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
 	float ironsightAngleWithScope = -45.f;
-	baseReloadTime = 2.1f;
-	baseEmptyReloadTime = 2.9f;
-	uninterruptibleReloadStart = 1.5f;
-	uninterruptibleEmptyReloadStart = 1.4f;
+	baseReloadTime = 1.6f;
+	baseEmptyReloadTime = 1.6f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
+}
+
+Base_Pulsar_NPC_Data : Base_Power_Submachinegun_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Pulsar_Technical_Stats", "Items.Base_Pulsar_NPC_Damage_Stats"
+	];
 }
 
 Base_Pulsar_Technical_Stats : StatModifierGroup
@@ -121,7 +132,7 @@ Base_Pulsar_Technical_Stats : StatModifierGroup
 			value = 1.f;
 		} : NumShotsToFireModifier, 
 		{
-			value = 0.06f;
+			value = 0.08f;
 		} : CycleTimeModifier, 
 		{
 			value = 40.f;
@@ -133,18 +144,48 @@ Base_Pulsar_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Pulsar_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 71f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Pulsar_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 37f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Pulsar_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.1f;
+			value = 1.6f;
 		} : ReloadTimeModifier, 
 		{
-			value = 2.9f;
+			value = 1.6f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 1.2f;
+			value = 0.5f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.3f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 1.1f;
 		} : ZoomLevelModifier, 
 		{
 			value = 4.2f;
@@ -160,7 +201,7 @@ Base_Pulsar_Recoil_Stats : StatModifierGroup
 			value = 17.5f;
 		} : RecoilDirModifier, 
 		{
-			value = 75.f;
+			value = 40.f;
 		} : RecoilAngleModifier, 
 		{
 			value = 0.05f;
@@ -182,29 +223,11 @@ Base_Pulsar_Recoil_Stats : StatModifierGroup
 		} : RecoilEnableLinearXADSModifier, 
 		{
 			value = 1.f;
-		} : RecoilEnableLinearYADSModifier, 
-		{
-			value = 1.0f;
-		} : RecoilCycleTimeModifier, 
-		{
-			value = 0.6f;
-		} : RecoilCycleSizeModifier, 
-		{
-			value = 1.f;
-		} : RecoilEnableScaleYModifier, 
-		{
-			value = 1.f;
-		} : RecoilEnableScaleXModifier, 
-		{
-			value = 1.0f;
-		} : RecoilScaleTimeModifier, 
-		{
-			value = 0.5f;
-		} : RecoilScaleMaxModifier
+		} : RecoilEnableLinearYADSModifier
 	];
 }
 
-Base_Pulsar_Spread_Stats : StatModifierGroup
+Base_Pulsar_Spread_Stats_1 : StatModifierGroup
 {
 	statModifiers = 
 	[
@@ -218,7 +241,7 @@ Base_Pulsar_Spread_Stats : StatModifierGroup
 			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.6f;
+			value = 0.0f;
 		} : SpreadAdsDefaultXModifier, 
 		{
 			value = 0.f;
@@ -230,13 +253,7 @@ Base_Pulsar_Spread_Stats : StatModifierGroup
 			value = 0.f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 1.5f;
-		} : SpreadAdsMaxXModifier, 
-		{
-			value = 0.0f;
-		} : SpreadAdsMaxYModifier, 
-		{
-			value = 5.f;
+			value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
 			value = 0.2f;
@@ -274,32 +291,52 @@ Base_Pulsar_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 3.5f;
+			value = 1.15f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 5.0f;
+			value = 4.6f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.SpreadChangePerShot";
+			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.4f;
+			value = 0.55f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.SpreadAdsChangePerShot";
+			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 0.08f;
+			value = 2.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.4f;
+			value = 0.55f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 0.6f;
+			value = 0.85f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SpreadAdsChangePerShot";
+			modifierType = "Additive";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.333f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.875f;
 		} : ConstantStatModifier
 	];
 }

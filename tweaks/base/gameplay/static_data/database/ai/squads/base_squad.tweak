@@ -5,7 +5,7 @@ BaseSquad : AISquadParams
 {
 	allTickets = 
 	[
-		"Tickets.Shoot", "Tickets.Charge", "Tickets.TakeCover", "Tickets.Search", "Tickets.GroupReaction", "Tickets.Reprimand", "Tickets.Investigate", "Tickets.QuickMelee", "Tickets.Melee", "Tickets.MeleeSupport", "Tickets.MeleeApproach", "Tickets.Taunt", "Tickets.TauntBackground", "Tickets.Block", "Tickets.Dodge", "Tickets.Takedown", "Tickets.Peek", "Tickets.GrenadeThrow", "Tickets.Sync", "Tickets.CallOff", "Tickets.BackUp", "Tickets.BattleCry", "Tickets.Quickhack", "Tickets.Crouch", "Tickets.CatchUp", "Tickets.SimpleCombat", "Tickets.GoToCover", "Tickets.Strafe", "Tickets.StrafeEvade", "Tickets.Equip", "Tickets.EquipMelee", "Tickets.Reload", "Tickets.MeleeRing", "Tickets.CloseRing", "Tickets.MediumRing", "Tickets.FarRing", "Tickets.ExtremeRing", "Tickets.DefaultRing", "Tickets.MeleeRing1stFilter", "Tickets.CloseRing1stFilter", "Tickets.MediumRing1stFilter", "Tickets.FarRing1stFilter", "Tickets.ExtremeRing1stFilter", "Tickets.MeleeRing2ndFilter", "Tickets.CloseRing2ndFilter", "Tickets.MediumRing2ndFilter", "Tickets.FarRing2ndFilter", "Tickets.ExtremeRing2ndFilter"
+		"Tickets.Shoot", "Tickets.Charge", "Tickets.Search", "Tickets.GroupReaction", "Tickets.Reprimand", "Tickets.Investigate", "Tickets.QuickMelee", "Tickets.Melee", "Tickets.MeleeSupport", "Tickets.MeleeApproach", "Tickets.Taunt", "Tickets.TauntBackground", "Tickets.Block", "Tickets.Dodge", "Tickets.Takedown", "Tickets.Peek", "Tickets.GrenadeThrow", "Tickets.SmokeGrenadeThrow", "Tickets.Sync", "Tickets.CallOff", "Tickets.BackUp", "Tickets.BattleCry", "Tickets.Quickhack", "Tickets.Crouch", "Tickets.SimpleCombat", "Tickets.GoToCover", "Tickets.Strafe", "Tickets.StrafeEvade", "Tickets.Equip", "Tickets.EquipMelee", "Tickets.Reload", "Tickets.CatchUpToMeleePlayerOnHard", "Tickets.CatchUpToMeleePlayerOnVeryHard", "Tickets.CatchUp", "Tickets.TakeCover", "Tickets.GrenadeThrow_Hard", "Tickets.OpticalCamo_Hard", "Tickets.OpticalCamo_VeryHard", "Tickets.MeleeRing", "Tickets.CloseRing", "Tickets.MediumRing", "Tickets.FarRing", "Tickets.ExtremeRing", "Tickets.DefaultRing", "Tickets.MeleeRing1stFilter", "Tickets.CloseRing1stFilter", "Tickets.MediumRing1stFilter", "Tickets.FarRing1stFilter", "Tickets.ExtremeRing1stFilter", "Tickets.MeleeRing2ndFilter", "Tickets.CloseRing2ndFilter", "Tickets.MediumRing2ndFilter", "Tickets.FarRing2ndFilter", "Tickets.ExtremeRing2ndFilter"
 	];
 }
 
@@ -17,6 +17,32 @@ SimpleCombat : AIActionTicket
 Shoot : AIActionTicket
 {
 	ticketType = "AITicketType.Shoot";
+}
+
+OpticalCamo_Hard : AIActionTicket
+{
+	ticketType = "AITicketType.OpticalCamo_Hard";
+	maxNumberOfTickets = 1;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.OpticalCamo_VeryHard";
+			duration = 250.f;
+		}
+	];
+}
+
+OpticalCamo_VeryHard : AIActionTicket
+{
+	ticketType = "AITicketType.OpticalCamo_VeryHard";
+	maxNumberOfTickets = 1;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.OpticalCamo_VeryHard";
+			duration = 30.f;
+		}
+	];
 }
 
 Charge : AIActionTicket
@@ -32,6 +58,19 @@ GoToCover : AIActionTicket
 TakeCover : AIActionTicket
 {
 	ticketType = "AITicketType.TakeCover";
+}
+
+TakeCoverStory : TakeCover
+{
+	difficulty = "AIDifficulty.Story";
+	difficultyComparisonOp = "AIDifficulty.Equal";
+}
+
+TakeCoverDefault : TakeCover
+{
+	difficulty = "AIDifficulty.Story";
+	difficultyComparisonOp = "AIDifficulty.NotEqual";
+	percentageNumberOfTickets = 0.99f;
 }
 
 Search : AIActionTicket
@@ -249,6 +288,18 @@ Peek : AIActionTicket
 	maxTicketDesyncTime = 1.f;
 }
 
+SmokeGrenadeThrow : GrenadeThrow
+{
+	ticketType = "AITicketType.SmokeGrenadeThrow";
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.GrenadeThrow";
+			duration = 60.f;
+		}
+	];
+}
+
 GrenadeThrow : AIActionTicket
 {
 	ticketType = "AITicketType.GrenadeThrow";
@@ -270,6 +321,19 @@ GrenadeThrow : AIActionTicket
 					} : AIActionAND;
 				}
 			];
+		}
+	];
+}
+
+GrenadeThrow_Hard : AIActionTicket
+{
+	ticketType = "AITicketType.GrenadeThrow_Hard";
+	maxNumberOfTickets = 2;
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.GrenadeThrow_Hard";
+			duration = 8.f;
 		}
 	];
 }
@@ -413,6 +477,13 @@ BattleCry : AIActionTicket
 Quickhack : AIActionTicket
 {
 	ticketType = "AITicketType.Quickhack";
+	cooldowns = 
+	[
+		{
+			name = "AITicketType.Quickhack";
+			duration = 8.f;
+		}
+	];
 	maxNumberOfTickets = 1;
 }
 
@@ -458,7 +529,18 @@ CatchUp : AIActionTicket
 				{
 					AND = 
 					[
-						"Condition.NotAbilityIsNetrunnerArchetype", {
+						{
+							OR = 
+							[
+								"Condition.NotAbilityIsNetrunnerArchetype", {
+									AND = 
+									[
+										"Condition.NotStatusEffectHacking", "Condition.NotFurthestSquadmate", "Condition.AbilityIsNetrunnerArchetype"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR, 
+						{
 							OR = 
 							[
 								"Condition.NotFurthestSquadmate", "Condition.NotAbilityIsSniperArchetype", "Condition.NotValidCovers"
@@ -470,6 +552,21 @@ CatchUp : AIActionTicket
 		} : AISquadFilterByAICondition, 
 		"Condition.SquadClosestToCombatTarget"
 	];
+}
+
+CatchUpEasy : CatchUp
+{
+	maxNumberOfTickets = 2;
+	difficulty = "AIDifficulty.Easy";
+	difficultyComparisonOp = "AIDifficulty.LessOrEqual";
+}
+
+CatchUpHard : CatchUp
+{
+	minNumberOfTickets = 1;
+	maxNumberOfTickets = 3;
+	difficulty = "AIDifficulty.Hard";
+	difficultyComparisonOp = "AIDifficulty.GreaterOrEqual";
 }
 
 Strafe : AIActionTicket
@@ -945,5 +1042,16 @@ DefaultRing : AIRingTicket
 {
 	ticketType = "AITicketType.DefaultRing";
 	ringType = "AIRingType.Default";
+}
+
+CatchUpToMeleePlayerOnHard : AIActionTicket
+{
+	ticketType = "AITicketType.CatchUpToMeleePlayerOnHard";
+	percentageNumberOfTickets = 0.4f;
+}
+
+CatchUpToMeleePlayerOnVeryHard : AIActionTicket
+{
+	ticketType = "AITicketType.CatchUpToMeleePlayerOnVeryHard";
 }
 

@@ -10,7 +10,7 @@ OverloadWeakspotEffector : ApplyStatusEffectEffector
 			{
 				statusEffect = "Royce.Broken";
 			} : StatusEffectAbsentPrereq, 
-			"BaseStatusEffect.OverloadAppliedPereq"
+			"BaseStatusEffect.CyberwareMalfunctionWeakspotDestructionAppliedPereq"
 		];
 	} : Prereqs.ANDPrereq;
 	statusEffect = "Royce.RoyceExplodeExplosive";
@@ -87,7 +87,6 @@ WeakSpotDestroyed : StatusEffect
 			[
 				{
 					prereqRecord = "Prereqs.AlwaysTruePrereq";
-					effectorClassName = "ModifyStatPoolValueEffector";
 					statPoolUpdates = 
 					[
 						{
@@ -96,7 +95,7 @@ WeakSpotDestroyed : StatusEffect
 						} : StatPoolUpdate
 					];
 					bool usePercent = true;
-				} : Effector
+				} : ModifyStatPoolValueEffector
 			];
 		} : GameplayLogicPackage
 	];
@@ -146,6 +145,52 @@ Phase2 : StatusEffect
 	[
 		{
 			fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+		} : GameplayLogicPackage
+	];
+}
+
+Jackie_Royce_Dps_Modifier : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "Multiplier";
+					value = 0.03;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableLimited : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifierGroup > duration = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.MaxDuration";
+						modifierType = "Additive";
+						value = 1;
+					} : ConstantStatModifier
+				];
+			};
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
 		} : GameplayLogicPackage
 	];
 }

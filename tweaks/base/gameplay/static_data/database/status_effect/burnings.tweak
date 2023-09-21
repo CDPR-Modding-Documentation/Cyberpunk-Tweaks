@@ -18,7 +18,6 @@ BurningBuffEffector : ApplyStatGroupEffector
 			} : IPrereq
 		];
 	} : Prereqs.ANDPrereq;
-	CName effectorClassName = "ApplyStatGroupEffector";
 	fk< StatModifierGroup > statGroup = 
 	{
 		statModifiers = 
@@ -95,7 +94,7 @@ PlayerBurning : Burning
 					} : Prereqs.ANDPrereq;
 					CName effectorClassName = "TriggerContinuousAttackEffector";
 					delayTime = 0.5f;
-					attackRecord = "Attacks.NPCThermalDamageOverTime";
+					attackRecord = "Attacks.LightThermalDamageOverTime";
 				} : ContinuousAttackEffector, 
 				{
 					prereqRecord = 
@@ -314,87 +313,654 @@ MediumBurning : Burning
 	];
 }
 
-LightBurning : Burning
+Testera_Nicolas_SelfBurning : Burning
 {
-	fk< StatModifierGroup > duration = 
+	duration = 
 	{
 		statModifiers = 
 		[
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 4;
+				value = 5;
 			} : ConstantStatModifier, 
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "AdditiveMultiplier";
+				refStat = "BaseStats.DurationReductionDot";
 				refObject = "Player";
-				refStat = "BaseStats.DurationBonusBurning";
 				opSymbol = "*";
-				value = 1;
+				value = -0.01f;
 			} : CombinedStatModifier
 		];
 	};
 	fk< GameplayLogicPackage >[] packages = 
 	[
 		{
-			bool stackable = false;
 			effectors = 
 			[
-				"BaseStatusEffect.BurningSFX"
-			];
-		} : GameplayLogicPackage, 
-		{
-			fk< StatModifier >[] stats = 
-			[
-				{
-					statType = "BaseStats.MaxSpeed";
-					modifierType = "Multiplier";
-					value = 0.6f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.JumpHeight";
-					modifierType = "Multiplier";
-					value = 0.7f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.HasDodge";
-					modifierType = "Multiplier";
-					value = 0;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.CanCrouch";
-					modifierType = "Multiplier";
-					value = 0;
-				} : ConstantStatModifier
-			];
-			bool stackable = true;
-			effectors = 
-			[
-				{
-					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+				"BaseStatusEffect.BurningBuffEffector", "BaseStatusEffect.BurningSFX", {
+					prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
 					CName effectorClassName = "TriggerContinuousAttackEffector";
 					delayTime = 0.5f;
-					attackRecord = "Attacks.LightThermalDamageOverTime";
-				} : ContinuousAttackEffector
+					attackRecord = "Attacks.Testera_Nicolas_ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.PostProcessHitTriggered", {
+								statType = "HasBurningBuffs";
+								valueToCheck = 1;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : ANDPrereq;
+					statusEffect = "BaseStatusEffect.Burning";
+					bool isRandom = false;
+				} : AddStatusEffectToAttackEffector
 			];
 		} : GameplayLogicPackage
 	];
 }
 
-StackableMediumBurning : Burning
+CuttingGrenadeAttack : DebuffStatusEffect
 {
-	fk< StatModifierGroup > maxStacks = 
+	duration = 
 	{
 		statModifiers = 
 		[
 			{
-				statType = "BaseStats.MaxStacks";
+				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 3;
+				value = 0.5;
 			} : ConstantStatModifier
 		];
 	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.6f;
+					string bodyPart = "LEFT_ARM";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					string bodyPart = "HEAD";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.4f;
+					string bodyPart = "RIGHT_ARM";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.5f;
+					string bodyPart = "RIGHT_LEG";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.4f;
+					string bodyPart = "LEFT_LEG";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CuttingGrenadeAttackPlus : DebuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 7;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.6f;
+					string bodyPart = "LEFT_ARM";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					string bodyPart = "HEAD";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.4f;
+					string bodyPart = "RIGHT_ARM";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.5f;
+					string bodyPart = "RIGHT_LEG";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								allowedTypes = 
+								[
+									"NPCType.Human"
+								];
+							} : NPCTypePrereq, 
+							{
+								rarity = "Boss";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								rarity = "MaxTac";
+								invert = true;
+							} : NPCRarityPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "LessOrEqual";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 25.0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq, 
+							{
+								statPoolType = "Health";
+								comparisonType = "Greater";
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0f;
+									} : ConstantStatModifier
+								];
+							} : StatPoolPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					CName effectorClassName = "ForceDismembermentEffector";
+					float dismembermentChance = 0.4f;
+					string bodyPart = "LEFT_LEG";
+					string woundType = "COARSE";
+					bool shouldKillNPC = true;
+					bool isCritical = true;
+					bool skipDeathAnim = false;
+				} : ForceDismembermentEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+BurnGrenade : Burning
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"GrenadeStatusEffect", "BurnGrenade"
+	];
 	fk< GameplayLogicPackage >[] packages = 
 	[
 		{
@@ -405,37 +971,337 @@ StackableMediumBurning : Burning
 			];
 		} : GameplayLogicPackage, 
 		{
-			fk< StatModifier >[] stats = 
-			[
-				{
-					statType = "BaseStats.MaxSpeed";
-					modifierType = "Multiplier";
-					value = 0.6f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.JumpHeight";
-					modifierType = "Multiplier";
-					value = 0.7f;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.HasDodge";
-					modifierType = "Multiplier";
-					value = 0;
-				} : ConstantStatModifier, 
-				{
-					statType = "BaseStats.CanCrouch";
-					modifierType = "Multiplier";
-					value = 0;
-				} : ConstantStatModifier
-			];
 			bool stackable = true;
 			effectors = 
 			[
+				"BaseStatusEffect.BurningBuffEffector"
+			];
+		}
+	];
+}
+
+UncommonBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
 				{
-					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
 					CName effectorClassName = "TriggerContinuousAttackEffector";
-					delayTime = 0.5f;
+					delayTime = 0.25f;
 					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+UncommonPlusBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.23f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+RareBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.45f;
+					attackRecord = "Attacks.HighThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+RarePlusBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.43f;
+					attackRecord = "Attacks.HighThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EpicBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.40f;
+					attackRecord = "Attacks.HighThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								statType = "Armor";
+								valueToCheck = 50;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.LightThermalDamageOverTime";
+					delayTime = 0.25f;
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EpicPlusBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.HighThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								statType = "Armor";
+								valueToCheck = 50;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.LightThermalDamageOverTime";
+					delayTime = 0.25f;
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LegendaryBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.22f;
+					attackRecord = "Attacks.HighThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								statType = "Armor";
+								valueToCheck = 50;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ThermalDamageOverTime";
+					delayTime = 0.25f;
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+LegendaryPlusBurnGrenade : BurnGrenade
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+						bool invert = true;
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.19f;
+					attackRecord = "Attacks.HighThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						prereqClassName = "IsPlayerPrereq";
+					} : IPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.30f;
+					attackRecord = "Attacks.ThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								prereqClassName = "IsPlayerPrereq";
+								bool invert = true;
+							} : IPrereq, 
+							{
+								statType = "Armor";
+								valueToCheck = 50;
+								comparisonType = "GreaterOrEqual";
+							} : StatPrereq
+						];
+					} : ANDPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					attackRecord = "Attacks.ThermalDamageOverTime";
+					delayTime = 0.25f;
 				} : ContinuousAttackEffector
 			];
 		} : GameplayLogicPackage
@@ -498,7 +1364,14 @@ Liberty_Padre_Burning : Burning
 								checkType = "CheckType.Type";
 							} : StatusEffectPrereq, 
 							{
-								valueToCheck = 0f;
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0.0f;
+									} : ConstantStatModifier
+								];
 								statPoolType = "Health";
 								comparisonType = "Equal";
 							} : StatPoolPrereq
@@ -509,6 +1382,136 @@ Liberty_Padre_Burning : Burning
 						"BaseStatusEffect.Liberty_Padre_Burning"
 					];
 				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+AirDrop_Burning : MediumBurning
+{
+	gameplayTags += 
+	[
+		"AirDropBurningTag"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "AdditiveMultiplier";
+				refObject = "Player";
+				refStat = "BaseStats.DurationBonusBurning";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"BaseStatusEffect.BurningSFX", {
+					statusEffect = "BaseStatusEffect.AirDrop_Red_Effect";
+					applicationTarget = "Player";
+					useCountWhenRemoving = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.Defeated";
+								checkType = "CheckType.Type";
+							} : StatusEffectPrereq, 
+							{
+								statusEffect = "BaseStatusEffect.Unconscious";
+								checkType = "CheckType.Type";
+							} : StatusEffectPrereq, 
+							{
+								valueToCheck = 
+								[
+									{
+										statType = "BaseStats.Health";
+										modifierType = "Additive";
+										value = 0.0f;
+									} : ConstantStatModifier
+								];
+								statPoolType = "Health";
+								comparisonType = "Equal";
+							} : StatPoolPrereq
+						];
+					} : ORPrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.AirDrop_Burning"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.MaxSpeed";
+					modifierType = "Multiplier";
+					value = 0.4f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.JumpHeight";
+					modifierType = "Multiplier";
+					value = 0.5f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasDodge";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanCrouch";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanBurningCriticallyHit";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.AirDropThermalDamageOverTime";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								hitFlag = "AirDropBurningDoT";
+							} : HitFlagHitPrereqCondition
+						];
+					} : ProcessHitReceivedAllowProjection;
+					critChance = 
+					[
+						{
+							statType = "BaseStats.CritChance";
+							modifierType = "Additive";
+							value = 1f;
+						} : ConstantStatModifier
+					];
+				} : ModifyAttackCritChanceEffector
 			];
 		} : GameplayLogicPackage
 	];
@@ -569,6 +1572,28 @@ BurningParticleStatus : Burning
 				} : ApplyStatusEffectEffector
 			];
 		} : GameplayLogicPackage
+	];
+}
+
+LightBurning_Tech_55 : Burning
+{
+}
+
+Burning_Tech_55 : Burning
+{
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffects = 
+					[
+						"BaseStatusEffect.LightBurning_Tech_55"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		}
 	];
 }
 

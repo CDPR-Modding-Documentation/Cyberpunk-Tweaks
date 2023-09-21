@@ -162,6 +162,20 @@ StepsIdleDefinition : AIAction
 	};
 }
 
+ChargeAttackCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+}
+
 SandevistanChargeCondition : AIAction
 {
 	activationCondition = 
@@ -173,6 +187,22 @@ SandevistanChargeCondition : AIAction
 				"Condition.TargetAbove4m", "Condition.AbilityCanSprint", "Condition.AbilityCanUseRightHand", "Condition.AbilityCanUseLeftHand", "Condition.AbilityCanUseLegs", "Condition.AbilityHasSandevistan", "Condition.CalculatePathToTarget", "Condition.TargetInRestrictedMovementArea", "Condition.NotTargetInSafeZone"
 			];
 		} : AIActionAND;
+	};
+	loop = 
+	{
+		toNextPhaseConditionCheckInterval = 0.2f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow4m", "Condition.NotAbilityCanSprint", "Condition.NotAbilityCanUseRightHand", "Condition.NotAbilityCanUseLeftHand", "Condition.NotAbilityCanUseLegs", "Condition.NotAbilityHasSandevistan", "Condition.NotCalculatePathToTarget", "Condition.NotTargetInRestrictedMovementArea", "Condition.TargetInSafeZone"
+					];
+				} : AIActionOR;
+			}
+		];
 	};
 }
 
@@ -236,8 +266,18 @@ SandevistanDecorator : AIAction
 	];
 }
 
+SandevistanStartupCooldown : AIActionCooldown
+{
+	name = "SandevistanStartup";
+	duration = 4.f;
+}
+
 SandevistanStartup : AIAction
 {
+	cooldowns = 
+	[
+		"DashAndDodgeActions.SandevistanStartupCooldown"
+	];
 	loop = 
 	{
 		duration = 1.f;
@@ -1231,7 +1271,7 @@ DodgeAfterHitReactionConditionDefinition : AIAction
 		{
 			AND = 
 			[
-				"Condition.HitTimeout3MinSeverity1MaxSeverity6", "Condition.AbilityCanUseLegs", "Condition.TargetHasMeleeWeapon", "Condition.DodgeAfterHitReactionCooldown", "Condition.NotAbilityIsReckless"
+				"Condition.TargetBelow3mPrediction", "Condition.HitTimeout3MinSeverity1MaxSeverity6", "Condition.AbilityCanUseLegs", "Condition.TargetHasMeleeWeapon", "Condition.DodgeAfterHitReactionCooldown", "Condition.NotAbilityIsReckless"
 			];
 		} : AIActionAND;
 	};
@@ -3383,7 +3423,7 @@ GenericDodgeBulletConditionDefinition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.HitDodgeCooldown", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotStatusEffectAnyKnockdown", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotAttackWithSubActionInAir", "Condition.NotTicketEquip", "Condition.TargetBelow180deg", "Condition.TargetAbove3m", "Condition.TargetPOVBelow45deg", {
+		"Condition.HitDodgeCooldown", "Condition.NotIsNPCBlinded", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotStatusEffectAnyKnockdown", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotAttackWithSubActionInAir", "Condition.NotTicketEquip", "Condition.TargetBelow180deg", "Condition.TargetAbove3m", "Condition.TargetPOVBelow45deg", {
 			OR = 
 			[
 				{
@@ -3413,7 +3453,7 @@ GenericDodgeConditionDefinition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.HitDodgeCooldown", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesExceptTauntConditions", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "Condition.TargetAbove2m", "Condition.TargetPOVBelow45deg", "Condition.AbilityCanUseLegs", "Condition.MaxDodgeCount3", {
+		"Condition.HitDodgeCooldown", "Condition.NotIsNPCBlinded", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesExceptTauntConditions", "Condition.NotTicketEquip", "Condition.TargetBelow120deg", "Condition.TargetAbove2m", "Condition.TargetPOVBelow45deg", "Condition.AbilityCanUseLegs", "Condition.MaxDodgeCount3", {
 			OR = 
 			[
 				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
@@ -3426,7 +3466,7 @@ GenericCollisionDodgeConditionDefinition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.HitDodgeCooldown", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.AbilityCanUseLegs", {
+		"Condition.HitDodgeCooldown", "Condition.NotIsNPCBlinded", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.AbilityCanUseLegs", {
 			OR = 
 			[
 				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
@@ -3439,7 +3479,7 @@ GenericMeleeDodgeConditionDefinition : AIActionAND
 {
 	AND = 
 	[
-		"Condition.HitDodgeCooldown", "Condition.NotTargetInStatesBlock", "Condition.HasMeleeWeapon", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.TargetBelow90deg", "Condition.TargetBelow20m", "Condition.AbilityCanUseLegs", "Condition.NotHitTimeout2MinSeverity0", "Condition.NotTargetStatusEffectSandevistanBuff"
+		"Condition.HitDodgeCooldown", "Condition.NotIsNPCBlinded", "Condition.NotTargetInStatesBlock", "Condition.HasMeleeWeapon", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotWounded", "Condition.NotIsUsingOffMeshLink", "Condition.NotMeleeStatesAttackConditions", "Condition.NotTicketEquip", "Condition.TargetBelow90deg", "Condition.TargetBelow20m", "Condition.AbilityCanUseLegs", "Condition.NotHitTimeout2MinSeverity0", "Condition.NotTargetStatusEffectSandevistanBuff"
 	];
 }
 
@@ -3525,5 +3565,35 @@ DashSideSlideData : AIActionSlideData
 	finalRotationAngle = 0.f;
 	usePositionSlide = false;
 	useRotationSlide = true;
+}
+
+DodgeBulletEndlessConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.HitDodgeCooldown", "Condition.NotIsNPCBlinded", "Condition.NotStatusEffectExhausted", "Condition.NotStatusEffectDefeated", "Condition.NotStatusEffectAnyKnockdown", "Condition.NotWounded", "Condition.NotIsEnteringOrLeavingCover", "Condition.NotIsUsingOffMeshLink", "Condition.NotAttackWithSubActionInAir", "Condition.NotTicketEquip", "Condition.TargetBelow180deg", "Condition.TargetAbove3m", "Condition.TargetPOVBelow45deg", {
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.NotTargetHasFullAutoWeapon", "Condition.MaxDodgeCount2"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.TargetHasFullAutoWeapon", "Condition.MaxDodgeCount3"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR, 
+		{
+			OR = 
+			[
+				"Condition.NotInCover", "Condition.InShootingSpot", "Condition.CoverIsOwnerExposed"
+			];
+		} : AIActionOR
+	];
 }
 

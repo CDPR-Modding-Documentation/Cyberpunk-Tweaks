@@ -1,5 +1,5 @@
 package BaseStatusEffect
-using RTDB, Effectors
+using RTDB, Effectors, Prereqs
 
 Stun : DebuffStatusEffect
 {
@@ -63,13 +63,6 @@ Stun : DebuffStatusEffect
 	{
 		float impulseDistance = 0.5f;
 		float cameraShakeStrength = 1.f;
-	};
-	fk< StatusEffectUIData > uiData = 
-	{
-		string displayName = "LocKey#40948";
-		description = "LocKey#77835";
-		string iconPath = "stun_icon";
-		priority = 2.0f;
 	};
 }
 
@@ -143,6 +136,216 @@ ExplosionStun : Stun
 	{
 		float impulseDistance = 1.2f;
 		float cameraShakeStrength = 0.f;
+	};
+}
+
+WeakExplosionStun : ExplosionStun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+CommonFragGrenadeExplosion : ExplosionStun
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.5;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Trash";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Weak";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.Knockdown";
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Normal";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Rare";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.Stun";
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+UncommonFragGrenadeExplosion : CommonFragGrenadeExplosion
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2.25;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+RareFragGrenadeExplosion : ExplosionStun
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	statusEffectType = "BaseStatusEffectTypes.Misc";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Trash";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Weak";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Normal";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.Knockdown";
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							"Prereqs.NPCIsHuman", {
+								nestedPrereqs = 
+								[
+									{
+										rarity = "Rare";
+									} : NPCRarityPrereq, 
+									{
+										rarity = "Elite";
+									} : NPCRarityPrereq
+								];
+							} : Prereqs.ORPrereq
+						];
+					} : Prereqs.ANDPrereq;
+					statusEffect = "BaseStatusEffect.Stun";
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+EpicFragGrenadeExplosion : RareFragGrenadeExplosion
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3.25;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+LegendaryFragGrenadeExplosion : RareFragGrenadeExplosion
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3.5;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+NewPerkFinisherStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2.0;
+			} : ConstantStatModifier
+		];
 	};
 }
 
@@ -306,7 +509,6 @@ BorgStun : Stun
 			} : ConstantStatModifier
 		];
 	};
-	fk< GameplayLogicPackage >[] packages = [];
 	fk< StatusEffectPlayerData > playerData = 
 	{
 		float impulseDistance = 1.f;
@@ -323,15 +525,93 @@ EdgerunnersStun : Stun
 			{
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
-				value = 0.5f;
+				value = 0.1f;
 			} : ConstantStatModifier
 		];
 	};
-	fk< GameplayLogicPackage >[] packages = [];
 	fk< StatusEffectPlayerData > playerData = 
 	{
 		float impulseDistance = 1.5f;
 		float cameraShakeStrength = 0.4f;
+	};
+}
+
+NicolasStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.7f;
+		float cameraShakeStrength = 0.35f;
+	};
+}
+
+BrickStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.666f;
+		float cameraShakeStrength = 0.333f;
+	};
+}
+
+ComradeStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 1.f;
+		float cameraShakeStrength = 0.15f;
+	};
+}
+
+HeavyStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 0.4f;
 	};
 }
 
@@ -429,5 +709,62 @@ BlockBroken : Stun
 		float cameraShakeStrength = 2f;
 	};
 	immunityStats = [];
+}
+
+ExhaustionStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 0.1f;
+		float cameraShakeStrength = 0.025f;
+	};
+}
+
+FatigueStun : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatusEffectPlayerData > playerData = 
+	{
+		float impulseDistance = 0.0f;
+		float cameraShakeStrength = 0.075f;
+	};
+}
+
+StunReed : Stun
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				id = "puppet_powerLevelToHealth";
+				column = "puppet_reed_stun_duration";
+				refStat = "BaseStats.PowerLevel";
+			} : CurveStatModifier
+		];
+	};
 }
 

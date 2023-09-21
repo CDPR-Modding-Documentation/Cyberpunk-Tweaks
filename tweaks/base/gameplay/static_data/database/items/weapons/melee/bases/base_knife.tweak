@@ -2,13 +2,13 @@ package Items
 using RTDB, BaseStats, KnifeAttacks, Prereqs, Perks
 
 [ notQueryable ]
-Base_Knife : MeleeWeapon
+Base_Knife : Base_Throwable
 {
 	string friendlyName = "w_melee_knife";
 	dropObject = "smallItemDrop";
 	CName[] tags += 
 	[
-		"Throwable", "Knife"
+		"Throwable", "Knife", "FinisherFront", "FinisherBack"
 	];
 	fk< AttachmentSlot >[] placementSlots += 
 	[
@@ -16,7 +16,6 @@ Base_Knife : MeleeWeapon
 	];
 	fk< ItemType > itemType = "ItemType.Wea_Knife";
 	triggerEffectName = "te_wea_melee_swing_light";
-	evolution = "WeaponEvolution.Blade";
 	fk< SlotItemPartListElement >[] slotPartList = 
 	[
 		{
@@ -51,11 +50,13 @@ Base_Knife : MeleeWeapon
 	float projectileSmartTargetingAngle = 18;
 	float projectileSmartTargetingDistance = 15;
 	CName effectiveRangeFalloffCurve = "StandardFalloff";
-	float minimumReloadTime = 0.9f;
-	float knifeWeaponSwapOnAttackDelay = 0.4f;
 	fk< StatModifierGroup >[] statModifierGroups += 
 	[
-		"Items.Base_Knife_RPG_Stats", "Items.Base_Knife_RPG_Randomized_Stats", "Items.Base_Knife_Handling_Stats", "Items.Base_Knife_Misc_Stats", "Proficiencies.KenjutsuWeaponPassives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+		"Items.Base_Knife_RPG_Stats", "Items.Base_Knife_Handling_Stats", "Items.Base_Knife_Misc_Stats", "Proficiencies.Weapon_CoolSkill_Passives", "Items.Base_Melee_Weapon_Damage_Type_Physical", "Items.Base_Melee_Weapon_Damage_Type_Physical_Min_Max"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"Items.KnifeWeaponStealthBonus", "GLP.HoldingKnife"
 	];
 	fk< StatPool >[] statPools += 
 	[
@@ -63,7 +64,7 @@ Base_Knife : MeleeWeapon
 	];
 	fk< Attack >[] attacks += 
 	[
-		"KnifeAttacks.KnifeComboAttack1", "KnifeAttacks.KnifeComboAttack2", "KnifeAttacks.KnifeComboAttack3", "KnifeAttacks.KnifeComboAttack4", "KnifeAttacks.KnifeFinalAttack1", "KnifeAttacks.KnifeFinalAttack2", "KnifeAttacks.KnifeFinalAttack3", "KnifeAttacks.KnifeFinalAttack4", "KnifeAttacks.KnifeFinalAttack5", "KnifeAttacks.KnifeFinalAttack6", "KnifeAttacks.KnifeStrongAttack1", "KnifeAttacks.KnifeStrongAttack2", "KnifeAttacks.KnifeStrongAttack3", "KnifeAttacks.KnifeJumpAttack", "KnifeAttacks.KnifeSprintAttack", "KnifeAttacks.KnifeCrouchAttack", "KnifeAttacks.KnifeBlockAttack", "KnifeAttacks.KnifeThrowAttack", "KnifeAttacks.KnifeThrowAttackProjectile", "KnifeAttacks.TantoThrowAttackProjectile", "KnifeAttacks.NeurotoxinKnifeThrowAttackProjectile", "KnifeAttacks.PunkKnifeThrowAttackProjectile", "KnifeAttacks.ChefKnifeThrowAttackProjectile", "KnifeAttacks.KnifeSafeAttack"
+		"KnifeAttacks.KnifeComboAttack1", "KnifeAttacks.KnifeComboAttack2", "KnifeAttacks.KnifeComboAttack3", "KnifeAttacks.KnifeComboAttack4", "KnifeAttacks.KnifeFinalAttack1", "KnifeAttacks.KnifeFinalAttack2", "KnifeAttacks.KnifeFinalAttack3", "KnifeAttacks.KnifeFinalAttack4", "KnifeAttacks.KnifeFinalAttack5", "KnifeAttacks.KnifeFinalAttack6", "KnifeAttacks.KnifeStrongAttack1", "KnifeAttacks.KnifeStrongAttack2", "KnifeAttacks.KnifeStrongAttack3", "KnifeAttacks.KnifeJumpAttack", "KnifeAttacks.KnifeSprintAttack", "KnifeAttacks.KnifeCrouchAttack", "KnifeAttacks.KnifeBlockAttack", "KnifeAttacks.KnifeThrowAttack", "KnifeAttacks.KnifeThrowAttackProjectile", "KnifeAttacks.TantoThrowAttackProjectile", "KnifeAttacks.NeurotoxinKnifeThrowAttackProjectile", "KnifeAttacks.PunkKnifeThrowAttackProjectile", "KnifeAttacks.ChefKnifeThrowAttackProjectile", "KnifeAttacks.KurtKnifeThrowAttackProjectile", "KnifeAttacks.KnifeSafeAttack", "NPCAttacks.KurtTakedownAttack01", "NPCAttacks.KurtTakedownAttack02", "NPCAttacks.KurtTakedownAttackFar02"
 	];
 	audioWeaponConfiguration = "audio_melee_metadata_knife";
 	enableNpcRPGData = true;
@@ -80,13 +81,6 @@ Base_Knife_RPG_Stats : StatModifierGroup
 	fk< StatModifier >[] statModifiers = 
 	[
 		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_knife_RPG_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
 			value = 2.3f;
@@ -99,80 +93,8 @@ Base_Knife_RPG_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.HeadshotDamageMultiplier";
 			modifierType = "Additive";
-			value = 2.5f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.DamagePerHit";
-			modifierType = "Multiplier";
-			value = 1.1f;
-		} : ConstantStatModifier, 
-		{
-			statType = "BaseStats.EffectiveRange";
-			modifierType = "Additive";
-			refObject = "Player";
-			opSymbol = "*";
-			refStat = "BaseStats.Cool";
-			float value = 0.5f;
-		} : CombinedStatModifier
-	];
-}
-
-Base_Knife_RPG_Randomized_Stats : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_randomized_stats";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = 
-	[
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "Additive";
-			id = "item_knife_RPG_stats";
-			column = "power_level_to_crit_chance";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritChance";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "Additive";
-			id = "item_knife_RPG_stats";
-			column = "power_level_to_crit_damage";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "Additive";
-			id = "item_knife_RPG_stats";
-			column = "power_level_to_bonus_stamina_cost_reduction";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.StaminaCostReduction";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier
+			value = 1.5f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -192,8 +114,8 @@ Base_Knife_Handling_Stats : StatModifierGroup
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitReactionFactor";
-			modifierType = "Multiplier";
-			value = 0.2f;
+			modifierType = "Additive";
+			value = -1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.HitWoundsFactor";
@@ -216,13 +138,6 @@ Base_Knife_Handling_Stats : StatModifierGroup
 			value = 0.325f;
 		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.ThrowRecovery";
-			modifierType = "Additive";
-			id = "item_knife_RPG_stats";
-			column = "quality_to_reload_time";
-			refStat = "BaseStats.Quality";
-		} : CurveStatModifier, 
-		{
 			float value = 5.f;
 		} : KnockdownImpulseModifier, 
 		{
@@ -232,19 +147,18 @@ Base_Knife_Handling_Stats : StatModifierGroup
 			float value = 5.f;
 		} : BaseEvadeImpulseModifier, 
 		{
-			statType = "BaseStats.KnockdownImpulse";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.Strength";
-			refObject = "Player";
-			opSymbol = "*";
-			float value = 0.05f;
-		} : CombinedStatModifier, 
-		{
 			float value = 3.f;
 		} : PhysicalImpulseModifier, 
 		{
-			float value = 10.f;
-		} : PhysicalImpulseModifier
+			statType = "BaseStats.StaminaCostToBlock";
+			modifierType = "Multiplier";
+			value = 0.757f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BaseMeleeAttackStaminaCost";
+			modifierType = "Additive";
+			value = 6f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -278,7 +192,7 @@ Base_Knife_Misc_Stats : StatModifierGroup
 			value = 0.5f;
 		} : ConstantStatModifier, 
 		{
-			value = 10.f;
+			value = 20.f;
 		} : EffectiveRangeModifier
 	];
 }
@@ -292,9 +206,6 @@ Base_Knife_NPC_Stats : StatModifierGroup
 			modifierType = "Additive";
 			value = 1.f;
 		} : ConstantStatModifier, 
-		{
-			value = 3.f;
-		} : PhysicalImpulseModifier, 
 		{
 			statType = "BaseStats.CanBlock";
 			modifierType = "Multiplier";
@@ -381,7 +292,7 @@ Base_Knife_NPC_Stats : StatModifierGroup
 	];
 }
 
-Base_Knife_NPC_Data : Base_NPC_RPG_Data
+Base_Knife_NPC_Data : Base_Throwable_NPC_RPG_Data
 {
 	statModifierGroups += 
 	[

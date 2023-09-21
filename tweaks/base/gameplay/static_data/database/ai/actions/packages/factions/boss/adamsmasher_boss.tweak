@@ -1,5 +1,5 @@
 package AdamSmasherBoss
-using RTDB, AIActionTarget
+using RTDB, AIActionTarget, LookatPreset, StatusEffectActions
 
 Map : ActionMap
 {
@@ -30,6 +30,10 @@ Map : ActionMap
 			{
 				node = "StatusEffectActions.SE_Stun";
 				isOverriddenBy = "AdamSmasherBoss.SE_Stun";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackStaggerCyberware";
+				isOverriddenBy = "AdamSmasherBoss.SE_QuickHackStaggerCyberware";
 			}, 
 			{
 				node = "ReactionsActions.DeviceInvestigationHigh";
@@ -86,8 +90,410 @@ Map : ActionMap
 			{
 				node = "ItemHandling.IsPatrolling";
 				isOverriddenBy = "AdamSmasherBoss.PatrolUnequipWeaponConditions";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseAndroid";
+				isOverriddenBy = "AdamSmasherBoss.SE_SystemCollapseBossMitigated";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseMech";
+				isOverriddenBy = "AdamSmasherBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBossMitigated";
+				isOverriddenBy = "AdamSmasherBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapseBoss";
+				isOverriddenBy = "AdamSmasherBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SystemCollapse";
+				isOverriddenBy = "AdamSmasherBoss.SE_SystemCollapse";
+			}, 
+			{
+				node = "GenericArchetype.SE_WeaponJammed";
+				isOverriddenBy = "AdamSmasherBoss.SE_WeaponJammed";
+			}, 
+			{
+				node = "StatusEffectActions.SE_QuickHackStaggerLocomotion";
+				isOverriddenBy = "AdamSmasherBoss.SE_QuickHackStaggerLocomotion";
+			}, 
+			{
+				node = "StatusEffectActions.SE_SuicideWithGrenade";
+				isOverriddenBy = "AdamSmasherBoss.SE_SuicideWithGrenade";
+			}, 
+			{
+				node = "StatusEffectActions.SE_BlackwallDamage";
+				isOverriddenBy = "AdamSmasherBoss.SE_BlackwallDamage";
+			}, 
+			{
+				node = "GenericArchetype.SE_EMP";
+				isOverriddenBy = "AdamSmasherBoss.SE_Disable";
+			}, 
+			{
+				node = "GenericArchetype.SE_EMPResidual";
+				isOverriddenBy = "AdamSmasherBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_EMPArmed";
+				isOverriddenBy = "AdamSmasherBoss.SE_Disable";
+			}, 
+			{
+				node = "StatusEffectActions.SE_EMPUnarmed";
+				isOverriddenBy = "AdamSmasherBoss.SE_Disable";
 			}
 		];
+	};
+}
+
+SE_Disable : AIAction
+{
+}
+
+SE_BlackwallDamage : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = [];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.9f;
+		changeNPCState = 
+		{
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions += 
+	[
+		{
+			stimSource = "AIActionTarget.Owner";
+			stimType = "StimTypes.Scream";
+		} : AISubActionTriggerStim, 
+		{
+			name = "black_wall_activation";
+		} : AISubActionSpawnFX, 
+		{
+			name = "black_wall";
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSuicide"
+			];
+			apply = true;
+			remove = false;
+			delay = 1.5f;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_Smashed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SuicideWithGrenade : AIAction
+{
+	startup = 
+	{
+		duration = 1.9f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		duration = 3.333f;
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotAdamSmashed"
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.LeftShoulder";
+			unequipDespiteInterruption = true;
+			dropItem = false;
+			delay = 0.f;
+		} : AISubActionForceUnequip
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Smashed"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Destroyed_Plate"
+			];
+			apply = true;
+			remove = false;
+			delay = 0;
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			name = "exp_weakspot";
+		} : AISubActionSpawnFX, 
+		{
+			name = "smasher_remove_plate";
+		} : AISubActionPlayVoiceOver, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossNoInterrupt"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Invulnerable"
+			];
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_Smashed";
+		animSlot = 
+		{
+		};
+	};
+}
+
+MadnessPatternCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeMadness"
+			];
+		} : AIActionOR;
+	};
+}
+
+SE_QuickHackStaggerLocomotion : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectTypeLocomotionMalfunction"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossControlhackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "SE_QuickHackStaggerLocomotionLegs";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_SystemCollapse : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectBossSystemCollapse", "Condition.NotStatusEffectBossSystemCollapseHackReactionImmunity"
+			];
+		} : AIActionOR;
+	};
+	startup = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		useDurationFromAnimSlot = false;
+		duration = 4.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	animData = 
+	{
+		animFeature = "AdamSmasher_SE_Collapse";
+		animSlot = 
+		{
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "panel_rip";
+		} : AISubActionSpawnFX, 
+		{
+			name = "status_electrocuted";
+		} : AISubActionSpawnFX, 
+		{
+			name = "status_emp";
+		} : AISubActionSpawnFX
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSystemCollapseHackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+			delay = 3.5f;
+		} : AISubActionStatusEffect
+	];
+}
+
+SE_SystemCollapseBossMitigated : AIStatusEffectAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectBossSystemCollapse", "Condition.StatusEffectBossSystemCollapseHackReactionImmunity"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 5.433f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "status_electrocuted";
+			delay = 0.f;
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "AdamSmasher_SE_Phase2";
+		animSlot = 
+		{
+		};
+	};
+}
+
+SE_WeaponJammed : StatusEffectActions.AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasAnyWeapon"
+			];
+		} : AIActionAND;
+	};
+	subActions = 
+	[
+		{
+			delay = 0.1f;
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossControlhackReactionImmunity"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+	loop = 
+	{
+		duration = 3.667f;
+	};
+	animData = 
+	{
+		animFeature = "SE_WeaponJammed";
 	};
 }
 
@@ -132,8 +538,8 @@ SprintToTarget : MovementPolicy
 	target = "AIActionTarget.CombatTarget";
 	movementType = "Sprint";
 	tolerance = 0.5f;
-	dynamicTargetUpdateTimer = 1.f;
-	dynamicTargetUpdateDistance = 4.f;
+	dynamicTargetUpdateTimer = 0.f;
+	dynamicTargetUpdateDistance = 0.f;
 	dontUseStop = true;
 	avoidThreatRange = 0.f;
 }
@@ -143,8 +549,8 @@ SprintToTargetGapCloser : MovementPolicy
 	target = "AIActionTarget.CombatTarget";
 	movementType = "Sprint";
 	tolerance = 0.5f;
-	dynamicTargetUpdateTimer = 1.f;
-	dynamicTargetUpdateDistance = 4.f;
+	dynamicTargetUpdateTimer = 0.f;
+	dynamicTargetUpdateDistance = 0.f;
 	dontUseStop = false;
 	avoidThreatRange = 0.f;
 }
@@ -157,7 +563,7 @@ MoveCloserToStimSource : AIAction
 		{
 			AND = 
 			[
-				"Condition.StimSource", "Condition.StimSourceInRestrictedMovementArea"
+				"Condition.NotWhistleStimType", "Condition.StimSource", "Condition.StimSourceInRestrictedMovementArea"
 			];
 		} : AIActionAND;
 	};
@@ -205,7 +611,7 @@ ReevaluationBreak : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 }
 
@@ -266,7 +672,7 @@ InitalStage2Actions : AIActionSequence
 {
 	actions = 
 	[
-		"AdamSmasherBoss.EquipProjectileLauncherInstantly", "AdamSmasherBoss.EquipProjectileLauncherRunInstantly", "AdamSmasherBoss.SE_StaggeredStage2", "AdamSmasherBoss.SetAimAttackHMGCooldown", "GenericArchetype.Success"
+		"AdamSmasherBoss.EquipProjectileLauncherInstantly", "AdamSmasherBoss.EquipProjectileLauncherRunInstantly", "AdamSmasherBoss.SetAimAttackHMGCooldown", "GenericArchetype.Success"
 	];
 }
 
@@ -274,7 +680,7 @@ InitalStage2MissileRainActions : AIActionSequence
 {
 	actions = 
 	[
-		"AdamSmasherBoss.FindMissileRainPosition", "AdamSmasherBoss.LowerServer", "AdamSmasherBoss.SprintToMissileRainSpot", "AdamSmasherBoss.RotateToTarget", "AdamSmasherBoss.MissileRain01", "GenericArchetype.Success"
+		"AdamSmasherBoss.FindMissileRainPosition", "AdamSmasherBoss.LowerServer", "AdamSmasherBoss.SprintToMissileRainSpot", "AdamSmasherBoss.RotateToTarget", "AdamSmasherBoss.MissileRain01", "AdamSmasherBoss.MissileRain01CwMalfunction", "GenericArchetype.Success"
 	];
 }
 
@@ -344,7 +750,7 @@ FindEmergencyPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -367,7 +773,7 @@ RemoveInvicibility : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -613,7 +1019,7 @@ EquipFistsInstantly : AIAction
 	};
 	loop = 
 	{
-		duration = 0.0000000001f;
+		duration = 0.1f;
 		changeNPCState = 
 		{
 			upperBodyState = "Attack";
@@ -834,7 +1240,7 @@ EquipProjectileLauncherInstantly : AIAction
 	[
 		{
 			attachmentSlot = "AttachmentSlots.LeftShoulder";
-			itemID = "Items.Smasher_Launcher_Rocket_Left";
+			itemID = "Items.Smasher_Launcher_Rain_Left";
 		} : AISubActionForceEquip
 	];
 }
@@ -1023,6 +1429,58 @@ SprintToMissileRainSpotNoInterrupt : AIAction
 	];
 }
 
+SprintToMissileRainSpotNoInterruptCwMalfunction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = "AdamSmasherBoss.SprintToMissileRainSpotLoopPhaseNoInterrupt";
+	loopSubActions = 
+	[
+		{
+			name = "charging_missile";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulder"
+			];
+			delay = 1.f;
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainRightCwMalfunctionShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			pauseConditionCheckInterval = 0.1f;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.IsUsingOffMeshLink"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootToPoint
+	];
+}
+
 SprintToMissileRainSpotLoopPhaseNoInterrupt : AIActionPhase
 {
 	movePolicy = 
@@ -1175,7 +1633,7 @@ FindOpenCurtain01Position : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -1199,7 +1657,7 @@ LowerServer : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1213,7 +1671,7 @@ RaiseServer : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1297,7 +1755,7 @@ FindOpenCurtain02Position : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -1325,7 +1783,7 @@ CallWave01a : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1342,7 +1800,7 @@ CallWave02a : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1359,7 +1817,7 @@ CallWave01b : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1376,7 +1834,7 @@ CallWave02b : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.01f;
 	};
 	subActions = 
 	[
@@ -1405,7 +1863,7 @@ FindCoverPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -2205,6 +2663,90 @@ SprintToTargetHMGGapCloser : AIAction
 	];
 }
 
+SprintToTargetHMGCwMalfunctionGapCloser : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = "AdamSmasherBoss.SprintToTargetGapCloser";
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.NotMinAccuracyValue0dot33", "Condition.TargetBelow10m", {
+									AND = 
+									[
+										"Condition.TargetBelow12m", "Condition.TargetUpTo0dot5mZDiff", "Condition.CalculatePathStraightToTarget"
+									];
+								} : AIActionAND, 
+								{
+									AND = 
+									[
+										"Condition.TargetAbove1dot4mZDiff", "Condition.NotCalculatePathToTargetSmasherJump"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			name = "charging_missile";
+		} : AISubActionSpawnFX, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulder"
+			];
+			delay = 2.f;
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainLeftCwMalfunctionShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			pauseConditionCheckInterval = 0.1f;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.IsUsingOffMeshLink"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootToPoint
+	];
+}
+
 SprintToTargetInLos : AIAction
 {
 	loop = 
@@ -2395,7 +2937,7 @@ StrafeAroundTargetAutoShotgun : AIAction
 			avoidThreatRange = 0.f;
 			circlingDirection = "Left";
 			stopOnObstacle = true;
-			dynamicTargetUpdateTimer = 1.f;
+			dynamicTargetUpdateTimer = 0.f;
 			minDistance = 3.f;
 		};
 	};
@@ -2566,7 +3108,14 @@ AimAttackLMGOnPlace : AIAction
 	[
 		{
 			name = "battlecry_morale";
-		} : AISubActionPlayVoiceOver
+		} : AISubActionPlayVoiceOver, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -2654,7 +3203,14 @@ AimAttackLMGMoving : AIAction
 	[
 		{
 			name = "battlecry_morale";
-		} : AISubActionPlayVoiceOver
+		} : AISubActionPlayVoiceOver, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -2809,6 +3365,16 @@ AimAttackLMGCover : AIAction
 			];
 		} : AISubActionShootWithWeapon
 	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
+	];
 	animData = 
 	{
 		animFeature = "ShootAction";
@@ -2895,6 +3461,16 @@ AimAttackLMGCoverOnPlace : AIAction
 				}
 			];
 		} : AISubActionShootWithWeapon
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -3213,10 +3789,6 @@ AimAttackAutoShotgunOnPlaceLocomotionMalfunction : AimAttackAutoShotgunOnPlace
 
 AimAttackAutoShotgunOnPlace : AIAction
 {
-	cooldowns = 
-	[
-		"AdamSmasherBoss.AimAttackShotgunCooldown"
-	];
 	activationCondition = 
 	{
 		condition = 
@@ -3288,7 +3860,14 @@ AimAttackAutoShotgunOnPlace : AIAction
 		} : AISubActionPlayVoiceOver, 
 		{
 			name = "charging_shotgun";
-		} : AISubActionSpawnFX
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -3320,10 +3899,6 @@ AimAttackAutoShotgunOnPlace : AIAction
 
 AimAttackAutoShotgunOnPlaceMalfunction : AIAction
 {
-	cooldowns = 
-	[
-		"AdamSmasherBoss.AimAttackShotgunCooldown"
-	];
 	activationCondition = 
 	{
 		condition = 
@@ -3427,10 +4002,6 @@ AimAttackAutoShotgunOnPlaceMalfunction : AIAction
 
 AimAttackAutoShotgunMoving : AIAction
 {
-	cooldowns = 
-	[
-		"AdamSmasherBoss.AimAttackShotgunCooldown"
-	];
 	startup = 
 	{
 		duration = 3.f;
@@ -3483,7 +4054,14 @@ AimAttackAutoShotgunMoving : AIAction
 		} : AISubActionPlayVoiceOver, 
 		{
 			name = "charging_shotgun";
-		} : AISubActionSpawnFX
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -3504,16 +4082,19 @@ AimAttackAutoShotgunMoving : AIAction
 			{
 				targetSlot = "Head";
 			} : AIActionTarget.CombatTarget;
-		}
+		}, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 }
 
 AimAttackAutoShotgunMovingMalfunction : AIAction
 {
-	cooldowns = 
-	[
-		"AdamSmasherBoss.AimAttackShotgunCooldown"
-	];
 	activationCondition = 
 	{
 		condition = "Condition.IsNPCUnderWeaponMalfunctionQuickhack";
@@ -3592,6 +4173,112 @@ AimAttackAutoShotgunMovingMalfunction : AIAction
 				targetSlot = "Head";
 			} : AIActionTarget.CombatTarget;
 		}
+	];
+}
+
+AimAttackAutoShotgunMadness : AIAction
+{
+	startup = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			delay = 0;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherAutoShotgunSemiAutoShootingPackage"
+			];
+			numberOfShots = 100;
+		} : AISubActionShootWithWeapon
+	];
+	subActions = 
+	[
+		{
+			name = "battlecry_morale";
+		} : AISubActionPlayVoiceOver, 
+		{
+			name = "charging_shotgun";
+		} : AISubActionSpawnFX, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BossSuicide"
+			];
+			apply = true;
+			remove = true;
+			delay = 1.45f;
+		} : AISubActionStatusEffect
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Smasher_Body";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Smasher_RightHand";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 }
 
@@ -3711,6 +4398,16 @@ AimAttackAutoShotgunOnPlaceWounded : AIAction
 			delay = 0;
 		} : AISubActionShootWithWeapon
 	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
+	];
 	animData = 
 	{
 		animFeature = "AdamSmasherShoot";
@@ -3777,6 +4474,16 @@ AimAttackAutoShotgunMovingWounded : AIAction
 				}
 			];
 		} : AISubActionShootWithWeapon
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Shooting"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 	animData = 
 	{
@@ -3887,7 +4594,7 @@ MeleeAttackShotgun180L : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.1f;
-			attackRange = 3.f;
+			attackRange = 4.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.SmasherStompAttackStagger";
 			attackName = "QuickMelee";
@@ -3944,7 +4651,7 @@ MeleeAttackShotgun180R : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.1f;
-			attackRange = 3.f;
+			attackRange = 4.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.SmasherStompAttackStagger";
 			attackName = "QuickMelee";
@@ -4078,7 +4785,7 @@ MeleeAttackHMG : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.1f;
-			attackRange = 2.f;
+			attackRange = 4.f;
 			attackTime = 0.f;
 			attack = "NPCAttacks.SmasherStrongAttackKnockdown";
 			attackName = "QuickMelee";
@@ -4135,7 +4842,7 @@ MeleeAttackHMG180 : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.1f;
-			attackRange = 2.f;
+			attackRange = 4.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.SmasherStompAttackStagger";
 			attackName = "QuickMelee";
@@ -4216,7 +4923,7 @@ MeleeAttackAutoShotgunWounded : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.1f;
-			attackRange = 2.f;
+			attackRange = 4.f;
 			attackTime = 0.f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			attackName = "QuickMelee";
@@ -4246,8 +4953,22 @@ MeleeCombo01Sequence : AIActionSequence
 	};
 	actions = 
 	[
-		"AdamSmasherBoss.SprintToTargetMelee", "AdamSmasherBoss.MeleeCombo01P1", "AdamSmasherBoss.MeleeCombo01P2", "AdamSmasherBoss.MeleeCombo01P2Recovery", "GenericArchetype.Success"
+		"AdamSmasherBoss.MeleeCombo01P1", "AdamSmasherBoss.MeleeCombo01P2", "AdamSmasherBoss.MeleeCombo01P2Recovery", "GenericArchetype.Success"
 	];
+}
+
+MeleeComboCloseSequenceCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow5m", "Condition.TargetIsVisible"
+			];
+		} : AIActionAND;
+	};
 }
 
 MeleeCombo01CloseSequence : AIActionSequence
@@ -4264,7 +4985,7 @@ MeleeCombo01CloseSequence : AIActionSequence
 	};
 	actions = 
 	[
-		"AdamSmasherBoss.WalkToTargetAutoShotgunCyberwareMalfunction", "AdamSmasherBoss.DashForwardToTarget", "AdamSmasherBoss.MeleeCombo01P1OnPlace", "AdamSmasherBoss.MeleeCombo01P2", "AdamSmasherBoss.MeleeCombo01P2Recovery", "GenericArchetype.Success"
+		"AdamSmasherBoss.DashForwardToTarget", "AdamSmasherBoss.MeleeCombo01P1OnPlace", "AdamSmasherBoss.MeleeCombo01P2", "AdamSmasherBoss.MeleeCombo01P2Recovery", "GenericArchetype.Success"
 	];
 }
 
@@ -4351,7 +5072,8 @@ MeleeCombo01P1 : AIAction
 {
 	startup = 
 	{
-		duration = 0.7f;
+		useDurationFromAnimSlot = false;
+		duration = 0.933f;
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
@@ -4361,7 +5083,8 @@ MeleeCombo01P1 : AIAction
 	};
 	loop = 
 	{
-		duration = 0.2f;
+		useDurationFromAnimSlot = false;
+		duration = 0.167f;
 		changeNPCState = 
 		{
 			locomotionMode = "Static";
@@ -4376,8 +5099,8 @@ MeleeCombo01P1 : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			attackName = "QuickMelee";
@@ -4424,6 +5147,7 @@ MeleeCombo01P1OnPlace : AIAction
 	};
 	loop = 
 	{
+		useDurationFromAnimSlot = false;
 		duration = 0.2f;
 		changeNPCState = 
 		{
@@ -4439,8 +5163,8 @@ MeleeCombo01P1OnPlace : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			attackName = "QuickMelee";
@@ -4570,12 +5294,20 @@ MeleeCombo01P2Recovery : AIAction
 	loopSubActions = 
 	[
 		{
+			statusEffects = 
+			[
+				"AdamSmasher.Smasher_Single_Shot_Dps_Modifier"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
 			weaponSlots = 
 			[
 				"AttachmentSlots.WeaponRight"
 			];
 			target = "AIActionTarget.CombatTarget";
-			delay = 0;
+			delay = 0.05f;
 			numberOfShots = 1;
 			shootingPatternPackages = 
 			[
@@ -4607,7 +5339,7 @@ MeleeCombo02Sequence : AIActionSequence
 	};
 	actions = 
 	[
-		"AdamSmasherBoss.SprintToTargetMelee", "AdamSmasherBoss.MeleeCombo02P1", "AdamSmasherBoss.MeleeCombo02P2", "AdamSmasherBoss.MeleeCombo02P3", "AdamSmasherBoss.MeleeCombo02P3Recovery", "GenericArchetype.Success"
+		"AdamSmasherBoss.MeleeCombo02P1", "AdamSmasherBoss.MeleeCombo02P2", "AdamSmasherBoss.MeleeCombo02P3", "AdamSmasherBoss.MeleeCombo02P3Recovery", "GenericArchetype.Success"
 	];
 }
 
@@ -4625,7 +5357,7 @@ MeleeCombo02CloseSequence : AIActionSequence
 	};
 	actions = 
 	[
-		"AdamSmasherBoss.WalkToTargetAutoShotgunCyberwareMalfunction", "AdamSmasherBoss.DashForwardToTarget", "AdamSmasherBoss.MeleeCombo02P1OnPlace", "AdamSmasherBoss.MeleeCombo02P2OnPlace", "AdamSmasherBoss.MeleeCombo02P3", "AdamSmasherBoss.MeleeCombo02P3Recovery", "GenericArchetype.Success"
+		"AdamSmasherBoss.DashForwardToTarget", "AdamSmasherBoss.MeleeCombo02P1OnPlace", "AdamSmasherBoss.MeleeCombo02P2OnPlace", "AdamSmasherBoss.MeleeCombo02P3", "AdamSmasherBoss.MeleeCombo02P3Recovery", "GenericArchetype.Success"
 	];
 }
 
@@ -4658,9 +5390,9 @@ MeleeCombo02P1 : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
-			attackTime = 0.05f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
+			attackTime = 0.1f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 			attackName = "QuickMelee";
@@ -4721,9 +5453,9 @@ MeleeCombo02P1OnPlace : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
-			attackTime = 0.05f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
+			attackTime = 0.1f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 			attackName = "QuickMelee";
@@ -4787,9 +5519,9 @@ MeleeCombo02P2 : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
-			attackTime = 0.05f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
+			attackTime = 0.1f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 			attackName = "QuickMelee";
@@ -4923,12 +5655,20 @@ MeleeCombo02P3Recovery : AIAction
 	loopSubActions = 
 	[
 		{
+			statusEffects = 
+			[
+				"AdamSmasher.Smasher_Single_Shot_Dps_Modifier"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
 			weaponSlots = 
 			[
 				"AttachmentSlots.WeaponRight"
 			];
 			target = "AIActionTarget.CombatTarget";
-			delay = 0;
+			delay = 0.05f;
 			numberOfShots = 1;
 			shootingPatternPackages = 
 			[
@@ -4960,7 +5700,7 @@ MeleeCombo03Sequence : AIActionSequence
 	};
 	actions = 
 	[
-		"AdamSmasherBoss.SprintToTargetMelee", "AdamSmasherBoss.MeleeCombo03P1", "AdamSmasherBoss.MeleeCombo03P2", "AdamSmasherBoss.MeleeCombo03P3", "AdamSmasherBoss.MeleeCombo03P3Recovery", "GenericArchetype.Success"
+		"AdamSmasherBoss.MeleeCombo03P1", "AdamSmasherBoss.MeleeCombo03P2", "AdamSmasherBoss.MeleeCombo03P3", "AdamSmasherBoss.MeleeCombo03P3Recovery", "GenericArchetype.Success"
 	];
 }
 
@@ -4978,7 +5718,7 @@ MeleeCombo03CloseSequence : AIActionSequence
 	};
 	actions = 
 	[
-		"AdamSmasherBoss.WalkToTargetAutoShotgunCyberwareMalfunction", "AdamSmasherBoss.DashForwardToTarget", "AdamSmasherBoss.MeleeCombo03P1OnPlace", "AdamSmasherBoss.MeleeCombo03P2", "AdamSmasherBoss.MeleeCombo03P3", "AdamSmasherBoss.MeleeCombo03P3Recovery", "GenericArchetype.Success"
+		"AdamSmasherBoss.DashForwardToTarget", "AdamSmasherBoss.MeleeCombo03P1OnPlace", "AdamSmasherBoss.MeleeCombo03P2", "AdamSmasherBoss.MeleeCombo03P3", "AdamSmasherBoss.MeleeCombo03P3Recovery", "GenericArchetype.Success"
 	];
 }
 
@@ -5011,9 +5751,9 @@ MeleeCombo03P1 : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
-			attackTime = 0.05f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
+			attackTime = 0.2f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 			attackName = "QuickMelee";
@@ -5074,9 +5814,9 @@ MeleeCombo03P1OnPlace : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
-			attackTime = 0.05f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
+			attackTime = 0.25f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 			attackName = "QuickMelee";
@@ -5140,9 +5880,9 @@ MeleeCombo03P2 : AIAction
 			[
 				"AttachmentSlots.RightWrist"
 			];
-			attackDuration = 0.1f;
-			attackRange = 3.f;
-			attackTime = 0.05f;
+			attackDuration = 0.05f;
+			attackRange = 4.f;
+			attackTime = 0.125f;
 			attack = "NPCAttacks.SmasherStrongAttack";
 			colliderBoxSize = ( 2.f, 0.3f, 3.f );
 			attackName = "QuickMelee";
@@ -5271,12 +6011,20 @@ MeleeCombo03P3Recovery : AIAction
 	loopSubActions = 
 	[
 		{
+			statusEffects = 
+			[
+				"AdamSmasher.Smasher_Single_Shot_Dps_Modifier"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
 			weaponSlots = 
 			[
 				"AttachmentSlots.WeaponRight"
 			];
 			target = "AIActionTarget.CombatTarget";
-			delay = 0;
+			delay = 0.05f;
 			numberOfShots = 1;
 			shootingPatternPackages = 
 			[
@@ -5376,7 +6124,7 @@ MeleeChargeHMG01P1 : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.2f;
-			attackRange = 2.f;
+			attackRange = 4.f;
 			attackTime = 0.05f;
 			attack = "NPCAttacks.SmasherStrongAttackKnockdown";
 			attackName = "ChargeAttack";
@@ -5683,6 +6431,105 @@ SpecialAttackHMG01 : AIAction
 	];
 }
 
+SpecialAttackHMG01CwMalfunction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.RightShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainLeftCwMalfunctionShootingPackage"
+			];
+			numberOfShots = 10;
+			pointPosition = 
+			[
+				( 0, 0, 0 )
+			];
+			pauseConditionCheckInterval = 0.1f;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						OR = 
+						[
+							"Condition.IsUsingOffMeshLink"
+						];
+					} : AIActionOR;
+				}
+			];
+		} : AISubActionShootToPoint
+	];
+	animData = 
+	{
+		animFeature = "ShootLauncher";
+		animVariation = 1;
+		animSlot = 
+		{
+			startupSlide = "AdamSmasherBoss.RotateSlideData";
+			loopSlide = "AdamSmasherBoss.RotateSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Smasher_Body";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
 SprintToMissileRainSpotSequence : AIActionSequence
 {
 	actions = 
@@ -5695,7 +6542,7 @@ MissileRainSequence : AIActionSequence
 {
 	actions = 
 	[
-		"AdamSmasherBoss.RotateToTarget", "AdamSmasherBoss.MissileRain01", "AdamSmasherBoss.SetMissileRainCooldown", "AdamSmasherBoss.SetSpecialAttackHMGCooldown", "GenericArchetype.Success"
+		"AdamSmasherBoss.RotateToTarget", "AdamSmasherBoss.MissileRain01", "AdamSmasherBoss.MissileRain01CwMalfunction", "AdamSmasherBoss.SetMissileRainCooldown", "AdamSmasherBoss.SetSpecialAttackHMGCooldown", "GenericArchetype.Success"
 	];
 }
 
@@ -5703,7 +6550,7 @@ FindMissileRainPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -5727,7 +6574,7 @@ FindMissileRainPosition2 : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -5751,7 +6598,7 @@ FindMissileSpillPosition : AIAction
 {
 	loop = 
 	{
-		duration = 0.0000001f;
+		duration = 0.1f;
 	};
 	subActions = 
 	[
@@ -5823,6 +6670,16 @@ MissileRainzDiffCondition : AIAction
 
 MissileRain01 : AIAction
 {
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
 	startup = 
 	{
 		duration = 2.667f;
@@ -5935,11 +6792,135 @@ MissileRain01 : AIAction
 	];
 }
 
+MissileRain01CwMalfunction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 2.667f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 3.167f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "charging_missile";
+		} : AISubActionSpawnFX
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 10;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainWideShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 1.5f, 1, 0 ), ( 1.5f, -1, 0 ), ( -1.5f, 1, 0 ), ( -1.5f, -1, 0 ), ( -1.5f, -3, 0 ), ( 1.5f, 3, 0 ), ( -1.5f, 3, 0 ), ( 1.5f, 3, 0 ), ( 0, 1.5f, 0 ), ( 0, -1.5f, 0 )
+			];
+		} : AISubActionMissileRainGrid
+	];
+	recoverySubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.LeftShoulder"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 10;
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainWideShootingPackage"
+			];
+			tbhCoefficient = 0.f;
+			missileOffsets = 
+			[
+				( 0, 0, 0 ), ( 3, 0, 0 ), ( -3, 0, 0 ), ( 0, 3, 0 ), ( 0, -3, 0 ), ( 3, 2, 0 ), ( -3, 2, 0 ), ( 3, -2, 0 ), ( -3, -2, 0 ), ( 1.5f, 1, 0 )
+			];
+		} : AISubActionMissileRainGrid
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"AdamSmasher.Invulnerable"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			name = "q113_smasher_shoots_rockets";
+		} : AISubActionAddFact, 
+		{
+			name = "battlecry_morale";
+		} : AISubActionPlayVoiceOver
+	];
+	animData = 
+	{
+		animFeature = "ShootLauncher";
+		animVariation = 2;
+		animSlot = 
+		{
+			startupSlide = "AdamSmasherBoss.RotateSlideData";
+			loopSlide = "AdamSmasherBoss.RotateSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Smasher_Body";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
 MissileSpillSequence : AIActionSequence
 {
 	actions = 
 	[
-		"AdamSmasherBoss.RotateToTarget", "AdamSmasherBoss.MissileRain01", "AdamSmasherBoss.SetMissileRainCooldown", "AdamSmasherBoss.SetSpecialAttackHMGCooldown", "GenericArchetype.Success"
+		"AdamSmasherBoss.RotateToTarget", "AdamSmasherBoss.MissileRain01", "AdamSmasherBoss.MissileRain01CwMalfunction", "AdamSmasherBoss.SetMissileRainCooldown", "AdamSmasherBoss.SetSpecialAttackHMGCooldown", "GenericArchetype.Success"
 	];
 }
 
@@ -6020,7 +7001,7 @@ DashForwardToTarget : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.1f;
-			attackRange = 3.f;
+			attackRange = 4.f;
 			attackTime = 0.13f;
 			attackName = "OnPlace";
 			colliderBoxSize = ( 0, 0, 0 );
@@ -6031,6 +7012,7 @@ DashForwardToTarget : AIAction
 		animFeature = "DashForwardLong";
 		animSlot = 
 		{
+			startupSlide = "AnimalsBoss_Hammer.RotateSlideData";
 			loopSlide = "AnimalsBoss_Hammer.DashForwardSlideData";
 		};
 	};
@@ -6381,7 +7363,21 @@ JumpAttackConditionDistance : AIAction
 		{
 			AND = 
 			[
-				"Condition.TargetAbove10m", "Condition.TargetBelow20m", "Condition.CalculatePathStraightToTarget"
+				"Condition.TargetAbove7m", "Condition.TargetBelow20m", "Condition.CalculatePathStraightToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+JumpAttackConditionDistanceParried : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove3m", "Condition.TargetBelow20m", "Condition.CalculatePathStraightToTarget"
 			];
 		} : AIActionAND;
 	};
@@ -6416,6 +7412,20 @@ JumpAttackSprintConditionDistance : AIAction
 				"Condition.TargetAbove20m"
 			];
 		} : AIActionAND;
+	};
+}
+
+JumpAttackSprintConditionDistanceParried : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.TargetAbove20m", "Condition.NotCalculatePathStraightToTarget"
+			];
+		} : AIActionOR;
 	};
 }
 
@@ -6483,10 +7493,10 @@ JumpAttack : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.2f;
-			attack = "NPCAttacks.SmasherStrongAttackStompKnockdown";
-			attackRange = 7.5f;
+			attack = "NPCAttacks.SmasherhMeleeExplosion";
+			attackRange = 5.f;
 			attackName = "JumpAttack";
-			attackTime = 1.5f;
+			attackTime = 1.35f;
 		} : AISubActionAttackWithWeapon
 	];
 	subActions = 
@@ -6621,10 +7631,10 @@ JumpAttackSprintFinal : JumpAttackFinal
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.2f;
-			attack = "NPCAttacks.SmasherStrongAttackStompKnockdown";
-			attackRange = 5.f;
+			attack = "NPCAttacks.SmasherhMeleeExplosion";
+			attackRange = 4.f;
 			attackName = "JumpAttack";
-			attackTime = 1.4f;
+			attackTime = 1.35f;
 		} : AISubActionAttackWithWeapon
 	];
 	animData = 
@@ -6699,10 +7709,10 @@ JumpAttackSprintHMGFinal : JumpAttackFinal
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.2f;
-			attack = "NPCAttacks.SmasherStrongAttackStompKnockdown";
-			attackRange = 5.f;
+			attack = "NPCAttacks.SmasherhMeleeExplosion";
+			attackRange = 4.f;
 			attackName = "JumpAttack";
-			attackTime = 1.4f;
+			attackTime = 1.35f;
 		} : AISubActionAttackWithWeapon
 	];
 	animData = 
@@ -6726,17 +7736,13 @@ JumpAwaySequence : AIActionSequence
 
 JumpAwayCondition : AIAction
 {
-	cooldowns = 
-	[
-		"AdamSmasherBoss.JumpAttackCooldown"
-	];
 	activationCondition = 
 	{
 		condition = 
 		{
 			AND = 
 			[
-				"Condition.TargetBelow8m", "Condition.CalculatePathStraightBack10m"
+				"Condition.TargetBelow8m", "Condition.CalculatePathStraightBack4m"
 			];
 		} : AIActionAND;
 	};
@@ -6744,10 +7750,6 @@ JumpAwayCondition : AIAction
 
 JumpAway : AIAction
 {
-	cooldowns = 
-	[
-		"AdamSmasherBoss.JumpAttackCooldown"
-	];
 	startup = 
 	{
 		duration = 2.f;
@@ -6783,7 +7785,7 @@ JumpAway : AIAction
 				"AttachmentSlots.RightWrist"
 			];
 			attackDuration = 0.4f;
-			attack = "NPCAttacks.SmasherStrongAttackStompKnockdown";
+			attack = "NPCAttacks.SmasherhMeleeExplosion";
 			attackRange = 3.f;
 			attackTime = 0.f;
 			attackName = "JumpAttack";
@@ -7364,6 +8366,24 @@ SE_DefeatedRecover : AIAction
 	};
 }
 
+SE_QuickHackStaggerCyberware : AIQuickhackDefaultAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.StatusEffectCyberwareMalfunction", "Condition.StatusEffectCyberwareMalfunctionLvl1", "Condition.StatusEffectCyberwareMalfunctionLvl2", "Condition.StatusEffectCyberwareMalfunctionLvl3", "Condition.StatusEffectCyberwareMalfunctionLvl4", "Condition.StatusEffectCyberwareMalfunctionLvl4PlusPlus"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.01f;
+	};
+}
+
 SE_Blind : AIActionSelector
 {
 	actions = 
@@ -7533,13 +8553,13 @@ AimAttackCoverInitCooldown : AIActionCooldown
 AimAttackShotgunCooldown : AIActionCooldown
 {
 	name = "AimAttackShotgunCooldown";
-	duration = 15.f;
+	duration = 25.f;
 }
 
 AimAttackShotgunInitCooldown : AIActionCooldown
 {
 	name = "AimAttackShotgunCooldown";
-	duration = 10.f;
+	duration = 15.f;
 }
 
 AimAttackShotgunWoundedCooldown : AIActionCooldown
@@ -7724,8 +8744,8 @@ MeleeSlideCollsionPrevention : AIActionSlideData
 	target = "AIActionTarget.CombatTarget";
 	duration = 0.f;
 	distance = 1.f;
-	positionSpeed = 2.f;
-	offsetToTarget = 1.5f;
+	positionSpeed = 5.f;
+	offsetToTarget = 1.f;
 }
 
 MeleeAttackLightSlideData : AIActionSlideData
@@ -7733,7 +8753,7 @@ MeleeAttackLightSlideData : AIActionSlideData
 	target = "AIActionTarget.CombatTarget";
 	duration = 0.f;
 	distance = 5.0f;
-	positionSpeed = 2.f;
+	positionSpeed = 5.f;
 	offsetToTarget = 0.f;
 	positionPredictionTime = 1.5f;
 }
@@ -7743,8 +8763,8 @@ MeleeAttackCombo1P1 : AIActionSlideData
 	target = "AIActionTarget.CombatTarget";
 	duration = 0.f;
 	distance = 5.0f;
-	positionSpeed = 2.f;
-	offsetToTarget = 1.5f;
+	positionSpeed = 5.f;
+	offsetToTarget = 1.f;
 	positionPredictionTime = 1.5f;
 	zAlignmentCollisionThreshold = 1.5f;
 }
@@ -7754,8 +8774,8 @@ MeleeAttackCombo1P2 : AIActionSlideData
 	target = "AIActionTarget.CombatTarget";
 	duration = 0.f;
 	distance = 5.0f;
-	positionSpeed = 2.f;
-	offsetToTarget = 1.5f;
+	positionSpeed = 5.f;
+	offsetToTarget = 1.f;
 	positionPredictionTime = 1.5f;
 	zAlignmentCollisionThreshold = 1.5f;
 }
@@ -7765,8 +8785,8 @@ MeleeCharge01P1 : AIActionSlideData
 	target = "AIActionTarget.CombatTarget";
 	duration = 0.f;
 	distance = 5.0f;
-	positionSpeed = 2.f;
-	offsetToTarget = 1.5f;
+	positionSpeed = 5.f;
+	offsetToTarget = 1.f;
 	positionPredictionTime = 1.5f;
 }
 
@@ -7863,11 +8883,11 @@ NotLocomotionMalfunctionCondition : AIAction
 	{
 		condition = 
 		{
-			AND = 
+			OR = 
 			[
-				"Condition.NotIsNPCUnderLocomotionMalfunctionQuickhack"
+				"Condition.NotStatusEffectTypeLocomotionMalfunction"
 			];
-		} : AIActionAND;
+		} : AIActionOR;
 	};
 }
 
@@ -7877,11 +8897,11 @@ LocomotionMalfunctionCondition : AIAction
 	{
 		condition = 
 		{
-			AND = 
+			OR = 
 			[
-				"Condition.IsNPCUnderLocomotionMalfunctionQuickhack"
+				"Condition.StatusEffectTypeLocomotionMalfunction"
 			];
-		} : AIActionAND;
+		} : AIActionOR;
 	};
 }
 
@@ -8603,6 +9623,86 @@ LookAroundForIntruderSpotFight : AIAction
 	loop = 
 	{
 		duration = 0.1f;
+	};
+}
+
+SmasherOwnerParryCounterCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AttackOwnerMaxParriesCount2"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+SmasherOwnerParryCounterSoftCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AttackOwnerMaxParriesCount1"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+ResetParryCount : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "ResetmyAttackParriedCount";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+ParryStaggerBack : AIAction
+{
+	loop = 
+	{
+		duration = 3.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	subActions = 
+	[
+		{
+			name = "status_electricity_resistance";
+		} : AISubActionSpawnFX
+	];
+	animData = 
+	{
+		animFeature = "SE_Staggered";
+		animSlot = 
+		{
+		};
 	};
 }
 

@@ -4,9 +4,16 @@ using RTDB, BaseStats, WeaponFxPackage, Proficiencies, AttachmentSlots, Prereqs
 [ notQueryable ]
 Base_Revolver : Base_Weapon
 {
-	fk< ItemBlueprint > blueprint = "Items.Base_Revolver_Blueprint";
 	fk< ItemType > itemType = "ItemType.Wea_Revolver";
 	triggerEffectName = "te_wea_aim_mid";
+	buyPrice += 
+	[
+		"Price.RevolverMultiplier"
+	];
+	sellPrice += 
+	[
+		"Price.RevolverMultiplier"
+	];
 	fk< TriggerMode >[] triggerModes = 
 	[
 		"TriggerMode.SemiAuto"
@@ -21,11 +28,11 @@ Base_Revolver : Base_Weapon
 	];
 	tags += 
 	[
-		"OneHandedRangedWeapon"
+		"OneHandedRangedWeapon", "DriverCombatRangedWeapon", "DriverCombatBikeWeapon"
 	];
 	statModifierGroups += 
 	[
-		"Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_Sway_Stats", "Proficiencies.GunslingerRevolverStats", "Items.Base_PlayerState_Spread_Stats"
+		"Items.Base_Revolver_RPG_Stats", "Items.Base_Revolver_Misc_Stats", "Items.Base_Revolver_DeadReckoning_Stats", "Items.Base_Revolver_Sway_Stats", "Items.Base_PlayerState_Spread_Stats"
 	];
 	Vector3 position = ( 0.0f, 0.f, 0.047f );
 	float offset = 0.0f;
@@ -40,95 +47,10 @@ Base_Revolver : Base_Weapon
 	];
 }
 
-Base_Revolver_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.PowerModRareElement", "Items.PowerModEpicElement", "Items.PowerModLegendaryElement", "Items.IconicWeaponModElement", {
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-				fk< ItemBlueprintElement >[] childElements = 
-				[
-					"Items.ScopeElement", {
-						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.PowerModule";
-					}
-				];
-			}
-		];
-	};
-}
-
-Base_Tech_Revolver_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.TechModRareElement", "Items.TechModEpicElement", "Items.TechModLegendaryElement", "Items.IconicWeaponModElement", {
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-				fk< ItemBlueprintElement >[] childElements = 
-				[
-					"Items.ScopeElement", {
-						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-					}
-				];
-			}
-		];
-	};
-}
-
-Base_Tech_Revolver_NoScope_Blueprint : ItemBlueprint
-{
-	fk< ItemBlueprintElement > rootElement = 
-	{
-		fk< AttachmentSlot > slot = "AttachmentSlots.Receiver";
-		fk< ItemBlueprintElement >[] childElements = 
-		[
-			"Items.GenericMod1Element", "Items.GenericMod2Element", "Items.GenericMod3Element", "Items.GenericMod4Element", "Items.TechModRareElement", "Items.TechModEpicElement", "Items.TechModLegendaryElement", "Items.IconicWeaponModElement", {
-			}, 
-			{
-				fk< AttachmentSlot > slot = "AttachmentSlots.Barrel";
-				fk< ItemBlueprintElement >[] childElements = 
-				[
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.Magazine";
-					}, 
-					{
-						fk< AttachmentSlot > slot = "AttachmentSlots.MagazineEmpty";
-					}
-				];
-			}
-		];
-	};
-}
-
 Base_Revolver_RPG_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
-		{
-			statType = "BaseStats.DPS";
-			modifierType = "Additive";
-			id = "item_revolvers_rpg_stats";
-			column = "item_level_to_DPS";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.Weight";
 			modifierType = "Additive";
@@ -138,51 +60,24 @@ Base_Revolver_RPG_Stats : StatModifierGroup
 			statType = "BaseStats.HeadshotDamageMultiplier";
 			modifierType = "Additive";
 			value = 2.f;
-		} : ConstantStatModifier
-	];
-}
-
-Base_Revolver_RPG_Randomized_Stats : StatModifierGroup
-{
-	drawBasedOnStatType = true;
-	fk< StatModifier > statModsLimitModifier = 
-	{
-		statType = "BaseStats.StatModifierGroupLimit";
-		modifierType = "Additive";
-		id = "random_distributions";
-		column = "quality_to_amount_of_randomized_stats";
-		refStat = "BaseStats.Quality";
-		refObject = "Self";
-	} : CurveStatModifier;
-	statModifiers = 
-	[
+		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.CritChance";
+			statType = "BaseStats.WeaponTypeToStaminaCost";
+			modifierType = "Multiplier";
+			value = 160f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.WeaponVehicleDamagePercentBonus";
 			modifierType = "Additive";
-			id = "item_revolvers_rpg_stats";
-			column = "power_level_to_crit_chance";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
+			value = 0.7f;
+		} : ConstantStatModifier, 
 		{
-			statType = "BaseStats.CritChance";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
+			statType = "BaseStats.StaminaCostReduction";
 			modifierType = "Additive";
-			id = "item_revolvers_rpg_stats";
-			column = "power_level_to_crit_damage";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.CritDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
+			refObject = "Player";
+			refStat = "BaseStats.RevolverStaminaCostReduction";
 			opSymbol = "*";
-			value = 0.05f;
+			value = 1f;
 		} : CombinedStatModifier
 	];
 }
@@ -208,7 +103,7 @@ Base_Revolver_Misc_Stats : StatModifierGroup
 			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
-			value = 25.f;
+			value = 35.f;
 		} : EffectiveRangeModifier, 
 		{
 			value = 0.3f;
@@ -241,8 +136,35 @@ Base_Revolver_Misc_Stats : StatModifierGroup
 			value = 0.2f;
 		} : AimOutTimeModifier, 
 		{
-			value = 75.f;
+			value = 100.f;
 		} : MaximumRangeModifier
+	];
+}
+
+Base_Revolver_DeadReckoning_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.BulletDeadReckoningEnabled";
+			modifierType = "Additive";
+			value = 1.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMinimumSpeed";
+			modifierType = "Additive";
+			value = 0.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMaxRange";
+			modifierType = "Additive";
+			value = 40.f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.BulletDeadReckoningMaxAngleCorrection";
+			modifierType = "Additive";
+			value = 25.f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -263,10 +185,10 @@ Base_Revolver_Sway_Stats : StatModifierGroup
 			value = 1.7f;
 		} : SwaySideMinimumAngleDistanceModifier, 
 		{
-			value = 90.f;
+			value = 75.f;
 		} : SwaySideTopAngleLimitModifier, 
 		{
-			value = 90.f;
+			value = 75.f;
 		} : SwaySideBottomAngleLimitModifier, 
 		{
 			value = 0.1f;
@@ -412,107 +334,6 @@ Base_Revolver_NPC_Stats : StatModifierGroup
 
 Base_Revolver_Mult_Stats : StatModifierGroup
 {
-	statModifiers = 
-	[
-		{
-			statType = "BaseStats.SpreadDefaultX";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_default";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadMaxX";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_max";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsMaxX";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_max";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadChangePerShot";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_per_shot";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsChangePerShot";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_per_shot";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilKickMin";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilKickMax";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilAnimation";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_anim";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAnimation";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_anim";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilDriftRandomRangeMin";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilDriftRandomRangeMax";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwaySideMaximumAngleDistance";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_angle";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwaySideMinimumAngleDistance";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_angle";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwayTraversalTime";
-			modifierType = "AdditiveMultiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_time";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier
-	];
 }
 
 Base_Revolver_NPC_Data : Base_NPC_RPG_Data
@@ -538,12 +359,17 @@ Base_Power_Revolver : Base_Revolver
 	[
 		"Price.PowerWeapon"
 	];
+	tags += 
+	[
+		"PowerWeapon"
+	];
+	fk< ItemBlueprint > blueprint = "Items.Base_Power_Handgun_NoMuzzle_Blueprint";
 	previewEffectName = "weaponPreview";
 	previewEffectTag = "ricochet";
 	rangedAttacks = "Attacks.PowerBulletsBulletPackage";
 	statModifierGroups += 
 	[
-		"Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats", "Items.Base_Power_Revolver_RPG_Randomized_Stats"
+		"Items.Base_Power_Stats", "Items.Base_Power_Revolver_Mult_Stats", "Items.Base_Power_Revolver_Stats"
 	];
 }
 
@@ -566,7 +392,7 @@ Base_Power_Revolver_Stats : StatModifierGroup
 			value = 1.f;
 		} : RicochetCountModifier, 
 		{
-			value = 15.f;
+			value = 12.5f;
 		} : RicochetTargetSearchAngleModifier, 
 		{
 			value = 0.f;
@@ -577,136 +403,31 @@ Base_Power_Revolver_Stats : StatModifierGroup
 	];
 }
 
-Base_Power_Revolver_RPG_Randomized_Stats : Base_Revolver_RPG_Randomized_Stats
+Base_Power_Revolver_Mult_Stats : StatModifierGroup
 {
 	statModifiers += 
 	[
 		{
-			statType = "BaseStats.BonusRicochetDamage";
-			modifierType = "Additive";
-			id = "item_revolvers_rpg_stats";
-			column = "power_level_to_bonus_ricochet_damage";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.BonusRicochetDamage";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = 0.05f;
-		} : CombinedStatModifier
-	];
-}
-
-Base_Power_Revolver_Mult_Stats : StatModifierGroup
-{
-	statModifiers = 
-	[
-		{
-			statType = "BaseStats.SpreadDefaultX";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_default";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadMaxX";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_max";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsMaxX";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_max";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadChangePerShot";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_per_shot";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsChangePerShot";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_per_shot";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilKickMin";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilKickMax";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilAnimation";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_anim";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAnimation";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_anim";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilDriftRandomRangeMin";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilDriftRandomRangeMax";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwaySideMaximumAngleDistance";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_angle";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwaySideMinimumAngleDistance";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_angle";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwayTraversalTime";
-			modifierType = "AdditiveMultiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_time";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier
+			column = "amount_of_possible_mods_for_power_hg_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
 	];
 }
 
 Base_Power_Revolver_NPC_Data : Base_Revolver_NPC_Data
 {
-	statModifierGroups += 
+	statModifiers += 
 	[
+		{
+			column = "amount_of_possible_mods_for_power_hg_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+}
+
+Broken_Power_Revolver_NPC_Data : Base_Power_Revolver_NPC_Data
+{
+	statModifiers += 
+	[
+		"Quality.BrokenItem"
 	];
 }
 
@@ -721,115 +442,24 @@ Base_Tech_Revolver : Base_Revolver
 	[
 		"Price.TechWeapon"
 	];
-	blueprint = "Items.Base_Tech_Revolver_Blueprint";
+	tags += 
+	[
+		"TechWeapon"
+	];
+	blueprint = "Items.Base_Tech_Handgun_NoMuzzle_Blueprint";
 	statModifierGroups += 
 	[
-		"Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats", "Items.Base_Tech_Revolver_RPG_Randomized_Stats", "Proficiencies.EngineeringWeaponPassives"
-	];
-}
-
-Base_Tech_Revolver_RPG_Randomized_Stats : Base_Revolver_RPG_Randomized_Stats
-{
-	statModifiers += 
-	[
-		{
-			statType = "BaseStats.ChargeTime";
-			modifierType = "AdditiveMultiplier";
-			id = "item_revolvers_rpg_stats";
-			column = "power_level_to_bonus_charge_time";
-			refStat = "BaseStats.ItemLevel";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.ChargeTime";
-			modifierType = "AdditiveMultiplier";
-			refStat = "BaseStats.CanLegendaryCraftedWeaponsBeBoosted2";
-			opSymbol = "*";
-			value = -0.05f;
-		} : CombinedStatModifier
+		"Items.Base_Tech_Stats", "Items.Base_Tech_Revolver_Mult_Stats"
 	];
 }
 
 Base_Tech_Revolver_Mult_Stats : StatModifierGroup
 {
-	statModifiers = 
+	statModifiers += 
 	[
 		"AttackModifier.TechWeaponDPSReduction", {
-			statType = "BaseStats.SpreadChangePerShot";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_per_shot";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAdsChangePerShot";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_spread_per_shot";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilKickMin";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilKickMax";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilAnimation";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_anim";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SpreadAnimation";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_anim";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilDriftRandomRangeMin";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.RecoilDriftRandomRangeMax";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "recoil_to_kick";
-			refStat = "BaseStats.Recoil";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwaySideMaximumAngleDistance";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_angle";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwaySideMinimumAngleDistance";
-			modifierType = "Multiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_angle";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier, 
-		{
-			statType = "BaseStats.SwayTraversalTime";
-			modifierType = "AdditiveMultiplier";
-			id = "item_revolvers_handling_stats";
-			column = "spread_to_sway_time";
-			refStat = "BaseStats.Spread";
-		} : CurveStatModifier
+			column = "amount_of_possible_mods_for_tech_hg_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
 	];
 }
 
@@ -837,6 +467,20 @@ Base_Tech_Revolver_NPC_Data : Base_Revolver_NPC_Data
 {
 	statModifierGroups += 
 	[
+	];
+	statModifiers += 
+	[
+		{
+			column = "amount_of_possible_mods_for_tech_hg_to_quality";
+		} : ModsAmountInGenerationPoolCurveModifier
+	];
+}
+
+Broken_Tech_Revolver_NPC_Data : Base_Tech_Revolver_NPC_Data
+{
+	statModifiers += 
+	[
+		"Quality.BrokenItem"
 	];
 }
 

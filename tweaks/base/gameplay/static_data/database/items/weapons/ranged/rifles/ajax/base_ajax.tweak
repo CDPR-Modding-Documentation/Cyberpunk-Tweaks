@@ -65,7 +65,7 @@ Base_Ajax : Base_Power_Assault_Rifle
 	CName audioName = "wea_set_ajax";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Assault"
+		"Preload", "Weapon", "Rifle Assault", "T2_Inject_Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -81,18 +81,21 @@ Base_Ajax : Base_Power_Assault_Rifle
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Ajax_Technical_Stats"
 		];
-	} : Base_Power_Assault_Rifle_NPC_Data;
+	} : Base_Ajax_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Ajax_Technical_Stats", "Items.Base_Ajax_Handling_Stats", "Items.Base_Ajax_Recoil_Stats", "Items.Base_Ajax_Spread_Stats", "Items.Base_Ajax_Aim_Stats", "Items.Base_Ajax_Constant_Stats"
+		"Items.Base_Ajax_Technical_Stats", "Items.Base_Ajax_Handling_Stats", "Items.Base_Ajax_Recoil_Stats", "Items.Base_Ajax_Spread_Stats", "Items.Base_Ajax_Aim_Stats", "Items.Base_Ajax_Constant_Stats", "Items.Base_Ajax_Damage_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.LightStaminaDelay"
 	];
 	fk< WeaponFxPackage > fxPackage = "WeaponFxPackage.PowerRifleAssault";
-	baseReloadTime = 2.15f;
-	baseEmptyReloadTime = 3.2f;
-	uninterruptibleReloadStart = 1.6f;
-	uninterruptibleEmptyReloadStart = 2.f;
+	baseReloadTime = 1.75f;
+	baseEmptyReloadTime = 2.0f;
+	uninterruptibleReloadStart = 0.5f;
+	uninterruptibleEmptyReloadStart = 0.5f;
 	float weaponNearPlane = 12.0f;
 	float weaponFarPlane = 60.5f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -107,6 +110,14 @@ Base_Ajax : Base_Power_Assault_Rifle
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_Ajax_NPC_Data : Base_Power_Assault_Rifle_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Ajax_Technical_Stats", "Items.Base_Ajax_NPC_Damage_Stats"
+	];
 }
 
 Base_Ajax_Technical_Stats : StatModifierGroup
@@ -129,16 +140,46 @@ Base_Ajax_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Ajax_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 58f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Ajax_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 33f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Ajax_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 2.15f;
+			value = 1.75f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.2f;
+			value = 2.0f;
 		} : EmptyReloadTimeModifier, 
+		{
+			value = 0.4f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.2f;
+		} : EmptyReloadEndTimeModifier, 
 		{
 			value = 1.1f;
 		} : ZoomLevelModifier, 
@@ -153,50 +194,32 @@ Base_Ajax_Recoil_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = -15.0f;
+			value = -10.0f;
 		} : RecoilDirModifier, 
 		{
-			value = 20.0f;
+			value = 10.0f;
 		} : RecoilAngleModifier, 
 		{
-			value = 0.15f;
+			value = 0.14f;
 		} : RecoilHoldDurationModifier, 
 		{
 			value = 0.05f;
 		} : RecoilTimeModifier, 
 		{
-			value = 0.15f;
+			value = 0.14f;
 		} : RecoilRecoveryTimeModifier, 
 		{
-			value = 1.0f;
-		} : RecoilEnableCycleXModifier, 
+			value = 1.f;
+		} : RecoilEnableLinearXModifier, 
 		{
-			value = 1.0f;
+			value = 1.f;
 		} : RecoilEnableLinearYModifier, 
 		{
-			value = 1.0f;
-		} : RecoilEnableCycleXADSModifier, 
-		{
-			value = 1.0f;
-		} : RecoilEnableLinearYADSModifier, 
-		{
-			value = 4.0f;
-		} : RecoilCycleTimeModifier, 
-		{
-			value = 0.7f;
-		} : RecoilCycleSizeModifier, 
+			value = 1.f;
+		} : RecoilEnableLinearXADSModifier, 
 		{
 			value = 1.f;
-		} : RecoilEnableScaleYModifier, 
-		{
-			value = 1.f;
-		} : RecoilEnableScaleXModifier, 
-		{
-			value = 1.2f;
-		} : RecoilScaleTimeModifier, 
-		{
-			value = -0.2f;
-		} : RecoilScaleMaxModifier
+		} : RecoilEnableLinearYADSModifier
 	];
 }
 
@@ -220,10 +243,10 @@ Base_Ajax_Spread_Stats : StatModifierGroup
 			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 3.f;
+			value = 2.0f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.15f;
+			value = 0.2f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
 			value = 0.f;
@@ -258,43 +281,49 @@ Base_Ajax_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.SpreadDefaultX";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsDefaultX";
 			modifierType = "Additive";
-			value = 0.f;
+			value = 0.25f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadMaxX";
 			modifierType = "Additive";
-			value = 6.0f;
+			value = 4.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsMaxX";
 			modifierType = "Additive";
-			value = 1.5f;
+			value = 1.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadChangePerShot";
 			modifierType = "Additive";
-			value = 0.2f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.SpreadAdsChangePerShot";
 			modifierType = "Additive";
-			value = 0.05f;
+			value = 0.0f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 0.8f;
+			value = 0.6f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 1.2f;
-		} : ConstantStatModifier
+			value = 0.9f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 1.421f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
 	];
 }
 

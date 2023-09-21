@@ -15,11 +15,12 @@ Base_Ashura : Base_Smart_Sniper_Rifle
 	displayName = "LocKey#3611";
 	string friendlyName = "w_rifle_sniper_tsunami_ashura";
 	localizedDescription = "LocKey#3612";
+	gameplayDescription = "LocKey#92677";
 	fk< UIIcon > hudIcon = "HUDWeaponIcons.Tsunami_Ashura";
 	CName audioName = "wea_set_ashura";
 	CName[] tags += 
 	[
-		"Preload", "Weapon", "Rifle Sniper"
+		"Preload", "Weapon"
 	];
 	fk< TriggerMode >[] triggerModes = 
 	[
@@ -76,12 +77,15 @@ Base_Ashura : Base_Smart_Sniper_Rifle
 	{
 		statModifierGroups += 
 		[
-			"Items.Base_Ashura_Technical_Stats", "Items.Base_Ashura_SmartGun_Projectile_Stats"
 		];
-	} : Base_Smart_Sniper_Rifle_NPC_Data;
+	} : Base_Ashura_NPC_Data;
 	statModifierGroups += 
 	[
-		"Items.Base_Ashura_Technical_Stats", "Items.Base_Ashura_Handling_Stats", "Items.Base_Ashura_Recoil_Stats", "Items.Base_Ashura_Spread_Stats", "Items.Base_Ashura_SmartGun_Stats", "Items.Base_Ashura_SmartGun_SmartLink_Stats", "Items.Base_Ashura_SmartGun_Projectile_Stats", "Items.Base_Ashura_Aim_Stats", "Items.Base_Ashura_Flags"
+		"Items.Base_Ashura_Technical_Stats", "Items.Base_Ashura_Handling_Stats", "Items.Base_Ashura_Recoil_Stats", "Items.Base_Ashura_Spread_Stats", "Items.Base_Ashura_SmartGun_Stats", "Items.Base_Ashura_SmartGun_SmartLink_Stats", "Items.Base_Ashura_SmartGun_Projectile_Stats", "Items.Base_Ashura_Aim_Stats", "Items.Base_Ashura_Flags", "Items.Base_Ashura_Damage_Stats", "Items.Base_Ashura_Constant_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach += 
+	[
+		"Items.SmartWeaponTargetsPriorityQueues", "EquipmentGLP.MediumStaminaRegen", "EquipmentGLP.HeavyStaminaDelay"
 	];
 	fk< ConstantStatModifier > price = 
 	{
@@ -91,10 +95,10 @@ Base_Ashura : Base_Smart_Sniper_Rifle
 	} : ConstantStatModifier;
 	bool useNewSpawnMethod = true;
 	bool IsIKEnabled = false;
-	baseReloadTime = 3.3f;
-	baseEmptyReloadTime = 3.3f;
-	uninterruptibleReloadStart = 2.f;
-	uninterruptibleEmptyReloadStart = 2.f;
+	baseReloadTime = 2.1f;
+	baseEmptyReloadTime = 2.1f;
+	uninterruptibleReloadStart = 1.0f;
+	uninterruptibleEmptyReloadStart = 1.0f;
 	float weaponNearPlane = 0.27f;
 	float weaponFarPlane = 0.6f;
 	float weaponEdgesSharpness = 0.4958f;
@@ -109,6 +113,14 @@ Base_Ashura : Base_Smart_Sniper_Rifle
 	float weaponVignetteRadius_aim = 0.6814f;
 	float weaponVignetteCircular_aim = 0.1745f;
 	float weaponBlurIntensity_aim = 1.f;
+}
+
+Base_Ashura_NPC_Data : Base_Smart_Sniper_Rifle_NPC_Data
+{
+	statModifierGroups += 
+	[
+		"Items.Base_Ashura_Technical_Stats", "Items.Base_Ashura_SmartGun_Projectile_Stats", "Items.Base_Ashura_NPC_Damage_Stats"
+	];
 }
 
 Base_Ashura_Technical_Stats : StatModifierGroup
@@ -138,22 +150,131 @@ Base_Ashura_Technical_Stats : StatModifierGroup
 	];
 }
 
+Base_Ashura_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 35f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Ashura_NPC_Damage_Stats : StatModifierGroup
+{
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.DPS";
+			modifierType = "Additive";
+			value = 66f;
+		} : ConstantStatModifier
+	];
+}
+
 Base_Ashura_Handling_Stats : StatModifierGroup
 {
 	statModifiers = 
 	[
 		{
-			value = 3.3f;
+			value = 2.1f;
 		} : ReloadTimeModifier, 
 		{
-			value = 3.3f;
+			value = 2.1f;
 		} : EmptyReloadTimeModifier, 
 		{
-			value = 3.f;
+			value = 1.2f;
+		} : ReloadEndTimeModifier, 
+		{
+			value = 1.2f;
+		} : EmptyReloadEndTimeModifier, 
+		{
+			value = 3.0f;
 		} : ZoomLevelModifier, 
 		{
 			value = 4.5f;
 		} : EquipDuration_FirstModifier
+	];
+}
+
+Base_Ashura_Reed_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 1.f;
+		} : NumShotsToFireModifier, 
+		{
+			value = 0.6f;
+		} : CycleTimeModifier, 
+		{
+			value = 700.f;
+		} : MagazineCapacityModifier, 
+		{
+			value = 1.f;
+		} : ProjectilesPerShotModifier, 
+		{
+			value = 100.f;
+		} : AccuracyModifier, 
+		"BaseStats.ProjectilesPerShotCombinedModifier", {
+			value = 0.05f;
+		} : ShotDelayModifier, 
+		{
+			statType = "BaseStats.WeaponHasAutoloader";
+			modifierType = "Multiplier";
+			value = 1.f;
+		} : ConstantStatModifier
+	];
+}
+
+Base_Ashura_Reed_Recoil_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			value = 0.f;
+		} : RecoilMaxLengthModifier, 
+		{
+			value = 0.f;
+		} : SmartGunNPCTrajectoryCurvatureMultiplierModifier, 
+		{
+			value = 0.f;
+		} : SmartGunNPCProjectileStartingOrientationAngleOffsetModifier, 
+		{
+			value = 0.f;
+		} : RecoilDirModifier, 
+		{
+			value = 0.f;
+		} : RecoilAngleModifier, 
+		{
+			value = 0.f;
+		} : RecoilKickMinModifier, 
+		{
+			value = 0.f;
+		} : RecoilKickMaxModifier, 
+		{
+			value = 0.f;
+		} : RecoilHoldDurationModifier, 
+		{
+			value = 0.f;
+		} : RecoilTimeModifier, 
+		{
+			value = 0.f;
+		} : RecoilRecoveryTimeModifier, 
+		{
+			value = 0.f;
+		} : RecoilEnableLinearXModifier, 
+		{
+			value = 0.f;
+		} : RecoilEnableLinearYModifier, 
+		{
+			value = 0.f;
+		} : RecoilEnableLinearXADSModifier, 
+		{
+			value = 0.f;
+		} : RecoilEnableLinearYADSModifier
 	];
 }
 
@@ -168,10 +289,10 @@ Base_Ashura_Recoil_Stats : StatModifierGroup
 			value = 30.f;
 		} : RecoilAngleModifier, 
 		{
-			value = 1.0f;
+			value = 0.8f;
 		} : RecoilKickMinModifier, 
 		{
-			value = 1.20f;
+			value = 1.0f;
 		} : RecoilKickMaxModifier, 
 		{
 			value = 0.066f;
@@ -202,58 +323,58 @@ Base_Ashura_Spread_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 1.f;
+			value = 4.0f;
 		} : SpreadDefaultXModifier, 
 		{
-			value = 0.5f;
+			value = 3.0f;
 		} : SpreadDefaultYModifier, 
 		{
-			value = 0.2f;
+			value = 1.0f;
 		} : SpreadMinXModifier, 
 		{
-			value = 0.125f;
+			value = 0.5f;
 		} : SpreadMinYModifier, 
 		{
-			value = 12.0f;
+			value = 4.0f;
 		} : SpreadMaxXModifier, 
 		{
-			value = 7.5f;
+			value = 3.0f;
 		} : SpreadMaxYModifier, 
 		{
-			value = 0.1f;
+			value = 0.0f;
 		} : SpreadChangePerShotModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadUseInAdsModifier, 
 		{
-			value = 0.4f;
+			value = 2.0f;
 		} : SpreadAdsDefaultXModifier, 
 		{
-			value = 0.25f;
+			value = 1.5f;
 		} : SpreadAdsDefaultYModifier, 
 		{
-			value = 0.2f;
+			value = 0.5f;
 		} : SpreadAdsMinXModifier, 
 		{
-			value = 0.125f;
+			value = 0.25f;
 		} : SpreadAdsMinYModifier, 
 		{
-			value = 4.0f;
+			value = 1.0f;
 		} : SpreadAdsMaxXModifier, 
 		{
-			value = 2.5f;
+			value = 0.75f;
 		} : SpreadAdsMaxYModifier, 
 		{
-			value = 0.075f;
+			value = 0.0f;
 		} : SpreadAdsChangePerShotModifier, 
 		{
-			value = 1.2f;
+			value = 1.5f;
 		} : SpreadResetSpeedModifier, 
 		{
-			value = 0.1f;
+			value = 0.3f;
 		} : SpreadResetTimeThresholdModifier, 
 		{
-			value = 0.f;
+			value = 1.f;
 		} : SpreadRandomizeOriginPointModifier, 
 		{
 			value = 1.f;
@@ -272,34 +393,34 @@ Base_Ashura_SmartGun_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 100.f;
-		} : SmartGunTargetAcquisitionRangeModifier, 
+			value = 1.f;
+		} : SmartGunUseEvenDistributionTargetingModifier, 
 		{
 			value = 0.f;
-		} : SmartGunTrackAllBodypartsModifier, 
+		} : SmartGunTrackMultipleEntitiesInADSModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunHipLockingAnglePitchModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunHipLockingAngleYawModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAnglePitchModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunAdsLockingAngleYawModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAnglePitchModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunHipTargetableAngleYawModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAnglePitchModifier, 
 		{
-			value = 1.75f;
+			value = 0.0f;
 		} : SmartGunAdsTargetableAngleYawModifier, 
 		{
 			value = 1.f;
@@ -308,10 +429,10 @@ Base_Ashura_SmartGun_Stats : StatModifierGroup
 			value = 1.f;
 		} : SmartGunAdsMaxLockedTargetsModifier, 
 		{
-			value = 1.5f;
+			value = 1.35f;
 		} : SmartGunHipTimeToLockModifier, 
 		{
-			value = 1.5f;
+			value = 1.35f;
 		} : SmartGunAdsTimeToLockModifier, 
 		{
 			value = 0.f;
@@ -335,8 +456,11 @@ Base_Ashura_SmartGun_Stats : StatModifierGroup
 			value = 0.1f;
 		} : SmartGunSpreadMultiplierModifier, 
 		{
-			value = 80.f;
-		} : SmartGunPlayerProjectileVelocityModifier
+			value = 60.f;
+		} : SmartGunPlayerProjectileVelocityModifier, 
+		{
+			value = 0.50f;
+		} : SmartGunHitProbabilityModifier
 	];
 }
 
@@ -345,56 +469,56 @@ Base_Ashura_SmartGun_SmartLink_Stats : StatModifierGroup
 	statModifiers = 
 	[
 		{
-			value = 1.75f;
+			value = 5.0f;
 			statType = "BaseStats.SmartGunHipLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 1.75f;
+			value = 6.0f;
 			statType = "BaseStats.SmartGunHipLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 1.75f;
+			value = 3.33f;
 			statType = "BaseStats.SmartGunAdsLockingAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 1.75f;
+			value = 4.0f;
 			statType = "BaseStats.SmartGunAdsLockingAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 5.0f;
 			statType = "BaseStats.SmartGunHipTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 6.0f;
 			statType = "BaseStats.SmartGunHipTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 3.33f;
 			statType = "BaseStats.SmartGunAdsTargetableAnglePitch";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 7.5f;
+			value = 4.0f;
 			statType = "BaseStats.SmartGunAdsTargetableAngleYaw";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = -1.f;
-			statType = "BaseStats.SmartGunHipTimeToLock";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = -1.f;
-			statType = "BaseStats.SmartGunAdsTimeToLock";
-		} : SmartLinkDependentStatModifier, 
-		{
-			value = 15.f;
+			value = 2.0f;
 			statType = "BaseStats.SmartGunHipTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 15.f;
+			value = 2.0f;
 			statType = "BaseStats.SmartGunAdsTimeToUnlock";
 		} : SmartLinkDependentStatModifier, 
 		{
-			value = 4.f;
+			value = 2.0f;
 			statType = "BaseStats.SmartGunTimeToRemoveOccludedTarget";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 20.f;
+			statType = "BaseStats.SmartGunPlayerProjectileVelocity";
+		} : SmartLinkDependentStatModifier, 
+		{
+			value = 0.50f;
+			statType = "BaseStats.SmartGunHitProbability";
 		} : SmartLinkDependentStatModifier
 	];
 }
@@ -425,9 +549,6 @@ Base_Ashura_SmartGun_Projectile_Stats : StatModifierGroup
 			value = 1.0f;
 		} : SmartGunSpiralRandomizeDirectionModifier, 
 		{
-			value = 1.0f;
-		} : SmartGunHitProbabilityModifier, 
-		{
 			value = 0.05f;
 		} : SmartGunMissDelayModifier, 
 		{
@@ -456,6 +577,34 @@ Base_Ashura_Aim_Stats : StatModifierGroup
 Base_Ashura_Flags : StatModifierGroup
 {
 	statModifiers = [];
+}
+
+Base_Ashura_Constant_Stats : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.FirePower";
+			modifierType = "Multiplier";
+			value = 0.347f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.EffectiveRange";
+			modifierType = "Multiplier";
+			value = 0.66;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ReloadTimeBonus";
+			modifierType = "Additive";
+			value = -0.2f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmartGunTrackMultipleEntitiesInADS";
+			modifierType = "Multiplier";
+			value = 0.0f;
+		} : ConstantStatModifier, 
+		"AttackModifier.WeaponArmorPenetrationLow"
+	];
 }
 
 w_rifle_sniper__tsunami_ashura__rcv1 : WeaponRifleReceiverBase
