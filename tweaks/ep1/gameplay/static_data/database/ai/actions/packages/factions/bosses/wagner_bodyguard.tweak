@@ -1,0 +1,473 @@
+package WagnerBodyguardBoss
+using RTDB, AIActionTarget, ItemHandling, MovementActions, MeleeActions
+
+EquipMeleeWeaponInstantly : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			itemID = "Items.Preset_Umbra_Military";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowToxicGrenade : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowKnifeCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.5f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+ThrowToxicGrenadeNoBark : ThrowToxicGrenade
+{
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.5f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BlockNPCGrenadeBark"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+SprintTotargetCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.LineOfSightFailed", "Condition.NotTargetIsVisible"
+			];
+		} : AIActionOR;
+	};
+}
+
+EquipRangedWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+HealingPhaseCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthBelow75perc"
+			];
+		} : AIActionAND;
+	};
+}
+
+Heal : AIAction
+{
+	startup = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		toNextPhaseConditionCheckInterval = 2.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.NotWagnerHealing", "Condition.TargetBelow6m"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 2.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.WagnerHealingSE"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.ForceStaggerOda"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			name = "cloak_healing";
+		} : AISubActionSpawnFX, 
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"WagnerBodyguardBoss.HealingCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "OdaHeal";
+		animSlot = 
+		{
+			loopSlide = "OdaBoss.RotateSlideData";
+		};
+	};
+}
+
+FindToxicGrenadeSpot : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			tag = "toxicGrenadeSpot";
+			rangeFromOwner = ( 10.f, 100.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindToxicGrenadeSpot1 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "toxicGrenadeSpot1";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindHealingSpot1 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "rinderHealingSpot1";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindToxicGrenadeSpot2 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "toxicGrenadeSpot2";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindHealingSpot2 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "rinderHealingSpot2";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindToxicGrenadeSpot3 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "toxicGrenadeSpot3";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindHealingSpot3 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "rinderHealingSpot3";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindToxicGrenadeSpot4 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "toxicGrenadeSpot4";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindHealingSpot4 : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "rinderHealingSpot4";
+			rangeFromOwner = ( 0.f, 200.f );
+			rangeFromObj = ( 0.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+HealingConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"WagnerBodyguardBoss.HealingCooldown"
+	];
+}
+
+SetHealingConditionCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"WagnerBodyguardBoss.HealingCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+HealingCooldown : AIActionCooldown
+{
+	name = "HealingCooldown";
+	duration = 15.f;
+}
+
+RemoveForceStagger : AIAction
+{
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.ForceStaggerOda"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+

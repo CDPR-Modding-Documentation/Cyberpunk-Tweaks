@@ -1,27 +1,27 @@
-package 0xF242B6C8F
+package FollowerActions
 using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 
-0x7A0BDE62E : AIAction
+Success : AIAction
 {
 }
 
-0xFD7C1B2D1 : AIActionSmartComposite
+FollowComposite : AIActionSmartComposite
 {
 	disableActionsLimit = true;
 	repeat = 0;
 	nodes = 
 	[
-		"0xF242B6C8F.0x14BC224BFC", "0xF242B6C8F.0xCCFA57F2F", "0xF242B6C8F.0xC9FC5CE31", "0xF242B6C8F.0x17E083DD2B", "0xF242B6C8F.0x19CBA2BC32", "0xF242B6C8F.0x92A1AF6B9", "0xF242B6C8F.0xB37BEA251", "0xF242B6C8F.0x111F0AA178", "GenericArchetype.Failure"
+		"FollowerActions.MovementNotAvailable", "FollowerActions.EnterStealth", "FollowerActions.EnterVehicle", "FollowerActions.TurningToThreatSequence", "FollowerActions.TurningToFollowerSequence", "FollowerActions.FollowFar", "FollowerActions.FollowClose", "FollowerActions.FollowGetOutOfWay", "GenericArchetype.Failure"
 	];
 }
 
-0x182E076EA8 : AIActionSmartComposite
+FollowerStealthComposite : AIActionSmartComposite
 {
 	disableActionsLimit = true;
 	repeat = 0;
 	nodes = 
 	[
-		"0xF242B6C8F.0x14BC224BFC", "0xF242B6C8F.0xC9FC5CE31", "0xF242B6C8F.0x1E9DC55613", "0xF242B6C8F.0x20A6572727", "0xF242B6C8F.0x13E9163741", "0xF242B6C8F.0x181A292E3F", "0xF242B6C8F.0x7A0BDE62E"
+		"FollowerActions.MovementNotAvailable", "FollowerActions.EnterVehicle", "FollowerActions.TurningStealthToThreatSequence", "FollowerActions.TurningStealthToFollowerSequence", "FollowerActions.StealthFollowAction", "FollowerActions.StealthFollowGetOutOfWay", "FollowerActions.Success"
 	];
 	gracefulInterruptionConditionCheckInterval = 0.5f;
 	gracefulInterruptionCondition = 
@@ -38,63 +38,63 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x18256266E3 : AIActionSmartComposite
+FollowerStealthDecorator : AIActionSmartComposite
 {
 	repeat = 0;
 	nodes = 
 	[
-		"ItemHandling.ReloadSelector", "0xF242B6C8F.0x139B9CE405", "0xF242B6C8F.0x7A0BDE62E"
+		"ItemHandling.ReloadSelector", "FollowerActions.EquipWeaponSequence", "FollowerActions.Success"
 	];
 }
 
-0x15ADCA091C : AIActionSmartComposite
+FollowerIdleComposite : AIActionSmartComposite
 {
 	repeat = 0;
 	nodes = 
 	[
-		"ItemHandling.ReloadSelector", "0xF242B6C8F.0x139B9CE405", "0xF242B6C8F.0x2065116CE7", "0xF242B6C8F.0x7A0BDE62E"
+		"ItemHandling.ReloadSelector", "FollowerActions.EquipWeaponSequence", "FollowerActions.ReactToFollowerUnequippingWeapon", "FollowerActions.Success"
 	];
 }
 
-0x22AC5BD25C : AIActionSmartComposite
+MoveOnSplineWithCompanionComposite : AIActionSmartComposite
 {
 	repeat = 0;
 	nodes = 
 	[
-		"0xF242B6C8F.0x7A0BDE62E"
+		"FollowerActions.Success"
 	];
 }
 
-0x17430FF53C : AIActionSmartComposite
+CombatMovementComposite : AIActionSmartComposite
 {
 	repeat = 0;
 	nodes = 
 	[
-		"0xF242B6C8F.0x1C9DE05451", "GenericArchetype.Success"
+		"FollowerActions.CombatMovementPolicySelector", "GenericArchetype.Success"
 	];
 }
 
-0x1C9DE05451 : AIActionSelector
+CombatMovementPolicySelector : AIActionSelector
 {
-	activationCondition = "0xF242B6C8F.0x17C6D37027";
+	activationCondition = "FollowerActions.CombatMovementCondition";
 	actions = 
 	[
-		"MovementActions.LocomotionMalfunction", "0xF242B6C8F.0x1114BC1DDC", "0xF242B6C8F.0x10102E0868", "0xF242B6C8F.0xE0812F78A", "0xF242B6C8F.0x1323574F0B"
+		"MovementActions.LocomotionMalfunction", "FollowerActions.CombatGetOutOfWay", "FollowerActions.SprintToFollower", "FollowerActions.WalkToFollower", "FollowerActions.StayCloseToFollower"
 	];
-	defaultAction = "0xF242B6C8F.0x7A0BDE62E";
+	defaultAction = "FollowerActions.Success";
 }
 
-0x24E477DD49 : AIActionSelector
+NoWeaponCombatMovementPolicySelector : AIActionSelector
 {
-	activationCondition = "0xF242B6C8F.0x1F6B0420E2";
+	activationCondition = "FollowerActions.NoWeaponCombatMovementCondition";
 	actions = 
 	[
-		"0xF242B6C8F.0x21F54D4BF4"
+		"FollowerActions.NoWeaponCombatStayCloseToFollower"
 	];
-	defaultAction = "0xF242B6C8F.0x7A0BDE62E";
+	defaultAction = "FollowerActions.Success";
 }
 
-0x1CFBCE963E : AIActionSelector
+CoverPresetDecoratorSelector : AIActionSelector
 {
 	activationCondition = 
 	{
@@ -102,12 +102,12 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	actions = 
 	[
-		"0xF242B6C8F.0x14E9285A83"
+		"FollowerActions.CoverPresetDecorator"
 	];
-	defaultAction = "0xF242B6C8F.0x7A0BDE62E";
+	defaultAction = "FollowerActions.Success";
 }
 
-0x1BE8A153E9 : MovementPolicy
+FollowGetOutOfWayMovePolicy : MovementPolicy
 {
 	target = "AIActionTarget.FriendlyTarget";
 	movementType = "Walk";
@@ -119,12 +119,12 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	ignoreSpotReservation = true;
 }
 
-0x1BF4DC4111 : 0x1BE8A153E9
+CombatGetOutOfWayMovePolicy : FollowGetOutOfWayMovePolicy
 {
 	strafingTarget = "AIActionTarget.CombatTarget";
 }
 
-0x15CC8AE890 : MovementPolicy
+FollowCloseMovePolicy : MovementPolicy
 {
 	target = "AIActionTarget.FriendlyTarget";
 	movementType = "Walk";
@@ -137,31 +137,31 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	maxPathLength = 100.f;
 }
 
-0x10E492A051 : 0x15CC8AE890
+FollowStayPolicy : FollowCloseMovePolicy
 {
 }
 
-0x2EDAB18131 : 0x212F9FC6F3
+FollowTurningToFollowerHighDeadAngleMovePolicy : FollowTurningToFollowerMovePolicy
 {
 	deadAngle = 130.f;
 }
 
-0x212F9FC6F3 : 0x15CC8AE890
+FollowTurningToFollowerMovePolicy : FollowCloseMovePolicy
 {
 	strafingTarget = "AIActionTarget.FriendlyTarget";
 }
 
-0x2C29A5F8A9 : 0x1FB2259E8D
+FollowTurningToThreatHighDeadAngleMovePolicy : FollowTurningToThreatMovePolicy
 {
 	deadAngle = 90.f;
 }
 
-0x1FB2259E8D : 0x15CC8AE890
+FollowTurningToThreatMovePolicy : FollowCloseMovePolicy
 {
 	strafingTarget = "AIActionTarget.TopThreat";
 }
 
-0x135EA7BEC5 : MovementPolicy
+StealthFollowPolicy : MovementPolicy
 {
 	target = "AIActionTarget.FriendlyTarget";
 	movementType = "Walk";
@@ -175,27 +175,27 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	keepLineOfSight = "Avoid";
 }
 
-0x3541395940 : 0x28F9B325C4
+FollowStealthTurningToFollowerHighDeadAngleMovePolicy : FollowStealthTurningToFollowerMovePolicy
 {
 	deadAngle = 130.f;
 }
 
-0x28F9B325C4 : 0x135EA7BEC5
+FollowStealthTurningToFollowerMovePolicy : StealthFollowPolicy
 {
 	strafingTarget = "AIActionTarget.FriendlyTarget";
 }
 
-0x3350961E68 : 0x26FDC75D93
+FollowStealthTurningToThreatHighDeadAngleMovePolicy : FollowStealthTurningToThreatMovePolicy
 {
 	deadAngle = 90.f;
 }
 
-0x26FDC75D93 : 0x135EA7BEC5
+FollowStealthTurningToThreatMovePolicy : StealthFollowPolicy
 {
 	strafingTarget = "AIActionTarget.TopThreat";
 }
 
-0x16EA41B1BD : MovementPolicy
+FollowSprintMovePolicy : MovementPolicy
 {
 	target = "AIActionTarget.FriendlyTarget";
 	movementType = "Sprint";
@@ -207,7 +207,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	maxPathLength = 100.f;
 }
 
-0x14BC224BFC : AIAction
+MovementNotAvailable : AIAction
 {
 	activationCondition = 
 	{
@@ -225,7 +225,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x17C6D37027 : AIActionCondition
+CombatMovementCondition : AIActionCondition
 {
 	condition = 
 	{
@@ -236,7 +236,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	} : AIActionAND;
 }
 
-0x1F6B0420E2 : AIActionCondition
+NoWeaponCombatMovementCondition : AIActionCondition
 {
 	condition = 
 	{
@@ -247,7 +247,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	} : AIActionAND;
 }
 
-0x11993ED351 : 0xF242B6C8F.0x7A0BDE62E
+SuccessIfFollower : FollowerActions.Success
 {
 	activationCondition = 
 	{
@@ -261,7 +261,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x10102E0868 : AIAction
+SprintToFollower : AIAction
 {
 	completeWithFailure = true;
 	activationCondition = 
@@ -308,13 +308,13 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 			[
 				{
 					duration = 0.f;
-				} : 0xF242B6C8F.0x17778B3282
+				} : FollowerActions.SetDesiredCoverCooldown
 			];
 		} : AISubActionStartCooldown
 	];
 }
 
-0xE0812F78A : AIAction
+WalkToFollower : AIAction
 {
 	completeWithFailure = true;
 	activationCondition = 
@@ -361,13 +361,13 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 			[
 				{
 					duration = 0.f;
-				} : 0xF242B6C8F.0x17778B3282
+				} : FollowerActions.SetDesiredCoverCooldown
 			];
 		} : AISubActionStartCooldown
 	];
 }
 
-0x1323574F0B : AIAction
+StayCloseToFollower : AIAction
 {
 	loop = 
 	{
@@ -404,27 +404,27 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 			[
 				{
 					duration = 0.f;
-				} : 0xF242B6C8F.0x17778B3282
+				} : FollowerActions.SetDesiredCoverCooldown
 			];
 		} : AISubActionStartCooldown
 	];
 }
 
-0x21F54D4BF4 : 0xF242B6C8F.0x1323574F0B
+NoWeaponCombatStayCloseToFollower : FollowerActions.StayCloseToFollower
 {
 	activationCondition = 
 	{
 	};
 }
 
-0x2786A2E3E2 : IsFriendInVeryFarRange
+IsCombatTargetNotTooFarToFriendlyTarget : IsFriendInVeryFarRange
 {
 	fk< AIActionTarget > source = "AIActionTarget.FriendlyTarget";
 	fk< AIActionTarget > target = "AIActionTarget.CombatTarget";
 	distance = ( 0.0f, 34.0f );
 }
 
-0x14E9285A83 : AIAction
+CoverPresetDecorator : AIAction
 {
 	loop = 
 	{
@@ -452,7 +452,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0xC917AFA36 : AIAction
+HasTopThreat : AIAction
 {
 	activationCondition = 
 	{
@@ -460,7 +460,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x15C61E44C8 : AIAction
+WillTakedownBeVisible : AIAction
 {
 	activationCondition = 
 	{
@@ -474,17 +474,17 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x249FDB2183 : AIActionCondition
+IncreaseFollowingSpeedEnterCondition : AIActionCondition
 {
 	condition = "Condition.IncreaseFollowingSpeedCondition";
 }
 
-0x23DABB1A92 : AIActionCondition
+IncreaseFollowingSpeedExitCondition : AIActionCondition
 {
 	condition = "Condition.NotIncreaseFollowingSpeedCondition";
 }
 
-0x111F0AA178 : AIAction
+FollowGetOutOfWay : AIAction
 {
 	completeWithFailure = true;
 	activationCondition = 
@@ -493,7 +493,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x1BE8A153E9";
+		movePolicy = "FollowerActions.FollowGetOutOfWayMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -504,7 +504,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x1114BC1DDC : AIAction
+CombatGetOutOfWay : AIAction
 {
 	activationCondition = 
 	{
@@ -512,7 +512,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x1BF4DC4111";
+		movePolicy = "FollowerActions.CombatGetOutOfWayMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -523,7 +523,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x181A292E3F : AIAction
+StealthFollowGetOutOfWay : AIAction
 {
 	activationCondition = 
 	{
@@ -531,7 +531,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x1BE8A153E9";
+		movePolicy = "FollowerActions.FollowGetOutOfWayMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -548,7 +548,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x92A1AF6B9 : AIAction
+FollowFar : AIAction
 {
 	completeWithFailure = true;
 	activationCondition = 
@@ -563,7 +563,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x16EA41B1BD";
+		movePolicy = "FollowerActions.FollowSprintMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -574,7 +574,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0xB37BEA251 : AIAction
+FollowClose : AIAction
 {
 	completeWithFailure = true;
 	activationCondition = 
@@ -589,7 +589,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x15CC8AE890";
+		movePolicy = "FollowerActions.FollowCloseMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -611,7 +611,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x19CBA2BC32 : AIActionSequence
+TurningToFollowerSequence : AIActionSequence
 {
 	failOnNodeActivationConditionFailure = true;
 	activationCondition = 
@@ -626,11 +626,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	actions = 
 	[
-		"0xF242B6C8F.0x17FE5FE87E", "0xF242B6C8F.0xA5589B06F"
+		"FollowerActions.FollowTurningToFollower", "FollowerActions.FollowStay"
 	];
 }
 
-0x20A6572727 : 0x19CBA2BC32
+TurningStealthToFollowerSequence : TurningToFollowerSequence
 {
 	activationCondition = 
 	{
@@ -644,11 +644,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	actions = 
 	[
-		"0xF242B6C8F.0x1EE600DB8A", "0xF242B6C8F.0x11E2570092"
+		"FollowerActions.FollowStealthTurningToFollower", "FollowerActions.FollowStealthStay"
 	];
 }
 
-0x17E083DD2B : AIActionSequence
+TurningToThreatSequence : AIActionSequence
 {
 	failOnNodeActivationConditionFailure = true;
 	activationCondition = 
@@ -663,11 +663,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	actions = 
 	[
-		"0xF242B6C8F.0x156CF07AC7", "0xF242B6C8F.0x19F1DB4FDD"
+		"FollowerActions.FollowTurningToThreat", "FollowerActions.FollowStayTurningToThreat"
 	];
 }
 
-0x1E9DC55613 : AIActionSequence
+TurningStealthToThreatSequence : AIActionSequence
 {
 	failOnNodeActivationConditionFailure = true;
 	activationCondition = 
@@ -682,11 +682,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	actions = 
 	[
-		"0xF242B6C8F.0x1CA0A79E80", "0xF242B6C8F.0x203EDB122D"
+		"FollowerActions.FollowStealthTurningToThreat", "FollowerActions.FollowStealthStayTurningToThreat"
 	];
 }
 
-0x17FE5FE87E : AIAction
+FollowTurningToFollower : AIAction
 {
 	activationCondition = 
 	{
@@ -700,7 +700,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x212F9FC6F3";
+		movePolicy = "FollowerActions.FollowTurningToFollowerMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -717,11 +717,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x1EE600DB8A : 0x17FE5FE87E
+FollowStealthTurningToFollower : FollowTurningToFollower
 {
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x28F9B325C4";
+		movePolicy = "FollowerActions.FollowStealthTurningToFollowerMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -738,7 +738,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x156CF07AC7 : AIAction
+FollowTurningToThreat : AIAction
 {
 	activationCondition = 
 	{
@@ -752,7 +752,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x1FB2259E8D";
+		movePolicy = "FollowerActions.FollowTurningToThreatMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -769,11 +769,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x1CA0A79E80 : 0x156CF07AC7
+FollowStealthTurningToThreat : FollowTurningToThreat
 {
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x26FDC75D93";
+		movePolicy = "FollowerActions.FollowStealthTurningToThreatMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -790,11 +790,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x19F1DB4FDD : 0xA5589B06F
+FollowStayTurningToThreat : FollowStay
 {
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x2C29A5F8A9";
+		movePolicy = "FollowerActions.FollowTurningToThreatHighDeadAngleMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -811,7 +811,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0xA5589B06F : AIAction
+FollowStay : AIAction
 {
 	completeWithFailure = true;
 	activationCondition = 
@@ -826,7 +826,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x2EDAB18131";
+		movePolicy = "FollowerActions.FollowTurningToFollowerHighDeadAngleMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -843,11 +843,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x203EDB122D : 0x11E2570092
+FollowStealthStayTurningToThreat : FollowStealthStay
 {
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x3350961E68";
+		movePolicy = "FollowerActions.FollowStealthTurningToThreatHighDeadAngleMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -864,11 +864,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x11E2570092 : 0xA5589B06F
+FollowStealthStay : FollowStay
 {
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x3541395940";
+		movePolicy = "FollowerActions.FollowStealthTurningToFollowerHighDeadAngleMovePolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -885,7 +885,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x1C4C83A47E : AIActionAND
+StealthFollowActionCondition : AIActionAND
 {
 	AND = 
 	[
@@ -893,7 +893,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x13E9163741 : AIAction
+StealthFollowAction : AIAction
 {
 	activationCondition = 
 	{
@@ -901,13 +901,13 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 		{
 			AND = 
 			[
-				"0xF242B6C8F.0x1C4C83A47E"
+				"FollowerActions.StealthFollowActionCondition"
 			];
 		} : AIActionAND;
 	};
 	loop = 
 	{
-		movePolicy = "0xF242B6C8F.0x135EA7BEC5";
+		movePolicy = "FollowerActions.StealthFollowPolicy";
 		toNextPhaseConditionCheckInterval = 0.5f;
 		toNextPhaseCondition = 
 		[
@@ -929,7 +929,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x10D0982DB8 : AIAction
+TeleportToTarget : AIAction
 {
 	activationCondition = 
 	{
@@ -957,29 +957,29 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	subActions = 
 	[
-		"0xF242B6C8F.0x12C3CD749C"
+		"FollowerActions.TeleportToFollower"
 	];
 }
 
-0x16D14843FD : 0x10D0982DB8
+CombatTeleportToTarget : TeleportToTarget
 {
 }
 
-0x139B9CE405 : ItemHandling.EquipPrimarySequence
+EquipWeaponSequence : ItemHandling.EquipPrimarySequence
 {
-	activationCondition = "0xF242B6C8F.0x1EBC6ACD3C";
+	activationCondition = "FollowerActions.EquipWeaponActivationCondition";
 }
 
-0x2065116CE7 : AIActionSequence
+ReactToFollowerUnequippingWeapon : AIActionSequence
 {
-	activationCondition = "0xF242B6C8F.0x20F52B0420";
+	activationCondition = "FollowerActions.UnequipWeaponActivationCondition";
 	actions = 
 	[
-		"0xF242B6C8F.0x15674BD9F2", "0xF242B6C8F.0xDA41F4778", "0xF242B6C8F.0x7A0BDE62E"
+		"FollowerActions.FollowerReactionDelay", "FollowerActions.UnequipWeapon", "FollowerActions.Success"
 	];
 }
 
-0x15674BD9F2 : AIAction
+FollowerReactionDelay : AIAction
 {
 	loop = 
 	{
@@ -987,7 +987,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x14384D90B0 : AISubActionStartCooldown
+SwitchWeaponCooldown : AISubActionStartCooldown
 {
 	cooldowns = 
 	[
@@ -998,7 +998,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x14B2042699 : AISubActionStartCooldown
+SwitchStatesCooldown : AISubActionStartCooldown
 {
 	delay = -1.f;
 	cooldowns = 
@@ -1010,7 +1010,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x12C3CD749C : AISubActionStartCooldown
+TeleportToFollower : AISubActionStartCooldown
 {
 	cooldowns = 
 	[
@@ -1021,7 +1021,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x1EBC6ACD3C : AIActionCondition
+EquipWeaponActivationCondition : AIActionCondition
 {
 	condition = 
 	{
@@ -1047,7 +1047,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	} : AIActionAND;
 }
 
-0x20F52B0420 : AIActionCondition
+UnequipWeaponActivationCondition : AIActionCondition
 {
 	condition = 
 	{
@@ -1063,13 +1063,13 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	} : AIActionAND;
 }
 
-0xDA41F4778 : AIAction
+UnequipWeapon : AIAction
 {
 	tickets = 
 	[
 		"AITicketType.Equip"
 	];
-	activationCondition = "0xF242B6C8F.0x20F52B0420";
+	activationCondition = "FollowerActions.UnequipWeaponActivationCondition";
 	loop = 
 	{
 		duration = 1.333f;
@@ -1090,11 +1090,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 			animationTime = 1.333f;
 			delay = -1.f;
 		} : AISubActionForceUnequip, 
-		"0xF242B6C8F.0x14384D90B0"
+		"FollowerActions.SwitchWeaponCooldown"
 	];
 }
 
-0x163350B5E7 : AIAction
+UnequipWeaponInStealth : AIAction
 {
 	tickets = 
 	[
@@ -1130,11 +1130,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 			animationTime = 1.333f;
 			delay = -1.f;
 		} : AISubActionForceUnequip, 
-		"0xF242B6C8F.0x14384D90B0"
+		"FollowerActions.SwitchWeaponCooldown"
 	];
 }
 
-0x54CC9A9C1 : AIAction
+Cover : AIAction
 {
 	tickets = 
 	[
@@ -1188,22 +1188,22 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x1D2A62C35F : AIActionSmartComposite
+StealthCoverBehaviorComposite : AIActionSmartComposite
 {
 	nodes = 
 	[
-		"0xF242B6C8F.0xDB201F73E", "0xF242B6C8F.0x10063E4A36", "GenericArchetype.WaitASecond"
+		"FollowerActions.CoverDecision", "FollowerActions.StealthCoverPeek", "GenericArchetype.WaitASecond"
 	];
 	type = "AISmartCompositeType.Sequence";
 }
 
-0x17778B3282 : AIActionCooldown
+SetDesiredCoverCooldown : AIActionCooldown
 {
 	name = "SetDesiredCover";
 	duration = 5.f;
 }
 
-0x1746F638B2 : AIAction
+ChangeSelectCoverPreset : AIAction
 {
 	loop = 
 	{
@@ -1219,7 +1219,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x14EBC6D90E : AIAction
+WalkToCoverDecorator : AIAction
 {
 	loop = 
 	{
@@ -1239,7 +1239,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x13A8C8A98B : AIActionAND
+LeaveCoverCondition : AIActionAND
 {
 	AND = 
 	[
@@ -1252,7 +1252,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x14CB90FFC0 : AIAction
+InsideCoverDecorator : AIAction
 {
 	activationCondition = 
 	{
@@ -1278,7 +1278,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 				{
 					OR = 
 					[
-						"0xF242B6C8F.0x13A8C8A98B", "Condition.TopThreatAbove120deg"
+						"FollowerActions.LeaveCoverCondition", "Condition.TopThreatAbove120deg"
 					];
 				} : AIActionOR;
 			}
@@ -1293,7 +1293,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x14595BEA6E : AISubActionCover
+SetCoverExposureAnim : AISubActionCover
 {
 	target = "AIActionTarget.TopThreat";
 	setCoverExposureAnim = true;
@@ -1303,7 +1303,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0xDB201F73E : AIAction
+CoverDecision : AIAction
 {
 	loop = 
 	{
@@ -1311,15 +1311,15 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	subActions = 
 	[
-		"0xF242B6C8F.0x14595BEA6E"
+		"FollowerActions.SetCoverExposureAnim"
 	];
 	animData = 
 	{
-		animVariationSubAction = "0xF242B6C8F.0x14595BEA6E";
+		animVariationSubAction = "FollowerActions.SetCoverExposureAnim";
 	};
 }
 
-0x10063E4A36 : CoverPeek
+StealthCoverPeek : CoverPeek
 {
 	activationCondition = "";
 	cooldowns = 
@@ -1343,26 +1343,26 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	allowBlendDuration = 0.2f;
 }
 
-0x176F482051 : AIActionSmartComposite
+FollowerLookatDecorator : AIActionSmartComposite
 {
 	repeat = 0;
 	nodes = 
 	[
-		"0xF242B6C8F.0x1BB457A4F7", "0xF242B6C8F.0x1D46AE53B1", "0xF242B6C8F.0x7A0BDE62E"
+		"FollowerActions.Idle_ObjectOfInterestLookAt", "FollowerActions.Moving_FollowerLookAtSequence", "FollowerActions.Success"
 	];
 }
 
-0x1F43DB4F4F : 0x1CF16F6C86
+NotShouldLookAtObjectOfInterest : ShouldLookAtObjectOfInterest
 {
 	invert = true;
 }
 
-0x1CF16F6C86 : AITargetCond
+ShouldLookAtObjectOfInterest : AITargetCond
 {
 	target = "AIActionTarget.ObjectOfInterest";
 }
 
-0x1BB457A4F7 : AIAction
+Idle_ObjectOfInterestLookAt : AIAction
 {
 	activationCondition = 
 	{
@@ -1417,7 +1417,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 				{
 					AND = 
 					[
-						"0xF242B6C8F.0x1CF16F6C86", "Condition.NotInStatesStealth"
+						"FollowerActions.ShouldLookAtObjectOfInterest", "Condition.NotInStatesStealth"
 					];
 				} : AIActionAND;
 			};
@@ -1435,7 +1435,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 				{
 					AND = 
 					[
-						"0xF242B6C8F.0x1CF16F6C86", "Condition.InStatesStealth"
+						"FollowerActions.ShouldLookAtObjectOfInterest", "Condition.InStatesStealth"
 					];
 				} : AIActionAND;
 			};
@@ -1453,7 +1453,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 				{
 					AND = 
 					[
-						"0xF242B6C8F.0x1F43DB4F4F", "Condition.NotInStatesStealth"
+						"FollowerActions.NotShouldLookAtObjectOfInterest", "Condition.NotInStatesStealth"
 					];
 				} : AIActionAND;
 			};
@@ -1470,7 +1470,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 				{
 					AND = 
 					[
-						"0xF242B6C8F.0x1F43DB4F4F", "Condition.InStatesStealth"
+						"FollowerActions.NotShouldLookAtObjectOfInterest", "Condition.InStatesStealth"
 					];
 				} : AIActionAND;
 			};
@@ -1484,7 +1484,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	subActionsCanCompleteAction = true;
 }
 
-0x1D382C16ED : AIAction
+Moving_ObjectOfInterestLookAt : AIAction
 {
 	activationCondition = 
 	{
@@ -1555,15 +1555,15 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	subActionsCanCompleteAction = true;
 }
 
-0x1D46AE53B1 : AIActionSequence
+Moving_FollowerLookAtSequence : AIActionSequence
 {
 	actions = 
 	[
-		"0xF242B6C8F.0xE9B3253DF", "0xF242B6C8F.0x1D382C16ED"
+		"FollowerActions.FollowerLookAt", "FollowerActions.Moving_ObjectOfInterestLookAt"
 	];
 }
 
-0x1CC591F802 : AIAction
+Moving_FollowerWithoutLookAt : AIAction
 {
 	loop = 
 	{
@@ -1583,7 +1583,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0xE9B3253DF : AIAction
+FollowerLookAt : AIAction
 {
 	activationCondition = 
 	{
@@ -1652,11 +1652,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x1E62BCFFCD : 0x176F482051
+FollowerStealthLookatDecorator : FollowerLookatDecorator
 {
 }
 
-0xA9084E3E1 : AIAction
+WaitToStop : AIAction
 {
 	startup = 
 	{
@@ -1676,7 +1676,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0xCCFA57F2F : AIActionSequence
+EnterStealth : AIActionSequence
 {
 	activationCondition = 
 	{
@@ -1684,11 +1684,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 	actions = 
 	[
-		"0xF242B6C8F.0x191EB3F2C8", "0xF242B6C8F.0x15429F2380"
+		"FollowerActions.WaitBeforeEnteringStealth", "FollowerActions.SendEnterStealthEvent"
 	];
 }
 
-0xD4C7C506A : AIAction
+IdleToStealth : AIAction
 {
 	activationCondition = 
 	{
@@ -1722,7 +1722,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0xD78E57290 : AIAction
+StealthToIdle : AIAction
 {
 	activationCondition = 
 	{
@@ -1756,7 +1756,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x191EB3F2C8 : 0xF242B6C8F.0xA9084E3E1
+WaitBeforeEnteringStealth : FollowerActions.WaitToStop
 {
 	loop = 
 	{
@@ -1771,7 +1771,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x15429F2380 : AIAction
+SendEnterStealthEvent : AIAction
 {
 	activationCondition = 
 	{
@@ -1786,11 +1786,11 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 		{
 			name = "EnterStealth";
 		} : AISubActionQueueAIEvent, 
-		"0xF242B6C8F.0x14B2042699"
+		"FollowerActions.SwitchStatesCooldown"
 	];
 }
 
-0xC5399CED0 : AIAction
+LeaveStealth : AIAction
 {
 	activationCondition = 
 	{
@@ -1798,15 +1798,15 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x147415D527 : AIActionSequence
+LeaveStealthSequence : AIActionSequence
 {
 	actions = 
 	[
-		"0xF242B6C8F.0x18F99F6E0B", "0xF242B6C8F.0x15DDB01411"
+		"FollowerActions.WaitBeforeLeavingStealth", "FollowerActions.SendLeaveStealthEvent"
 	];
 }
 
-0x18F99F6E0B : 0xF242B6C8F.0xA9084E3E1
+WaitBeforeLeavingStealth : FollowerActions.WaitToStop
 {
 	loop = 
 	{
@@ -1821,7 +1821,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x15DDB01411 : AIAction
+SendLeaveStealthEvent : AIAction
 {
 	activationCondition = 
 	{
@@ -1836,18 +1836,18 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 		{
 			name = "LeaveStealth";
 		} : AISubActionQueueAIEvent, 
-		"0xF242B6C8F.0x14B2042699"
+		"FollowerActions.SwitchStatesCooldown"
 	];
 }
 
-0x151B549FCE : AIActionCondition
+EnterVehicleCondition : AIActionCondition
 {
 	condition = "Condition.EnterVehicleAICondition";
 }
 
-0xC9FC5CE31 : AIAction
+EnterVehicle : AIAction
 {
-	activationCondition = "0xF242B6C8F.0x151B549FCE";
+	activationCondition = "FollowerActions.EnterVehicleCondition";
 	loop = 
 	{
 	};
@@ -1861,7 +1861,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0xBB88D6BDC : AIAction
+ExitVehicle : AIAction
 {
 	activationCondition = 
 	{
@@ -1884,7 +1884,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	];
 }
 
-0x144C472E4B : AIAction
+MyersNoVehicleCombat : AIAction
 {
 	activationCondition = 
 	{
@@ -1898,7 +1898,7 @@ using RTDB, ItemHandling, AIActionTarget, Condition, CoverActions
 	};
 }
 
-0x20709ED0AE : AIAction
+FollowerDontLeaveStealthInCombat : AIAction
 {
 	activationCondition = 
 	{

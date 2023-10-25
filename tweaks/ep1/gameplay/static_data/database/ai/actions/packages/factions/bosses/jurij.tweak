@@ -1,0 +1,276 @@
+package Jurij
+using RTDB, BaseStats, WeaponFxPackage, Items, AIActionTarget, AttackModifier
+
+[ notQueryable ]
+Jurij_Launcher_Base : Base_Shotgun
+{
+	entityName = "smasher_launcher";
+	triggerModes = 
+	[
+		"TriggerMode.SemiAuto"
+	];
+	primaryTriggerMode = "TriggerMode.SemiAuto";
+	itemType = "";
+	attacks = 
+	[
+		"Attacks.JurijMineProjectile"
+	];
+	rangedAttacks = "Attacks.PhysicalBulletPackage";
+	tags = 
+	[
+		"Weapon", "RangedWeapon"
+	];
+	placementSlots = 
+	[
+		"AttachmentSlots.JurijMineThrowSpot"
+	];
+	fxPackage = "WeaponFxPackage.TechWeaponBase";
+	quality = "Quality.Common";
+	enableNpcRPGData = true;
+	npcRPGData = 
+	{
+		statModifierGroups += 
+		[
+			"Items.Smasher_Launcher_Technical_Stats"
+		];
+	} : Base_NPC_RPG_Data;
+	statModifierGroups = 
+	[
+		"Items.Smasher_Launcher_Technical_Stats", "Items.Smasher_Launcher_Projectile_Stats", "Items.Base_NPC_SmartGun_Stats"
+	];
+	fk< GameplayLogicPackage >[] OnAttach = [];
+}
+
+EquipLauncherWeaponInstantly : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.JurijMineThrowSpot";
+			delay = 0.f;
+			itemID = "Jurij.Jurij_Launcher_Base";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipHandgunInstantly : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			itemID = "Items.Preset_Lexington_Krausser_Jurij";
+			animationTime = 1.533;
+		} : AISubActionForceEquip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.f;
+			itemID = "Items.Preset_Omaha_Krausser_Jurij";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+AimAttackInPlace : AIAction
+{
+	startup = 
+	{
+		duration = 1.5f;
+		useDurationFromAnimSlot = false;
+	};
+	loop = 
+	{
+		duration = 3.f;
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		useDurationFromAnimSlot = false;
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.JurijMineThrowSpot"
+			];
+			target = "AIActionTarget.CombatTarget";
+			targetPositionObj = "AIActionTarget.CombatTarget";
+			shootingPatternPackages = 
+			[
+				"ShootingPatterns.SmasherMissileRainLeftShootingPackage"
+			];
+			numberOfShots = 1;
+			pointPosition = 
+			[
+				( 0, -2, 0 )
+			];
+		} : AISubActionShootToPoint
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenade";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+
+AimAttackInPlaceHandgun : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			delay = 0;
+			numberOfShots = 15;
+		} : AISubActionShootWithWeapon, 
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponLeft"
+			];
+			target = "AIActionTarget.CombatTarget";
+			delay = 0;
+			numberOfShots = 15;
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+HasLauncherEquippedAIAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Jurij.HasLauncherEquipped"
+			];
+		} : AIActionAND;
+	};
+}
+
+HasLHandgunEquippedAIAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasHandgunWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+NotHasLauncherEquippedAIAction : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Jurij.NotHasLauncherEquipped"
+			];
+		} : AIActionAND;
+	};
+}
+
+HasLauncherEquipped : AISlotCond
+{
+	slot = "AttachmentSlots.JurijMineThrowSpot";
+	itemID = "Jurij.Jurij_Launcher_Base";
+}
+
+NotHasLauncherEquipped : HasLauncherEquipped
+{
+	invert = true;
+}
+
+Taunt01MantisBlade : AIAction
+{
+	loop = 
+	{
+		duration = 1.1f;
+	};
+	animData = 
+	{
+		animFeature = "ThrowGrenade";
+		animVariation = 1;
+		animSlot = 
+		{
+		};
+	};
+}
+

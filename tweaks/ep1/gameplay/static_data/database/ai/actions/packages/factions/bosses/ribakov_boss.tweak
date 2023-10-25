@@ -1,0 +1,1042 @@
+package RibakovBoss
+using RTDB, MeleeActions, AIActionTarget
+
+EquipSniperRifle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasSniperWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.2f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemID = "Items.Preset_Psycho_ma_wat_kab_02";
+		} : AISubActionForceEquip
+	];
+}
+
+ShootWithSniperRifle : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.Shoot"
+	];
+	activationCondition = 
+	{
+		calculateLineOfSightVector = 
+		[
+			{
+				startPosition = "AIActionTarget.Owner";
+				endPosition = "AIActionTarget.CombatTarget";
+				ignoreNonPenetrableObj = false;
+				startPositionOffset = ( 0.f, 0.f, 1.8f );
+				endPositionOffset = ( 0.f, 0.f, 1.8f );
+			} : AICalculateLineOfSightVector
+		];
+	};
+	startup = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			numberOfShots = 1;
+			triggerMode = "TriggerMode.Charge";
+		} : AISubActionShootWithWeapon
+	];
+	subActions += 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "SniperShooting";
+		} : AISubActionQueueCommunicationEvent
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+		animSlot = 
+		{
+		};
+		updateMovePolicy = true;
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Sniper_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}, 
+		{
+			preset = "LookatPreset.Gang_Sniper_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+			timeDelay = 0.25f;
+			offset = ( 0.0f, 0.0f, 1.0f );
+		}
+	];
+}
+
+RibakovDodgeBulletConditionDefinition : AIActionAND
+{
+	AND = 
+	[
+		"RibakovBoss.RibakovNoKereznikovLockCondition", "Condition.NotStatusEffectTypeBlind", "Condition.NotStatusEffectAnyKnockdown", "Condition.NotIsNPCBlinded", {
+			OR = 
+			[
+				{
+					target = "AIActionTarget.CombatTarget";
+					slot = "AttachmentSlots.WeaponRight";
+					itemType = "ItemType.Wea_PrecisionRifle";
+				} : AISlotCond, 
+				{
+					target = "AIActionTarget.CombatTarget";
+					slot = "AttachmentSlots.WeaponRight";
+					itemType = "ItemType.Wea_SniperRifle";
+				} : AISlotCond
+			];
+			invert = true;
+		} : AIActionOR, 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.TargetHasFullAutoWeapon", "Condition.MaxDodgeCount4"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.NotTargetHasFullAutoWeapon", "Condition.MaxDodgeCount2"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR
+	];
+}
+
+DodgeBulletSelectorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"RibakovBoss.NotRibakovApplyReactionImmunitiesStatusEffect", "RibakovBoss.RibakovDodgeBulletConditionDefinition", "Condition.AbilityHasKerenzikov"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+RibakovActionMap : ActionMap
+{
+	defaultMap = 
+	{
+		map = 
+		[
+			{
+				node = "GenericArchetype.DodgeBulletSelectorCondition";
+				isOverriddenBy = "RibakovBoss.DodgeBulletSelectorCondition";
+			}
+		];
+	};
+}
+
+RibakovPushAttackCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon", "Condition.CalculatePathStraightFullCheckToTarget", "Condition.TargetBelow2m"
+			];
+		} : AIActionAND;
+	};
+}
+
+RotateToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove120deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow45deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RibakovPushAttack : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.QuickMelee"
+	];
+	cooldowns = 
+	[
+		{
+			name = "QuickMelee";
+			duration = 3.f;
+		}
+	];
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "StaggerMin";
+		};
+	};
+	loop = 
+	{
+		duration = 0.2f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			name = "attack_short";
+		} : AISubActionPlayVoiceOver, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			isWindUp = false;
+		} : AISubActionMeleeAttackAttemptEvent, 
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				{
+					name = "QuickMelee";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight", "AttachmentSlots.WeaponLeft"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.05f;
+			attack = "NPCAttacks.QuickMeleeWithKnockdown";
+			attackName = "QuickMelee";
+		} : AISubActionAttackWithWeapon
+	];
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "PushAttack";
+					duration = 5.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+	animData = 
+	{
+		animFeature = "MeleeQuickStatic";
+		animSlot = 
+		{
+			startupSlide = 
+			{
+				overrideOffsetToTargetFromWeapon = false;
+			} : MeleeActions.MeleeAttackLightSlideData;
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+NoSandevistanMode : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+FindStartingPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "ribakovSpotStart";
+			allowedOffMeshTags = 
+			[
+				"ribakovJumpOffmesh"
+			];
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindShootPosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "ribakovSpotScaffolding";
+			allowedOffMeshTags = 
+			[
+				"ribakovJumpOffmesh"
+			];
+			rangeFromOwner = ( 2.f, 200.f );
+			rangeFromObj = ( 15.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Closest";
+			lineOfSightTarget = "AIActionTarget.CombatTarget";
+			blockLoSByNonPenetrableObj = true;
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindShootPositionFallback : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "ribakovSpotScaffolding";
+			allowedOffMeshTags = 
+			[
+				"ribakovJumpOffmesh"
+			];
+			rangeFromOwner = ( 2.f, 200.f );
+			rangeFromObj = ( 15.f, 200.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+CalculatePathToDestinationRibakovJump : AICalculatePathCond
+{
+	target = "AIActionTarget.MovementDestination";
+	allowedOffMeshTags = 
+	[
+		"ribakovJumpOffmesh"
+	];
+}
+
+SprintToMovementDestinationCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"RibakovBoss.CalculatePathToDestinationRibakovJump"
+			];
+		} : AIActionAND;
+	};
+}
+
+SprintToMovementDestinationLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		avoidThreatRange = 0.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+SprintToMovementDestinationSandevistan : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m", "Condition.NotIsNPCUnderCyberwareMalfunctionQuickhack"
+			];
+		} : AIActionAND;
+	};
+	loop = "RibakovBoss.SprintToMovementDestinationLoopPhase";
+	loopSubActions = 
+	[
+		{
+			name = "sandevistan_loop";
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.5f;
+			overrideMultiplerWhenPlayerInTimeDilation = 2.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Sandevistan"
+			];
+		} : AISubActionStatusEffect
+	];
+	animationWrapperOverrides = 
+	[
+		"Sandevistan"
+	];
+}
+
+SprintToMovementDestinationNoSandevistan : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "RibakovBoss.SprintToMovementDestinationLoopPhase";
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"RibakovBoss.NoSandevistanMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaCybMalfunctionWrapper"
+	];
+}
+
+SprintToMovementDestinationSequence : AIActionSequence
+{
+	actions = 
+	[
+		"RibakovBoss.SprintToMovementDestinationSandevistan", "RibakovBoss.SprintToMovementDestinationNoSandevistan", "GenericArchetype.Success"
+	];
+}
+
+Vanish : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasGrenadeInInventory"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeSmokeOdaHarmless";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			delay = 1.667f;
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.667f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.Owner";
+			checkThrowQuery = false;
+		} : AISubActionThrowItem
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+}
+
+VanishNoCamo : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasGrenadeInInventory"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.667f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+}
+
+VanishFlashbang : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasGrenadeInInventory"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			delay = 1.667f;
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			name = "smoke_grenade";
+			delay = 1.667f;
+		} : AISubActionSpawnFX, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.667f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.Owner";
+			checkThrowQuery = false;
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+}
+
+DisableCamo : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Cloaked"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			delay = 0.7f;
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+DisableCamoDelayed : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Cloaked"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstopppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			delay = 5.0f;
+			apply = false;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+SendHoloPreparationDoneFact : AIAction
+{
+	subActions = 
+	[
+		{
+			name = "sts_ep1_08_holo_preparation";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+StatusEffectRibakovKereznikovLock : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+RibakovKereznikovLockCondition : AIStatusEffectCond
+{
+	statusEffect = "RibakovBoss.StatusEffectRibakovKereznikovLock";
+}
+
+RibakovNoKereznikovLockCondition : RibakovKereznikovLockCondition
+{
+	invert = true;
+}
+
+ApplyKereznikovLock : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"RibakovBoss.StatusEffectRibakovKereznikovLock"
+			];
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveKereznikovLock : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"RibakovBoss.StatusEffectRibakovKereznikovLock"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyReactionImmunities : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"RibakovBoss.ApplyReactionImmunitiesStatusEffect"
+			];
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveReactionImmunities : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"RibakovBoss.ApplyReactionImmunitiesStatusEffect"
+			];
+			apply = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyReactionImmunitiesStatusEffect : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				"RibakovBoss.ApplyReactionImmunitiesEffector"
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ApplyReactionImmunitiesEffector : ApplyStatGroupEffector
+{
+	statGroup = "RibakovBoss.ReactionImmunities";
+}
+
+NotRibakovApplyReactionImmunitiesStatusEffect : RibakovApplyReactionImmunitiesStatusEffect
+{
+	invert = true;
+}
+
+RibakovApplyReactionImmunitiesStatusEffect : AIStatusEffectCond
+{
+	statusEffect = "RibakovBoss.ApplyReactionImmunitiesStatusEffect";
+}
+
+ReactionImmunities : StatModifierGroup
+{
+	statModifiers = 
+	[
+		{
+			statType = "BaseStats.StunImmunity";
+			modifierType = "Additive";
+			value = 1;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThreshold";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThreshold";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdInCover";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdInCover";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ImpactDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.StaggerDamageThresholdImpulse";
+			modifierType = "Additive";
+			value = 9999;
+		} : ConstantStatModifier
+	];
+}
+
+FindClonePosition : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "sts_ep1_08_ribakov_clone_spot";
+			rangeFromOwner = ( 10.f, 999.f );
+			rangeFromObj = ( 0.f, 999.f );
+			avoidSelectingSameTargetMethod = 0;
+			selectionMethod = "Closest";
+		} : AISubActionSetWaypointByTag
+	];
+}
+

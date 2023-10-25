@@ -1,0 +1,631 @@
+package MaxTacBoss
+using RTDB, VehicleActions, SpecialActions, DashAndDodgeActions, MeleeActions, MovementActions, ReactionsActions, AIActionTarget, StatusEffectActions, ItemHandling
+
+HasEnabledKerenzikovCondition : AIActionAND
+{
+	AND = 
+	[
+		"Condition.AbilityHasKerenzikov", "Condition.NotIsNPCEmpReed"
+	];
+}
+
+DodgeBulletSelectorCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "MaxTacBoss.HasEnabledKerenzikovCondition";
+	};
+	loop = 
+	{
+	};
+}
+
+KerenzikovDodgeCompositeSelectorDefinition : DashAndDodgeActions.KerenzikovDodgeCompositeSelectorDefinition
+{
+	nodes = 
+	[
+		"MaxTacBoss.KerenzikovDodgeSelectorDefinition"
+	];
+}
+
+KerenzikovDodgeSelectorDefinition : DashAndDodgeActions.KerenzikovDodgeSelectorDefinition
+{
+	actions = 
+	[
+		"MaxTacBoss.DodgeKerenzikovLeftOnSpotDefinition", "MaxTacBoss.DodgeKerenzikovRightOnSpotDefinition"
+	];
+}
+
+DodgeKerenzikovLeftOnSpotDefinition : DashAndDodgeActions.DodgeKerenzikovLeftOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.TargetPOVRight"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_right";
+			delay = 0.1f;
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 5.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 0.25f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+DodgeKerenzikovRightOnSpotDefinition : DashAndDodgeActions.DodgeKerenzikovRightOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.TargetPOVLeft"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "kerenzikov_center";
+		} : AISubActionSpawnFX, 
+		{
+			name = "kerenzikov_left";
+			delay = 0.1f;
+		} : AISubActionSpawnFX, 
+		{
+			multiplier = 3.f;
+			overrideMultiplerWhenPlayerInTimeDilation = 5.f;
+		} : AISubActionApplyTimeDilation, 
+		{
+		} : AISubActionDisableAimAssist, 
+		{
+			actionName = "reset";
+		} : AISubActionRegisterActionName, 
+		{
+			cooldowns = 
+			[
+				{
+					duration = 0.25f;
+				} : DashAndDodgeActions.HitDodgeCooldown
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MeleeBlockCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.NotAttackWithSubActionInAir", "Condition.NotInStatesParry", "Condition.NotIsUsingOffMeshLink", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+MeleeKerenzikovDodge01Selector : MeleeActions.MeleeKerenzikovDodge01Selector
+{
+	nodes = 
+	[
+		"MaxTacBoss.MeleeKerenzikovDodge01Definition"
+	];
+}
+
+MeleeKerenzikovDodge01Definition : AIActionSelector
+{
+	actions = 
+	[
+		"MaxTacBoss.DodgeMeleeKerenzikovLeftOnSpotDefinition", "MaxTacBoss.DodgeMeleeKerenzikovRightOnSpotDefinition_Renamed"
+	];
+	defaultAction = "MaxTacBoss.DodgeMeleeKerenzikovBackDefinition";
+}
+
+DodgeMeleeKerenzikovLeftOnSpotDefinition : DashAndDodgeActions.DodgeMeleeKerenzikovLeftOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.TargetPOVRight"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeKerenzikovRightOnSpotDefinition_Renamed : DashAndDodgeActions.DodgeMeleeKerenzikovRightOnSpotDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.TargetPOVLeft"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeCompositeSelectorDefinition : DashAndDodgeActions.DodgeMeleeCompositeSelectorDefinition
+{
+	nodes = 
+	[
+		"MaxTacBoss.DodgeMeleeSelectorDefaultDefinition"
+	];
+}
+
+DodgeMeleeSelectorDefaultDefinition : DashAndDodgeActions.DodgeMeleeSelectorDefaultDefinition
+{
+	actions = 
+	[
+		"MaxTacBoss.DodgeMeleeKerenzikovLeftDefinition", "MaxTacBoss.DodgeMeleeKerenzikovRightDefinition"
+	];
+	defaultAction = "MaxTacBoss.DodgeMeleeKerenzikovBackDefinition";
+}
+
+DodgeMeleeKerenzikovLeftDefinition : DashAndDodgeActions.DodgeMeleeKerenzikovLeftDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.TargetPOVRight", "Condition.CalculatePathStraightFullCheckLeftClose"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeKerenzikovRightDefinition : DashAndDodgeActions.DodgeMeleeKerenzikovRightDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.TargetPOVLeft", "Condition.CalculatePathStraightFullCheckRightClose"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeMeleeKerenzikovBackDefinition : DashAndDodgeActions.DodgeMeleeKerenzikovBackDefinition
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"MaxTacBoss.HasEnabledKerenzikovCondition", "Condition.CalculatePathStraightFullCheckBackClose"
+			];
+		} : AIActionAND;
+	};
+}
+
+DodgeOutFromLineOfSight : AIAction
+{
+	activationCondition = 
+	{
+		condition = "MaxTacBoss.HasEnabledKerenzikovCondition";
+	};
+	startup = 
+	{
+		duration = 0.1f;
+	};
+	startupSubActions = 
+	[
+		{
+			name = "MeleeDodgeOpportunity";
+		} : AISubActionQueueAIEvent, 
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				{
+					name = "OutOfLineOfSightDodge";
+					duration = 1.f;
+				}
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+PreventionUnit_ThrowGrenadeSmoke : ItemHandling.ThrowGrenade
+{
+	tickets = 
+	[
+		"AITicketType.SmokeGrenadeThrow"
+	];
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeSmokeRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+PreventionUnit_SmokeThrowConditionCooldown : AIAction
+{
+	cooldowns = 
+	[
+		"MaxTacBoss.PreventionUnit_SmokeThrowCooldown"
+	];
+}
+
+PreventionUnit_SetSmokeThrowConditionCooldown : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MaxTacBoss.PreventionUnit_SmokeThrowCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+PreventionUnit_SmokeThrowCooldown : AIActionCooldown
+{
+	name = "SmokeThrowCooldown";
+	duration = 15.f;
+}
+
+PreventionUnit_EquipLMGWeaponInstantly : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			itemID = "Items.Preset_Defender_Default";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+PreventionUnit_HasNoMachineGunWeaponEquippedCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMachineGun"
+			];
+		} : AIActionAND;
+	};
+}
+
+PreventionUnit_AimAttackInPlace : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.CombatTarget";
+			delay = 0;
+			numberOfShots = 60;
+			pauseCondition = 
+			[
+				{
+					condition = 
+					{
+						AND = 
+						[
+							"Condition.TargetAbove90deg"
+						];
+					} : AIActionAND;
+				}
+			];
+		} : AISubActionShootWithWeapon
+	];
+	animData = 
+	{
+		animFeature = "ShootAction";
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+PreventionUnit_LMGKeepDistanceRotationCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove45deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+PreventionUnit_LMGKeepDistanceRotation : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.CombatTarget";
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetBelow45deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+PreventionUnit_LMGKeepDistanceLocomotionCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow5mPrediction"
+			];
+		} : AIActionAND;
+	};
+}
+
+PreventionUnit_LMGKeepDistanceLocomotion : AIAction
+{
+	startup = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+			hitReactionMode = "UnstoppableTwitchMin";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			keepLineOfSight = "Keep";
+			distance = 6.f;
+			avoidThreatRange = 2.f;
+			movementType = "Walk";
+			tolerance = 0.5f;
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = [];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+			locomotionMode = "Moving";
+		};
+	};
+}
+
+PreventionUnit_ThrowSmoke_Far_Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetAbove8m"
+			];
+		} : AIActionAND;
+	};
+}
+
+PreventionUnit_ThrowGrenadeSmoke_Close : ItemHandling.ThrowGrenade
+{
+	tickets = 
+	[
+		"AITicketType.SmokeGrenadeThrow"
+	];
+	startup = 
+	{
+		duration = 0.833f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	loop = 
+	{
+		duration = 0.333f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.33f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeSmokeRegular";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 1.667f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				trackingMode = "TargetTracking.RealPosition";
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+RightArmWrapperAfterSuicideHack : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages += 
+	[
+		{
+			animationWrapperOverrides = 
+			[
+				"WeaponRight"
+			];
+		}
+	];
+}
+

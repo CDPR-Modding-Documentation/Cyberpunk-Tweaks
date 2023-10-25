@@ -1,0 +1,273 @@
+package BaseStatusEffect
+using RTDB, Prereqs, Effectors
+
+CerberusGrabAttackEffect01 : StatusEffect
+{
+	fk< StatusEffectFX >[] VFX = [];
+	statusEffectType = "BaseStatusEffectTypes.Wounded";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 0.3f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "Effectors.CerberusAttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 8.05f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "Effectors.CerberusFinalKillAttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 8.05f;
+					} : Prereqs.DurationPrereq;
+					statusEffect = "BaseStatusEffect.ForceKill";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.ForcePreventResurrect";
+								modifierType = "Additive";
+								value = 1;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CerberusGrabAttackEffectBack : StatusEffect
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "status_bleeding";
+		}
+	];
+	statusEffectType = "BaseStatusEffectTypes.Wounded";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 0.3f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "Effectors.CerberusAttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						duration = 4.7f;
+					} : Prereqs.DurationPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 999999.f;
+					attackRecord = "Effectors.CerberusFinalKillAttackDamage";
+				} : ContinuousAttackEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 4.7f;
+					} : Prereqs.DurationPrereq;
+					statusEffect = "BaseStatusEffect.ForceKill";
+					removeWithEffector = false;
+				} : ApplyStatusEffectEffector, 
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						fk< StatModifier >[] statModifiers = 
+						[
+							{
+								statType = "BaseStats.ForcePreventResurrect";
+								modifierType = "Additive";
+								value = 1;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.Health";
+								modifierType = "Multiplier";
+								value = 0;
+							} : ConstantStatModifier
+						];
+					};
+					applicationTarget = "Player";
+				} : ApplyStatGroupEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CerberusRemovedDetection : StatusEffect
+{
+	bool canReapply = false;
+	gameplayTags += 
+	[
+		"Blind", "ClearThreats"
+	];
+	replicated = true;
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 2.f;
+			} : ConstantStatModifier
+		];
+	};
+	AIData = 
+	{
+		float priority = 6.f;
+		activationPrereqs = 
+		[
+			{
+				allowedTypes = 
+				[
+					"NPCType.Cerberus"
+				];
+			} : NPCTypePrereq
+		];
+		fk< StatusEffectAIBehaviorFlag > behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		fk< StatusEffectAIBehaviorType > behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+CerberusGrabCheckPlayerOrientationEffect : StatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = .5f;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "clear_area_dir";
+					value = 1;
+				} : SetFactBasedOnClearAreaEffector
+			];
+		}
+	];
+}
+
+CerberusScanningVFXOn : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+CerberusScanningVFXOff : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+CerberusSkipPreAlerted : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+CerberusInPreAlerted : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+NoSandevistanGlitch : SandevistanPlayerBuff
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "q305_cerberus_blackwall_glitch_heavy";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.SandevistanChargesRegenEnabled";
+					modifierType = "Multiplier";
+					value = 0;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.PlayerSandevistanChargesDecayEnabled";
+					modifierType = "Additive";
+					value = 1;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.PlayerSandevistanChargesDecayPerSecond";
+					modifierType = "Multiplier";
+					refObject = "Self";
+					refStat = "BaseStats.TimeDilationSandevistanTimeScale";
+					opSymbol = "*";
+					value = 1f;
+				} : CombinedStatModifier
+			];
+		} : GameplayLogicPackage, 
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 1.f;
+					attackRecord = "Attacks.LowPhysicalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+NoCooldownedSandevistanGlitch : NoSandevistanGlitch
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					statusEffect = "BaseStatusEffect.SandevistanCooldown";
+					inverted = true;
+					removeWithEffector = true;
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+

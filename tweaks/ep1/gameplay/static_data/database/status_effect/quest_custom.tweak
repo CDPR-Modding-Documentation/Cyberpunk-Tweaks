@@ -1,0 +1,154 @@
+package BaseStatusEffect
+using RTDB, Prereqs
+
+q304_songbird_relic_shock : JohnnySicknessAbstract
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "johnny_sickness_lvl1";
+		}
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			bool stackable = false;
+			effectors = 
+			[
+				{
+					CName effectorClassName = "PlaySFXEffector";
+					CName activationSFXName = "vfx_fullscreen_johnny_sickness_low_start";
+					CName deactivationSFXName = "vfx_fullscreen_johnny_sickness_low_stop";
+				} : BaseStatusEffect.SFXEffector
+			];
+		} : GameplayLogicPackage, 
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.StaminaRegenRate";
+					modifierType = "Multiplier";
+					value = -0.1f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+q304_helicopter_rotor_effect : StatusEffect
+{
+	fk< StatusEffectFX >[] VFX = 
+	[
+		{
+			name = "q304_helicopter_rotor_hit";
+		}
+	];
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 60.0f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+SE_Q302_ChimeraTerrorize : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float interval = 4;
+					fk< StimType > type = "StimTypes.Terror";
+					fk< StimPropagation > propagation = "StimTypes.Audio";
+					fk< StimPriority > priority = "StimTypes.High";
+					float radius = 100.f;
+				} : BroadcastStimEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SE_Q302_ChimeraProvoke : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float interval = 4;
+					fk< StimType > type = "StimTypes.Provoke";
+					fk< StimPropagation > propagation = "StimTypes.Audio";
+					fk< StimPriority > priority = "StimTypes.High";
+					float radius = 100.f;
+				} : BroadcastStimEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SE_Q305_ForceTerror : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					float interval = 4;
+					fk< StimType > type = "StimTypes.Terror";
+					fk< StimPropagation > propagation = "StimTypes.Audio";
+					fk< StimPriority > priority = "StimTypes.High";
+					float radius = 6.f;
+				} : BroadcastStimEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+NoCombatWithQuickhacks : GameplayRestrictionStatusEffect
+{
+	gameplayTags += 
+	[
+		"NoCombat", "NoGrenadeOrGadget"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.HasBerserk";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasSandevistan";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.HasKerenzikov";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.CanUseOverclock";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		}
+	];
+}
+

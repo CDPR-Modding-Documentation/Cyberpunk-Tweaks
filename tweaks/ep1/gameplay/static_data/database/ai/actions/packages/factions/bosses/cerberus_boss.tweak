@@ -1,0 +1,1235 @@
+package CerberusBoss
+using RTDB, Ability, Character, AIActionTarget, ReactionsActions, MechReactionsActions
+
+Map : ActionMap
+{
+	defaultMap = 
+	{
+		map = 
+		[
+			{
+				node = "GenericArchetype.EnterAlerted";
+				isOverriddenBy = "CerberusBoss.EnterAlerted";
+			}, 
+			{
+				node = "ReactionsActions.LookAroundForIntruderUnarmed";
+				isOverriddenBy = "CerberusBoss.LookAround";
+			}, 
+			{
+				node = "ReactionsActions.AlertedVO";
+				isOverriddenBy = "CerberusBoss.AttentiveVO";
+			}
+		];
+	};
+}
+
+EnterIdle : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"CerberusBoss.EnteringIdleVFX", "GenericArchetype.Success"
+	];
+}
+
+EnterAlerted : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"CerberusBoss.EnteringAlertedVFX", "CerberusBoss.RotateToPlayer", "CerberusBoss.MoveToThePlayer", "GenericArchetype.Success"
+	];
+}
+
+EnterCombat : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"CerberusBoss.EnteringCombatVFX", "GenericArchetype.Success"
+	];
+}
+
+EquipCerberusBaseWeaponCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+}
+
+EquipCerberusBaseWeaponInstantly : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+			locomotionMode = "Moving";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			itemType = "ItemType.Wea_Melee";
+		} : AISubActionForceEquip
+	];
+}
+
+CerberusSprintToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				{
+					AND = 
+					[
+						"Condition.TargetPOVBelow180deg", "Condition.NotPathFindingFailed", "Condition.TargetAbove3m"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.TargetPOVBelow180deg", "Condition.NotPathFindingFailed", "Condition.NotCalculatePathStraightToTarget"
+					];
+				} : AIActionAND, 
+				{
+					AND = 
+					[
+						"Condition.TargetAbove3m", "Condition.TargetPOVAbove180deg"
+					];
+				} : AIActionAND
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+			locomotionMode = "Moving";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.Player";
+			strafingTarget = "AIActionTarget.Player";
+			movementType = "Sprint";
+			tolerance = 0.0f;
+			distance = 0.0f;
+			dontUseStart = true;
+			dontUseStop = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetPOVBelow180deg", "Condition.NotIsUsingOffMeshLink", "Condition.NotPlayerInStatesDodge", {
+									OR = 
+									[
+										"Condition.PlayerInStatesStand", "Condition.PlayerInStatesCrouch"
+									];
+								} : AIActionOR, 
+								"Condition.PathFindingFailed"
+							];
+						} : AIActionAND, 
+						{
+							AND = 
+							[
+								"Condition.TargetPOVAbove180deg", "Condition.TargetBelow3m"
+							];
+						} : AIActionAND
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "stop_eye_flare_yellow";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "eye_flare_red";
+		} : AISubActionQueueAIEvent
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.MeleeCombatLookAtPreset";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+SprintToTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PlayerAbove3m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+			locomotionMode = "Moving";
+		};
+		movePolicy = 
+		{
+			target = "AIActionTarget.Player";
+			strafingTarget = "AIActionTarget.Player";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			distance = 4.f;
+			dontUseStart = true;
+			dontUseStop = false;
+			dynamicTargetUpdateDistance = 1.f;
+			ignoreCollisionAvoidance = true;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 2.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow3m", "Condition.PathFindingFailed", "Condition.NotMinAccuracySharedValue0dot5", {
+									AND = 
+									[
+										"Condition.TargetBelow4m", "Condition.TargetUpTo0dot5mZDiff"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			name = "stop_eye_flare_yellow";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "eye_flare_red";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+ForceCombatInitialReaction : AICerberusReactionSequence
+{
+	actions = 
+	[
+		"CerberusBoss.StartReaction", "GenericArchetype.Success"
+	];
+}
+
+IntruderVO : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotPlayerHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_attackedVO";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+MeleeHitVO : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PlayerHasMeleeWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_attacked_meleeVO";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+AttentiveVO : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_attentiveVO";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+ScanningVO : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_scanningVO";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+OpticalCamoDetectedVO : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "opticalcamo_detectedVO";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+CerberusStoryMode : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_story_mode";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+CerberusAttacks : AIAction
+{
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_attacks";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+EnteringIdleVFX : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CerberusInPreAlerted"
+			];
+			apply = false;
+			remove = true;
+			delay = 0.f;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			name = "stop_eye_flare_yellow";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "stop_eye_flare_red";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "CerberusScan";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+EnteringAlertedVFX : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "stop_eye_flare_red";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "eye_flare_yellow";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+EnteringCombatVFX : AIAction
+{
+	subActions = 
+	[
+		{
+			name = "CerberusStopScan";
+			delay = -1.f;
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "stop_eye_flare_yellow";
+		} : AISubActionQueueAIEvent, 
+		{
+			name = "eye_flare_red";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+LookAtDirectionVFXOn : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "CerberusScan";
+			delay = 10.f;
+		} : AISubActionQueueAIEvent
+	];
+}
+
+LookAtDirectionVFXOff : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			name = "CerberusStopScan";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+AlertedEnteredSFX : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectCerberusInPreAlerted"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_alerted";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+EscapeOpportunity : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				{
+					OR = 
+					[
+						{
+							AND = 
+							[
+								"Condition.TargetAbove10m", "Condition.TargetInStatesCrouch"
+							];
+						} : AIActionAND, 
+						"Condition.TargetAbove15m"
+					];
+				} : AIActionOR, 
+				"Condition.NotAICombatTargetCommand", "Condition.NotAICombatThreatCommand", "Condition.CerberusEscapeOpportunityCooldown", "Condition.NotStatusEffectCerberusSkipPreAlerted"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 2.f;
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatStimTypes", "Condition.TargetIsVisible", "Condition.TargetBelow10m", {
+							AND = 
+							[
+								"Condition.TargetBelow15m", "Condition.NotTargetInStatesCrouch"
+							];
+						} : AIActionAND, 
+						"Condition.AICombatTargetCommand", "Condition.AICombatThreatCommand"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CerberusRemovedDetection"
+			];
+			apply = true;
+			remove = false;
+			delay = 0.f;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CerberusInPreAlerted"
+			];
+			apply = true;
+			remove = false;
+			delay = 0.f;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				"CerberusBoss.CerberusEscapeOpportunityCooldown"
+			];
+		} : AISubActionStartCooldown, 
+		{
+			name = "cerberus_pre_alerted";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+CombatStim : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CombatStimTypes"
+			];
+		} : AIActionAND;
+	};
+}
+
+CerberusEscapeOpportunityCooldown : AIActionCooldown
+{
+	name = "CerberusEscapeOpportunityCooldown";
+	duration = 20.f;
+}
+
+MoveToThePlayer : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToOut_LastChasePosition"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.Out_LastChasePosition";
+			movementType = "Walk";
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.Out_LastChasePosition";
+			ignoreRestrictedMovementArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.DestinationReached", "Condition.NotCalculatePathToOut_LastChasePosition"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MoveToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.CalculatePathToStimSource";
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Walk";
+			dontUseStart = false;
+			destinationOrientationPosition = "AIActionTarget.StimTarget";
+			ignoreRestrictedMovementArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.DestinationReached";
+			}
+		];
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Reaction_EyesHeadWithBodyAttached";
+			target = "AIActionTarget.StimSource";
+		}
+	];
+}
+
+LookAround : AIAction
+{
+	loop = 
+	{
+		duration = 2.1f;
+	};
+	animData = 
+	{
+		animFeature = "LookAround";
+		animSlot = 
+		{
+		};
+	};
+}
+
+TurnAtReaction : AICerberusReactionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotInStatesCombat";
+	};
+	actions = 
+	[
+		"CerberusBoss.RotateToStimTarget", "GenericArchetype.Success"
+	];
+}
+
+InvestigateDeviceInitialReaction : AICerberusReactionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotInStatesCombat";
+	};
+	actions = 
+	[
+		"CerberusBoss.StartReaction", "CerberusBoss.RotateToStimTarget", "GenericArchetype.Success"
+	];
+}
+
+InvestigateInProgress : AIMechReactionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotInStatesCombat";
+	};
+	actions = 
+	[
+		"CerberusBoss.MoveCloserToStimSource", "CerberusBoss.Scan", "GenericArchetype.Success"
+	];
+}
+
+MoveCloserToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.CalculatePathToStimTarget", "Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimTarget";
+			movementType = "Walk";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow2point5m", "Condition.NotCalculatePathToStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MoveCloserToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotWhistleStimType", "Condition.CalculatePathToStimSource", "Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.StimSource";
+			movementType = "Walk";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimSourceBelow1m", "Condition.NotCalculatePathToStimSource"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+InvestigateComplete : AICerberusReactionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotInStatesCombat";
+	};
+	actions = 
+	[
+		"CerberusBoss.IgnoreReactionResults", "GenericArchetype.Success"
+	];
+}
+
+IgnoreReactionResults : AIAction
+{
+	loop = 
+	{
+		duration = 1.f;
+	};
+}
+
+InvestigateDeviceExecution : AICerberusReactionSequence
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotInStatesCombat";
+	};
+	actions = 
+	[
+		"CerberusBoss.StartReaction", "CerberusBoss.MoveToStimSource", "ReactionsActions.RotateToDistractionSource", "CerberusBoss.Scan"
+	];
+}
+
+StartReaction : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.NotInStatesCombat";
+	};
+	startup = 
+	{
+		duration = 0.7f;
+	};
+}
+
+Scan : AIAction
+{
+	loop = 
+	{
+		duration = 5.f;
+	};
+}
+
+RotateToPlayer : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.PlayerAbove15deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.Player";
+			deadAngle = 0.1f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.PlayerBelow15deg"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RotateToStimTarget : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimTargetAbove45deg", "Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimTarget";
+			deadAngle = 0.1f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimTargetBelow15deg", "Condition.NotCalculatePathToStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RotateToStimSource : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StimSourceAbove45deg", "Condition.NotInStatesCombat"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			strafingTarget = "AIActionTarget.StimSource";
+			deadAngle = 5.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.StimSourceBelow30deg", "Condition.NotCalculatePathToStimTarget"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+CombatTargetNotReachable : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.TargetPOVBelow180deg", "Condition.NotTargetInStatesJump", {
+					OR = 
+					[
+						"Condition.NotIsPlayerOnNavmesh", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_cannot_reach";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+CombatTargetNotReachableAndCerberusOutOfPOV : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsUsingOffMeshLink", "Condition.TargetPOVAbove180deg", {
+					OR = 
+					[
+						"Condition.NotIsPlayerOnNavmesh", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+NoEnoughSpaceForTakedown : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow3m", {
+					OR = 
+					[
+						"Condition.PlayerInStatesStand", "Condition.PlayerInStatesCrouch"
+					];
+				} : AIActionOR
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			name = "cerberus_no_enough_space";
+			resetValue = true;
+		} : AISubActionAddFact
+	];
+}
+
+PlayerBelow6m : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow6m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+PlayerBelow8m : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow8m", "Condition.TargetAbove5m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+CerberusOutOfPOV : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetPOVAbove180deg"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+GunshotStim : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.AnyGunshotStimType"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+NotSkipPreAlertedSE : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectCerberusSkipPreAlerted"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+}
+
+AICerberusReactionSequence : AIActionSequence
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Cerberus"
+			];
+		} : AIActionAND;
+	};
+}
+
+AICerberusReactionSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.Cerberus"
+			];
+		} : AIActionAND;
+	};
+}
+
+CerberusScanningVFXOn : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectCerberusScanningVFXOn"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CerberusScanningVFXOn"
+			];
+			apply = true;
+			remove = false;
+			delay = 0.f;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			name = "CerberusScan";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+CerberusScanningVFXOff : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.StatusEffectCerberusScanningVFXOff"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.CerberusScanningVFXOff"
+			];
+			apply = true;
+			remove = false;
+			delay = 0.f;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			name = "CerberusStopScan";
+		} : AISubActionQueueAIEvent
+	];
+}
+

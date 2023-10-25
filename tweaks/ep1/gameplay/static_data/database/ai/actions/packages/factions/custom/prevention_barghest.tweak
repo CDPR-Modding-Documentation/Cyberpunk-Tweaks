@@ -1,0 +1,205 @@
+package PreventionBarghest
+using RTDB, ItemType
+
+DefaultNodeMap : AINodeMap
+{
+	map = 
+	[
+		{
+			node = "GenericArchetype.EnterIdle";
+			isOverriddenBy = "PreventionBarghest.EnterIdle";
+		}, 
+		{
+			node = "GenericArchetype.EnterAlerted";
+			isOverriddenBy = "PreventionBarghest.EnterAlerted";
+		}, 
+		{
+			node = "GenericArchetype.EnterCombat";
+			isOverriddenBy = "PreventionBarghest.EnterCombat";
+		}
+	];
+}
+
+Map : ActionMap
+{
+	map = 
+	[
+		{
+			itemType = "ItemType.Wea_Fists";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_StrongArms";
+			map = "Corpo_Fists.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Hammer";
+			map = "Corpo_Hammer.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Handgun";
+			map = "Corpo_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Revolver";
+			map = "Corpo_Handgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Katana";
+			map = "Corpo_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Sword";
+			map = "Corpo_Katana.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Knife";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShortBlade";
+			map = "Corpo_Knife.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LongBlade";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Axe";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Chainsword";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Machete";
+			map = "Corpo_LongBlade.Map";
+		}, 
+		{
+			itemType = "ItemType.Cyb_MantisBlades";
+			map = "Corpo_MantisBlades.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_OneHandedClub";
+			map = "Corpo_OneHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_TwoHandedClub";
+			map = "Corpo_TwoHandedClub.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SubmachineGun";
+			map = "Corpo_SubmachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Rifle";
+			map = "Corpo_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_AssaultRifle";
+			map = "Corpo_Rifle.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_Shotgun";
+			map = "Corpo_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_ShotgunDual";
+			map = "Corpo_Shotgun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_PrecisionRifle";
+			map = "Corpo_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_SniperRifle";
+			map = "Corpo_Sniper.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_LightMachineGun";
+			map = "Corpo_LightMachineGun.Map";
+		}, 
+		{
+			itemType = "ItemType.Wea_HeavyMachineGun";
+			map = "Corpo_LightMachineGun.Map";
+		}
+	];
+	defaultMap = "PreventionBarghest.DefaultNodeMap";
+}
+
+EnterIdle : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"PreventionBarghest.DisableScannerLight", "GenericArchetype.Success"
+	];
+}
+
+EnterAlerted : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"PreventionBarghest.DisableScannerLight", "GenericArchetype.Success"
+	];
+}
+
+EnterCombat : AIActionSmartComposite
+{
+	type = "AISmartCompositeType.Sequence";
+	nodes = 
+	[
+		"PreventionBarghest.EnableScannerLight", "GenericArchetype.Success"
+	];
+}
+
+EnableScannerLight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.CombatTarget", "Condition.InStatesCombat"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "ScannerOn";
+		} : AISubActionQueueAIEvent
+	];
+}
+
+DisableScannerLight : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			OR = 
+			[
+				"Condition.InStatesAlerted", "Condition.InStatesRelaxed", "Condition.NotInStatesCombat"
+			];
+		} : AIActionOR;
+	};
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			name = "ScannerOff";
+		} : AISubActionQueueAIEvent
+	];
+}
+
