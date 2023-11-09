@@ -2438,7 +2438,7 @@ Wakako_Tiger_Buff : BuffStatusEffect
 							{
 								statType = "BaseStats.AttackSpeed";
 								modifierType = "Multiplier";
-								value = 1.25f;
+								value = 1.175f;
 							} : ConstantStatModifier
 						];
 					} : StatModifierGroup;
@@ -2816,6 +2816,46 @@ Ticon_Reeds_Buff : BuffStatusEffect
 						];
 					} : StatModifierGroup;
 				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+[ EP1 ]
+Ticon_Stealth_Multiplier_Helper : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.2;
+			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				refObject = "Player";
+				refStat = "BaseStats.ExtendedStealthDuration";
+				opSymbol = "*";
+				value = 1;
+			} : CombinedStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"ExtendedStealth"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.IsWeaponRanged";
+					hitFlag = "StealthHit";
+				} : AddHitFlagToAttackEffector
 			];
 		} : GameplayLogicPackage
 	];

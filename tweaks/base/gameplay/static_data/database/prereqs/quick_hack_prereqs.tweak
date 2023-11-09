@@ -83,15 +83,15 @@ IsPlayerReachable : IPrereq
 	prereqClassName = "IsPlayerReachablePrereq";
 	bool invert = false;
 	bool checkForRMA = false;
+	bool checkOnlyRMA = false;
+	float minDistanceWithinRMA = 0.f;
 	bool canCheckProxy = false;
+	float horizontalTolerance = 0.f;
+	float verticalTolerance = 0.f;
 }
 
-IsPlayerReachableWhistleAction : IPrereq
+IsPlayerReachableWhistleAction : IsPlayerReachable
 {
-	prereqClassName = "IsPlayerReachablePrereq";
-	bool invert = false;
-	bool checkForRMA = false;
-	bool canCheckProxy = false;
 	float horizontalTolerance = 4.f;
 	float verticalTolerance = 8.f;
 }
@@ -114,6 +114,43 @@ PlayerOrCameraReachableActionPrereq : ObjectActionPrereq
 		} : Prereqs.IsPlayerReachableWhistleAction
 	];
 	failureExplanation = "LocKey#77351";
+}
+
+HasMinDistanceToPlayerWithinRMA : IsPlayerReachable
+{
+	bool checkForRMA = true;
+	bool checkOnlyRMA = true;
+	float minDistanceWithinRMA = 3.f;
+}
+
+MinDistanceToPlayerWithinRMAActionPrereqOutOfCombat : ObjectActionPrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			nestedPrereqs = 
+			[
+				"Prereqs.TargetInCombatPrereq", "Prereqs.HasMinDistanceToPlayerWithinRMA"
+			];
+		} : ORPrereq
+	];
+	failureExplanation = "LocKey#95060";
+}
+
+MinDistanceToPlayerOrCameraWithinRMAActionPrereqOutOfCombat : ObjectActionPrereq
+{
+	failureConditionPrereq = 
+	[
+		{
+			nestedPrereqs = 
+			[
+				"Prereqs.TargetInCombatPrereq", {
+					bool canCheckProxy = true;
+				} : Prereqs.HasMinDistanceToPlayerWithinRMA
+			];
+		} : ORPrereq
+	];
+	failureExplanation = "LocKey#95060";
 }
 
 BossNoInterruptPrereq : QuickHackActivePrereq
@@ -372,30 +409,29 @@ CommsCallInPrereq : QuickHackActivePrereq
 	];
 }
 
-WhistlePrereq : QuickHackActivePrereq
+NoWhistleStatusEffectPrereq : StatusEffectPrereq
+{
+	invert = true;
+	CName tagToCheck = "Whistle";
+	checkType = "CheckType.Tag";
+}
+
+WhistleActionPrereq : QuickHackActivePrereq
 {
 	failureConditionPrereq = 
 	[
-		{
-			invert = true;
-			CName tagToCheck = "Whistle";
-			checkType = "CheckType.Tag";
-		} : StatusEffectPrereq
+		"Prereqs.NoWhistleStatusEffectPrereq"
 	];
 }
 
-WhistlePrereqCombatOnly : QuickHackActivePrereq
+WhistleActionPrereqOutOfCombat : QuickHackActivePrereq
 {
 	failureConditionPrereq = 
 	[
 		{
 			nestedPrereqs = 
 			[
-				"Prereqs.TargetInCombatPrereq", {
-					invert = true;
-					CName tagToCheck = "Whistle";
-					checkType = "CheckType.Tag";
-				} : StatusEffectPrereq
+				"Prereqs.TargetInCombatPrereq", "Prereqs.NoWhistleStatusEffectPrereq"
 			];
 		} : ORPrereq
 	];

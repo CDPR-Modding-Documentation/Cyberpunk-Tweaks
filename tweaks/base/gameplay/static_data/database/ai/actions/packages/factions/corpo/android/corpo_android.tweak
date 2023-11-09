@@ -42,6 +42,18 @@ DefaultNodeMap : AINodeMap
 			isOverriddenBy = "CorpoAndroid.StrafeSelector";
 		}, 
 		{
+			node = "MovementActions.SimpleMediumRing";
+			isOverriddenBy = "CorpoAndroid.SimpleMediumRing";
+		}, 
+		{
+			node = "MovementActions.MeleeMoveToCombatArea";
+			isOverriddenBy = "CorpoAndroid.MeleeMoveToCombatArea";
+		}, 
+		{
+			node = "MovementActions.MeleeMoveToSupportArea";
+			isOverriddenBy = "CorpoAndroid.MeleeMoveToSupportArea";
+		}, 
+		{
 			node = "GenericArchetype.SandevistanDashShotgunShoot";
 			isOverriddenBy = "CorpoAndroid.SandevistanDashShotgunShoot";
 		}, 
@@ -340,7 +352,7 @@ SimpleRingSelector : MovementActions.SimpleRingSelector
 {
 	actions = 
 	[
-		"MovementActions.SimpleMediumRing", "MovementActions.HoldPosition"
+		"MovementActions.SimpleMediumRing", "MovementActions.SimpleSquadRingDefault", "MovementActions.HoldPosition"
 	];
 }
 
@@ -383,6 +395,164 @@ StrafeSelector : MovementActions.StrafeSelector
 	actions = 
 	[
 		"GenericArchetype.Success"
+	];
+}
+
+SimpleMediumRing : MediumRing
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+	tickets = [];
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			keepLineOfSight = "Keep";
+			ring = "AIRingType.Medium";
+			dynamicTargetUpdateTimer = 1.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.CombatTargetChanged"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+MeleeMoveToCombatArea : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAndroid", "Condition.CalculatePathToTarget", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.AbilityCanUseLegs", "Condition.NotIsUsingOffMeshLink", "Condition.TargetAbove4m"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			tolerance = 1.f;
+			distance = 5.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.GracefulCombatInterruptionCompound", "Condition.NotCalculatePathStraightToTarget", {
+									AND = 
+									[
+										"Condition.AbilityCanCloseCombat", "Condition.TicketCheckMeleeApproach", "Condition.TargetBelow4m", "Condition.TargetPOVBelow60deg", "Condition.TargetBelow45deg", "Condition.NotMeleeStatesConditions"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MovementActions.MovePolicyCooldown"
+			];
+		} : AISubActionStartCooldown
+	];
+}
+
+MeleeMoveToSupportArea : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotAndroid", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.AbilityCanUseLegs"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.CombatTarget";
+			strafingTarget = "AIActionTarget.CombatTarget";
+			movementType = "Walk";
+			tolerance = 0.5f;
+			distance = 10.f;
+			avoidThreatRange = 0.f;
+			avoidThreatCost = 0.f;
+			avoidSafeArea = true;
+		};
+		toNextPhaseConditionCheckInterval = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.AIMoveCommand", "Condition.AIUseWorkspotCommand", "Condition.IsNPCBlinded"
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+	subActions = 
+	[
+		{
+			delay = -1.f;
+			cooldowns = 
+			[
+				"MovementActions.MovePolicyCooldown"
+			];
+		} : AISubActionStartCooldown
 	];
 }
 
