@@ -45,32 +45,17 @@ NetrunnerStaticNoise : Effector
 
 BeingHacked : StatusEffect
 {
-	duration = 
-	{
-		statModifiers = 
-		[
-			{
-				statType = "BaseStats.MaxDuration";
-				modifierType = "Additive";
-				value = -1;
-			} : ConstantStatModifier
-		];
-	};
+	duration = "BaseStats.InfiniteDuration";
+}
+
+BeingHackedWithUntraceableHack : StatusEffect
+{
+	duration = "BaseStats.InfiniteDuration";
 }
 
 Hacking : StatusEffect
 {
-	duration = 
-	{
-		statModifiers = 
-		[
-			{
-				statType = "BaseStats.MaxDuration";
-				modifierType = "AdditiveMultiplier";
-				value = -1;
-			} : ConstantStatModifier
-		];
-	};
+	duration = "BaseStats.InfiniteDuration";
 }
 
 HackingInterrupted : StatusEffect
@@ -796,6 +781,30 @@ HackOverheatTier3 : HackOverheatBase
 					CName effectorClassName = "TriggerContinuousAttackEffector";
 					delayTime = 0.5f;
 					attackRecord = "Attacks.NPCThermalDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HackOverheatRibakov : HackOverheatBase
+{
+	fk< GameplayLogicPackage >[] packages += 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< IPrereq > prereqRecord = 
+					{
+						statType = "HasBurningBuffs";
+						valueToCheck = 0;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq;
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 2.f;
+					attackRecord = "Attacks.EnemyNetrunnerRibakovThermalDamageOverTime";
 				} : ContinuousAttackEffector
 			];
 		} : GameplayLogicPackage

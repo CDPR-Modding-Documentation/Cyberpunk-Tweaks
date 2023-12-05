@@ -93,7 +93,7 @@ Vehicle_2w_Default : Vehicle
 	drivingParamsGeneric = "Driving.Default_2w";
 	vehDataPackage = "Vehicle.VehicleDataPackage_2w_Default";
 	vehWheelDimensionsSetup = "Vehicle.VehicleWheelDimensionsSetup_Default";
-	vehDriveModelData = "Vehicle.VehicleDriveModelDataDefault_2w";
+	bikeDriveModelData = "Vehicle.VehicleDriveModelDataDefault_2w";
 	vehAirControl = "Vehicle.VehicleAirControlBike";
 	vehDriver_FPPCameraParams = "Vehicle.MotorcycleDriverFPPCameraParamsDefault";
 	vehDriverCombat_FPPCameraParams = "Vehicle.MotorcycleDriverCombatFPPCameraParamsDefault";
@@ -249,18 +249,18 @@ VehicleAirControlDefault : VehicleAirControl
 	pitch = 
 	{
 		controlAxis = "FB";
-		multiplier = -25.f;
+		maxVelocity = -25.f;
 		brakeMultiplierWhenNoInput = 5.f;
 	} : VehicleAirControlAxis;
 	yaw = 
 	{
 		controlAxis = "LR";
-		multiplier = -1.f;
+		maxVelocity = -1.f;
 		brakeMultiplierWhenNoInput = 15.f;
 	} : VehicleAirControlAxis;
 	roll = 
 	{
-		multiplier = -18.f;
+		maxVelocity = -18.f;
 		stabilizeAxis = true;
 	} : VehicleAirControlAxis;
 }
@@ -293,7 +293,7 @@ VehicleAirControlCar : VehicleAirControlDefault
 	yaw = 
 	{
 		controlAxis = "LR";
-		multiplier = -30.f;
+		maxVelocity = -30.f;
 		brakeMultiplierWhenNoInput = 3.f;
 	} : VehicleAirControlAxis;
 	roll = 
@@ -325,7 +325,7 @@ VehicleAirControl_TallTruck : VehicleAirControlCar
 	yaw = 
 	{
 		controlAxis = "LR";
-		multiplier = -30.f;
+		maxVelocity = -30.f;
 		brakeMultiplierWhenNoInput = 3.f;
 	} : VehicleAirControlAxis;
 	roll = 
@@ -348,9 +348,34 @@ VehicleAirControlCarAI : VehicleAirControlCar
 	} : VehicleAirControlAxis;
 }
 
+BikePitchAirControlAxis : VehicleAirControlAxis
+{
+	velocityDampingFactorMin = 20.f;
+	velocityDampingFactorMax = 600.f;
+	angleCorrectionFactorMin = 0.f;
+	angleCorrectionFactorMax = 60.f;
+	stabilizeAxis = true;
+	maxVelocityCompensation = 600.f;
+	maxAngleCompensation = 50.f;
+	zeroAngleThreshold = 12.f;
+	maxAngleToCompensateThreshold = 120.f;
+	controlAxis = "FB";
+	maxVelocity = -8.f;
+	inputDampFactor = 0.24f;
+	brakeMultiplierWhenNoInput = 1.f;
+}
+
+BikeYawAirControlAxis : VehicleAirControlAxis
+{
+	controlAxis = "LR";
+	maxVelocity = -8.f;
+	inputDampFactor = 0.07f;
+	brakeMultiplierWhenNoInput = 8.f;
+}
+
 VehicleAirControlBike : VehicleAirControlDefault
 {
-	massReference = 400.f;
+	massReference = 300.f;
 	velocityPID = 
 	[
 		1.0f, 0.0f, 0.0f
@@ -359,21 +384,8 @@ VehicleAirControlBike : VehicleAirControlDefault
 	[
 		1.0f, 0.0f, 0.01f
 	];
-	pitch = 
-	{
-		velocityDampingFactorMin = 20.f;
-		velocityDampingFactorMax = 600.f;
-		angleCorrectionFactorMin = 0.f;
-		angleCorrectionFactorMax = 60.f;
-		stabilizeAxis = true;
-		maxVelocityCompensation = 600.f;
-		maxAngleCompensation = 50.f;
-		zeroAngleThreshold = 12.f;
-		maxAngleToCompensateThreshold = 120.f;
-	} : VehicleAirControlAxis;
-	yaw = 
-	{
-	} : VehicleAirControlAxis;
+	pitch = "Vehicle.BikePitchAirControlAxis";
+	yaw = "Vehicle.BikeYawAirControlAxis";
 	roll = 
 	{
 	} : VehicleAirControlAxis;
@@ -626,7 +638,7 @@ VehicleFlatTireSimulation_2w : VehicleFlatTireSimulation
 	rear = "Vehicle.FlatTireSimParams_Rear_2w";
 }
 
-VehicleDriveModelDataDefault_2w : VehicleDriveModelData
+VehicleDriveModelDataDefault_2w : BikeDriveModelData
 {
 	total_mass = 300.0f;
 	chassis_mass = 300.f;
@@ -641,10 +653,12 @@ VehicleDriveModelDataDefault_2w : VehicleDriveModelData
 	[
 		2.5f, 0.25f, 0.0f
 	];
-	bikeTiltSpeed = 85.f;
-	bikeTiltReturnSpeed = 85.f;
+	bikeTiltSpeed = 83.f;
+	bikeTiltReturnSpeed = 83.f;
 	bikeTiltCustomSpeed = 150.f;
-	bikeMaxTilt = 41.f;
+	bikeMaxTilt = 42.5f;
+	bikeMaxCOMLongOffset = 0.6f;
+	bikeMinCOMLongOffset = 0.7f;
 	bikeCurvesPath = "base\gameplay\vehicles\curves\default_bike.bikecurveset";
 	smoothWheelContactIncreseTime = 0.05f;
 	smoothWheelContactDecreaseTime = 0.2f;
@@ -652,7 +666,9 @@ VehicleDriveModelDataDefault_2w : VehicleDriveModelData
 	slipRatioCurveScale = 1.f;
 	handbrakeBrakingTorque = 3000.0f;
 	forwardWeightTransferFactor = 1.0f;
-	slopeTractionReductionFactor = -1.5f;
+	slopeTractionReductionFactor = -0.25f;
+	slopeTractionReductionBegin = 12.f;
+	slopeTractionReductionMax = 40.f;
 	airResistanceFactor = 0.65f;
 	driveHelpers = 
 	[
@@ -797,10 +813,10 @@ VehicleWheelDrivingPreset_2_Front : VehicleWheelDrivingPreset_Default
 	tireLongitudinalSlipEffectsMul = 0.75f;
 	tireLateralSlipEffectsMul = 0.9f;
 	springStiffness = 9.0f;
-	springDamping = 2200.0f;
+	springDamping = 2500.0f;
 	springReboundDamping = 2200.0f;
-	springBoundDampingLowRate = 1600.0f;
-	springReboundDampingLowRate = 1400.0f;
+	springBoundDampingLowRate = 1700.0f;
+	springReboundDampingLowRate = 1500.0f;
 	springDampingLowRateCompression = 0.20f;
 	springDampingHighRateCompression = 0.42f;
 	extremeCompressionEventScalor = 0.75f;
@@ -818,10 +834,10 @@ VehicleWheelDrivingPreset_2_Rear : VehicleWheelDrivingPreset_Default
 	tireLongitudinalSlipEffectsMul = 0.75f;
 	tireLateralSlipEffectsMul = 0.9f;
 	springStiffness = 8.0f;
-	springDamping = 2200.0f;
+	springDamping = 2500.0f;
 	springReboundDamping = 2200.0f;
-	springBoundDampingLowRate = 1600.0f;
-	springReboundDampingLowRate = 1400.0f;
+	springBoundDampingLowRate = 1700.0f;
+	springReboundDampingLowRate = 1500.0f;
 	springDampingLowRateCompression = 0.20f;
 	springDampingHighRateCompression = 0.42f;
 	extremeCompressionEventScalor = 0.45f;
@@ -946,21 +962,21 @@ VehicleEngineData_2_Default : VehicleEngineData
 		}, 
 		{
 			minSpeed = 10.f;
-			maxSpeed = 20.f;
+			maxSpeed = 19.f;
 			minEngineRPM = 4200.f;
 			maxEngineRPM = 9200.f;
 			torqueMultiplier = 0.72f;
 		}, 
 		{
-			minSpeed = 17.f;
-			maxSpeed = 26.f;
+			minSpeed = 16.f;
+			maxSpeed = 24.f;
 			minEngineRPM = 4400.f;
 			maxEngineRPM = 9300.f;
 			torqueMultiplier = 0.56f;
 		}, 
 		{
 			minSpeed = 22.f;
-			maxSpeed = 30.f;
+			maxSpeed = 29.f;
 			minEngineRPM = 4600.f;
 			maxEngineRPM = 9400.f;
 			torqueMultiplier = 0.40f;

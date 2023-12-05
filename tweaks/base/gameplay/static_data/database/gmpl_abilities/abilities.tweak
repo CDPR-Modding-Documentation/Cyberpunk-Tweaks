@@ -723,6 +723,14 @@ HasSubdermalArmorBase : CodexAbility
 			comparisonType = "Greater";
 		} : StatPrereq
 	];
+	prereqsForUIValidation = 
+	[
+		{
+			statType = "HasSubdermalArmor";
+			valueToCheck = 0;
+			comparisonType = "Greater";
+		} : StatPrereq
+	];
 }
 
 HasSubdermalArmorLow : HasSubdermalArmorBase
@@ -737,6 +745,14 @@ HasSubdermalArmorLow : HasSubdermalArmorBase
 				modifierType = "Additive";
 				value = 1;
 			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.HasSubdermalArmor";
+				modifierType = "Additive";
+				id = "puppet_powerLevelToHealth";
+				column = "puppet_subdermalarmor_enabled";
+				refObject = "Root";
+				refStat = "BaseStats.PowerLevel";
+			} : CurveStatModifier, 
 			{
 				statType = "BaseStats.Armor";
 				modifierType = "Additive";
@@ -791,6 +807,14 @@ HasSubdermalArmorMedium : HasSubdermalArmorBase
 				value = 1;
 			} : ConstantStatModifier, 
 			{
+				statType = "BaseStats.HasSubdermalArmor";
+				modifierType = "Additive";
+				id = "puppet_powerLevelToHealth";
+				column = "puppet_subdermalarmor_enabled";
+				refObject = "Root";
+				refStat = "BaseStats.PowerLevel";
+			} : CurveStatModifier, 
+			{
 				statType = "BaseStats.Armor";
 				modifierType = "Additive";
 				id = "puppet_powerLevelToHealth";
@@ -843,6 +867,14 @@ HasSubdermalArmorHigh : HasSubdermalArmorBase
 				modifierType = "Additive";
 				value = 1;
 			} : ConstantStatModifier, 
+			{
+				statType = "BaseStats.HasSubdermalArmor";
+				modifierType = "Additive";
+				id = "puppet_powerLevelToHealth";
+				column = "puppet_subdermalarmor_enabled";
+				refObject = "Root";
+				refStat = "BaseStats.PowerLevel";
+			} : CurveStatModifier, 
 			{
 				statType = "BaseStats.Armor";
 				modifierType = "Additive";
@@ -5150,6 +5182,51 @@ IsExcludedFromExtraHealingOnHigherDifficulties : GameplayAbility
 				modifierType = "Additive";
 				value = 1;
 			} : ConstantStatModifier
+		];
+	};
+}
+
+HasICECounterHack_Smasher : NonCodexAbility
+{
+	abilityPackage = 
+	{
+		effectors = 
+		[
+			{
+				objectAction = "AIQuickHack.HackCounter_Smasher";
+			} : ICECounterHackEffector, 
+			{
+				prereqRecord = 
+				{
+					nestedPrereqs = 
+					[
+						{
+							statusEffect = "AdamSmasher.Phase1";
+						} : StatusEffectPrereq, 
+						{
+							statusEffect = "AdamSmasher.Phase2";
+						} : StatusEffectPrereq, 
+						{
+							statusEffect = "AdamSmasher.Phase3";
+						} : StatusEffectPrereq
+					];
+				} : ORPrereq;
+				effectorToApply = 
+				{
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.AntiVirusCooldownReduction";
+								modifierType = "Multiplier";
+								value = 0.1f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer;
+				applicationTarget = "Player";
+			} : ApplyEffectorEffector
 		];
 	};
 }

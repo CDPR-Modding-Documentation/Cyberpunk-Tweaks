@@ -3,7 +3,6 @@ using RTDB, AttackModifier
 
 BaseFragExplosion : BaseExplosion
 {
-	playerIncomingDamageMultiplier = 0.80f;
 	effectTag = "frag_explosion";
 	fk< StatusEffectAttackData >[] statusEffects = 
 	[
@@ -14,7 +13,7 @@ BaseFragExplosion : BaseExplosion
 	];
 	hitFlags += 
 	[
-		"DetonateGrenades"
+		"DetonateGrenades", "FragGrenade"
 	];
 	explosionDamageVSVehicles = 600.0f;
 }
@@ -34,11 +33,10 @@ CommonFragGrenade : BaseFragExplosion
 			applyImmediately = true;
 		}
 	];
-	playerIncomingDamageMultiplier = 0.40f;
 	effectTag = "frag_explosion";
 	hitFlags += 
 	[
-		"WeakExplosion"
+		"WeakExplosion", "PlayerFragGrenadeDamageOverride"
 	];
 	hitReactionSeverityMin = 1;
 	hitReactionSeverityMax = 3;
@@ -71,7 +69,7 @@ NPCFragGrenade : BaseFragExplosion
 	effectTag = "frag_explosion";
 	hitFlags += 
 	[
-		"WeakExplosion"
+		"WeakExplosion", "NPCFragGrenade", "PlayerFragGrenadeDamageOverride"
 	];
 	hitReactionSeverityMin = 1;
 	hitReactionSeverityMax = 3;
@@ -87,7 +85,6 @@ UncommonFragGrenade : CommonFragGrenade
 		}
 	];
 	hitReactionSeverityMax = 2;
-	playerIncomingDamageMultiplier = 0.60f;
 }
 
 FragGrenade : BaseFragExplosion
@@ -104,6 +101,10 @@ FragGrenade : BaseFragExplosion
 			statusEffect = "BaseStatusEffect.RareFragGrenadeExplosion";
 			applyImmediately = true;
 		}
+	];
+	hitFlags += 
+	[
+		"PlayerGrenadeDamageOverride", "PlayerFragGrenadeDamageOverride"
 	];
 	effectTag = "frag_explosion";
 	hitReactionSeverityMin = 1;
@@ -155,7 +156,6 @@ OzobGrenade : FragGrenade
 	effectTag = "ozob_explosion";
 	hitReactionSeverityMin = 2;
 	hitReactionSeverityMax = 3;
-	playerIncomingDamageMultiplier = 0.75f;
 }
 
 FragGrenadeHack : FragGrenade
@@ -535,6 +535,10 @@ BreachEMPExplosion : BaseExplosion
 EMPGrenadeCommon : BaseEMPExplosion
 {
 	attackType = "AttackType.Ranged";
+	hitFlags += 
+	[
+		"EmpGrenade", "PlayerEMPGrenadeDOTOverride"
+	];
 	playerIncomingDamageMultiplier = 0.2f;
 	fk< StatModifier >[] statModifiers = 
 	[
@@ -554,6 +558,10 @@ EMPGrenadeCommon : BaseEMPExplosion
 EMPGrenadeNPC : BaseEMPExplosion
 {
 	attackType = "AttackType.Ranged";
+	hitFlags += 
+	[
+		"PlayerEMPGrenadeDOTOverride"
+	];
 	playerIncomingDamageMultiplier = 0.2f;
 	fk< StatModifier >[] statModifiers = 
 	[
@@ -1113,6 +1121,17 @@ RareBiotechGrenade : BiotechGrenade
 	];
 }
 
+YashaBiotechGrenade : BiotechGrenade
+{
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.YashaBioGrenade";
+			applyImmediately = true;
+		}
+	];
+}
+
 RarePlusBioGrenadePlus : BiotechGrenade
 {
 	fk< StatusEffectAttackData >[] statusEffects = 
@@ -1426,9 +1445,8 @@ DelamainMissileEffect : BaseExplosion
 	playerIncomingDamageMultiplier = 0.001f;
 }
 
-RainMissileBulletEffect : BaseExplosion
+RainMissileBulletEffect : RoyceExplosion
 {
-	effectTag = "missile_explosion";
 	attackType = "AttackType.Ranged";
 	fk< StatModifier >[] statModifiers = 
 	[
@@ -1449,13 +1467,12 @@ RainMissileExplosionDamage : CombinedStatModifier
 
 SmasherRainMissileBulletEffect : RainMissileBulletEffect
 {
-	effectName = "explosions";
-	effectTag = "smasher_missile_explosion";
 	fk< StatModifier >[] statModifiers = 
 	[
 		"Attacks.SmasherRainMissileExplosionDamage"
 	];
 	hitFlags = [];
+	range = 4.0f;
 }
 
 SmasherRunMissileBulletEffect : SmasherRainMissileBulletEffect
@@ -1465,6 +1482,7 @@ SmasherRunMissileBulletEffect : SmasherRainMissileBulletEffect
 		"Attacks.SmasherRunMissileExplosionDamage"
 	];
 	hitFlags = [];
+	range = 4.0f;
 }
 
 SmasherRainMissileExplosionDamage : CombinedStatModifier
@@ -1485,6 +1503,30 @@ SmasherRunMissileExplosionDamage : CombinedStatModifier
 	refObject = "Root";
 	opSymbol = "*";
 	value = 0.3f;
+}
+
+SmasherEMPExplosion : BaseExplosion
+{
+	effectTag = "big_breach_emp_explosion";
+	hitFlags = [];
+	fk< StatModifier >[] statModifiers = 
+	[
+		{
+			statType = "BaseStats.ElectricDamage";
+			modifierType = "Additive";
+			refStat = "BaseStats.Health";
+			refObject = "Target";
+			opSymbol = "*";
+			value = 0.05f;
+		} : CombinedStatModifier
+	];
+	fk< StatusEffectAttackData >[] statusEffects = 
+	[
+		{
+			statusEffect = "BaseStatusEffect.Knockdown";
+			applyImmediately = true;
+		}
+	];
 }
 
 ChimeraTrackMissileBulletEffect : BaseExplosion
@@ -1835,7 +1877,7 @@ BulletExplosion : BaseBulletExplosion
 	];
 	hitFlags += 
 	[
-		"DetonateGrenades", "WeakExplosion"
+		"DetonateGrenades", "WeakExplosion", "BulletExplosion"
 	];
 }
 
@@ -1870,7 +1912,7 @@ BulletLightExplosion : BaseExplosion
 	];
 	hitFlags += 
 	[
-		"DetonateGrenades", "WeakExplosion"
+		"DetonateGrenades", "WeakExplosion", "BulletExplosion"
 	];
 }
 
@@ -1905,7 +1947,7 @@ BulletMediumExplosion : BaseExplosion
 	];
 	hitFlags += 
 	[
-		"DetonateGrenades"
+		"DetonateGrenades", "BulletExplosion"
 	];
 }
 
@@ -1939,7 +1981,7 @@ BulletChimeraExplosion : BaseExplosion
 	];
 	hitFlags += 
 	[
-		"DetonateGrenades"
+		"DetonateGrenades", "BulletExplosion"
 	];
 }
 
@@ -1973,7 +2015,7 @@ BulletSasquatchExplosion : BaseExplosion
 	];
 	hitFlags += 
 	[
-		"DetonateGrenades"
+		"DetonateGrenades", "BulletExplosion"
 	];
 }
 
@@ -2007,7 +2049,7 @@ BulletExplosionSmall : BaseExplosion
 	];
 	hitFlags += 
 	[
-		"WeakExplosion"
+		"WeakExplosion", "BulletExplosion"
 	];
 }
 
@@ -2264,6 +2306,10 @@ OdaSmokeBombHarmless : OdaSmokeBomb
 WeaponMalfunctionBlowWeaponHackAttack : BaseExplosion
 {
 	effectTag = "weapon_malfunction_blow_weapon";
+	hitFlags += 
+	[
+		"QuickHack"
+	];
 	statModifiers = 
 	[
 		{
@@ -2280,6 +2326,10 @@ WeaponMalfunctionBlowWeaponHackAttack : BaseExplosion
 WeaponMalfunctionBlowWeaponHackAttackManMassive : BaseExplosion
 {
 	effectTag = "weapon_malfunction_blow_weapon";
+	hitFlags += 
+	[
+		"QuickHack"
+	];
 	statModifiers = 
 	[
 		{

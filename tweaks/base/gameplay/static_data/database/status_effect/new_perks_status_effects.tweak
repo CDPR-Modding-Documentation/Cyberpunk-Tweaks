@@ -611,6 +611,11 @@ FinisherActiveStatusEffect : DebuffStatusEffect
 			effectors = 
 			[
 				{
+					prereqRecord = 
+					{
+						rarity = "Boss";
+						invert = true;
+					} : NPCRarityPrereq;
 					statGroup = 
 					{
 						statModifiers = 
@@ -624,8 +629,35 @@ FinisherActiveStatusEffect : DebuffStatusEffect
 					};
 				} : ApplyStatGroupEffector, 
 				{
+					prereqRecord = 
+					{
+						rarity = "Boss";
+						invert = true;
+					} : NPCRarityPrereq;
 					statusEffect = "BaseStatusEffect.NewPerkFinisherStun";
 				} : ApplyStatusEffectEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								rarity = "Boss";
+							} : NPCRarityPrereq, 
+							{
+								statusEffect = "BaseStatusEffect.BossNoInterrupt";
+							} : StatusEffectAbsentPrereq
+						];
+					} : ANDPrereq;
+					effectorToApply = 
+					{
+						prereqRecord = "Prereqs.AlwaysTruePrereq";
+						attackRecord = "Attacks.QuickHackTwitchAttack";
+						playerAsInstigator = true;
+						triggerHitReaction = true;
+						attackPositionSlotName = "Chest";
+					} : Effectors.TriggerAttackOnOwnerEffect;
+				} : ApplyEffectorEffector, 
 				{
 					statusEffect = "BaseStatusEffect.PoiseRegenStatusEffect";
 					inverted = true;
@@ -1457,7 +1489,7 @@ Tech_Master_Perk_3_Buff : BuffStatusEffect
 {
 	gameplayTags += 
 	[
-		"PreventLowHealthOverlay"
+		"PreventLowHealthOverlay", "InFury"
 	];
 	uiData = 
 	{
@@ -2477,7 +2509,7 @@ Body_DismemberExecuteChance_Stack : StatusEffect
 	];
 }
 
-Reflexes_Sharpshooter_Stamina_Regen_Stack : BuffStatusEffect
+Reflexes_Sharpshooter_Stamina_Stack : BuffStatusEffect
 {
 	duration = 
 	{
@@ -2522,6 +2554,16 @@ Reflexes_Sharpshooter_Stamina_Regen_Stack : BuffStatusEffect
 								statType = "BaseStats.StaminaRegenStartDelay";
 								modifierType = "Additive";
 								value = -0.01f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SubMachinegunStaminaCostReduction";
+								modifierType = "Additive";
+								value = 0.07;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.AssaultRifleStaminaCostReduction";
+								modifierType = "Additive";
+								value = 0.07;
 							} : ConstantStatModifier
 						];
 					} : StatModifierGroup;
@@ -2538,7 +2580,7 @@ Reflexes_Sharpshooter_Stamina_Regen_Stack : BuffStatusEffect
 	};
 }
 
-Reflexes_Sharpshooter_Stamina_Cost_Stack : BuffStatusEffect
+Reflexes_Sharpshooter_AP_Stack : BuffStatusEffect
 {
 	duration = 
 	{
@@ -2575,14 +2617,9 @@ Reflexes_Sharpshooter_Stamina_Cost_Stack : BuffStatusEffect
 						statModifiers = 
 						[
 							{
-								statType = "BaseStats.SubMachinegunStaminaCostReduction";
+								statType = "BaseStats.CanWeaponIgnoreArmor";
 								modifierType = "Additive";
-								value = 0.07;
-							} : ConstantStatModifier, 
-							{
-								statType = "BaseStats.AssaultRifleStaminaCostReduction";
-								modifierType = "Additive";
-								value = 0.07;
+								value = 0.04f;
 							} : ConstantStatModifier
 						];
 					} : StatModifierGroup;
@@ -2634,7 +2671,7 @@ OpticalCamoPerkRestriction : StatusEffect
 	];
 }
 
-DodgeOutOfSightCooldown : BuffStatusEffect
+DodgeOutOfSightCooldown : DebuffStatusEffect
 {
 	gameplayTags += 
 	[
@@ -2653,7 +2690,7 @@ DodgeOutOfSightCooldown : BuffStatusEffect
 	};
 	uiData = 
 	{
-		displayName = "LocKey#40944";
+		displayName = "LocKey#95914";
 		description = "";
 		iconPath = "perks_sensory_protocol";
 		priority = 6.0f;

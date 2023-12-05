@@ -131,7 +131,6 @@ SuicideLvl3Program : GameplayLogicPackage
 			10, 30, 2
 		];
 	};
-	float memoryCostReductionPerStack = 10;
 }
 
 SuicideLvl3ProgramPassive : GameplayLogicPackage
@@ -770,6 +769,20 @@ MemoryWipeLvl2Program : GameplayLogicPackage
 		floatValues = 
 		[
 			25
+		];
+	};
+}
+
+MemoryWipeLvl2UpgradeLvl3Program : GameplayLogicPackage
+{
+	UIData = 
+	{
+		iconPath = "ability_utility";
+		localizedName = "LocKey#51310";
+		localizedDescription = "LocKey#51338";
+		floatValues = 
+		[
+			35
 		];
 	};
 }
@@ -1849,7 +1862,7 @@ BrainMeltProgramLvl2 : GameplayLogicPackage
 		localizedDescription = "LocKey#51330";
 		floatValues = 
 		[
-			10, 400
+			10, 300
 		];
 	};
 }
@@ -1899,7 +1912,7 @@ BrainMeltProgramLvl4 : GameplayLogicPackage
 		localizedDescription = "LocKey#51332";
 		floatValues = 
 		[
-			100, 5
+			100, 3
 		];
 	};
 }
@@ -1915,6 +1928,11 @@ BrainMeltProgramLvl4Passive : GameplayLogicPackage
 				conditions = 
 				[
 					"Prereqs.TargetKilledHitPrereqCondition", {
+						statusEffect = "Intelligence_Central_Milestone_3_Overclock_Buff";
+						checkType = "CheckType.Record";
+						objectToCheck = "Instigator";
+					} : StatusEffectPresentHitPrereqCondition, 
+					{
 						hitFlag = "DamageBasedOnMissingMemoryBonus";
 					} : HitFlagHitPrereqCondition
 				];
@@ -1923,7 +1941,7 @@ BrainMeltProgramLvl4Passive : GameplayLogicPackage
 			[
 				{
 					statPoolType = "BaseStatPools.CyberdeckOverclock";
-					statPoolValue = 5;
+					statPoolValue = 3;
 				} : StatPoolUpdate
 			];
 			bool usePercent = false;
@@ -1940,7 +1958,7 @@ BrainMeltProgramLvl4PlusPlus : GameplayLogicPackage
 		localizedDescription = "LocKey#51330";
 		floatValues = 
 		[
-			12, 600
+			10, 400
 		];
 	};
 }
@@ -2139,6 +2157,45 @@ VeryHeavyWeapon : GameplayLogicPackage
 			} : RTDB.MultiPrereq;
 			fk< StatusEffect > statusEffect = "BaseStatusEffect.HeavyStun";
 		} : Perks.ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = "Perks.IsHitQuickMelee";
+			value = 1.5f;
+		} : MultiplyDamage, 
+		{
+			prereqRecord = 
+			{
+				statType = "LocomotionPenaltyDisabled";
+				valueToCheck = 1;
+				comparisonType = "Less";
+			} : StatPrereq;
+			fk< StatModifierGroup > statGroup = 
+			{
+				fk< StatModifier >[] statModifiers = 
+				[
+					{
+						statType = "BaseStats.MaxSpeed";
+						modifierType = "Multiplier";
+						value = 0.85f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.JumpHeight";
+						modifierType = "Multiplier";
+						value = 0.85f;
+					} : ConstantStatModifier
+				];
+			};
+		} : ApplyStatGroupEffector, 
+		{
+			fk< StatModifierGroup > statGroup = "EquipmentGLP.VeryHeavyWeaponStaggerStats";
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector
+	];
+}
+
+VeryHeavyWeaponNoKnockback : GameplayLogicPackage
+{
+	effectors = 
+	[
 		{
 			prereqRecord = "Perks.IsHitQuickMelee";
 			value = 1.5f;

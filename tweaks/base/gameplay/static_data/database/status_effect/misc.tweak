@@ -175,8 +175,50 @@ DefeatedWithRecover : Invulnerable
 	bool replicated = true;
 }
 
-FollowerDefeated : DefeatedWithRecover
+FollowerDefeatedStory : DefeatedWithRecover
 {
+	CName[] gameplayTags = 
+	[
+		"FollowerDefeated"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+FollowerDefeatedEasy : DefeatedWithRecover
+{
+	CName[] gameplayTags = 
+	[
+		"FollowerDefeated"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 23;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+FollowerDefeatedHard : DefeatedWithRecover
+{
+	CName[] gameplayTags = 
+	[
+		"FollowerDefeated"
+	];
 	fk< StatModifierGroup > duration = 
 	{
 		statModifiers = 
@@ -185,6 +227,25 @@ FollowerDefeated : DefeatedWithRecover
 				statType = "BaseStats.MaxDuration";
 				modifierType = "Additive";
 				value = 30;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+FollowerDefeatedVeryHard : DefeatedWithRecover
+{
+	CName[] gameplayTags = 
+	[
+		"FollowerDefeated"
+	];
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 35;
 			} : ConstantStatModifier
 		];
 	};
@@ -2415,5 +2476,231 @@ QuickhackExpHarvested : StatusEffect
 			} : ConstantStatModifier
 		];
 	};
+}
+
+UtilityGrenadeRewardHarvested : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = -1;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+SmasherStatusCleanse : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					effectTypes = 
+					[
+						"Quickhack"
+					];
+					effectTags = 
+					[
+						"DoT", "Quickhack"
+					];
+					statusEffects = 
+					[
+						"BaseStatusEffect.UploadingBossHack"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+UploadingBossHack : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								instigatorType = "Player";
+								onlyOncePerShot = true;
+							} : InstigatorTypeHitPrereqCondition, 
+							{
+								hitFlag = "DamageOverTime";
+								invert = true;
+							} : HitFlagHitPrereqCondition, 
+							{
+								attackType = "Hack";
+								invert = true;
+							} : AttackTypeHitPrereqCondition
+						];
+					} : PostProcessHitReceived;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.BaseQuickHackUpload";
+						}
+					];
+					applicationTarget = "Player";
+					damageScaleFactor = -25f;
+					usePercent = true;
+				} : ModifyStatPoolValuePerHitEffector, 
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								instigatorType = "Player";
+								onlyOncePerShot = true;
+							} : InstigatorTypeHitPrereqCondition, 
+							{
+								attackType = "Hack";
+							} : AttackTypeHitPrereqCondition
+						];
+					} : PostProcessHitReceived;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.BaseQuickHackUpload";
+						}
+					];
+					applicationTarget = "Player";
+					damageScaleFactor = -5f;
+					usePercent = true;
+				} : ModifyStatPoolValuePerHitEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ForcedQHUploadAwarenessBumps : StatusEffect
+{
+	gameplayTags += 
+	[
+		"ForcedQHUploadAwarenessBumps"
+	];
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+ICECounterHackCooldown : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 4;
+			} : ConstantStatModifier
+		];
+	};
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 1;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+PocketRadioRestrictionUnlockDelay : StatusEffect
+{
+	gameplayTags += 
+	[
+		"PocketRadioRestrictionUnlockDelay"
+	];
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	isAffectedByTimeDilationNPC = false;
+	isAffectedByTimeDilationPlayer = false;
+}
+
+PhotoModeForceFPPCamera : StatusEffect
+{
+	gameplayTags += 
+	[
+		"PhotoModeForceFPPCamera"
+	];
 }
 

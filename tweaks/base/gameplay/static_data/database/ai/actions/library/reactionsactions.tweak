@@ -5220,6 +5220,19 @@ DodgeVehicleForward : AIAction
 		{
 			name = "bump";
 			delay = 0.25f;
+			condition = 
+			{
+				state = 
+				[
+					{
+						invert = true;
+						inStates = 
+						[
+							"Combat"
+						];
+					} : AIStateCond
+				];
+			} : AIActionCondition;
 		} : AISubActionPlayVoiceOver
 	];
 }
@@ -5246,6 +5259,19 @@ DodgeVehicleBackward : AIAction
 		{
 			name = "bump";
 			delay = 0.25f;
+			condition = 
+			{
+				state = 
+				[
+					{
+						invert = true;
+						inStates = 
+						[
+							"Combat"
+						];
+					} : AIStateCond
+				];
+			} : AIActionCondition;
 		} : AISubActionPlayVoiceOver
 	];
 }
@@ -5272,6 +5298,19 @@ DodgeVehicleLeft : AIAction
 		{
 			name = "bump";
 			delay = 0.25f;
+			condition = 
+			{
+				state = 
+				[
+					{
+						invert = true;
+						inStates = 
+						[
+							"Combat"
+						];
+					} : AIStateCond
+				];
+			} : AIActionCondition;
 		} : AISubActionPlayVoiceOver
 	];
 }
@@ -5298,6 +5337,19 @@ DodgeVehicleRight : AIAction
 		{
 			name = "bump";
 			delay = 0.25f;
+			condition = 
+			{
+				state = 
+				[
+					{
+						invert = true;
+						inStates = 
+						[
+							"Combat"
+						];
+					} : AIStateCond
+				];
+			} : AIActionCondition;
 		} : AISubActionPlayVoiceOver
 	];
 }
@@ -5363,6 +5415,19 @@ BumpBackLeft : AIAction
 		{
 			name = "bump";
 			delay = 0.25f;
+			condition = 
+			{
+				state = 
+				[
+					{
+						invert = true;
+						inStates = 
+						[
+							"Combat"
+						];
+					} : AIStateCond
+				];
+			} : AIActionCondition;
 		} : AISubActionPlayVoiceOver
 	];
 	allowBlendDuration = 0.f;
@@ -5418,13 +5483,6 @@ BumpFrontLeft : BumpBackLeft
 		{
 		};
 	};
-	subActions = 
-	[
-		{
-			name = "bump";
-			delay = 0.25f;
-		} : AISubActionPlayVoiceOver
-	];
 }
 
 BumpFrontRight : BumpBackLeft
@@ -5451,13 +5509,6 @@ BumpFrontRight : BumpBackLeft
 		{
 		};
 	};
-	subActions = 
-	[
-		{
-			name = "bump";
-			delay = 0.25f;
-		} : AISubActionPlayVoiceOver
-	];
 }
 
 BumpBackLeftWalk : BumpBackLeft
@@ -6671,7 +6722,7 @@ MoveToStimSourceInvestigate : AIAction
 			target = "AIActionTarget.StimSource";
 			movementType = "Walk";
 			dontUseStart = false;
-			destinationOrientationPosition = "AIActionTarget.StimTarget";
+			destinationOrientationPosition = "AIActionTarget.StimSource";
 			ignoreRestrictedMovementArea = true;
 		};
 		toNextPhaseConditionCheckInterval = 0.5f;
@@ -7274,6 +7325,24 @@ WalkAwayFromStimThreatNoStartUp : WalkAwayFromStimThreat
 	};
 }
 
+RunAwayFromEnvironmentalHazardSelector : AIActionSelector
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.IsEnvironmentalHazardStimType", "Condition.NotWounded", "Condition.StimTarget"
+			];
+		} : AIActionAND;
+	};
+	actions = 
+	[
+		"ReactionsActions.SandevistanRunAwayFromHazard", "ReactionsActions.RunAwayFromHazard", "ReactionsActions.WalkAwayFromHazard", "GenericArchetype.ImmediateSuccess"
+	];
+}
+
 RunAwayFromGrenadeSelector : AIActionSelector
 {
 	activationCondition = 
@@ -7366,17 +7435,93 @@ RunAwayFromGrenade : AIAction
 	];
 }
 
-SandevistanVersusSandevistanTimeDilation : AISubActionApplyTimeDilation
+WalkAwayFromHazard : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			avoidThreat = true;
+			target = "AIActionTarget.StimTarget";
+			distance = 10.f;
+			movementType = "Walk";
+		};
+		toNextPhaseConditionCheckInterval = 0.5f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.EvaluatedReachedDestination0dot5", "Condition.PathFindingFailed"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+}
+
+RunAwayFromHazard : RunAwayFromGrenade
+{
+}
+
+SandevistanRunAwayFromHazard : SandevistanRunAwayFromGrenade
+{
+}
+
+SandevistanVersusSandevistanTimeDilationBase : AISubActionApplyTimeDilation
 {
 	reason = "sandevistanVersusSandevistan";
 	easeIn = "SandevistanEaseIn";
 	easeOut = "SandevistanEaseOut";
+	useRealTime = true;
+}
+
+SandevistanVersusSandevistanTimeDilationEasy : SandevistanVersusSandevistanTimeDilationBase
+{
+	condition = 
+	{
+		condition = "Condition.IsStoryGameDifficulty";
+	};
+	overrideMultiplerWhenPlayerInTimeDilation = 4.f;
+}
+
+SandevistanVersusSandevistanTimeDilationNormal : SandevistanVersusSandevistanTimeDilationBase
+{
+	condition = 
+	{
+		condition = "Condition.IsExactlyEasyGameDifficulty";
+	};
+	overrideMultiplerWhenPlayerInTimeDilation = 4.f;
+}
+
+SandevistanVersusSandevistanTimeDilationHard : SandevistanVersusSandevistanTimeDilationBase
+{
+	condition = 
+	{
+		condition = "Condition.IsExactlyHardGameDifficulty";
+	};
+	overrideMultiplerWhenPlayerInTimeDilation = 5.f;
+}
+
+SandevistanVersusSandevistanTimeDilationVeryHard : SandevistanVersusSandevistanTimeDilationBase
+{
+	condition = 
+	{
+		condition = "Condition.IsImpossibleGameDifficulty";
+	};
 	overrideMultiplerWhenPlayerInTimeDilation = 6.f;
 }
 
-SandevistanVersusSandevistanFX : AISubActionSpawnFX
+SandevistanVersusSandevistanStartFX : AISubActionSpawnFX
 {
-	name = "fx_sandevistan_loop";
+	name = "fx_sandevistan_versus_start";
+}
+
+SandevistanVersusSandevistanLoopFX : AISubActionSpawnFX
+{
+	name = "fx_sandevistan_versus_loop";
 }
 
 SandevistanVersusSandevistan : AIAction
@@ -7387,18 +7532,12 @@ SandevistanVersusSandevistan : AIAction
 		{
 			AND = 
 			[
-				"Condition.AbilityHasSandevistan", "Condition.StatusEffectSandevistanBuff", "Condition.TargetIsPlayer", "Condition.TargetIsVisible", "Condition.StatusEffectSandevistanPlayerBuff"
+				"Condition.AbilityHasSandevistan", "Condition.TargetIsPlayer", "Condition.StatusEffectSandevistanPlayerBuff"
 			];
 		} : AIActionAND;
 	};
 	startup = 
 	{
-		duration = 0.75f;
-	};
-	loop = 
-	{
-		duration = -1.f;
-		toNextPhaseConditionCheckInterval = 0.1f;
 		toNextPhaseCondition = 
 		[
 			{
@@ -7406,28 +7545,108 @@ SandevistanVersusSandevistan : AIAction
 				{
 					AND = 
 					[
-						"Condition.NotStatusEffectSandevistanPlayerBuff"
+						"Condition.StatusEffectSandevistanVersusSandevistanDelayHelper", "Condition.NotStatusEffectSandevistanVersusSandevistanDelay"
 					];
 				} : AIActionAND;
 			}
 		];
+		dontStopInfiniteOnSubActionsCompletion = true;
 	};
-	recovery = 
+	startupSubActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanVersusSandevistanDelayHelper"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			condition = 
+			{
+				condition = "Condition.IsStoryGameDifficulty";
+			};
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanVersusSandevistanDelayEasy"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			condition = 
+			{
+				condition = "Condition.IsExactlyEasyGameDifficulty";
+			};
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanVersusSandevistanDelayNormal"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			condition = 
+			{
+				condition = "Condition.IsExactlyHardGameDifficulty";
+			};
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanVersusSandevistanDelayHard"
+			];
+		} : AISubActionStatusEffect, 
+		{
+			condition = 
+			{
+				condition = "Condition.IsImpossibleGameDifficulty";
+			};
+			statusEffects = 
+			[
+				"BaseStatusEffect.SandevistanVersusSandevistanDelayVeryHard"
+			];
+		} : AISubActionStatusEffect
+	];
+	loop = 
 	{
-		duration = 0.f;
-		maxDuration = 1.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = "Condition.NotStatusEffectSandevistanPlayerBuff";
+			}
+		];
 	};
 	loopSubActions = 
 	[
-		"ReactionsActions.SandevistanVersusSandevistanFX", {
+		"ReactionsActions.SandevistanVersusSandevistanStartFX", {
+			delay = 0.4f;
+		} : ReactionsActions.SandevistanVersusSandevistanLoopFX, 
+		{
 			easeOut = "";
-		} : SandevistanVersusSandevistanTimeDilation
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationEasy, 
+		{
+			easeOut = "";
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationNormal, 
+		{
+			easeOut = "";
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationHard, 
+		{
+			easeOut = "";
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationVeryHard
 	];
+	recovery = 
+	{
+		duration = 0.f;
+		maxDuration = 2.f;
+	};
 	recoverySubActions = 
 	[
-		"ReactionsActions.SandevistanVersusSandevistanFX", {
+		"ReactionsActions.SandevistanVersusSandevistanLoopFX", {
 			easeIn = "";
-		} : SandevistanVersusSandevistanTimeDilation
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationEasy, 
+		{
+			easeIn = "";
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationNormal, 
+		{
+			easeIn = "";
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationHard, 
+		{
+			easeIn = "";
+		} : ReactionsActions.SandevistanVersusSandevistanTimeDilationVeryHard
 	];
 }
 
@@ -7823,6 +8042,14 @@ GrenadeLandedCondition : AIAction
 	};
 }
 
+EnvironmentalHazardCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = "Condition.IsEnvironmentalHazardStimType";
+	};
+}
+
 IsTargetTrespassing : AIAction
 {
 	activationCondition = 
@@ -8091,7 +8318,13 @@ SyncTicket : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotTicketShoot", "Condition.NotTicketBlock", "Condition.NotTicketMelee", "Condition.NotTicketGrenadeThrow", "Condition.NotInStatesReload"
+				"Condition.NotTicketShoot", "Condition.NotTicketBlock", {
+					AND = 
+					[
+						"Condition.NotTicketMelee", "Condition.NotTicketAndroidMelee"
+					];
+				} : AIActionAND, 
+				"Condition.NotTicketGrenadeThrow", "Condition.NotInStatesReload"
 			];
 		} : AIActionAND;
 	};

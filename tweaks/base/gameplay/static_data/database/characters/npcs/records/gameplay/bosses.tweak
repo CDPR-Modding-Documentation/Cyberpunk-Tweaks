@@ -10,11 +10,11 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	bool enableSensesOnStart = true;
 	tags += 
 	[
-		"Cyberpsycho"
+		"Cyberpsycho", "WillCounterHack"
 	];
 	bossHealthBarThresholds = 
 	[
-		15.0f, 25.0f, 60.0f
+		5.0f, 30.0f, 50.0f, 80.0f
 	];
 	baseAttitudeGroup = "hostile";
 	CName voiceTag = "smasher";
@@ -29,7 +29,7 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	entityTemplatePath = "base\characters\entities\boss\adam_smasher.ent";
 	fk< GameplayAbility >[] abilities = 
 	[
-		"Ability.HasWeakspot", "Ability.HasChargeJump", "Ability.HasMeleeHitReactionAndTakedownResistance", "Ability.HasExtendedHitReactionImmunity", "Ability.HasQuickhackResistance", "Ability.IsMechanical", "Ability.CanUseFragGrenades"
+		"Ability.HasWeakspot", "Ability.HasChargeJump", "Ability.HasMeleeHitReactionAndTakedownResistance", "Ability.HasExtendedHitReactionImmunity", "Ability.HasQuickhackResistance", "Ability.IsMechanical", "Ability.CanUseFragGrenades", "Ability.CanParry", "Ability.HasDodge", "Ability.IsFastMeleeArchetype", "Ability.IsTier3Archetype", "Ability.HasSandevistanTier1", "Ability.HasKerenzikov", "Ability.CanBlock", "Ability.CanGuardBreak", "Ability.CanUseLegs", "Ability.HasICECounterHack_Smasher"
 	];
 	fk< InventoryItem >[] items = 
 	[
@@ -64,7 +64,7 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	];
 	fk< AttachmentSlot >[] attachmentSlots += 
 	[
-		"AttachmentSlots.RightShoulder", "AttachmentSlots.LeftShoulder", "AttachmentSlots.RightWrist"
+		"AttachmentSlots.RightShoulder", "AttachmentSlots.LeftShoulder", "AttachmentSlots.RightWrist", "AttachmentSlots.SmasherPlasmaWeaponRight", "AttachmentSlots.SmasherPlasmaWeaponLeft", "AttachmentSlots.SmasherMissileRain"
 	];
 	fk< StatPool >[] statPools = 
 	[
@@ -82,6 +82,7 @@ main_boss_adam_smasher : Gameplay_NPC_Base
 	[
 		"AdamSmasher.OverloadWeakspotEffector", "Effectors.MainBossEffector"
 	];
+	CName audioMeleeMaterial = "Mech";
 }
 
 Main_boss_adam_smasher_stats : NPC_Base_Curves
@@ -89,14 +90,21 @@ Main_boss_adam_smasher_stats : NPC_Base_Curves
 	statModifiers = 
 	[
 		{
+			statType = "BaseStats.MaxPercentDamageTakenPerHit";
+			modifierType = "Additive";
+			value = 7.f;
+		} : ConstantStatModifier, 
+		{
 			statType = "BaseStats.Health";
 			modifierType = "Multiplier";
-			value = 1.857f;
-		} : ConstantStatModifier, 
+			id = "puppet_powerLevelToHealth";
+			column = "smasher_level_to_health";
+			refStat = "BaseStats.PowerLevel";
+		} : CurveStatModifier, 
 		{
 			statType = "BaseStats.NPCDamage";
 			modifierType = "Multiplier";
-			value = 0.75f;
+			value = 0.7f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.BlindResistance";
@@ -190,7 +198,17 @@ Main_boss_adam_smasher_stats : NPC_Base_Curves
 			id = "boss_power_level_to_dps_mult";
 			column = "smasher_level_to_dps_mult";
 			refStat = "BaseStats.PowerLevel";
-		} : CurveStatModifier
+		} : CurveStatModifier, 
+		{
+			statType = "BaseStats.EnemyHackUploadProgressBumpMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.SmasherBossHackUploadProgressBumpMultiplier";
+			modifierType = "Additive";
+			value = 1.0f;
+		} : ConstantStatModifier
 	];
 }
 
@@ -375,7 +393,7 @@ main_boss_royce : Exo_NPC_Base
 	];
 	effectors += 
 	[
-		"Effectors.MainBossEffector"
+		"Effectors.MainBossEffector", "Royce.MaelstromVsMilitech_Stat_mult"
 	];
 	lootDrop = "Loot.RoyceLoot";
 }

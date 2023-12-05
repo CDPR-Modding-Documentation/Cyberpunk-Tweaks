@@ -79,6 +79,78 @@ TechWeaponChargedBurstAbility : GameplayLogicPackage
 	];
 }
 
+TechWeaponChargedFullAutoAbility : GameplayLogicPackage
+{
+	effectors = 
+	[
+		{
+			prereqRecord = 
+			{
+				statPoolType = "WeaponCharge";
+				valueToCheck = 
+				[
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						value = 49.0f;
+					} : ConstantStatModifier, 
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						refObject = "Player";
+						refStat = "BaseStats.CanFullyChargeWeapon";
+						opSymbol = "*";
+						value = 25.0f;
+					} : CombinedStatModifier, 
+					{
+						statType = "BaseStats.Charge";
+						modifierType = "Additive";
+						refObject = "Player";
+						refStat = "BaseStats.CanOverchargeWeapon";
+						opSymbol = "*";
+						value = 25.0f;
+					} : CombinedStatModifier
+				];
+				comparisonType = "Greater";
+				objectToCheck = "Weapon";
+			} : StatPoolPrereq;
+			statusEffect = "BaseStatusEffect.TechWeaponChargedFullAuto_Effect";
+			bool removeWithEffector = false;
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					{
+						statusEffect = "BaseStatusEffect.TechWeaponChargedFullAuto_Effect";
+					} : StatusEffectPrereq
+				];
+			} : ANDPrereq;
+			effectorToApply = 
+			{
+				prereqRecord = 
+				{
+					nestedPrereqs = 
+					[
+						{
+							string stateName = "Shoot";
+							isInState = false;
+						} : Prereqs.RangedWeaponPSMPrereq, 
+						{
+							duration = 0.05f;
+						} : DurationPrereq
+					];
+				} : ANDPrereq;
+				statusEffects = 
+				[
+					"BaseStatusEffect.TechWeaponChargedFullAuto_Effect"
+				];
+			} : RemoveStatusEffectsEffector;
+		} : ApplyEffectorOnPlayer
+	];
+}
+
 KenshinWeaponChargedBurstAbility : GameplayLogicPackage
 {
 	effectors = 
@@ -1292,27 +1364,23 @@ SaburoKatanaWeaponModAbility : IconicWeaponModAbilityBase
 					} : HitFlagHitPrereqCondition
 				];
 			} : IsHitTargetAlive;
-			statusEffect = "BaseStatusEffect.Saburo_Healing";
-		} : ApplyStatusEffectOnPlayer, 
+			statusEffect = "BaseStatusEffect.Saburo_Hemorrhage";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
 		{
 			prereqRecord = 
 			{
 				conditions += 
 				[
 					{
-						statusEffect = "Tanto_Saburo_Bleeding";
+						statusEffect = "Saburo_Hemorrhage";
 						checkType = "CheckType.Record";
 						invert = false;
-					} : StatusEffectPresentHitPrereqCondition, 
-					{
-						hitFlag = "SaburoKatana";
-						invert = true;
-					} : HitFlagHitPrereqCondition
+					} : StatusEffectPresentHitPrereqCondition
 				];
 			} : IsHitTargetAlive;
-			statusEffect = "BaseStatusEffect.Saburo_Hemorrhage";
-			isRandom = false;
-		} : AddStatusEffectToAttackEffector, 
+			statusEffect = "BaseStatusEffect.Saburo_Healing";
+		} : ApplyStatusEffectOnPlayer, 
 		{
 			prereqRecord = 
 			{
@@ -1378,27 +1446,23 @@ SaburoTantoWeaponModAbility : SaburoKatanaWeaponModAbility
 					} : StatusEffectPresentHitPrereqCondition
 				];
 			} : IsHitTargetAlive;
-			statusEffect = "BaseStatusEffect.Saburo_Healing";
-		} : ApplyStatusEffectOnPlayer, 
+			statusEffect = "BaseStatusEffect.Saburo_Hemorrhage";
+			isRandom = false;
+		} : AddStatusEffectToAttackEffector, 
 		{
 			prereqRecord = 
 			{
 				conditions += 
 				[
 					{
-						hitFlag = "SaburoTanto";
-						invert = true;
-					} : HitFlagHitPrereqCondition, 
-					{
-						statusEffect = "Katana_Saburo_Bleeding";
+						statusEffect = "Saburo_Hemorrhage";
 						checkType = "CheckType.Record";
 						invert = false;
 					} : StatusEffectPresentHitPrereqCondition
 				];
 			} : IsHitTargetAlive;
-			statusEffect = "BaseStatusEffect.Saburo_Hemorrhage";
-			isRandom = false;
-		} : AddStatusEffectToAttackEffector, 
+			statusEffect = "BaseStatusEffect.Saburo_Healing";
+		} : ApplyStatusEffectOnPlayer, 
 		{
 			prereqRecord = 
 			{
@@ -2609,52 +2673,66 @@ KnifeKurtWeaponModAbility : IconicWeaponModAbilityBase
 				conditions += 
 				[
 					{
-						checkType = "CheckType.Tag";
-						tagToCheck = "Kurt_Knife_Cripple";
-						invert = true;
-					} : StatusEffectPresentHitPrereqCondition, 
-					{
-						invert = true;
-						rarity = "Boss";
-					} : TargetNPCRarityHitPrereqCondition, 
-					{
-						npcType = "Human";
+						bodyPart = "LeftLeg";
 						invert = false;
-					} : TargetNPCTypeHitPrereqCondition
+					} : BodyPartHitPrereqCondition
 				];
-			} : IsAttackThrownType;
+			} : KurtKnifeThrowPrereq;
 			statusEffect = "BaseStatusEffect.Kurtz_Knife_CrippledLegLeft";
-			isRandom = true;
-			applicationChance = 
-			[
-				{
-					value = 0.5f;
-				} : ApplicationChanceModifier
-			];
-		} : AddStatusEffectToAttackEffector, 
+			applicationTarget = "Target";
+			removeWithEffector = false;
+		} : ApplyStatusEffectEffector, 
 		{
 			prereqRecord = 
 			{
 				conditions += 
 				[
 					{
-						checkType = "CheckType.Tag";
-						tagToCheck = "Kurt_Knife_Cripple";
-						invert = true;
-					} : StatusEffectPresentHitPrereqCondition, 
-					{
-						invert = true;
-						rarity = "Boss";
-					} : TargetNPCRarityHitPrereqCondition, 
-					{
-						npcType = "Human";
+						bodyPart = "RightLeg";
 						invert = false;
-					} : TargetNPCTypeHitPrereqCondition
+					} : BodyPartHitPrereqCondition
 				];
-			} : IsAttackThrownType;
+			} : KurtKnifeThrowPrereq;
 			statusEffect = "BaseStatusEffect.Kurtz_Knife_CrippledLegRight";
-			isRandom = false;
-		} : AddStatusEffectToAttackEffector, 
+			applicationTarget = "Target";
+			removeWithEffector = false;
+		} : ApplyStatusEffectEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						bodyPart = "Leg";
+						invert = true;
+					} : BodyPartHitPrereqCondition
+				];
+			} : KurtKnifeThrowPrereq;
+			statusEffect = "BaseStatusEffect.Kurtz_Knife_CrippledLegLeft";
+			effectorChance = 
+			[
+				{
+					value = 0.5f;
+				} : ApplicationChanceModifier
+			];
+			applicationTarget = "Target";
+			removeWithEffector = false;
+		} : ApplyStatusEffectByChanceEffector, 
+		{
+			prereqRecord = 
+			{
+				conditions += 
+				[
+					{
+						bodyPart = "Leg";
+						invert = true;
+					} : BodyPartHitPrereqCondition
+				];
+			} : KurtKnifeThrowPrereq;
+			statusEffect = "BaseStatusEffect.Kurtz_Knife_CrippledLegRight";
+			applicationTarget = "Target";
+			removeWithEffector = false;
+		} : ApplyStatusEffectEffector, 
 		{
 			prereqRecord = 
 			{
@@ -4927,7 +5005,7 @@ GradScavWeaponModAbility : LegendaryWeaponModAbilityBase
 				attackRecord = "Attacks.ScavChainLightning";
 				playVFXOnHitTargets = "electric_hit";
 				targetHowManyEnemies = 2;
-				targetMaxDistance = 7.0;
+				targetMaxDistance = 10.0;
 				targetMinDistance = 0.3;
 			} : TriggerAttackOnNearbyEnemiesEffector;
 		} : ApplyEffectorOnPlayer, 
@@ -4958,7 +5036,7 @@ GradScavWeaponModAbility : LegendaryWeaponModAbilityBase
 				attackRecord = "Attacks.ScavChainLightningTech55";
 				playVFXOnHitTargets = "electric_hit";
 				targetHowManyEnemies = 2;
-				targetMaxDistance = 7.0;
+				targetMaxDistance = 10.0;
 				targetMinDistance = 0.3;
 			} : TriggerAttackOnNearbyEnemiesEffector;
 		} : ApplyEffectorOnPlayer
@@ -5285,6 +5363,38 @@ RookWeaponModAbility : LegendaryWeaponModAbilityBase
 	{
 		iconPath = "ability_offensive";
 		localizedDescription = "LocKey#91234";
+	};
+}
+
+DildoSexShopWeaponModAbility : IconicWeaponModAbilityBase
+{
+	effectors = 
+	[
+		{
+			prereqRecord = "Perks.IsPlayerAboveFatigue";
+			CName effectorClassName = "ApplyStatGroupEffector";
+			fk< StatModifierGroup > statGroup = 
+			{
+				statModifiers = 
+				[
+					{
+						statType = "BaseStats.CritChance";
+						modifierType = "Additive";
+						value = 69f;
+					} : ConstantStatModifier
+				];
+			} : StatModifierGroup;
+			applicationTarget = "Weapon";
+		} : ApplyStatGroupEffector, 
+		{
+			prereqRecord = "Perks.IsHitStrongAttack";
+			value = 1.1f;
+		} : MultiplyDamage
+	];
+	UIData = 
+	{
+		iconPath = "ability_offensive";
+		localizedDescription = "LocKey#95291";
 	};
 }
 

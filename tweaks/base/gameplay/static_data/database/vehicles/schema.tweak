@@ -124,6 +124,8 @@ Vehicle : SpawnableObject
 	fk< VehicleDataPackage > vehDataPackage = "";
 	fk< VehicleBehaviorData > vehBehaviorData = "";
 	fk< VehicleDriveModelData > vehDriveModelData = "";
+	fk< BikeDriveModelData > bikeDriveModelData = "";
+	fk< TankDriveModelData > tankDriveModelData = "";
 	fk< VehicleWheelDimensionsSetup > vehWheelDimensionsSetup = "";
 	fk< VehicleAirControl > vehAirControl = "";
 	fk< VehicleFPPCameraParams > vehDriver_FPPCameraParams = "";
@@ -420,6 +422,7 @@ VehicleDataPackage
 	float open_close_duration = 1.0f;
 	float immediate_open_close_duration = 0.0001f;
 	float body_dump_close_trunk_delay = 2.5f;
+	bool windowsRollDown = true;
 	bool disableSwitchSeats = false;
 }
 
@@ -436,17 +439,6 @@ VehicleSeat
 VehicleBehaviorData
 {
 	float readyToParkDistance = 2.0f;
-}
-
-VehicleAirControl
-{
-	float massReference = 1000;
-	float[] velocityPID = [];
-	float[] anglePID = [];
-	float[] flippedOverRecoveryPID = [];
-	fk< VehicleAirControlAxis > pitch = "";
-	fk< VehicleAirControlAxis > yaw = "";
-	fk< VehicleAirControlAxis > roll = "";
 }
 
 VehicleWater
@@ -475,13 +467,16 @@ VehicleWater
 VehicleAirControlAxis
 {
 	CName controlAxis = "";
-	float multiplier = 1.0f;
+	float maxVelocity = 1.0f;
 	float brakeMultiplierWhenNoInput = 0.0f;
+	float inputDampFactor = 1.0f;
 	bool stabilizeAxis = false;
+	float velocityDampFactor = 0.05f;
 	float velocityDampingThresholdMin = 0.5f;
 	float velocityDampingThresholdMax = 6.f;
 	float velocityDampingFactorMin = 0.f;
 	float velocityDampingFactorMax = 0.f;
+	float angleDampFactor = 0.5f;
 	float angleCorrectionThresholdMin = 10.f;
 	float angleCorrectionThresholdMax = 60.f;
 	float angleCorrectionFactorMin = 0.f;
@@ -490,6 +485,17 @@ VehicleAirControlAxis
 	float maxAngleCompensation = 100.f;
 	float zeroAngleThreshold = 15.f;
 	float maxAngleToCompensateThreshold = 100.f;
+}
+
+VehicleAirControl
+{
+	float massReference = 1000;
+	float[] velocityPID = [];
+	float[] anglePID = [];
+	float[] flippedOverRecoveryPID = [];
+	fk< VehicleAirControlAxis > pitch = "";
+	fk< VehicleAirControlAxis > yaw = "";
+	fk< VehicleAirControlAxis > roll = "";
 }
 
 VehicleFlatTireSimParams
@@ -562,9 +568,9 @@ VehicleDriveModelData
 	float handbrakeBrakingTorque = 2500.0f;
 	float forwardWeightTransferFactor = 0.8f;
 	float sideWeightTransferFactor = 0.5f;
+	float slopeTractionReductionFactor = 1.5f;
 	float slopeTractionReductionBegin = 12.f;
 	float slopeTractionReductionMax = 30.f;
-	float slopeTractionReductionFactor = 1.5f;
 	float smoothWheelContactIncreseTime = 0.0f;
 	float smoothWheelContactDecreaseTime = 0.0f;
 	float lowVelStoppingDeceleration = 0.8f;
@@ -580,12 +586,23 @@ VehicleDriveModelData
 	fk< VehicleWheelsFrictionMap > wheelsFrictionMap = "";
 	fk< VehicleBurnOut > burnOut = "";
 	fk< VehicleFlatTireSimulation > flatTireSim = "";
+}
+
+BikeDriveModelData : VehicleDriveModelData
+{
 	float[] bikeTiltPID = [];
 	float bikeTiltSpeed = 0.f;
 	float bikeTiltReturnSpeed = 0.f;
 	float bikeTiltCustomSpeed = 0.f;
 	float bikeMaxTilt = 0.f;
+	float bikeMaxCOMLongOffset = 0.75f;
+	float bikeMinCOMLongOffset = 0.75f;
+	float bikeCOMOffsetDampFactor = 0.25f;
 	ResRef bikeCurvesPath = "";
+}
+
+TankDriveModelData : VehicleDriveModelData
+{
 	Vector2[] tankSpringsLocalPositions = [];
 	float tankSpringStiffness = 50000;
 	float tankSpringDamping = 5000;
@@ -771,7 +788,7 @@ VehicleTPPCameraParams
 {
 	float fov = 69.0f;
 	float autoCenterMaxSpeedThreshold = 20.0f;
-	float autoCenterSpeed = 0.0f;
+	float autoCenterSpeed = 5.0f;
 	float cameraMinPitch = -28.0f;
 	float cameraMaxPitch = 80.0f;
 	float cameraSphereRadius = 1.0f;

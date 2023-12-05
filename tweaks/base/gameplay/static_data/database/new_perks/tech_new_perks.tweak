@@ -1045,14 +1045,19 @@ Tech_Central_Perk_3_1 : NewPerk
 						value = -0.15f;
 					} : ConstantStatModifier, 
 					{
+						statType = "BaseStats.JenkinsHelperDecayPerSecond";
+						modifierType = "AdditiveMultiplier";
+						value = -0.15f;
+					} : ConstantStatModifier, 
+					{
 						statType = "BaseStats.OpticalCamoChargesDecayRateMult";
 						modifierType = "Additive";
 						value = -0.15f;
 					} : ConstantStatModifier, 
 					{
-						statType = "BaseStats.JenkinsHelperDecayPerSecond";
-						modifierType = "AdditiveMultiplier";
-						value = -0.15f;
+						statType = "BaseStats.OpticalCamoDurationMultiplier";
+						modifierType = "Additive";
+						value = 0.15f;
 					} : ConstantStatModifier
 				];
 			};
@@ -1398,8 +1403,100 @@ Tech_Left_Milestone_3 : NewPerk
 											onlyOncePerShot = true;
 										} : AttackTypeHitPrereqCondition, 
 										{
+											hitFlag = "BulletExplosion";
+											invert = true;
+										} : HitFlagHitPrereqCondition, 
+										{
 											instigatorType = "Player";
 										} : InstigatorTypeHitPrereqCondition
+									];
+								} : IsHitTargetAlive, 
+								{
+									stateName = "InCombat";
+								} : Prereqs.CombatPSMPrereq
+							];
+						} : ANDPrereq;
+						statusEffect = "BaseStatusEffect.Tech_Left_Milestone_3_Buff";
+					} : ApplyStatusEffectOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								{
+									conditions += 
+									[
+										{
+											attackType = "Ranged";
+											onlyOncePerShot = true;
+										} : AttackTypeHitPrereqCondition, 
+										{
+											source = "Grenade";
+										} : SourceTypeHitPrereqCondition, 
+										{
+											instigatorType = "Player";
+										} : InstigatorTypeHitPrereqCondition
+									];
+								} : IsHitTargetAlive, 
+								{
+									stateName = "InCombat";
+								} : Prereqs.CombatPSMPrereq
+							];
+						} : ANDPrereq;
+						statusEffect = "BaseStatusEffect.Tech_Left_Milestone_3_Buff";
+					} : ApplyStatusEffectOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								{
+									conditions += 
+									[
+										{
+											attackType = "Explosion";
+											onlyOncePerShot = true;
+										} : AttackTypeHitPrereqCondition, 
+										{
+											hitFlag = "BulletExplosion";
+											invert = true;
+										} : HitFlagHitPrereqCondition, 
+										{
+											instigatorType = "Player";
+										} : InstigatorTypeHitPrereqCondition, 
+										{
+											targetType = "Player";
+										} : TargetTypeHitPrereqCondition
+									];
+								} : IsHitTargetAlive, 
+								{
+									stateName = "InCombat";
+								} : Prereqs.CombatPSMPrereq
+							];
+						} : ANDPrereq;
+						statusEffect = "BaseStatusEffect.Tech_Left_Milestone_3_Buff";
+					} : ApplyStatusEffectOnPlayer, 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								{
+									conditions += 
+									[
+										{
+											attackType = "Ranged";
+											onlyOncePerShot = true;
+										} : AttackTypeHitPrereqCondition, 
+										{
+											source = "Grenade";
+										} : SourceTypeHitPrereqCondition, 
+										{
+											instigatorType = "Player";
+										} : InstigatorTypeHitPrereqCondition, 
+										{
+											targetType = "Player";
+										} : TargetTypeHitPrereqCondition
 									];
 								} : IsHitTargetAlive, 
 								{
@@ -1719,14 +1816,42 @@ Tech_Right_Milestone_3 : NewPerk
 						{
 							prereqRecord = 
 							{
-								fk< IPrereq >[] nestedPrereqs = 
+								nestedPrereqs = 
 								[
-									"Perks.PerfectChargeOvercharged", "Perks.PerfectChargeUndercharged"
+									{
+										nestedPrereqs = 
+										[
+											"Perks.PerfectChargeOvercharged", "Perks.CannotControlFullyChargedWeaponPrereq"
+										];
+									} : ANDPrereq, 
+									"Perks.PerfectChargeUndercharged"
 								];
 							} : ORPrereq;
 							removeWithEffector = false;
 							statusEffect = "BaseStatusEffect.Tech_Right_Milestone_3_Block";
 						} : ApplyStatusEffectOnPlayer;
+					} : ApplyEffectorEffector, 
+					{
+						prereqRecord = "Prereqs.TechWeaponHeldPrereq";
+						effectorToApply = 
+						{
+							prereqRecord = 
+							{
+								nestedPrereqs = 
+								[
+									"Perks.PerfectChargeOvercharged", "Perks.CanControlFullyChargedWeaponPrereq"
+								];
+							} : ANDPrereq;
+							effectorToApply = 
+							{
+								prereqRecord = 
+								{
+									delayFromStat = "BaseStats.PerfectChargeTimeWindowIncrease";
+								} : GameTimePrereq;
+								removeWithEffector = false;
+								statusEffect = "BaseStatusEffect.Tech_Right_Milestone_3_Block";
+							} : ApplyStatusEffectOnPlayer;
+						} : ApplyEffectorEffector;
 					} : ApplyEffectorEffector, 
 					{
 						prereqRecord = 
@@ -1921,6 +2046,11 @@ Tech_Right_Perk_3_1 : NewPerk
 						{
 							statModifiers = 
 							[
+								{
+									statType = "BaseStats.PerfectChargeTimeWindowIncrease";
+									modifierType = "Additive";
+									value = 0.1f;
+								} : ConstantStatModifier, 
 								{
 									statType = "BaseStats.CanControlFullyChargedWeapon";
 									modifierType = "Additive";
@@ -2206,7 +2336,7 @@ Tech_Master_Perk_3 : NewPerk
 	{
 		floatValues = 
 		[
-			50.f, 0.5f, 0.1f, 10f, 30f, 50f, 12f
+			50.f, 0.5f, 0.1f, 10f, 30f, 50f, 12f, 3f
 		];
 	};
 	float amountOfCapacityGivenForRipperdocUI = 50f;
@@ -2263,6 +2393,31 @@ Tech_Master_Perk_3 : NewPerk
 				];
 				effectors = 
 				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								{
+									statusEffect = "BaseStatusEffect.Tech_Master_Perk_3_Buff";
+									checkType = "CheckType.Type";
+								} : StatusEffectPrereq, 
+								{
+									stateName = "InCombat";
+									isInState = true;
+								} : Prereqs.CombatPSMPrereq, 
+								"Prereqs.AnyTakedownOrKill"
+							];
+						} : ANDPrereq;
+						gameplayTags = 
+						[
+							"InFury"
+						];
+						change = 3f;
+						isPercentage = false;
+						listenConstantly = false;
+						canGoOverInitialDuration = false;
+					} : ModifyStatusEffectDurationEffector, 
 					{
 						prereqRecord = 
 						{
@@ -2385,7 +2540,7 @@ Tech_Master_Perk_5 : NewPerk
 							attackRecord = "Attacks.ChainLightning";
 							playVFXOnHitTargets = "electric_hit";
 							targetHowManyEnemies = 3;
-							targetMaxDistance = 9.0;
+							targetMaxDistance = 12.0;
 							targetMinDistance = 0.3;
 						} : TriggerAttackOnNearbyEnemiesEffector;
 					} : ApplyEffectorEffector, 

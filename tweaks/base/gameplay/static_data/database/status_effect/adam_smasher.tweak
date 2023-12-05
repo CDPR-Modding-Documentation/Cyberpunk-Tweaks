@@ -86,12 +86,82 @@ Smashed : StatusEffect
 
 Phase1 : StatusEffect
 {
+	gameplayTags += 
+	[
+		"OdaStealthWrappers"
+	];
 	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 55.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 40.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 55.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 100.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MeleeResistance";
+					modifierType = "Additive";
+					value = 30.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
 }
 
 Phase2 : StatusEffect
 {
 	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 55.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 30.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 55.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 25.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MeleeResistance";
+					modifierType = "Additive";
+					value = 30.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
 }
 
 Phase3 : StatusEffect
@@ -107,6 +177,19 @@ InAir : StatusEffect
 Emergency : StatusEffect
 {
 	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats += 
+			[
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 25.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
 }
 
 Wounded : StatusEffect
@@ -611,6 +694,115 @@ Smasher_Single_Shot_Dps_Modifier : DebuffStatusEffect
 					modifierType = "Multiplier";
 					value = 5.f;
 				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Smasher_Parry_Bump_Back_Dps_Modifier : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "Multiplier";
+					value = 0.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ReduceDamageTransition : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 75.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 75.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 750.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CounterState : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3.f;
+			} : ConstantStatModifier
+		];
+	};
+}
+
+IsInCEOFloor : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+}
+
+EMP_Shield_Rocket_Barrage : StatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	packages = 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								conditions += 
+								[
+									{
+										weaponType = "Melee";
+									} : WeaponTypeHitPrereqCondition
+								];
+							} : ProcessHitReceived, 
+							{
+								conditions += 
+								[
+									{
+										attackType = "QuickMelee";
+									} : AttackTypeHitPrereqCondition
+								];
+							} : ProcessHitReceived
+						];
+					} : ORPrereq;
+					attackRecord = "Attacks.SmasherEMPExplosion";
+				} : SimpleTriggerAttackEffect
 			];
 		} : GameplayLogicPackage
 	];

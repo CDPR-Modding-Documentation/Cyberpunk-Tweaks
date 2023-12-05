@@ -1197,7 +1197,7 @@ AimAttackInPlace_AnyPhase : AIAction
 		{
 			statusEffects = 
 			[
-				"Oda.Shooting"
+				"BaseStatusEffect.BoostAccuracyStatusEffect"
 			];
 			apply = true;
 		} : AISubActionStatusEffect
@@ -1221,10 +1221,6 @@ AimAttackInPlace_AnyPhase : AIAction
 			{
 				targetSlot = "Head";
 			} : AIActionTarget.StimTarget;
-		}, 
-		{
-			preset = "LookatPreset.Gang_Handgun_RightHand_LootAt";
-			target = "AIActionTarget.StimTarget";
 		}
 	];
 }
@@ -2196,6 +2192,23 @@ FindShootPosition : AIAction
 			rangeFromOwner = ( 0.f, 200.f );
 			rangeFromObj = ( 0.f, 200.f );
 			selectionMethod = "Farthest";
+			lineOfSightTarget = "AIActionTarget.CombatTarget";
+		} : AISubActionSetWaypointByTag
+	];
+}
+
+FindShootPosition_Pistol : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.CombatTarget";
+			tag = "kurtzSpot_Pistol";
 			lineOfSightTarget = "AIActionTarget.CombatTarget";
 		} : AISubActionSetWaypointByTag
 	];
@@ -3998,6 +4011,99 @@ ThrowKnife_Takedown_Dodgeable : AIAction
 	];
 }
 
+ThrowKnife_Knockdown_Dodgeable : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowKnifeCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 1.6f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	loop = 
+	{
+		duration = 0.667f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	recovery = 
+	{
+		duration = 0.63f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+			upperBodyState = "Taunt";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.Kurt_Knife_NPC";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			attackDuration = 0.1f;
+			attackRange = 2.f;
+			attackTime = 0.f;
+			attackName = "Hammer";
+			colliderBoxSize = ( 0, 0, 0 );
+		} : AISubActionAttackWithWeapon, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 2.05f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			trajectoryGravity = -44.f;
+			checkThrowQuery = false;
+			positionPredictionTime = 0.2f;
+		} : AISubActionThrowItem
+	];
+	waitForAnimationToLoad = true;
+	animData = 
+	{
+		animFeature = "ThrowKnifeKurt";
+		animSlot = 
+		{
+			startupSlide = "AnimalsBoss_Hammer.RotateSlideData";
+			loopSlide = "AnimalsBoss_Hammer.RotateSlideData";
+			recoverySlide = "AnimalsBoss_Hammer.RotateSlideData";
+		};
+	};
+	lookats = 
+	[
+		{
+			target = "AIActionTarget.CombatTarget";
+			preset = "LookatPreset.HammerThrow";
+		}
+	];
+}
+
 RotateSlideData : AIActionSlideData
 {
 	target = "AIActionTarget.CombatTarget";
@@ -4162,6 +4268,20 @@ HasNoMacheteCondition : AIAction
 			AND = 
 			[
 				"Condition.NotHasMachete"
+			];
+		} : AIActionAND;
+	};
+}
+
+HasNoHandgunCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasHandgunWeapon"
 			];
 		} : AIActionAND;
 	};
@@ -7188,6 +7308,134 @@ AppearanceSwap_KnifeOff : AIAction
 		{
 			name = "KnifeOff";
 		} : AISubActionQueueAIEvent
+	];
+}
+
+ThrowGrenadeBiohazardKurt : ItemHandling.ThrowGrenade
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowGrenadeCondition"
+			];
+		} : AIActionAND;
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.25f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardRegular";
+		} : AISubActionForceEquip
+	];
+}
+
+ThrowGrenadeKurtCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HasRangedWeapon", "Condition.MinAccuracyValue0", "Condition.NotIsInWorkspot", "Condition.NotIsUsingOffMeshLink", {
+					target = "AIActionTarget.CombatTarget";
+					distance = ( 13.f, 35.f );
+					coneAngle = ( -1.f, 60.f );
+				} : AISpatialCond
+			];
+		} : AIActionAND;
+	};
+}
+
+TargetTooCloseCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow6m"
+			];
+		} : AIActionAND;
+	};
+}
+
+TargetBelow10mConditionKurt : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetBelow10m"
+			];
+		} : AIActionAND;
+	};
+}
+
+NotIsPlayerOnNavmeshCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotIsPlayerOnNavmesh"
+			];
+		} : AIActionAND;
+	};
+}
+
+RangedModeConditionKurt : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotCalculatePathToTarget"
+			];
+		} : AIActionAND;
+	};
+}
+
+SameGroundAsPlayerCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetUpTo0dot5mZDiff"
+			];
+		} : AIActionAND;
+	};
+}
+
+ChangeAccuracySE : AIAction
+{
+	loop = 
+	{
+		duration = 0.0000001f;
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.BoostAccuracyStatusEffect"
+			];
+			apply = true;
+		} : AISubActionStatusEffect
 	];
 }
 

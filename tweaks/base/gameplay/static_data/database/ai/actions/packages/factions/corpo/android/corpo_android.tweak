@@ -50,10 +50,6 @@ DefaultNodeMap : AINodeMap
 			isOverriddenBy = "CorpoAndroid.MeleeMoveToCombatArea";
 		}, 
 		{
-			node = "MovementActions.MeleeMoveToSupportArea";
-			isOverriddenBy = "CorpoAndroid.MeleeMoveToSupportArea";
-		}, 
-		{
 			node = "GenericArchetype.SandevistanDashShotgunShoot";
 			isOverriddenBy = "CorpoAndroid.SandevistanDashShotgunShoot";
 		}, 
@@ -64,6 +60,14 @@ DefaultNodeMap : AINodeMap
 		{
 			node = "GenericArchetype.SandevistanDashSemiAutoShoot";
 			isOverriddenBy = "CorpoAndroid.SandevistanDashSemiAutoShoot";
+		}, 
+		{
+			node = "CombatDecorator.MeleeTicketDecorator";
+			isOverriddenBy = "CorpoAndroid.AndroidMeleeTicketDecorator";
+		}, 
+		{
+			node = "DashAndDodgeActions.DodgeAfterHitReactionConditionDefinition";
+			isOverriddenBy = "CorpoAndroid.StrafeSelector";
 		}, 
 		{
 			node = "ReactionsActions.LookAroundForIntruder";
@@ -447,7 +451,7 @@ MeleeMoveToCombatArea : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotAndroid", "Condition.CalculatePathToTarget", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.AbilityCanUseLegs", "Condition.NotIsUsingOffMeshLink", "Condition.TargetAbove4m"
+				"Condition.NotAndroid"
 			];
 		} : AIActionAND;
 	};
@@ -508,7 +512,7 @@ MeleeMoveToSupportArea : AIAction
 		{
 			AND = 
 			[
-				"Condition.NotAndroid", "Condition.NotAIMoveCommand", "Condition.NotAIUseWorkspotCommand", "Condition.AbilityCanUseLegs"
+				"Condition.NotAndroid"
 			];
 		} : AIActionAND;
 	};
@@ -840,6 +844,38 @@ SE_SetFriendly : StatusEffectActions.SE_SetFriendly
 		{
 			lightPreset = "MechanicalLightPreset.Friendly";
 		} : AISubActionActivateLightPreset
+	];
+}
+
+AndroidMeleeTicketDecorator : AIAction
+{
+	tickets = 
+	[
+		"AITicketType.AndroidMelee"
+	];
+	revokingTicketCompletesAction = false;
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MeleeTicketConditions", "Condition.NotTicketEquip"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+	};
+	subActions = 
+	[
+		{
+			delay = 0.f;
+			cooldowns = 
+			[
+				"CombatDecorator.MeleeTicketExpiration"
+			];
+		} : AISubActionStartCooldown
 	];
 }
 

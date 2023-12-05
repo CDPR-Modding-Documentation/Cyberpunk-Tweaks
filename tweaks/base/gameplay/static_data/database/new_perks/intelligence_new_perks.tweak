@@ -100,68 +100,6 @@ Intelligence_Left_Perk_1_1 : NewPerk
 		{
 			dataPackage = 
 			{
-				effectors = 
-				[
-					{
-						prereqRecord = 
-						{
-							conditions += 
-							[
-								{
-									statusEffect = "WasQuickHacked";
-									checkType = "CheckType.Record";
-									objectToCheck = "Target";
-									invert = true;
-								} : StatusEffectPresentHitPrereqCondition, 
-								{
-									statusEffect = "DistractionDuration";
-									checkType = "CheckType.Record";
-									objectToCheck = "Target";
-									invert = true;
-								} : StatusEffectPresentHitPrereqCondition, 
-								{
-									hitFlag = "QuickHack";
-								} : HitFlagHitPrereqCondition
-							];
-						} : IsExplosionTypeAttack;
-						value = 1.4f;
-					} : MultiplyDamage, 
-					{
-						prereqRecord = 
-						{
-							nestedPrereqs = 
-							[
-								{
-									conditions += 
-									[
-										{
-											hitFlag = "QuickHack";
-										} : HitFlagHitPrereqCondition, 
-										{
-											statusEffect = "WasQuickHacked";
-											checkType = "CheckType.Record";
-											objectToCheck = "Target";
-										} : StatusEffectPresentHitPrereqCondition
-									];
-								} : IsExplosionTypeAttack, 
-								{
-									conditions += 
-									[
-										{
-											hitFlag = "QuickHack";
-										} : HitFlagHitPrereqCondition, 
-										{
-											statusEffect = "DistractionDuration";
-											checkType = "CheckType.Record";
-											objectToCheck = "Target";
-										} : StatusEffectPresentHitPrereqCondition
-									];
-								} : IsExplosionTypeAttack
-							];
-						} : ORPrereq;
-						value = 1.8f;
-					} : MultiplyDamage
-				];
 			};
 		} : NewPerkLevelData
 	];
@@ -1800,7 +1738,7 @@ Intelligence_Inbetween_Left_3 : NewPerk
 	{
 		floatValues = 
 		[
-			40f
+			25f
 		];
 	};
 	perkIcon = "UIIcon.CombatHacking_Area_08_Perk_1";
@@ -1822,7 +1760,7 @@ Intelligence_Inbetween_Left_3 : NewPerk
 					{
 						statType = "BaseStats.BloodQueueHealing";
 						modifierType = "Additive";
-						value = 40.f;
+						value = 25.f;
 					} : ConstantStatModifier
 				];
 			};
@@ -1994,6 +1932,40 @@ Intelligence_Central_Perk_3_2 : NewPerk
 		{
 			dataPackage = 
 			{
+				effectors = 
+				[
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								"NewPerks.IsOverclockActivePrereq", {
+									statType = "MemoryRegenRate";
+									valueToCheck = 0;
+									comparisonType = "Greater";
+								} : StatPrereq
+							];
+						} : ANDPrereq;
+						statGroup = 
+						{
+							statModifiers = 
+							[
+								{
+									statType = "BaseStats.HealthInCombatRegenEnabled";
+									modifierType = "Additive";
+									value = 1f;
+								} : ConstantStatModifier, 
+								{
+									statType = "BaseStats.HealthGeneralRegenRateAdd";
+									modifierType = "Additive";
+									refStat = "BaseStats.MemoryRegenRate";
+									opSymbol = "*";
+									value = 1f;
+								} : CombinedStatModifier
+							];
+						};
+					} : ApplyStatGroupOnPlayer
+				];
 			};
 		} : NewPerkLevelData
 	];

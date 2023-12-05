@@ -105,7 +105,7 @@ Preset_Grit_Krausser : Preset_Grit_Prevention
 	];
 	tags += 
 	[
-		"Krausser", "PowerOfThePack"
+		"Krausser", "PowerOfThePack", "IllegalItem"
 	];
 }
 
@@ -170,7 +170,7 @@ Base_Grit_Krausser_Recoil_Stats : StatModifierGroup
 			float value = 0.f;
 		} : RecoilDirModifier, 
 		{
-			float value = 70.f;
+			float value = 60.f;
 		} : RecoilAngleModifier, 
 		{
 			float value = 0.03f;
@@ -194,7 +194,7 @@ Base_Grit_Krausser_Recoil_Stats : StatModifierGroup
 			float value = 1.f;
 		} : RecoilEnableLinearYADSModifier, 
 		{
-			value = 0.1f;
+			value = -0.33f;
 		} : RecoilFullChargeMultModifier
 	];
 }
@@ -236,12 +236,12 @@ Base_Grit_Krausser_Constant_Stats : StatModifierGroup
 		{
 			statType = "BaseStats.RecoilKickMin";
 			modifierType = "Additive";
-			value = 1.3f;
+			value = 0.8f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.RecoilKickMax";
 			modifierType = "Additive";
-			value = 1.8f;
+			value = 1.2f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.FullAutoOnFullCharge";
@@ -257,6 +257,16 @@ Base_Grit_Krausser_Constant_Stats : StatModifierGroup
 			statType = "BaseStats.DamagePerHit";
 			modifierType = "Multiplier";
 			value = 1.1287;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.HeadshotDamageMultiplier";
+			modifierType = "Additive";
+			value = -0.25f;
+		} : ConstantStatModifier, 
+		{
+			statType = "BaseStats.ChargeMultiplier";
+			modifierType = "Additive";
+			value = 0.15f;
 		} : ConstantStatModifier, 
 		{
 			statType = "BaseStats.FirePower";
@@ -306,13 +316,6 @@ Craftable_Common_Grit : Preset_Grit_Default
 Craftable_Uncommon_Grit : Craftable_Common_Grit
 {
 	quality = "Quality.Uncommon";
-	fk< SlotItemPartPreset >[] slotPartListPreset += 
-	[
-		{
-			slot = "AttachmentSlots.Tech_Handgun_WeaponMod1";
-			fk< Item > itemPartPreset = "Items.DummyBlankMod";
-		}
-	];
 	CraftingData = 
 	{
 		craftingRecipe += 
@@ -376,18 +379,6 @@ Craftable_Legendary_Grit : Craftable_Uncommon_Grit
 [ notQueryable ]
 Preset_Grit_Amazon : Preset_Grit_Default
 {
-	OnLooted += 
-	[
-		{
-			effectors = 
-			[
-				{
-					fact = "grit_amazon_owned";
-					value = 1;
-				} : SetFactEffector
-			];
-		}
-	];
 	fk< ItemBlueprint > blueprint = "Items.Iconic_Ranged_Weapon_Blueprint";
 	displayName = "LocKey#94458";
 	localizedDescription = "LocKey#94463";
@@ -398,7 +389,7 @@ Preset_Grit_Amazon : Preset_Grit_Default
 	quality = "Quality.Random";
 	tags += 
 	[
-		"IconicWeapon", "PowerOfThePack", "StashScaling_Iconic"
+		"IconicWeapon", "PowerOfThePack", "StashScaling_Iconic", "IllegalItem"
 	];
 	statModifiers += 
 	[
@@ -437,6 +428,26 @@ Preset_Grit_Amazon : Preset_Grit_Default
 	bool scaleToPlayer = true;
 	bool scaleToPlayerInStash = true;
 	enableNpcRPGData = false;
+	OnLooted += 
+	[
+		{
+			effectors = 
+			[
+				{
+					fact = "grit_amazon_owned";
+					value = 1;
+				} : SetFactEffector, 
+				{
+					prereqRecord = 
+					{
+						statusEffect = "BaseStatusEffect.JustLootedAmazonIconicFromAirdrop";
+					} : StatusEffectPrereq;
+					fact = "grit_amazon_airdropped";
+					value = 1;
+				} : SetFactEffector
+			];
+		}
+	];
 	statModifierGroups = 
 	[
 		"Items.IconicQualityRandomization", "Items.Base_Grit_Krausser_Technical_Stats", "Items.Base_Grit_Handling_Stats", "Items.Base_Grit_Krausser_Recoil_Stats", "Items.Base_Grit_Spread_Stats", "Items.Base_Grit_Aim_Stats", "Items.Base_Grit_Krausser_Constant_Stats", "Items.KrausserBonusStats", "Items.Base_Grit_Damage_Stats", "Items.Base_Tech_Stats", "Items.Base_Tech_Handgun_Mult_Stats", "Items.Base_Handgun_RPG_Stats", "Items.Base_Handgun_Misc_Stats", "Items.Base_Handgun_Sway_Stats", "Items.Base_Handgun_DeadReckoning_Stats", "Items.Base_PlayerState_Spread_Stats", "Items.Base_Weapon_Damage_Type_Min_Max", "Items.Base_Weapon_Damage_Type_Physical"

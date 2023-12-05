@@ -1288,6 +1288,7 @@ ModifyStatusEffectDurationEffector : Effector
 	float change = 0f;
 	bool isPercentage = false;
 	bool listenConstantly = false;
+	bool canGoOverInitialDuration = true;
 }
 
 ModifyStatusEffectDurationOnAttackEffector : Effector
@@ -1312,7 +1313,7 @@ AttachCloakVisionBlocker : Effector
 	{
 		isInState = false;
 	} : IsPlayerGrappling;
-	effectorClassName = "AttachCapsuleVisionBlockerEffector";
+	effectorClassName = "AttachOpticalCamoVisionBlockerEffector";
 	CName visionBlockerTypeName = "OpticalCamo";
 	Vector3 visionBlockerOffset = ( 0.f, 0.f, 0.f );
 	float visionBlockerRadius = 0.5f;
@@ -1423,6 +1424,7 @@ TriggerAttackOnNearbyEnemiesEffector : Effector
 	fk< StatusEffect > statusEffectRecord = "";
 	float targetMaxDistance = 0f;
 	float targetMinDistance = 0f;
+	bool ignoreCivilians = true;
 }
 
 ModifyStatPoolValueQuickhackCostEffector : Effector
@@ -1581,5 +1583,34 @@ AllIconic_OW_CW_Purchased_TreasureChest_Failsafe_Effector : ApplyEffectorOnPlaye
 MainBossEffector : ApplyStatusEffectEffector
 {
 	statusEffect = "BaseStatusEffect.MainBossSE";
+}
+
+ICECounterHackEffector : Effector
+{
+	effectorClassName = "ICECounterHackEffector";
+	prereqRecord = 
+	{
+		nestedPrereqs = 
+		[
+			"Effectors.NoICECooldown", "Perks.BeingHacked", "Perks.NotBeingHackedWithUntraceableHack", "Perks.NotPlayerBeingHacked"
+		];
+	} : ANDPrereq;
+	fk< ObjectAction > objectAction = "";
+}
+
+ClearQuickhackQueueEffector : Effector
+{
+	effectorClassName = "ClearQuickhackQueueEffector";
+}
+
+ModifyStatPoolValuePerHitEffector : ModifyStatPoolValueEffector
+{
+	effectorClassName = "ModifyStatPoolValuePerHitEffector";
+	float damageScaleFactor = 0f;
+}
+
+NoICECooldown : StatusEffectAbsentPrereq
+{
+	statusEffect = "BaseStatusEffect.ICECounterHackCooldown";
 }
 

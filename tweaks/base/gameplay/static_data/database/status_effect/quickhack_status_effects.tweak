@@ -243,7 +243,15 @@ BossSystemCollapse : SystemCollapse
 
 SystemCollapseMemoryCostReduction : BuffStatusEffect
 {
-	duration = "BaseStats.InfiniteDuration";
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 30.f;
+			} : BaseDurationMod
+		];
+	};
 	gameplayTags += 
 	[
 		"SystemCollapseMemoryCostReduction"
@@ -318,7 +326,7 @@ SuicideHackMemoryCostReduction : BuffStatusEffect
 				{
 					statType = "BaseStats.SuicideHackMemoryCostReduction";
 					modifierType = "Additive";
-					value = 1.0f;
+					value = 10.0f;
 				} : ConstantStatModifier
 			];
 		}
@@ -690,6 +698,10 @@ ReduceUltimateSuicideWithGrenadeCost : ReduceUltimateHackCost
 		displayName = "LocKey#845";
 		description = "LocKey#77889";
 		priority = 4.0f;
+		intValues = 
+		[
+			10
+		];
 	};
 }
 
@@ -2154,7 +2166,7 @@ CyberwareMalfunctionBlackwall : CyberwareMalfunction
 	];
 }
 
-CyberwareMalfunctionDamageOverTime : Electrocuted
+CyberwareMalfunctionDamageOverTime : ElectrocutedNoDamage
 {
 	gameplayTags += 
 	[
@@ -2174,11 +2186,12 @@ CyberwareMalfunctionDamageOverTime : Electrocuted
 	packages += 
 	[
 		{
+			bool stackable = true;
 			effectors = 
 			[
 				{
 					CName effectorClassName = "TriggerContinuousAttackEffector";
-					delayTime = 0.8f;
+					delayTime = 0.5f;
 					attackRecord = "Attacks.CyberwareMalfunctionQuickHackAttackLevel3";
 				} : ContinuousAttackEffector
 			];
@@ -2965,6 +2978,163 @@ OverloadShort : BaseStatusEffect.EnemyNetrunnerEmpHighDamage
 	};
 }
 
+SmasherICE_Damage_Base : BaseEMP
+{
+	gameplayTags += 
+	[
+		"Overload", "Quickhack"
+	];
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "status_electrocuted";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsNotHuman";
+					activationSFXName = "quickhack_shortcircuit_mech";
+				} : PlaySFXEffector, 
+				{
+					prereqRecord = "Prereqs.NPCIsHuman";
+					activationSFXName = "quickhack_shortcircuit";
+				} : PlaySFXEffector
+			];
+		} : GameplayLogicPackage
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 0.1f;
+			} : BaseDurationMod
+		];
+	};
+	AIData = 
+	{
+		float priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+}
+
+SmasherICE_Damage_Story : SmasherICE_Damage_Base
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.ElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+SmasherICE_Damage_Easy : SmasherICE_Damage_Base
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.HighElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+SmasherICE_Damage_Hard : SmasherICE_Damage_Base
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = "Attacks.VeryHighElectricDamageOverTime";
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+SmasherICE_Damage_VeryHard : SmasherICE_Damage_Base
+{
+	packages += 
+	[
+		{
+			effectors += 
+			[
+				{
+					CName effectorClassName = "TriggerContinuousAttackEffector";
+					delayTime = 0.5f;
+					attackRecord = 
+					{
+						statModifiers += 
+						[
+							{
+								statType = "BaseStats.ElectricDamage";
+								value = 0.12;
+							} : VeryHighTargetPercentage
+						];
+					} : BaseElectricDamageOverTime;
+				} : ContinuousAttackEffector
+			];
+		}
+	];
+}
+
+SmasherICE_DisableCyberdeck : BaseQuickHackStatusEffect
+{
+	gameplayTags += 
+	[
+		"DisableCyberdeck"
+	];
+	duration = 
+	{
+		statModifiers += 
+		[
+			{
+				value = 15.0f;
+			} : BaseDurationMod
+		];
+	};
+	packages += 
+	[
+		{
+		} : DeactivateCyberdeck, 
+		{
+			effectors += 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					CName vfxName = "status_blinded";
+				} : PlayVFXEffector
+			];
+		}
+	];
+	uiData = 
+	{
+		string displayName = "LocKey#40978";
+		string iconPath = "cyberware_disabled_icon";
+		priority = -1.0f;
+	};
+}
+
 OverloadEMP : BaseEMP
 {
 	duration = 
@@ -3553,7 +3723,7 @@ HauntedGunBlackwallUpload : BaseQuickHackStatusEffect
 					CName vfxName = "black_wall";
 				} : PlayVFXEffector, 
 				{
-					statusEffect = "BaseStatusEffect.HauntedBlackwallForceKill";
+					statusEffect = "BaseStatusEffect.HauntedGunBlackWallForceKill";
 					inverted = true;
 				} : ApplyStatusEffectEffector
 			];
@@ -3574,6 +3744,86 @@ HauntedGunBlackwallUpload : BaseQuickHackStatusEffect
 		string displayName = "LocKey#40977";
 		priority = 1.0f;
 	};
+}
+
+HauntedGunBlackWallForceKill : BaseQuickHackStatusEffect
+{
+	gameplayTags += 
+	[
+		"BrainMeltDeathAnimation", "BlackwallBrainMeltDeathAnimation", "Blackwall"
+	];
+	AIData = 
+	{
+		activationPrereqs = 
+		[
+			{
+				invert = true;
+				stateName = "Combat";
+			} : CurrentHighLevelNPCStatePrereq
+		];
+		priority = 9.f;
+		behaviorEventFlag = "StatusEffectAIBehaviorFlag.InterruptsSamePriorityTask";
+		behaviorType = "StatusEffectAIBehaviorType.Unstoppable";
+	};
+	SFX = 
+	[
+		{
+			name = "w_expl_blackwall_npc_death_gameplay";
+		} : StatusEffectFX
+	];
+	packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AlwaysTruePrereq";
+					attackRecord = "Attacks.BlackwallHackAttack";
+					attackPositionSlotName = "Head";
+					playerAsInstigator = true;
+				} : Effectors.TriggerAttackOnOwnerEffect, 
+				{
+					prereqRecord = "Prereqs.NPCIsAndroid";
+				} : DismemberHeadEffector, 
+				{
+					prereqRecord = 
+					{
+						stateName = "Dead";
+						isInState = true;
+					} : HighLevelNPCStatePrereq;
+					CName vfxName = "black_wall_activation";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								stateName = "Dead";
+								isInState = true;
+							} : Prereqs.HighLevelNPCStatePrereq, 
+							"Prereqs.NPCIsHuman"
+						];
+					} : ANDPrereq;
+					CName vfxName = "black_wall_activation";
+				} : PlayVFXEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								stateName = "Dead";
+								isInState = true;
+							} : Prereqs.HighLevelNPCStatePrereq, 
+							"Prereqs.NPCIsHuman"
+						];
+					} : ANDPrereq;
+					CName vfxName = "hacks_brain_bolt_kill";
+				} : PlayVFXEffector
+			];
+		} : GameplayLogicPackage
+	];
 }
 
 HauntedQuickHackBlackwallUpload : BaseQuickHackStatusEffect
@@ -3633,7 +3883,7 @@ HauntedBlackwallForceKill : BaseQuickHackStatusEffect
 		statModifiers += 
 		[
 			{
-				value = 0.1f;
+				value = 0.6f;
 			} : BaseDurationMod
 		];
 	} : BaseQuickHackDuration;
@@ -5724,7 +5974,7 @@ BaseCommsNoise : ControlQuickHackStatusEffect
 		statModifiers += 
 		[
 			{
-				value = 30.f;
+				value = 20.f;
 			} : BaseDurationMod
 		];
 	} : BaseControlQuickHackDuration;

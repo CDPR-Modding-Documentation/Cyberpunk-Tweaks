@@ -1,5 +1,5 @@
 package WagnerBodyguardBoss
-using RTDB, AIActionTarget, ItemHandling, MovementActions, MeleeActions
+using RTDB, AIActionTarget, ItemHandling, MovementActions, MeleeActions, ShootActions, BaseStatusEffect, Gang_Rifle, Effectors
 
 EquipMeleeWeaponInstantly : AIAction
 {
@@ -76,7 +76,142 @@ ThrowToxicGrenade : AIAction
 		{
 			delay = 0.35f;
 			attachmentSlot = "AttachmentSlots.WeaponLeft";
-			itemID = "Items.GrenadeBiohazardRegular";
+			itemID = "Items.GrenadeBiohazardYasha";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.5f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	animData = 
+	{
+		animFeature = "ThrowGrenadeNear";
+		animSlot = 
+		{
+		};
+	};
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+DropToxicGrenade : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.ThrowKnifeCondition"
+			];
+		} : AIActionAND;
+	};
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeBiohazardYasha";
+		} : AISubActionForceEquip
+	];
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			delay = 0.5f;
+			dropItemOnInterruption = true;
+			target = "AIActionTarget.CombatTarget";
+			throwType = "smoke_defensive";
+		} : AISubActionThrowItem
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Handgun_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}
+	];
+}
+
+ThrowFlashGrenade : AIAction
+{
+	startup = 
+	{
+		duration = 0.867f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		duration = 0.7f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			locomotionMode = "Static";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	startupSubActions = 
+	[
+		{
+			delay = 0.35f;
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			itemID = "Items.GrenadeFlashRegular";
 		} : AISubActionForceEquip
 	];
 	subActions = 
@@ -166,7 +301,21 @@ HealingPhaseCondition : AIAction
 		{
 			AND = 
 			[
-				"Condition.HealthBelow75perc"
+				"Condition.HealthBelow85perc"
+			];
+		} : AIActionAND;
+	};
+}
+
+Stage1Condition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.HealthAbove50perc"
 			];
 		} : AIActionAND;
 	};
@@ -215,6 +364,14 @@ Heal : AIAction
 		{
 			statusEffects = 
 			[
+				"WagnerBodyguardBoss.InvulnerableLimited"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
 				"Oda.WagnerHealingSE"
 			];
 		} : AISubActionStatusEffect, 
@@ -245,6 +402,26 @@ Heal : AIAction
 			loopSlide = "OdaBoss.RotateSlideData";
 		};
 	};
+}
+
+FindRoamingSpot : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+	};
+	subActions = 
+	[
+		{
+			target = "AIActionTarget.MovementDestination";
+			rangeObj = "AIActionTarget.Player";
+			tag = "rinderRoamSpot";
+			rangeFromObj = ( 5.f, 100.f );
+			rangeFromOwner = ( 5.f, 100.f );
+			avoidSelectingSameTargetMethod = 1;
+			selectionMethod = "Random";
+		} : AISubActionSetWaypointByTag
+	];
 }
 
 FindToxicGrenadeSpot : AIAction
@@ -454,7 +631,7 @@ SetHealingConditionCooldown : AIAction
 HealingCooldown : AIActionCooldown
 {
 	name = "HealingCooldown";
-	duration = 15.f;
+	duration = 25.f;
 }
 
 RemoveForceStagger : AIAction
@@ -469,5 +646,988 @@ RemoveForceStagger : AIAction
 			apply = false;
 		} : AISubActionStatusEffect
 	];
+}
+
+Stagger_Transition01 : AIAction
+{
+	loop = 
+	{
+		duration = 2.5f;
+	};
+	animData = 
+	{
+		animFeature = "KurtPhase2Transition";
+		animVariation = 0;
+		animSlot = 
+		{
+			useRootMotion = true;
+			usePoseMatching = true;
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.ReduceDamageTransition"
+			];
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			name = "hacks_system_collapse";
+		} : AISubActionSpawnFX, 
+		{
+			name = "hacks_cyberware_malfunction";
+		} : AISubActionSpawnFX
+	];
+}
+
+EquipShotgun : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasShotgunWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.ReduceDamageTransition"
+			];
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			itemID = "Items.Base_Satara";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+EquipRifle : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotHasRangedWeapon"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 1.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	subActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			delay = 0.f;
+			itemID = "Items.Preset_Umbra_Military";
+			animationTime = 1.533;
+		} : AISubActionForceEquip
+	];
+}
+
+UnequipWeapon : AIAction
+{
+	loop = 
+	{
+		duration = 1.333f;
+		changeNPCState = 
+		{
+			upperBodyState = "Equip";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			animationTime = 1.333f;
+			delay = -1.f;
+		} : AISubActionForceUnequip
+	];
+}
+
+HackBlind : AIAction
+{
+	startup = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+		duration = -1.f;
+		toNextPhaseConditionCheckInterval = 0.f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					OR = 
+					[
+						"Condition.TargetStatusEffectTypeBlind"
+					];
+				} : AIActionOR;
+			}
+		];
+	};
+	recovery = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Attack";
+			hitReactionMode = "Unstoppable";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.Hacking"
+			];
+			remove = false;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			name = "eye_glow_red";
+		} : AISubActionSpawnFX, 
+		{
+			target = "AIActionTarget.CombatTarget";
+			actionResult = "AIQuickHack.HackBlind_Wagner";
+		} : AISubActionQuickHack
+	];
+	recoverySubActions = 
+	[
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.Hacking"
+			];
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects += 
+			[
+				"AIQuickHackStatusEffect.HackingInterrupted"
+			];
+			remove = true;
+			target = "AIActionTarget.Owner";
+		} : AISubActionStatusEffect
+	];
+	subActions = 
+	[
+		{
+			targetListener = "AIActionTarget.CombatTarget";
+			name = "NetrunnerHacking";
+		} : AISubActionQueueCommunicationEvent, 
+		{
+			source = "AIThreatPersistenceSource.QuickhackUpload";
+		} : AISubActionSetTopThreatPersistance, 
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_BlockReactions"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+OpticalCamoActivation : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectOpticalCamo"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.Cloaked"
+			];
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"Oda.ForceStaggerOda"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+InvulnerabilityLimitedActivation : AIAction
+{
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.InvulnerableLimited"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+InvulnerabilityLimitedHealActivation : AIAction
+{
+	loop = 
+	{
+		duration = 0.05f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.InvulnerableHealLimited"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+RemoveForceStaggerRoaming : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"Oda.ForceStaggerOda"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+SprintToTargetShotgun : AIAction
+{
+	loop = 
+	{
+		movePolicy = 
+		{
+			target = "AIActionTarget.Player";
+			strafingTarget = "AIActionTarget.Player";
+			movementType = "Sprint";
+			tolerance = 0.5f;
+			distance = 1.4f;
+			dontUseStop = true;
+			avoidThreatRange = 0.f;
+		};
+		toNextPhaseConditionCheckInterval = 0.1f;
+		toNextPhaseCondition = 
+		[
+			{
+				condition = 
+				{
+					AND = 
+					[
+						"Condition.NotIsUsingOffMeshLink", {
+							OR = 
+							[
+								"Condition.TargetBelow2mPrediction", "Condition.PathFindingFailed", "Condition.NotCalculatePathToTargetOdaJump", "Condition.NotMinAccuracySharedValue0dot5", {
+									AND = 
+									[
+										"Condition.TargetBelow7m", "Condition.TargetUpTo0dot5mZDiff", "Condition.TargetIsVisible"
+									];
+								} : AIActionAND
+							];
+						} : AIActionOR
+					];
+				} : AIActionAND;
+			}
+		];
+	};
+}
+
+ShotgunShoot : ShootActions.ShootDefault
+{
+	startup = 
+	{
+		duration = 2.5f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+		useDurationFromAnimSlot = false;
+	};
+	recovery = 
+	{
+		duration = 1.f;
+		changeNPCState = 
+		{
+			upperBodyState = "Shoot";
+		};
+	};
+	loopSubActions = 
+	[
+		{
+			weaponSlots = 
+			[
+				"AttachmentSlots.WeaponRight"
+			];
+			target = "AIActionTarget.Player";
+			numberOfShots = 3;
+			delay = 0.f;
+		} : AISubActionShootWithWeapon
+	];
+	subActions += 
+	[
+		"ShootActions.PlayShotgunnerChargeVO", "ShootActions.PlayHMGChargeVO"
+	];
+}
+
+TeleportCondition : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.TargetPOVAbove120deg"
+			];
+		} : AIActionAND;
+	};
+}
+
+ApplyPhase1DPSModifier : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectOpticalCamo"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_Phase1_Dps_Modifier"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+ApplyPhase2DPSModifier : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.NotStatusEffectOpticalCamo"
+			];
+		} : AIActionAND;
+	};
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_Phase2_Dps_Modifier"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_Phase1_Dps_Modifier"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+Wagner_Phase1_Dps_Modifier : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "Multiplier";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Wagner_Phase2_Dps_Modifier : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "Multiplier";
+					value = 1.5f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+CleanupBeforeTeleport : AIAction
+{
+	loop = 
+	{
+		duration = 0.1f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			effectors = 
+			[
+				"Effectors.RemoveAllStatusEffectsEffector"
+			];
+			float delay = 0.05f;
+		} : AISubActionCustomEffectors
+	];
+}
+
+ApplyPhase1 : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Phase1"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_Phase1_Dps_Modifier"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect
+	];
+}
+
+Phase1 : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MeleeResistance";
+					modifierType = "Additive";
+					value = 25.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ApplyPhase2 : AIAction
+{
+	loop = 
+	{
+		duration = 0.01f;
+		changeNPCState = 
+		{
+			upperBodyState = "Taunt";
+		};
+	};
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Phase2"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_Phase2_Dps_Modifier"
+			];
+			apply = true;
+			remove = false;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Phase1"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_Phase1_Dps_Modifier"
+			];
+			apply = false;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+}
+
+Phase2 : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ThermalResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ChemicalResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.ElectricResistance";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.Armor";
+					modifierType = "Additive";
+					value = 50.f;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.MeleeResistance";
+					modifierType = "Additive";
+					value = 25.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableLimited : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 1.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+InvulnerableHealLimited : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 1.f;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			fk< StatModifier >[] stats = 
+			[
+				{
+					statType = "BaseStats.IsInvulnerable";
+					modifierType = "Additive";
+					value = 2.f;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Wagner_BlockReactions : DebuffStatusEffect
+{
+	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.ImpactDamageThreshold";
+					modifierType = "Multiplier";
+					value = 100;
+				} : ConstantStatModifier, 
+				{
+					statType = "BaseStats.StaggerDamageThreshold";
+					modifierType = "Multiplier";
+					value = 100;
+				} : ConstantStatModifier
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SprintToMovementDestinationNoSandevistan : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "WagnerBodyguardBoss.SprintToMovementDestinationNoSandevistanLoopPhase";
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_BlockReactions"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"KurtKrauserBoss.NoSandevistanMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaCybMalfunctionWrapper"
+	];
+}
+
+SprintToMovementDestinationNoSandevistanShotgun : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "WagnerBodyguardBoss.SprintToMovementDestinationNoSandevistanLoopPhase";
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"KurtKrauserBoss.NoSandevistanMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect, 
+		{
+			multiplier = 1.2f;
+		} : AISubActionApplyTimeDilation
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaCybMalfunctionWrapper"
+	];
+}
+
+SprintToMovementDestinationNoSandevistanShotgunBlockReactions : AIAction
+{
+	activationCondition = 
+	{
+		condition = 
+		{
+			AND = 
+			[
+				"Condition.MovementDestinationAbove1m"
+			];
+		} : AIActionAND;
+	};
+	loop = "WagnerBodyguardBoss.SprintToMovementDestinationNoSandevistanLoopPhase";
+	subActions = 
+	[
+		{
+			statusEffects = 
+			[
+				"WagnerBodyguardBoss.Wagner_BlockReactions"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect, 
+		{
+			statusEffects = 
+			[
+				"KurtKrauserBoss.NoSandevistanMode"
+			];
+			delay = 0.f;
+		} : AISubActionStatusEffect, 
+		{
+			multiplier = 1.2f;
+		} : AISubActionApplyTimeDilation
+	];
+	animationWrapperOverrides = 
+	[
+		"OdaCybMalfunctionWrapper"
+	];
+}
+
+SprintToMovementDestinationNoSandevistanLoopPhase : AIActionPhase
+{
+	movePolicy = 
+	{
+		target = "AIActionTarget.MovementDestination";
+		movementType = "Sprint";
+		tolerance = 0.f;
+		avoidThreatRange = 15.f;
+	};
+	changeNPCState = 
+	{
+		upperBodyState = "Attack";
+		hitReactionMode = "Unstoppable";
+	};
+	toNextPhaseConditionCheckInterval = 0.5f;
+	toNextPhaseCondition = 
+	[
+		{
+			condition = 
+			{
+				AND = 
+				[
+					"Condition.NotIsUsingOffMeshLink", {
+						OR = 
+						[
+							"Condition.MovementDestinationBelow1m", "Condition.StatusEffectTypeLocomotionMalfunction"
+						];
+					} : AIActionOR
+				];
+			} : AIActionAND;
+		}
+	];
+}
+
+ReloadDefaultTaunt : ItemHandling.ReloadDefault
+{
+	subActions += 
+	[
+		{
+			statusEffects = 
+			[
+				"BaseStatusEffect.ReduceDamageTransition"
+			];
+			apply = true;
+			remove = true;
+		} : AISubActionStatusEffect
+	];
+	lookats = 
+	[
+		{
+			preset = "LookatPreset.Gang_Rifle_Body_LootAt";
+			target = 
+			{
+				targetSlot = "Head";
+			} : AIActionTarget.CombatTarget;
+		}, 
+		{
+			preset = "LookatPreset.Gang_Rifle_Arms_LootAt";
+			target = "AIActionTarget.CombatTarget";
+		}
+	];
+}
+
+IdleShort : AIAction
+{
+	loop = 
+	{
+		changeNPCState = 
+		{
+			upperBodyState = "Normal";
+		};
+		duration = 1.f;
+	};
 }
 
