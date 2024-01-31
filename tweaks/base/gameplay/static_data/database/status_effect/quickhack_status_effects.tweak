@@ -695,14 +695,65 @@ ReduceUltimateSuicideWithGrenadeCost : ReduceUltimateHackCost
 	uiData = 
 	{
 		iconPath = "qh_detonate_grenade";
-		displayName = "LocKey#845";
-		description = "LocKey#77889";
+		displayName = "LocKey#850";
+		description = "LocKey#77885";
 		priority = 4.0f;
 		intValues = 
 		[
 			10
 		];
 	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "HasGrenadeHack";
+						valueToCheck = 1;
+						comparisonType = "Less";
+						objectToCheck = "Player";
+					} : StatPrereq;
+					effectorToApply = 
+					{
+						prereqRecord = 
+						{
+							delay = 0.001;
+						} : GameTimePrereq;
+						statusEffects = 
+						[
+							"BaseStatusEffect.ReduceUltimateSuicideWithGrenadeCost"
+						];
+					} : RemoveStatusEffectsEffector;
+				} : ApplyEffectorOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						statType = "ExplosionKillsRecudeUltimateHacksCost";
+						valueToCheck = 1;
+						comparisonType = "Equal";
+						objectToCheck = "Player";
+					} : StatPrereq;
+					statusEffect = "BaseStatusEffect.ReduceUltimateSuicideWithGrenadeCostPlusPlus";
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						statType = "ExplosionKillsRecudeUltimateHacksCost";
+						valueToCheck = 1;
+						comparisonType = "Equal";
+						objectToCheck = "Player";
+					} : StatPrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.ReduceUltimateSuicideWithGrenadeCost"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		}
+	];
 }
 
 ReduceUltimateSuicideWithGrenadeCostPlusPlus : ReduceUltimateHackCost
@@ -730,10 +781,46 @@ ReduceUltimateSuicideWithGrenadeCostPlusPlus : ReduceUltimateHackCost
 	float costReductionPerStack = 15.f;
 	uiData = 
 	{
-		iconPath = "";
-		displayName = "";
-		description = "";
+		iconPath = "qh_detonate_grenade";
+		displayName = "LocKey#850";
+		description = "LocKey#77885";
+		priority = 4.0f;
+		intValues = 
+		[
+			15
+		];
 	};
+	packages += 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						statType = "ExplosionKillsRecudeUltimateHacksCost";
+						valueToCheck = 1;
+						comparisonType = "Less";
+						objectToCheck = "Player";
+					} : StatPrereq;
+					statusEffect = "BaseStatusEffect.ReduceUltimateSuicideWithGrenadeCost";
+				} : ApplyStatusEffectOnPlayer, 
+				{
+					prereqRecord = 
+					{
+						statType = "ExplosionKillsRecudeUltimateHacksCost";
+						valueToCheck = 1;
+						comparisonType = "Less";
+						objectToCheck = "Player";
+					} : StatPrereq;
+					statusEffects = 
+					[
+						"BaseStatusEffect.ReduceUltimateSuicideWithGrenadeCostPlusPlus"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		}
+	];
 }
 
 WeaponMalfunction : ControlQuickHackStatusEffect
@@ -3334,7 +3421,7 @@ BaseBrainMelt : CombatQuickHackStatusEffect
 	};
 	gameplayTags += 
 	[
-		"BrainMelt"
+		"BrainMelt", "BrainMeltDeathAnimation"
 	];
 	AIData = 
 	{
@@ -3393,10 +3480,6 @@ BrainMeltLevel2 : BaseBrainMelt
 
 BrainMeltLevel3 : BrainMeltLevel2
 {
-	gameplayTags += 
-	[
-		"BrainMeltDeathAnimation"
-	];
 	packages = 
 	[
 		{

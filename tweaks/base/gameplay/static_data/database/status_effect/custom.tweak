@@ -93,6 +93,66 @@ VehicleTrunkBodyPickup : StatusEffect
 	};
 }
 
+VehicleVisualModCooldown : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 3.2f;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"VehicleVisualModCooldown", "NoTimeSkip", "NoPhone", "VehicleSummoning"
+	];
+}
+
+VehicleVisualModCooldownInstant : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"VehicleVisualModCooldown", "NoTimeSkip", "NoPhone", "VehicleSummoning"
+	];
+}
+
+VehicleVisualModDeescalationCooldown : StatusEffect
+{
+	fk< StatusEffectType > statusEffectType = "BaseStatusEffectTypes.Misc";
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 240.0f;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"VehicleVisualModDeescalationCooldown"
+	];
+}
+
 TogglePlayerFlashlight : StatusEffect
 {
 	fk< StatModifierGroup > duration = "BaseStats.InfiniteDuration";
@@ -536,6 +596,48 @@ PanamRestoreDefaultHealth : StatusEffect
 				} : ConstantStatModifier
 			];
 		} : GameplayLogicPackage
+	];
+}
+
+FollowerDamage : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stats = 
+			[
+				{
+					statType = "BaseStats.NPCDamage";
+					modifierType = "AdditiveMultiplier";
+					id = "follower_values";
+					column = "follower_dps_mult";
+					refStat = "BaseStats.PowerLevel";
+				} : CurveStatModifier
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.AnyWeaponHeldPrereq";
+					CName effectorClassName = "ApplyStatGroupEffector";
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CycleTime";
+								modifierType = "AdditiveMultiplier";
+								id = "follower_values";
+								column = "follower_ctb_mult";
+								refStat = "BaseStats.PowerLevel";
+							} : CurveStatModifier
+						];
+					} : StatModifierGroup;
+					applicationTarget = "Weapon";
+				} : ApplyStatGroupEffector
+			];
+		}
 	];
 }
 

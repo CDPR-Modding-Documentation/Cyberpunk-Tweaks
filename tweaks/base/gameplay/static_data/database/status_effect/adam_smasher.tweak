@@ -808,3 +808,44 @@ EMP_Shield_Rocket_Barrage : StatusEffect
 	];
 }
 
+EMP_Shield_Knockdown : StatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 0.1f;
+			} : ConstantStatModifier
+		];
+	};
+	packages = 
+	[
+		{
+			effectors += 
+			[
+				{
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Overshield";
+							statPoolValue = -100;
+						} : StatPoolUpdate
+					];
+					usePercent = true;
+				} : ModifyStatPoolValueEffector, 
+				{
+					prereqRecord = 
+					{
+						duration = 0.01;
+					} : DurationPrereq;
+					statusEffect = "BaseStatusEffect.Knockdown";
+					removeWithEffector = false;
+				} : ApplyStatusEffectOnPlayer
+			];
+		} : GameplayLogicPackage
+	];
+}
+

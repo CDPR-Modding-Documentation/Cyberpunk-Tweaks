@@ -225,7 +225,7 @@ GrenadeExplodeLvl4Program : GameplayLogicPackage
 	};
 }
 
-GrenadeExplodeLvl4ProgramPassive : GameplayLogicPackage
+GrenadeExplodeLvl4PlusPlusProgramPassive : GameplayLogicPackage
 {
 	stats += 
 	[
@@ -876,39 +876,37 @@ ContagionLvl3Passive : GameplayLogicPackage
 		{
 			prereqRecord = 
 			{
-				conditions = 
+				nestedPrereqs = 
 				[
 					{
-						statusEffect = "Burning";
-						checkType = "CheckType.Type";
-						onlyOncePerShot = true;
-					} : StatusEffectPresentHitPrereqCondition, 
+						conditions += 
+						[
+							{
+								statusEffect = "ContagionPoisonLvl3";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : ContagionBurnPrereq, 
 					{
-						statusEffect = "ContagionPoisonLvl3";
-						checkType = "CheckType.Record";
-						onlyOncePerShot = true;
-					} : StatusEffectPresentHitPrereqCondition
+						conditions += 
+						[
+							{
+								statusEffect = "ContagionPoisonLvl4";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : ContagionBurnPrereq, 
+					{
+						conditions += 
+						[
+							{
+								statusEffect = "ContagionPoisonLvl4PlusPlus";
+								checkType = "CheckType.Record";
+							} : StatusEffectPresentHitPrereqCondition
+						];
+					} : ContagionBurnPrereq
 				];
-			} : ProcessHitTriggered;
-			attackRecord = "Attacks.ContagionBurnCombo";
-		} : TriggerAttackOnAttackEffect, 
-		{
-			prereqRecord = 
-			{
-				conditions = 
-				[
-					{
-						statusEffect = "Burning";
-						checkType = "CheckType.Type";
-						onlyOncePerShot = true;
-					} : StatusEffectPresentHitPrereqCondition, 
-					{
-						statusEffect = "ContagionPoisonLvl4";
-						checkType = "CheckType.Record";
-						onlyOncePerShot = true;
-					} : StatusEffectPresentHitPrereqCondition
-				];
-			} : ProcessHitTriggered;
+			} : ORPrereq;
 			attackRecord = "Attacks.ContagionBurnCombo";
 		} : TriggerAttackOnAttackEffect, 
 		{
@@ -1002,6 +1000,12 @@ ContagionLvl3Passive : GameplayLogicPackage
 						objectToCheck = "Player";
 					} : StatPrereq, 
 					{
+						statType = "ExplosionKillsRecudeUltimateHacksCost";
+						valueToCheck = 1;
+						comparisonType = "Less";
+						objectToCheck = "Player";
+					} : StatPrereq, 
+					{
 						conditions = 
 						[
 							{
@@ -1027,6 +1031,12 @@ ContagionLvl3Passive : GameplayLogicPackage
 				[
 					{
 						statType = "HasGrenadeHack";
+						valueToCheck = 1;
+						comparisonType = "Equal";
+						objectToCheck = "Player";
+					} : StatPrereq, 
+					{
+						statType = "ExplosionKillsRecudeUltimateHacksCost";
 						valueToCheck = 1;
 						comparisonType = "Equal";
 						objectToCheck = "Player";

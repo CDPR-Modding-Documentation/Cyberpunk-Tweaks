@@ -844,14 +844,9 @@ BeingHacked : StatusEffectPrereq
 	statusEffect = "AIQuickHackStatusEffect.BeingHacked";
 }
 
-BeingHackedWithUntraceableHack : StatusEffectPrereq
+BeingHackedWithTraceableHack : StatusEffectPrereq
 {
-	statusEffect = "AIQuickHackStatusEffect.BeingHackedWithUntraceableHack";
-}
-
-NotBeingHackedWithUntraceableHack : BeingHackedWithUntraceableHack
-{
-	invert = true;
+	statusEffect = "AIQuickHackStatusEffect.BeingHackedWithTraceableHack";
 }
 
 PlayerBeingHacked : StatusEffectPrereq
@@ -1033,11 +1028,14 @@ CanActivateReflexRecorder : MultiPrereq
 	fk< IPrereq >[] nestedPrereqs = 
 	[
 		"Perks.IsPlayerInCombatState", "Perks.IsPlayerInCritHealth", {
-			checkType = "CheckType.Tag";
-			tagToCheck = "ReflexRecorderBuff";
+			statusEffect = "BaseStatusEffect.ReflexRecorderCooldown";
 		} : Prereqs.StatusEffectAbsentPrereq, 
 		{
-			statusEffect = "BaseStatusEffect.ReflexRecorderCooldown";
+			statusEffect = "BaseStatusEffect.ReflexRecorderListener";
+		} : Prereqs.StatusEffectAbsentPrereq, 
+		{
+			checkType = "CheckType.Tag";
+			tagToCheck = "ReflexRecorderBuff";
 		} : Prereqs.StatusEffectAbsentPrereq, 
 		{
 			statusEffect = "GameplayRestriction.PhoneCall";
@@ -1163,18 +1161,10 @@ IsPlayerInHighHealth : StatPoolPrereq
 	CName comparisonType = "GreaterOrEqual";
 }
 
-IsPlayerOutOfCombatOrInStealthPSMState : MultiPrereq
+IsPlayerOutOfCombatOrInStealthPSMState : CombatPSMPrereq
 {
-	aggregationType = "OR";
-	nestedPrereqs = 
-	[
-		{
-			stateName = "OutOfCombat";
-		} : CombatPSMPrereq, 
-		{
-			stateName = "Stealth";
-		} : CombatPSMPrereq
-	];
+	stateName = "InCombat";
+	isInState = false;
 }
 
 IsPlayerInCombatState : CombatPSMPrereq
