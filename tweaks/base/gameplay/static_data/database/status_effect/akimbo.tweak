@@ -1,0 +1,547 @@
+package BaseStatusEffect
+using RTDB, Prereqs, Effectors, NewPerks, Perks
+
+DoubleTroubleLogic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	gameplayTags += 
+	[
+		"DoubleTroubleLogic"
+	];
+	duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.CoolDualWieldGunsHeldPrereq";
+					effectorToApply = 
+					{
+						prereqRecord = 
+						{
+							conditions += 
+							[
+								{
+									attackType = "QuickMelee";
+									invert = true;
+								} : AttackTypeHitPrereqCondition
+							];
+						} : Prereqs.ProcessHitTriggered;
+						value = 0.625f;
+					} : MultiplyDamage;
+				} : ApplyEffectorOnPlayer, 
+				{
+					prereqRecord = "Perks.PlayerIsAiming";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "Multiplier";
+								value = 0.85f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Multiplier";
+								value = 0.85f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "Multiplier";
+								value = 0.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultY";
+								modifierType = "Multiplier";
+								value = 0.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMinAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMaxAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+DoubleTrouble2Logic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	gameplayTags += 
+	[
+		"DoubleTrouble2Logic"
+	];
+	duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.PlayerIsNotAiming";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HandgunStaminaCostReduction";
+								modifierType = "Additive";
+								value = 0.25;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RevolverStaminaCostReduction";
+								modifierType = "Additive";
+								value = 0.25;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon, 
+				{
+					prereqRecord = "Perks.PlayerIsAiming";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "Multiplier";
+								value = 0.65f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Multiplier";
+								value = 0.65f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "Multiplier";
+								value = 0.20f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultY";
+								modifierType = "Multiplier";
+								value = 0.20f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMinAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMaxAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+TripleTequilaPrereq : ORPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			conditions += 
+			[
+				{
+					hitFlag = "Headshot";
+				} : HitFlagHitPrereqCondition, 
+				{
+					attackType = "Ranged";
+					onlyOncePerShot = true;
+				} : AttackTypeHitPrereqCondition, 
+				{
+					weaponType = "Ranged";
+				} : WeaponTypeHitPrereqCondition, 
+				{
+					npcType = "Any";
+					invert = true;
+				} : TargetNPCTypeHitPrereqCondition
+			];
+		} : IsHitTargetAlive, 
+		{
+			conditions += 
+			[
+				{
+					hitFlag = "WeakspotHit";
+				} : HitFlagHitPrereqCondition, 
+				{
+					attackType = "Ranged";
+					onlyOncePerShot = true;
+				} : AttackTypeHitPrereqCondition, 
+				{
+					weaponType = "Ranged";
+				} : WeaponTypeHitPrereqCondition, 
+				{
+					npcType = "Any";
+					invert = true;
+				} : TargetNPCTypeHitPrereqCondition
+			];
+		} : IsHitTargetAlive
+	];
+}
+
+Triple_Tequila_Stack : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 20.0f;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 10.0f;
+			} : ConstantStatModifier
+		];
+	};
+	removeAllStacksWhenDurationEnds = true;
+	uiData = 
+	{
+		string displayName = "LocKey#97972";
+		description = "";
+		string iconPath = "Cool_Central_Perk_2_1";
+		priority = 6.0f;
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 5.0f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnPlayer, 
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HeadshotDamageMultiplier";
+								modifierType = "Additive";
+								value = 0.05f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.WeakspotDamageMultiplier";
+								modifierType = "Additive";
+								value = 0.05f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ValentinosFrenzySE : StatusEffect
+{
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 10;
+			} : ConstantStatModifier
+		];
+	};
+	gameplayTags += 
+	[
+		"NoQuickMelee"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 5.0f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer, 
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.BonusDamagePerHit";
+								modifierType = "Additive";
+								value = 2f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CycleTimeBonus";
+								modifierType = "Additive";
+								value = -0.02f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.HeadshotDamageMultiplier";
+								modifierType = "Additive";
+								value = 0.05f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.WeakspotDamageMultiplier";
+								modifierType = "Additive";
+								value = 0.05f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		}, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								attachmentSlot = "AttachmentSlots.WeaponRight";
+							} : WeaponSlotHitPrereqCondition
+						];
+					} : ProcessHitTriggered;
+					int countToRefund = 1;
+					CName weapon = "WeaponRight";
+					effectorClassName = "ValentinosFrenzyEffector";
+				} : Effector, 
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								attachmentSlot = "AttachmentSlots.WeaponLeft";
+							} : WeaponSlotHitPrereqCondition
+						];
+					} : ProcessHitTriggered;
+					int countToRefund = 1;
+					CName weapon = "WeaponLeft";
+					effectorClassName = "ValentinosFrenzyEffector";
+				} : Effector, 
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CycleTimeBonus";
+								modifierType = "AdditiveMultiplier";
+								value = -0.2f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		}
+	];
+}
+
+ValentinosFrenzyMaxStacksSE : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.BonusDamagePerHit";
+								modifierType = "Additive";
+								value = 30f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer
+			];
+		}
+	];
+}
+
+SplashOfLoveLogic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					effectorToApply = 
+					{
+						prereqRecord = 
+						{
+							nestedPrereqs = 
+							[
+								{
+									statusEffect = "BaseStatusEffect.ValentinosFrenzySE";
+								} : StatusEffectPrereq, 
+								{
+									conditions += 
+									[
+										{
+											attackType = "QuickMelee";
+											invert = true;
+										} : AttackTypeHitPrereqCondition
+									];
+								} : IsTargetKilled
+							];
+						} : ANDPrereq;
+						effectorClassName = "CeaselessLeadAmmoEffector";
+						float percentToRefund = 0.5f;
+					} : Effector;
+				} : ApplyEffectorOnPlayer
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+DrinksOnMeLogic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.DrinksOnMeBuff";
+							} : StatusEffectPrereq, 
+							"Perks.IsTargetKilled"
+						];
+					} : ANDPrereq;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Stamina";
+							statPoolValue = 50f;
+						} : StatPoolUpdate
+					];
+					bool usePercent = true;
+				} : ModifyStatPoolValueEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.DrinksOnMeBuff";
+							} : StatusEffectPrereq, 
+							"Perks.IsTargetKilled"
+						];
+					} : ANDPrereq;
+					statType = "BaseStats.TripleTequilaPreviousStackCount";
+					statusEffect = "BaseStatusEffect.Triple_Tequila_Stack";
+					applicationTarget = "Player";
+				} : ApplyStatusEffectBasedOnStatEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+DrinksOnMeBuff : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5.0f;
+			} : ConstantStatModifier
+		];
+	};
+	uiData = 
+	{
+		string displayName = "LocKey#97975";
+		description = "";
+		string iconPath = "Cool_Central_Perk_2_4";
+		priority = 6.0f;
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HeadshotDamageMultiplier";
+								modifierType = "Additive";
+								value = 0.5f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.WeakspotDamageMultiplier";
+								modifierType = "Additive";
+								value = 0.5f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+

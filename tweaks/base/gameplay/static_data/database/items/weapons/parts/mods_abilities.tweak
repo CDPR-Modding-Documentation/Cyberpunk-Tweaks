@@ -1542,6 +1542,12 @@ IconicPunkKnifeWeaponModAbility : IconicWeaponModAbilityBase
 	};
 }
 
+MaikoNueWeaponModAbilityPrereq : Prereqs.UniqueRangedWeaponPSMPrereq
+{
+	string stateName = "Shoot";
+	CName weaponRequiredTag = "MaikoNue";
+}
+
 MaikoNueWeaponModAbility : IconicWeaponModAbilityBase
 {
 	UIData = 
@@ -1558,10 +1564,7 @@ MaikoNueWeaponModAbility : IconicWeaponModAbilityBase
 			} : IsPlayerInCritHealth;
 			effectorToApply = 
 			{
-				prereqRecord = 
-				{
-					string stateName = "Shoot";
-				} : Prereqs.RangedWeaponPSMPrereq;
+				prereqRecord = "Items.MaikoNueWeaponModAbilityPrereq";
 				statPoolUpdates = 
 				[
 					{
@@ -1576,7 +1579,13 @@ MaikoNueWeaponModAbility : IconicWeaponModAbilityBase
 			prereqRecord = "Perks.IsPlayerInLowHealth";
 			fk< Effector > effectorToApply = 
 			{
-				prereqRecord = "Perks.IsAttackRanged";
+				prereqRecord = 
+				{
+					nestedPrereqs = 
+					[
+						"Perks.IsAttackRanged", "Items.MaikoNueWeaponModAbilityPrereq"
+					];
+				} : ANDPrereq;
 				statusEffect = "BaseStatusEffect.HeavyPoision";
 				isRandom = false;
 			} : AddStatusEffectToAttackEffector;
@@ -1859,6 +1868,12 @@ TakemuraKatanaWeaponModAbility : IconicWeaponModAbilityBase
 	};
 }
 
+JackieNueWeaponModAbilityPrereq : Prereqs.UniqueRangedWeaponPSMPrereq
+{
+	string stateName = "Shoot";
+	CName weaponRequiredTag = "Nue_Jackie";
+}
+
 JackieNueWeaponModAbility : IconicWeaponModAbilityBase
 {
 	effectors = 
@@ -1868,6 +1883,12 @@ JackieNueWeaponModAbility : IconicWeaponModAbilityBase
 			{
 				conditions += 
 				[
+					{
+						checkType = "CheckType.Category";
+						attachmentSlot = "AttachmentSlots.WeaponLeft";
+						itemCategory = "ItemCategory.Weapon";
+						inverted = true;
+					} : Prereqs.ItemInSlotPrereq, 
 					{
 						attackType = "Ranged";
 					} : AttackTypeHitPrereqCondition, 
@@ -1896,7 +1917,77 @@ JackieNueWeaponModAbility : IconicWeaponModAbilityBase
 		} : ApplyStatusEffectOnPlayer, 
 		{
 			statusEffect = "BaseStatusEffect.Chingada_Madre_Buff";
-		} : ApplyStatusEffectOnPlayer
+		} : ApplyStatusEffectOnPlayer, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					"Items.JackieNueWeaponModAbilityPrereq", {
+						checkType = "CheckType.Category";
+						attachmentSlot = "AttachmentSlots.WeaponRight";
+						itemCategory = "ItemCategory.Weapon";
+					} : Prereqs.ItemInSlotPrereq, 
+					{
+						statType = "ChingadaMadreBonanza";
+						valueToCheck = 10;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								attachmentSlot = "AttachmentSlots.WeaponRight";
+							} : WeaponSlotHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : HitIsBodyPartHead
+				];
+			} : ANDPrereq;
+			int countToRefund = 1;
+			CName weapon = "WeaponLeft";
+			effectorClassName = "ValentinosFrenzyEffector";
+		} : Effector, 
+		{
+			prereqRecord = 
+			{
+				nestedPrereqs = 
+				[
+					"Items.JackieNueWeaponModAbilityPrereq", {
+						checkType = "CheckType.Category";
+						attachmentSlot = "AttachmentSlots.WeaponLeft";
+						itemCategory = "ItemCategory.Weapon";
+					} : Prereqs.ItemInSlotPrereq, 
+					{
+						statType = "ChingadaMadreBonanza";
+						valueToCheck = 10;
+						comparisonType = "LessOrEqual";
+					} : StatPrereq, 
+					{
+						conditions += 
+						[
+							{
+								attachmentSlot = "AttachmentSlots.WeaponLeft";
+							} : WeaponSlotHitPrereqCondition, 
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : HitIsBodyPartHead
+				];
+			} : ANDPrereq;
+			int countToRefund = 1;
+			CName weapon = "WeaponRight";
+			effectorClassName = "ValentinosFrenzyEffector";
+		} : Effector
 	];
 	UIData = 
 	{
@@ -2581,6 +2672,9 @@ MetelKurtWeaponModAbility : IconicWeaponModAbilityBase
 				conditions += 
 				[
 					{
+						tagToCheck = "MetelKurt";
+					} : WeaponSourceHasTagPrereqCondition, 
+					{
 						bodyPart = "LeftLeg";
 					} : BodyPartHitPrereqCondition, 
 					{
@@ -2598,6 +2692,9 @@ MetelKurtWeaponModAbility : IconicWeaponModAbilityBase
 			{
 				conditions += 
 				[
+					{
+						tagToCheck = "MetelKurt";
+					} : WeaponSourceHasTagPrereqCondition, 
 					{
 						bodyPart = "RightLeg";
 					} : BodyPartHitPrereqCondition, 
@@ -5137,7 +5234,10 @@ UnityAngelicaWeaponModAbility : LegendaryWeaponModAbilityBase
 					{
 						float distanceRequired = 10f;
 						string comparisonType = "LessOrEqual";
-					} : Prereqs.DistanceCoveredHitPrereqCondition
+					} : Prereqs.DistanceCoveredHitPrereqCondition, 
+					{
+						tagToCheck = "UnityAngelica";
+					} : Prereqs.WeaponSourceHasTagPrereqCondition
 				];
 			} : ProcessHitTriggered;
 			statusEffect = "BaseStatusEffect.Bleeding";
@@ -5156,7 +5256,10 @@ UnityAngelicaWeaponModAbility : LegendaryWeaponModAbilityBase
 					{
 						float distanceRequired = 10f;
 						string comparisonType = "LessOrEqual";
-					} : Prereqs.DistanceCoveredHitPrereqCondition
+					} : Prereqs.DistanceCoveredHitPrereqCondition, 
+					{
+						tagToCheck = "UnityAngelica";
+					} : Prereqs.WeaponSourceHasTagPrereqCondition
 				];
 			} : ProcessHitTriggered;
 			statusEffect = "BaseStatusEffect.Angelica_Buff";
@@ -5258,6 +5361,7 @@ NueBreeWeaponModAbility : LegendaryWeaponModAbilityBase
 				];
 			} : StatModifierGroup;
 			applicationTarget = "Weapon";
+			targetRequiredTag = "NueBree";
 		} : ApplyStatGroupEffector, 
 		{
 			prereqRecord = "Perks.IsPlayerInCritHealth";
@@ -5274,6 +5378,7 @@ NueBreeWeaponModAbility : LegendaryWeaponModAbilityBase
 				];
 			} : StatModifierGroup;
 			applicationTarget = "Weapon";
+			targetRequiredTag = "NueBree";
 		} : ApplyStatGroupEffector
 	];
 	UIData = 
