@@ -289,6 +289,14 @@ HitIsBodyPartTorso : ProcessHitTriggered
 	];
 }
 
+IsHitTargetHealthStatNotNullCondition : StatPoolHitPrereqCondition
+{
+	float valueToCheck = 0f;
+	CName objectToCheck = "Target";
+	string statPoolToCompare = "Health";
+	string comparisonType = "NotEqual";
+}
+
 IsHitTargetAlive : ProcessHitTriggered
 {
 	conditions = 
@@ -304,11 +312,13 @@ IsHitTargetAlive : ProcessHitTriggered
 			invert = true;
 		} : StatusEffectPresentHitPrereqCondition, 
 		{
-			float valueToCheck = 0f;
-			CName objectToCheck = "Target";
-			string statPoolToCompare = "Health";
-			string comparisonType = "NotEqual";
-		} : StatPoolHitPrereqCondition
+			conditions = 
+			[
+				"Perks.IsHitTargetHealthStatNotNullCondition", {
+					hitFlag = "WeakspotHit";
+				} : HitFlagHitPrereqCondition
+			];
+		} : ORHitPrereqCondition
 	];
 }
 
@@ -867,6 +877,18 @@ ApplyStatGroupOnPlayer : ApplyStatGroupEffector
 ApplyStatGroupOnWeapon : ApplyStatGroupEffector
 {
 	applicationTarget = "Weapon";
+	bool reapplyOnWeaponChange = false;
+}
+
+ApplyStatGroupOnWeaponLeft : ApplyStatGroupEffector
+{
+	applicationTarget = "WeaponLeft";
+	bool reapplyOnWeaponChange = false;
+}
+
+ApplyStatGroupOnWeaponRight : ApplyStatGroupEffector
+{
+	applicationTarget = "WeaponRight";
 	bool reapplyOnWeaponChange = false;
 }
 
