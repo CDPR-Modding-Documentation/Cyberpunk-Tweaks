@@ -1,0 +1,485 @@
+package BaseStatusEffect
+using RTDB, Prereqs, Effectors, NewPerks, Perks
+
+DoubleTroubleLogic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	gameplayTags += 
+	[
+		"DoubleTroubleLogic"
+	];
+	duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.CoolDualWieldGunsHeldPrereq";
+					effectorToApply = 
+					{
+						prereqRecord = 
+						{
+							conditions += 
+							[
+								{
+									attackType = "QuickMelee";
+									invert = true;
+								} : AttackTypeHitPrereqCondition
+							];
+						} : Prereqs.ProcessHitTriggered;
+						value = 0.625f;
+					} : MultiplyDamage;
+				} : ApplyEffectorOnPlayer, 
+				{
+					prereqRecord = "Perks.PlayerIsAiming";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "Multiplier";
+								value = 0.85f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Multiplier";
+								value = 0.85f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "Multiplier";
+								value = 0.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultY";
+								modifierType = "Multiplier";
+								value = 0.15f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMinAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMaxAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ValentinosFrenzySE : StatusEffect
+{
+	gameplayTags += 
+	[
+		"NoQuickMelee"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								attachmentSlot = "AttachmentSlots.WeaponRight";
+							} : WeaponSlotHitPrereqCondition
+						];
+					} : IsHitTargetAlive;
+					int countToRefund = 1;
+					CName weapon = "WeaponRight";
+					effectorClassName = "ValentinosFrenzyEffector";
+				} : Effector, 
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								attachmentSlot = "AttachmentSlots.WeaponLeft";
+							} : WeaponSlotHitPrereqCondition
+						];
+					} : IsHitTargetAlive;
+					int countToRefund = 1;
+					CName weapon = "WeaponLeft";
+					effectorClassName = "ValentinosFrenzyEffector";
+				} : Effector
+			];
+		}
+	];
+}
+
+ValentinosFrenzyTripleTequilaStackSE : StatusEffect
+{
+	fk< StatModifierGroup > maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 3;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.BonusDamagePerHit";
+								modifierType = "Additive";
+								value = 15f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		}
+	];
+}
+
+DoubleDipLogic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	duration = "BaseStats.InfiniteDuration";
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Perks.PlayerIsNotAiming";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.HandgunStaminaCostReduction";
+								modifierType = "Additive";
+								value = 0.25;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RevolverStaminaCostReduction";
+								modifierType = "Additive";
+								value = 0.25;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon, 
+				{
+					prereqRecord = "Perks.PlayerIsAiming";
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.RecoilKickMin";
+								modifierType = "Multiplier";
+								value = 0.65f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.RecoilKickMax";
+								modifierType = "Multiplier";
+								value = 0.65f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "Multiplier";
+								value = 0.20f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultY";
+								modifierType = "Multiplier";
+								value = 0.20f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMinAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsFastSpeedMaxAdd";
+								modifierType = "Multiplier";
+								value = 0.f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Triple_Tequila_Stack : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 15.0f;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 3.0f;
+			} : ConstantStatModifier
+		];
+	};
+	removeAllStacksWhenDurationEnds = true;
+	uiData = 
+	{
+		string displayName = "LocKey#97972";
+		description = "";
+		string iconPath = "Cool_Central_Perk_2_1";
+		priority = 6.0f;
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.MitigationChance";
+								modifierType = "Additive";
+								value = 10.0f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnPlayer
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+SplashOfLoveFireRateSE : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.ValentinosFrenzySE";
+							} : StatusEffectPrereq
+						];
+					} : ANDPrereq;
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CycleTime";
+								modifierType = "Additive";
+								value = -0.01f;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CycleTime";
+								modifierType = "AdditiveMultiplier";
+								value = -0.25f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		}
+	];
+}
+
+SplashOfLoveDurationSE : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "BaseStatusEffect.Triple_Tequila_Stack";
+								valueToCheck = 3;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							{
+								statusEffect = "BaseStatusEffect.Triple_Tequila_Stack";
+							} : StatusEffectPrereq
+						];
+					} : ANDPrereq;
+					statusEffect = "BaseStatusEffect.ValentinosFrenzyMaxStacksSE";
+				} : ApplyStatusEffectOnPlayer
+			];
+		}
+	];
+}
+
+ValentinosFrenzyMaxStacksSE : StatusEffect
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statusEffect = "BaseStatusEffect.SplashOfLoveDurationSE";
+							} : StatusEffectPrereq
+						];
+					} : ANDPrereq;
+					statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ValentinosFrenzy_Duration";
+								modifierType = "Additive";
+								value = 1.0f;
+							} : ConstantStatModifier
+						];
+					};
+				} : ApplyStatGroupOnPlayer
+			];
+		}
+	];
+}
+
+HighTabLogic : StatusEffect
+{
+	bool isAffectedByTimeDilationPlayer = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "BaseStatusEffect.Triple_Tequila_Stack";
+								valueToCheck = 0;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							"Perks.IsTargetKilled"
+						];
+					} : ANDPrereq;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Stamina";
+							statPoolValue = 40f;
+						} : StatPoolUpdate
+					];
+				} : ModifyStatPoolValueEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "BaseStatusEffect.Triple_Tequila_Stack";
+								valueToCheck = 1;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							"Perks.IsTargetKilled"
+						];
+					} : ANDPrereq;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Stamina";
+							statPoolValue = 60f;
+						} : StatPoolUpdate
+					];
+				} : ModifyStatPoolValueEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "BaseStatusEffect.Triple_Tequila_Stack";
+								valueToCheck = 2;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							"Perks.IsTargetKilled"
+						];
+					} : ANDPrereq;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Stamina";
+							statPoolValue = 80f;
+						} : StatPoolUpdate
+					];
+				} : ModifyStatPoolValueEffector, 
+				{
+					prereqRecord = 
+					{
+						nestedPrereqs = 
+						[
+							{
+								statType = "BaseStatusEffect.Triple_Tequila_Stack";
+								valueToCheck = 3;
+								comparisonType = "Equal";
+							} : StatPrereq, 
+							"Perks.IsTargetKilled"
+						];
+					} : ANDPrereq;
+					statPoolUpdates = 
+					[
+						{
+							statPoolType = "BaseStatPools.Stamina";
+							statPoolValue = 100f;
+						} : StatPoolUpdate
+					];
+				} : ModifyStatPoolValueEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
