@@ -113,7 +113,76 @@ HGMod1_Buff : BuffStatusEffect
 							} : CombinedStatModifier
 						];
 					} : StatModifierGroup;
-				} : ApplyStatGroupOnWeapon
+				} : ApplyStatGroupOnWeaponRight
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+HGMod1_Buff_Left : HGMod1_Buff
+{
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.SpreadDefaultX";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.HGMod1_Accuracy_Left";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.SpreadMaxX";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.HGMod1_Accuracy_Left";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsDefaultX";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.HGMod1_Accuracy_Left";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsMaxX";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.HGMod1_Accuracy_Left";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.SpreadChangePerShot";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.HGMod1_Accuracy_Left";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier, 
+							{
+								statType = "BaseStats.SpreadAdsChangePerShot";
+								modifierType = "AdditiveMultiplier";
+								refStat = "BaseStats.HGMod1_Accuracy_Left";
+								refObject = "Player";
+								opSymbol = "*";
+								value = -0.01f;
+							} : CombinedStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeaponLeft
 			];
 		} : GameplayLogicPackage
 	];
@@ -3695,6 +3764,7 @@ Pride_Free_Ammo_Buff : BuffStatusEffect
 							} : ConstantStatModifier
 						];
 					} : StatModifierGroup;
+					targetRequiredTag = "PrideWeapon";
 				} : ApplyStatGroupOnWeapon
 			];
 		} : GameplayLogicPackage
@@ -5404,6 +5474,172 @@ Strong_Arms_Buff : StatusEffect
 								statType = "BaseStats.CritChance";
 								modifierType = "Additive";
 								value = 20.0f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ClampdownMod_Buff1 : BuffStatusEffect
+{
+	uiData = 
+	{
+		string displayName = "LocKey#89174";
+	} : RangedWeaponBuffUI;
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 10.0;
+			} : ConstantStatModifier
+		];
+	};
+	maxStacks = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxStacks";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	removeAllStacksWhenDurationEnds = true;
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			stackable = true;
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.ChargeTime";
+								modifierType = "AdditiveMultiplier";
+								value = -0.1f;
+							} : ConstantStatModifier
+						];
+					} : StatModifierGroup;
+				} : ApplyStatGroupOnWeapon
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+ClampdownMod_Buff2 : BuffStatusEffect
+{
+	duration = 
+	{
+		statModifiers = 
+		[
+			{
+				value = 2f;
+			} : BaseDurationMod
+		];
+	};
+	gameplayTags += 
+	[
+		"HasPerfectlyChargedBuff"
+	];
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = 
+					{
+						conditions = 
+						[
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : ProcessHitTriggered;
+					value = 1.5f;
+				} : MultiplyDamage, 
+				{
+					prereqRecord = 
+					{
+						conditions += 
+						[
+							{
+								attackType = "Ranged";
+							} : AttackTypeHitPrereqCondition, 
+							{
+								weaponType = "Ranged";
+							} : WeaponTypeHitPrereqCondition
+						];
+					} : PreProcessHitTriggered;
+					hitFlag = "Special";
+				} : AddHitFlagToAttackEffector, 
+				{
+					prereqRecord = 
+					{
+					} : PreProcessHitTriggered;
+					hitFlag = "PerfectlyCharged";
+				} : AddHitFlagToAttackEffector, 
+				{
+					prereqRecord = 
+					{
+					} : PreProcessHitTriggered;
+					hitFlag = "WeaponFullyCharged";
+				} : AddHitFlagToAttackEffector
+			];
+		} : GameplayLogicPackage
+	];
+}
+
+Sword_Sihil_Buff : BuffStatusEffect
+{
+	fk< StatModifierGroup > duration = 
+	{
+		statModifiers = 
+		[
+			{
+				statType = "BaseStats.MaxDuration";
+				modifierType = "Additive";
+				value = 5;
+			} : ConstantStatModifier
+		];
+	};
+	fk< GameplayLogicPackage >[] packages = 
+	[
+		{
+			effectors = 
+			[
+				{
+					fk< StatModifierGroup > statGroup = 
+					{
+						statModifiers = 
+						[
+							{
+								statType = "BaseStats.CanMeleeInfinitelyCombo";
+								modifierType = "Additive";
+								value = 1;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.CanWeaponInfinitlyCombo";
+								modifierType = "Additive";
+								value = 1;
+							} : ConstantStatModifier, 
+							{
+								statType = "BaseStats.AttackSpeed";
+								modifierType = "Multiplier";
+								value = 1.175f;
 							} : ConstantStatModifier
 						];
 					} : StatModifierGroup;

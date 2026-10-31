@@ -2802,11 +2802,11 @@ BloodPumpBuff : BuffStatusEffect
 	};
 }
 
-NewMicrogeneratorBuff : BuffStatusEffect
+NewMicrogeneratorBuffBase : BuffStatusEffect
 {
 	gameplayTags += 
 	[
-		"CyberwareBuff", "MicrogeneratorBuff"
+		"CyberwareBuff"
 	];
 	maxStacks = 
 	{
@@ -2829,6 +2829,19 @@ NewMicrogeneratorBuff : BuffStatusEffect
 		];
 	} : CyberwareBuffDuration;
 	removeAllStacksWhenDurationEnds = true;
+	uiData = 
+	{
+		displayName = "LocKey#40760";
+		iconPath = "EMP";
+	};
+}
+
+NewMicrogeneratorBuffLeft : NewMicrogeneratorBuffBase
+{
+	gameplayTags += 
+	[
+		"MicrogeneratorBuffLeft"
+	];
 	packages = 
 	[
 		{
@@ -2844,7 +2857,7 @@ NewMicrogeneratorBuff : BuffStatusEffect
 			effectors = 
 			[
 				{
-					prereqRecord = "Prereqs.MicroGeneratorShotPrereq";
+					prereqRecord = "Prereqs.MicroGeneratorShotLeftPrereq";
 					removeWithEffector = false;
 					statusEffect = "BaseStatusEffect.NewMicrogeneratorBuffLinger";
 				} : ApplyStatusEffectEffector
@@ -2854,25 +2867,67 @@ NewMicrogeneratorBuff : BuffStatusEffect
 			effectors = 
 			[
 				{
-					prereqRecord = "Prereqs.MicroGeneratorShotPrereq";
+					prereqRecord = "Prereqs.MicroGeneratorShotLeftPrereq";
 					useHitPosition = true;
 					attackRecord = "Attacks.MicroGeneratorExplosion2";
 				} : Effectors.TriggerAttackOnAttackEffect, 
 				{
-					prereqRecord = "Prereqs.MicroGeneratorShotPrereq";
+					prereqRecord = "Prereqs.MicroGeneratorShotLeftPrereq";
 					effectTags = 
 					[
-						"MicrogeneratorBuff"
+						"MicrogeneratorBuffLeft"
 					];
 				} : RemoveStatusEffectsEffector
 			];
 		} : GameplayLogicPackage
 	];
-	uiData = 
-	{
-		displayName = "LocKey#40760";
-		iconPath = "EMP";
-	};
+}
+
+NewMicrogeneratorBuffRight : NewMicrogeneratorBuffBase
+{
+	gameplayTags += 
+	[
+		"MicrogeneratorBuffRight"
+	];
+	packages = 
+	[
+		{
+			stackable = true;
+			stats = 
+			[
+				{
+					statType = "BaseStats.MicroGeneratorExplosionDamage";
+					modifierType = "Additive";
+					value = 14.0f;
+				} : ConstantStatModifier
+			];
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.MicroGeneratorShotRightPrereq";
+					removeWithEffector = false;
+					statusEffect = "BaseStatusEffect.NewMicrogeneratorBuffLinger";
+				} : ApplyStatusEffectEffector
+			];
+		} : GameplayLogicPackage, 
+		{
+			effectors = 
+			[
+				{
+					prereqRecord = "Prereqs.MicroGeneratorShotRightPrereq";
+					useHitPosition = true;
+					attackRecord = "Attacks.MicroGeneratorExplosion2";
+				} : Effectors.TriggerAttackOnAttackEffect, 
+				{
+					prereqRecord = "Prereqs.MicroGeneratorShotRightPrereq";
+					effectTags = 
+					[
+						"MicrogeneratorBuffRight"
+					];
+				} : RemoveStatusEffectsEffector
+			];
+		} : GameplayLogicPackage
+	];
 }
 
 NewMicrogeneratorBuffLinger : BuffStatusEffect

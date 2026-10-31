@@ -38,6 +38,13 @@ AnyWeaponHeldPrereq : ItemInSlotPrereq
 	itemCategory = "ItemCategory.Weapon";
 }
 
+AnyLeftWeaponHeldPrereq : ItemInSlotPrereq
+{
+	checkType = "CheckType.Category";
+	attachmentSlot = "AttachmentSlots.WeaponLeft";
+	itemCategory = "ItemCategory.Weapon";
+}
+
 TechWeaponHeldPrereq : ItemInSlotPrereq
 {
 	checkType = "CheckType.Evolution";
@@ -210,7 +217,54 @@ CoolPerksGunsHeldPrereq : MultiPrereq
 	CName aggregationType = "OR";
 	fk< IPrereq >[] nestedPrereqs = 
 	[
-		"Prereqs.SniperRifleHeldPrereq", "Prereqs.PrecisionRifleHeldPrereq", "Prereqs.RevolverHeldPrereq", "Prereqs.HandgunHeldPrereq"
+		"Prereqs.SniperRifleHeldPrereq", "Prereqs.PrecisionRifleHeldPrereq", "Prereqs.RevolverHeldPrereq", "Prereqs.HandgunHeldPrereq", "Prereqs.CoolDualWieldGunsHeldPrereq"
+	];
+}
+
+CoolDualWieldGunsHeldPrereq : MultiPrereq
+{
+	CName aggregationType = "AND";
+	fk< IPrereq >[] nestedPrereqs = 
+	[
+		{
+			CName aggregationType = "OR";
+			fk< IPrereq >[] nestedPrereqs = 
+			[
+				{
+					attachmentSlot = "AttachmentSlots.WeaponLeft";
+				} : Prereqs.RevolverHeldPrereq, 
+				{
+					attachmentSlot = "AttachmentSlots.WeaponLeft";
+				} : Prereqs.HandgunHeldPrereq
+			];
+		} : MultiPrereq, 
+		{
+			CName aggregationType = "OR";
+			fk< IPrereq >[] nestedPrereqs = 
+			[
+				{
+					attachmentSlot = "AttachmentSlots.WeaponRight";
+				} : Prereqs.RevolverHeldPrereq, 
+				{
+					attachmentSlot = "AttachmentSlots.WeaponRight";
+				} : Prereqs.HandgunHeldPrereq
+			];
+		} : MultiPrereq
+	];
+}
+
+IsSingleWieldingPrereq : ORPrereq
+{
+	nestedPrereqs = 
+	[
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+			checkType = "CheckType.Exist";
+			inverted = true;
+		} : WeaponHeldByTypePrereq, 
+		{
+			inverted = true;
+		} : AnyLeftWeaponHeldPrereq
 	];
 }
 
@@ -517,6 +571,7 @@ ItemSlotsFilledPrereq : IPrereq
 {
 	CName prereqClassName = "ItemSlotsFilledPrereq";
 	CName[] equipAreas = [];
+	bool inverted = false;
 }
 
 CanPerformReflexFinisher : StatPrereq
@@ -547,19 +602,49 @@ CanPerformMonowireFinisher : StatPrereq
 	comparisonType = "Greater";
 }
 
-MicroGeneratorShotPrereq : HitOrMissTriggeredPrereq
+MicroGeneratorShotLeftPrereq : HitOrMissTriggeredPrereq
 {
 	conditions = 
 	[
 		{
 			attackType = "Ranged";
-			onlyOncePerShot = true;
 		} : AttackTypeHitPrereqCondition, 
 		{
 			weaponType = "Ranged";
-			onlyOncePerShot = true;
-		} : WeaponTypeHitPrereqCondition
+		} : WeaponTypeHitPrereqCondition, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponLeft";
+		} : WeaponSlotHitPrereqCondition
 	];
 	pipelineStage = "PostProcess";
+}
+
+MicroGeneratorShotRightPrereq : HitOrMissTriggeredPrereq
+{
+	conditions = 
+	[
+		{
+			attackType = "Ranged";
+		} : AttackTypeHitPrereqCondition, 
+		{
+			weaponType = "Ranged";
+		} : WeaponTypeHitPrereqCondition, 
+		{
+			attachmentSlot = "AttachmentSlots.WeaponRight";
+		} : WeaponSlotHitPrereqCondition
+	];
+	pipelineStage = "PostProcess";
+}
+
+AnythingHeldRightPrereq : ItemInSlotPrereq
+{
+	checkType = "CheckType.Exist";
+	attachmentSlot = "AttachmentSlots.WeaponRight";
+}
+
+AnythingHeldLeftPrereq : ItemInSlotPrereq
+{
+	checkType = "CheckType.Exist";
+	attachmentSlot = "AttachmentSlots.WeaponLeft";
 }
 
